@@ -245,6 +245,8 @@ aggregate_fcms <- function(adj_matrices = list(matrix()),
 #' @returns An aggregate adj. matrix (of class 'aggregate') with edges represented
 #' as numeric data types
 #'
+#' @importFrom stats median
+#'
 #' @keywords internal
 #'
 #' @export

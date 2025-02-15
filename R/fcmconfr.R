@@ -274,6 +274,9 @@ fcmconfr <- function(adj_matrices = list(matrix()),
 #' @returns A dataframe (or list of dataframes) of inferences from the selected
 #' analysis (analyses)
 #'
+#' @importFrom methods is
+#' @importFrom cli format_error
+#'
 #' @export
 #' @example man/examples/ex-get_inferences.R
 get_inferences <- function(fcmconfr_obj = list(),

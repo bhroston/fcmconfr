@@ -30,6 +30,12 @@ For TFNs, the lower bound must be less than or equal to the mode which must
 be less than or equal to the upper bound.
 If the lower bound, mode, and upper bound are equal, the TFN represents a
 "crisp" numeric value.
+
+\deqn{
+\mathbf{TFN} :\ \left[ x^{L} ,\ x^{M} ,\ x^{U}\right]
+}
+where \eqn{x^{L}}, \eqn{x^{M}}, and \eqn{x^{U}} are the lower bound, mode,
+and upper bound of the TFN.
 }
 \examples{
 tfn(-1, 0, 1)

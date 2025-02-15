@@ -74,6 +74,8 @@
 #'
 #' @keywords internal
 #'
+#' @importFrom cli format_error format_warning
+#'
 #' @export
 #' @examples
 #' NULL

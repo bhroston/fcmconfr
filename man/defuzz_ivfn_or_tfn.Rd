@@ -17,6 +17,21 @@ Convert a fuzzy number to a crisp value. For IVFNs, return the average of the
 upper and lower bounds. For TFNs, return the average of the lower bound, the
 mode, and the upper bound.
 }
+\details{
+Defuzz-ing an IVFN to a crisp number:
+\deqn{
+\left[ x^{L} ,\ x^{U}\right] \ \mapsto \ \frac{x^{L} +x^{U}}{2}
+}
+where \eqn{x^{L}, and x^{U}} are the lower and upper bounds of the IVFN.
+
+Defuzz-ing a TFN to a crisp number:
+\deqn{
+\left[ x^{L} ,\ x^{M} ,\ x^{U}\right] \ \mapsto \ \frac{x^{L} +x^{M} +x^{U}}{3}
+}
+
+where \eqn{x^{L}, x^{M}, and x^{U}} are the lower bound, mode, and upper bound
+of the TFN.
+}
 \examples{
 defuzz_ivfn_or_tfn(ivfn(-1, 1))
 defuzz_ivfn_or_tfn(tfn(-1, 0, 1))

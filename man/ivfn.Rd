@@ -27,6 +27,11 @@ it checks whether the input follows the defining criteria of IVFNs
 For IVFNs, the lower bound must be less than or equal to the upper bound.
 If the lower bound and upper bound are equal, the IVFN represents a "crisp"
 numeric value.
+
+\deqn{
+\mathbf{IVFN} :\ \left[ x^{L} ,\ x^{U}\right]
+}
+where \eqn{x^{L}} and \eqn{x^{U}} are the lower and upper bounds of the IVFN.
 }
 \examples{
 ivfn(lower = 0, upper = 1)

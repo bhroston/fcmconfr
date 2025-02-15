@@ -25,6 +25,8 @@
 #'
 #' @keywords internal
 #'
+#' @importFrom cli format_error
+#'
 #' @export
 #' @examples
 #' NULL
@@ -88,6 +90,9 @@ check_build_monte_carlo_fcms_inputs <- function(adj_matrix_list,
 #' @returns NULL; Errors if checks fail
 #'
 #' @keywords internal
+#'
+#' @importFrom cli format_error format_warning
+#' @importFrom parallel detectCores
 #'
 #' @export
 #' @examples

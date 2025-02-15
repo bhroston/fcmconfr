@@ -52,6 +52,9 @@
 #'
 #' @keywords internal
 #'
+#' @importFrom cli format_error format_warning
+#' @importFrom parallel detectCores
+#'
 #' @export
 #' @examples
 #' NULL
@@ -363,6 +366,8 @@ calculate_next_fuzzy_set_fcm_state_vector <- function(fuzzy_set_adj_matrix = mat
 #'
 #' @keywords internal
 #'
+#' @importFrom methods is
+#'
 #' @export
 #' @examples
 #' convert_element_to_ivfn_or_tfn_if_numeric(0.6, "ivfn")
@@ -398,6 +403,9 @@ convert_element_to_ivfn_or_tfn_if_numeric <- function(element, desired_class = c
 #' representative distributions
 #'
 #' @keywords internal
+#'
+#' @importFrom stats runif
+#' @importFrom methods is
 #'
 #' @export
 #' @example man/examples/ex-convert_fuzzy_set_elements_in_matrix_to_dists.R
@@ -446,6 +454,9 @@ convert_fuzzy_set_elements_in_matrix_to_distributions <- function(fuzzy_set_matr
 #' @returns A cleaned up simulation output
 #'
 #' @keywords internal
+#'
+#' @importFrom methods is
+#' @importFrom stats na.omit
 #'
 #' @export
 #' @examples
@@ -504,6 +515,9 @@ clean_simulation_output <- function(output_obj, concepts) {
 #' @returns A formatted initial_state_vector and clamping_vector
 #'
 #' @keywords internal
+#'
+#' @importFrom cli format_error format_warning
+#' @importFrom methods is
 #'
 #' @export
 #' @examples

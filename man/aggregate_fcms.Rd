@@ -209,7 +209,7 @@ aggregate_fcms(fcms_w_ivfns, "mean", include_zeroes = FALSE)
 \insertRef{aminpourWisdomStakeholderCrowds2020}{fcmconfr}
 }
 \seealso{
-Other aggregate_fcms:
+Other aggregate_fcms: 
 \code{\link{aggregate_conventional_fcms}()},
 \code{\link{aggregate_fcms_w_ivfns}()},
 \code{\link{aggregate_fcms_w_tfns}()},

@@ -63,6 +63,11 @@
 #' elongated version of the first dataframe that organizes the data for
 #' plotting (particularly with ggplot2)
 #'
+#' @importFrom cli format_error
+#' @importFrom parallel makeCluster clusterExport stopCluster parLapply
+#' @importFrom rlang search_envs
+#' @importFrom pbapply pblapply
+#'
 #' @export
 #' @example man/examples/ex-infer_fcm_set.R
 infer_fcm_set <- function(adj_matrices = list(matrix()),
@@ -279,6 +284,8 @@ infer_fcm_set <- function(adj_matrices = list(matrix()),
 #'
 #' @returns A list of fcm inference results (including baseline and simulation outputs)
 #'
+#' @importFrom cli format_error
+#'
 #' @export
 #'
 #' @example man/examples/ex-infer_fcm.R
@@ -368,6 +375,8 @@ infer_fcm <- function(adj_matrix = matrix(),
 #'
 #' @returns A list of (conventional) fcm inference results (including baseline
 #' and simulation outputs)
+#'
+#' @importFrom cli format_error
 #'
 #' @export
 #' @example man/examples/ex-infer_conventional_fcm.R
@@ -478,6 +487,9 @@ infer_conventional_fcm <- function(adj_matrix = matrix(),
 #'
 #' @returns A list of (ivfn or tfn) fcm inference results (including baseline
 #' and simulation outputs)
+#'
+#' @importFrom cli format_error
+#' @importFrom tidyr pivot_longer
 #'
 #' @export
 #' @example man/examples/ex-infer_ivfn_or_tfn_fcm.R
@@ -706,6 +718,9 @@ simulate_fcm <- function(adj_matrix = matrix(),
 #'
 #' @returns (Conventional) FCM simulation results
 #'
+#' @importFrom stats na.omit
+#' @importFrom cli format_error format_warning
+#'
 #' @export
 #' @example man/examples/ex-simulate_conventional_fcm.R
 simulate_conventional_fcm <- function(adj_matrix = matrix(),
@@ -832,6 +847,9 @@ simulate_conventional_fcm <- function(adj_matrix = matrix(),
 #' and the simulation will stop
 #'
 #' @returns (IVFN or TFN) FCM simulation results
+#'
+#' @importFrom methods is
+#' @importFrom cli format_error format_warning
 #'
 #' @export
 #' @example man/examples/ex-simulate_ivfn_or_tfn_fcm.R
