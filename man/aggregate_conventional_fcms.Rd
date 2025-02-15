@@ -37,11 +37,39 @@ across the input adj. matrices (i.e. the mean/median of the edge weight
 connecting A -> B across all maps, the mean/median of the edge weight
 connecting B -> C across all maps, and so on). The user may dictate whether
 to incorporate 0-valued edge weights in the mean/median calculations.
+
+All input adj. matrices must have the same dimensions and concept names to
+generate an aggregate. Call \code{\link{standardize_adj_matrices}} to make
+sure all adj. matrices have the same dimensions.
 }
 \details{
-All input adj. matrices must represent Conventional FCMs
-All input adj. matrices must have the same dimensions and concept names to
-generate an aggregate.
+#' This function implements FCM aggregation methods used in
+Aminpour 2020 (https://doi.org/10.1038/s41893-019-0467-z)
+
+The mean aggregate FCM of a set of conventional FCMs is:
+\deqn{
+A_{ij}^{aggregate} =\frac{\sum _{p\ =\ 1}^{N} A_{ij}^{FCM_{p}}}{N}
+}
+where \eqn{A_{ij}^{aggregate}} is the weight in the aggregate adjacency
+matrix for the element in row i and column j, and \eqn{FCM_{p}} is the
+weight for the element in row i and column j in the adjacency matrix of
+the p-th FCM.
+
+If not including zeroe-valued edges in aggregation calculations, the mean
+aggregate equation becomes:
+\deqn{
+A_{ij}^{aggregate} =\frac{\sum _{p\ =\ 1}^{N} A_{ij}^{FCM_{p}}}{\sum _{p\ =\ 1}^{N} 1|A_{ij}^{FCM_{p}} \neq 0}
+}
+
+The median aggregate FCM of a set of conventional FCMs is:
+\deqn{
+A_{ij}^{aggregate} =\mathrm{Median} (A_{ij}^{FCM_{1}} ,A_{ij}^{FCM_{2}} ,...,A_{ij}^{FCM_{N}} )\
+}
+If not including zero-valued edges in aggregation calculations, the median
+aggregate equation becomes:
+\deqn{
+A_{ij}^{aggregate} =\mathrm{Median} (A_{ij}^{FCM_{1}} ,A_{ij}^{FCM_{2}} ,...,A_{ij}^{FCM_{N}} )\ |\ A_{ij}^{FCM_{p}} \neq 0
+}
 }
 \examples{
 ex_adj_matrix_1 <- data.frame(

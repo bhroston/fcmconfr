@@ -292,6 +292,7 @@ fcm_view <- function(fcm_adj_matrix = matrix(),
     )
     shiny::runApp(app)
 
+    # Scale things down to decimal point
     shiny_fcm_visNetwork <- shiny_env$updated_fcm_visNetwork_obj
     if (max(abs(shiny_fcm_visNetwork$x$nodes$x)) > 100) {
       shiny_fcm_visNetwork$x$nodes$x <- shiny_fcm_visNetwork$x$nodes$x/100
@@ -323,8 +324,8 @@ fcm_view <- function(fcm_adj_matrix = matrix(),
 #'
 #' @details
 #' This algorithm was first explored by Kottas et al. 2010 (https://doi.org/10.1007/978-3-642-03220-2_5),
-#' Harmati et al. 2018 (https://doi.org/10.1109/FUZZ-IEEE.2018.8491447), and
-#' expanded upon by Koutsellis et al. 2022 (https://doi.org/10.1007/s12351-022-00717-x)
+#' and expanded upon by Harmati et al. 2018 (https://doi.org/10.1109/FUZZ-IEEE.2018.8491447), and
+#' Koutsellis et al. 2022 (https://doi.org/10.1007/s12351-022-00717-x)
 #'
 #' The function applies an algorithm that can be used to optimize lambda which
 #' comparing the lambda calculated based on the Frobenius-norm
