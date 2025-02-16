@@ -67,6 +67,7 @@
 #' @param ... Additional inputs
 #'
 #' @importFrom graphics plot
+#' @importFrom cli format_warning
 #'
 #' @returns A plot of an fcmconfr object's results
 #'

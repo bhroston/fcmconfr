@@ -29,9 +29,26 @@
 #' upper and lower bounds. For TFNs, return the average of the lower bound, the
 #' mode, and the upper bound.
 #'
+#' @details
+#' Defuzz-ing an IVFN to a crisp number:
+#' \deqn{
+#' \left[ x^{L} ,\ x^{U}\right] \ \mapsto \ \frac{x^{L} +x^{U}}{2}
+#' }
+#' where \eqn{x^{L}, and x^{U}} are the lower and upper bounds of the IVFN.
+#'
+#' Defuzz-ing a TFN to a crisp number:
+#' \deqn{
+#' \left[ x^{L} ,\ x^{M} ,\ x^{U}\right] \ \mapsto \ \frac{x^{L} +x^{M} +x^{U}}{3}
+#' }
+#'
+#' where \eqn{x^{L}, x^{M}, and x^{U}} are the lower bound, mode, and upper bound
+#' of the TFN.
+#'
 #' @param fuzzy_number A fuzzy number object. Either an ivfn or tfn
 #'
 #' @returns A crisp value representative of the input IVFN or TFN
+#'
+#' @importFrom methods is
 #'
 #' @export
 #' @examples
@@ -79,6 +96,9 @@ defuzz_ivfn_or_tfn <- function(fuzzy_number) {
 #'              edges in an FCM
 #'
 #' @returns An adj. matrix (of class 'ivfn') with edges represented as IVFNs
+#'
+#' @importFrom cli format_error
+#' @importFrom methods is
 #'
 #' @export
 #' @example  man/examples/ex-make_adj_matrix_w_ivfns.R
@@ -167,12 +187,19 @@ make_adj_matrix_w_ivfns <- function(lower = matrix(), upper = matrix()) {
 #' If the lower bound and upper bound are equal, the IVFN represents a "crisp"
 #' numeric value.
 #'
+#' \deqn{
+#' \mathbf{IVFN} :\ \left[ x^{L} ,\ x^{U}\right]
+#' }
+#' where \eqn{x^{L}} and \eqn{x^{U}} are the lower and upper bounds of the IVFN.
+#'
 #' @param lower An n x n adjacency matrix that represents the lower limits of
 #'              edges in an FCM
 #' @param upper An n x n adjacency matrix that represents the upper limits of
 #'              edges in an FCM
 #'
 #' @returns An interval-valued fuzzy number (IVFN)
+#'
+#' @importFrom cli format_error
 #'
 #' @export
 #' @example  man/examples/ex-ivfn.R
@@ -246,6 +273,7 @@ ivfn <- function(lower = double(), upper = double()) {
 #' @returns An IVFN object representing the subtraction of ivfn_2 from ivfn_1
 #'
 #' @importFrom Rdpack reprompt
+#' @importFrom methods is
 #'
 #' @export
 #' @examples
@@ -342,6 +370,9 @@ c.ivfn <- function(...) {
 #'
 #' @returns An adj. matrix (of class 'tfn') with edges represented as TFNs
 #'
+#' @importFrom cli format_error
+#' @importFrom methods is
+#'
 #' @export
 #' @example  man/examples/ex-make_adj_matrix_w_tfns.R
 make_adj_matrix_w_tfns <- function(lower = matrix(),
@@ -433,6 +464,12 @@ make_adj_matrix_w_tfns <- function(lower = matrix(),
 #' If the lower bound, mode, and upper bound are equal, the TFN represents a
 #' "crisp" numeric value.
 #'
+#' \deqn{
+#' \mathbf{TFN} :\ \left[ x^{L} ,\ x^{M} ,\ x^{U}\right]
+#' }
+#' where \eqn{x^{L}}, \eqn{x^{M}}, and \eqn{x^{U}} are the lower bound, mode,
+#' and upper bound of the TFN.
+#'
 #' @param lower lower limit of a Triangular Number set (the lower value must be
 #' less than or equal to the upper value)
 #' @param mode the most likely value of a Triangular Number set
@@ -440,6 +477,8 @@ make_adj_matrix_w_tfns <- function(lower = matrix(),
 #' greater or equal to the lower value)
 #'
 #' @returns A triangular fuzzy number (TFN)
+#'
+#' @importFrom cli format_error
 #'
 #' @export
 #' @example  man/examples/ex-tfn.R
@@ -537,6 +576,7 @@ tfn <- function(lower = double(), mode = double(), upper = double()) {
 #' @returns An TFN object representing the subtraction of tfn_2 from tfn_1
 #'
 #' @importFrom Rdpack reprompt
+#' @importFrom methods is
 #'
 #' @export
 #' @examples

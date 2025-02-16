@@ -47,6 +47,8 @@
 #'
 #' @returns A list of empirical (Conventional) FCM adj. matrices generated via monte carlo methods
 #'
+#' @importFrom cli format_error
+#'
 #' @export
 #' @example man/examples/ex-build_monte_carlo_fcms.R
 build_monte_carlo_fcms <- function(adj_matrix_list = list(matrix()),
@@ -103,6 +105,11 @@ build_monte_carlo_fcms <- function(adj_matrix_list = list(matrix()),
 #' from the pbapply package as the underlying function.
 #'
 #' @returns A list of empirical (Conventional) FCM adj. matrices generated via monte carlo methods
+#'
+#' @importFrom Matrix sparseMatrix
+#' @importFrom methods is
+#' @importFrom pbapply pbapply
+#' @importFrom stats na.omit
 #'
 #' @export
 #' @example man/examples/ex-build_mc_models_from_conventional_adj_matrices.R
@@ -227,7 +234,6 @@ build_monte_carlo_fcms_from_fuzzy_set_adj_matrices <- function(fuzzy_set_adj_mat
       }
     })
     cat(print("Constructing monte carlo fcms from samples", quote = FALSE))
-    # browser()
     sampled_adj_matrices <- pbapply::pbapply(column_samples, 1, function(row_vec) matrix(row_vec, nrow = n_nodes, ncol = n_nodes), simplify = FALSE)
   } else {
     column_samples <- apply(flattened_fuzzy_set_adj_matrix_list_w_distributions, 2, function(column_vec) {
@@ -242,17 +248,6 @@ build_monte_carlo_fcms_from_fuzzy_set_adj_matrices <- function(fuzzy_set_adj_mat
           column_vecs_w_NAs <- stats::na.omit(do.call(c, column_vecs_w_NAs))
           sample(column_vecs_w_NAs, N_samples, replace = TRUE)
         }
-        # column_vec_with_numerics_replicated <- lapply(
-        #   column_vec,
-        #   function(value) {
-        #     if (is.numeric(value) & length(value) == 1) {
-        #       rep(value, N_samples)
-        #     } else {
-        #       value
-        #     }
-        #   })
-        # na_omit_column_vec <- stats::na.omit(do.call(c, column_vec_with_numerics_replicated))
-        # sample(na_omit_column_vec, N_samples, replace = TRUE)
       } else {
         rep(0, N_samples)
       }
@@ -300,7 +295,14 @@ build_monte_carlo_fcms_from_fuzzy_set_adj_matrices <- function(fuzzy_set_adj_mat
 #'
 #' @returns A list of raw bootstrap draws and a dataframe of confidence intervals
 #'
-#' @keywords internal
+#' @importFrom cli format_error
+#' @importFrom parallel makeCluster clusterExport stopCluster parLapply
+#' @importFrom doSNOW registerDoSNOW
+#' @importFrom utils capture.output
+#' @importFrom utils txtProgressBar
+#' @importFrom foreach foreach
+#' @importFrom stats median quantile
+#' @importFrom pbapply pblapply
 #'
 #' @export
 #' @example man/examples/ex-get_mc_sims_inference_CIs_w_bootstrap.R

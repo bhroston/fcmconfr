@@ -1142,6 +1142,9 @@ fcmconfr_default_theme <- function() {
 #'
 #' @keywords internal
 #'
+#' @importFrom bslib versions
+#' @importFrom shiny shinyApp runApp
+#'
 #' @export
 #' @examples
 #' NULL

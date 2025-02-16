@@ -31,11 +31,49 @@ across the input adj. matrices (i.e. the mean/median of the edge weight
 connecting A -> B across all maps, the mean/median of the edge weight
 connecting B -> C across all maps, and so on). The user may dictate whether
 to incorporate 0-valued edge weights in the mean/median calculations.
+
+#' All input adj. matrices must have the same dimensions and concept names to
+generate an aggregate. Call \code{\link{standardize_adj_matrices}} to make
+sure all adj. matrices have the same dimensions.
 }
 \details{
-All input adj. matrices must represent TFN FCMs
-All input adj. matrices must have the same dimensions and concept names to
-generate an aggregate.
+This function implements FCM aggregation methods used in
+Aminpout 2020 (https://doi.org/10.1038/s41893-019-0467-z) for use with
+conventional FCMs, and expands upon them for TFN-FCMs.
+
+The mean aggregate FCM of a set of TFN-FCMs is:
+\deqn{
+A_{ij}^{aggregate} =\left[ A^{L} ,A^{M} ,A^{U} \ \right]_{ij}^{FCM_{aggregate}} =\left[\frac{\sum _{p\ =\ 1}^{N}\left[ A^{L}\right]_{ij}^{FCM_{p}}}{N} ,\frac{\sum _{p\ =\ 1}^{N}\left[ A^{M}\right]_{ij}^{FCM_{p}}}{N} ,\frac{\sum _{p\ =\ 1}^{N}\left[ A^{U}\right]_{ij}^{FCM_{p}}}{N}\right]
+}
+
+where \eqn{\left[ A^{L} , A^{M}, A^{U} \ \right]_{ij}^{FCM_{aggregate}}} is the TFN
+weight (with lower bound \eqn{A^{L}}, mode \eqn{A^{M}}, and upper bound \eqn{A^{U}}) of the
+element in row i and column j of the aggregate, and
+\eqn{\left[ A^{L}\right]_{ij}^{FCM_{p}}}, \eqn{\left[ A^{M}\right]_{ij}^{FCM_{p}}}, and
+\eqn{\left[ A^{U}\right]_{ij}^{FCM_{p}}} are the lower bound, mode, and upper
+bound of the TFN weight of the element in row i and column j for the p-th
+FCM adjacency matrix.
+
+If not including zero-valued edges in aggregation calculations, the mean
+aggregate equation becomes:
+\deqn{
+A_{ij}^{aggregate} =\left[ A^{L} ,A^{M} ,A^{U} \ \right]_{ij}^{FCM_{aggregate}} =\left[\frac{\sum _{p\ =\ 1}^{N}\left[ A^{L}\right]_{ij}^{FCM_{p}}}{\sum _{p\ =\ 1}^{N} 1|\left[ A^{L}\right]_{ij}^{FCM_{p}} \neq 0} ,\frac{\sum _{p\ =\ 1}^{N}\left[ A^{M}\right]_{ij}^{FCM_{p}}}{\sum _{p\ =\ 1}^{N} 1|\left[ A^{M}\right]_{ij}^{FCM_{p}} \neq 0} ,\ \frac{\sum _{p\ =\ 1}^{N}\left[ A^{U}\right]_{ij}^{FCM_{p}}}{\sum _{p\ =\ 1}^{N} 1|\left[ A^{U}\right]_{ij}^{FCM_{p}} \neq 0}\right]
+}
+
+The median aggregate FCM of a set of TFN-FCMs is:
+\deqn{
+A_{ij}^{aggregate} =[ Median\left( A_{ij}^{FCM_{1} -L} ,A_{ij}^{FCM_{2} -L} ,...,A_{ij}^{FCM_{N} -L}\right) ,\ \ \\
+Median\left( A_{ij}^{FCM_{1} -M} ,A_{ij}^{FCM_{2} -M} ,...,A_{ij}^{FCM_{N} -M}\right) ,\ \\
+Median\left( A_{ij}^{FCM_{1} -U} ,A_{ij}^{FCM_{2} -U} ,...,A_{ij}^{FCM_{N} -U}\right)]
+}
+If not including zero-valued edges in aggregation calculations, the median
+aggregate equation becomes:
+\deqn{
+A_{ij}^{aggregate} =\ \newline
+[ Median\left( A_{ij}^{FCM_{1} -L} ,A_{ij}^{FCM_{2} -L} ,...,A_{ij}^{FCM_{N} -L}\right) |A_{ij}^{FCM_{1} -L} \neq A_{ij}^{FCM_{1} -M} \neq A_{ij}^{FCM_{1} -U} \neq 0,\ \newline
+  [ Median\left( A_{ij}^{FCM_{1} -M} ,A_{ij}^{FCM_{2} -M} ,...,A_{ij}^{FCM_{N} -M}\right) |A_{ij}^{FCM_{1} -L} \neq A_{ij}^{FCM_{1} -M} \neq A_{ij}^{FCM_{1} -U} \neq 0,\ \newline
+    \ Median\left( A_{ij}^{FCM_{1} -U} ,A_{ij}^{FCM_{2} -U} ,...,A_{ij}^{FCM_{N} -U}\right) |A_{ij}^{FCM_{1} -L} \neq A_{ij}^{FCM_{1} -M} \neq A_{ij}^{FCM_{1} -U} \neq 0]
+}
 }
 \examples{
 lower_adj_matrix_1 <- data.frame(

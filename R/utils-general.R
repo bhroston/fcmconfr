@@ -123,6 +123,13 @@ standardize_adj_matrices <- function(adj_matrices = list(matrix())) {
 #' the visNetwork object saved into the global environment as
 #' fcm_view_visNetwork
 #'
+#' @importFrom cli format_error format_warning
+#' @importFrom methods is
+#' @importFrom igraph graph_from_adjacency_matrix
+#' @importFrom visNetwork visIgraph visIgraphLayout visEdges
+#' @importFrom graphics strwidth
+#' @importFrom shiny shinyApp runApp
+#'
 #' @export
 #' @example man/examples/ex-fcm_view.R
 fcm_view <- function(fcm_adj_matrix = matrix(),
@@ -292,6 +299,7 @@ fcm_view <- function(fcm_adj_matrix = matrix(),
     )
     shiny::runApp(app)
 
+    # Scale things down to decimal point
     shiny_fcm_visNetwork <- shiny_env$updated_fcm_visNetwork_obj
     if (max(abs(shiny_fcm_visNetwork$x$nodes$x)) > 100) {
       shiny_fcm_visNetwork$x$nodes$x <- shiny_fcm_visNetwork$x$nodes$x/100
@@ -323,8 +331,8 @@ fcm_view <- function(fcm_adj_matrix = matrix(),
 #'
 #' @details
 #' This algorithm was first explored by Kottas et al. 2010 (https://doi.org/10.1007/978-3-642-03220-2_5),
-#' Harmati et al. 2018 (https://doi.org/10.1109/FUZZ-IEEE.2018.8491447), and
-#' expanded upon by Koutsellis et al. 2022 (https://doi.org/10.1007/s12351-022-00717-x)
+#' and expanded upon by Harmati et al. 2018 (https://doi.org/10.1109/FUZZ-IEEE.2018.8491447), and
+#' Koutsellis et al. 2022 (https://doi.org/10.1007/s12351-022-00717-x)
 #'
 #' The function applies an algorithm that can be used to optimize lambda which
 #' comparing the lambda calculated based on the Frobenius-norm
@@ -395,6 +403,8 @@ fcm_view <- function(fcm_adj_matrix = matrix(),
 #'
 #' @returns The maximum lambda that ensures simulation convergence for the
 #' input FCM.
+#'
+#' @importFrom cli format_error
 #'
 #' @export
 #' @example man/examples/ex-estimate_fcm_lambda.R
@@ -599,6 +609,13 @@ check_if_local_machine_has_access_to_show_progress_functionalities <- function(u
 #'  adj_matrices_input_is_list: TRUE/FALSE Whether the input is a list of adj. matrices
 #'  object_types_in_list: The 'class' of the input adj. matrices
 #'
+#' @importFrom methods is
+#' @importFrom data.table data.table
+#' @importFrom tibble tibble
+#' @importFrom Matrix Matrix
+#' @importFrom shiny isRunning
+#' @importFrom cli format_error
+#'
 #' @export
 #' @example man/examples/ex-get_adj_matrices_input_type.R
 get_adj_matrices_input_type <- function(adj_matrix_list_input) {
@@ -779,6 +796,8 @@ get_adj_matrix_from_edgelist <- function(edgelist = matrix(),
 #' @param adj_matrix An n x n adjacency matrix that represents an FCM
 #'
 #' @returns An edgelist with the following columns: source, target, weight
+#'
+#' @importFrom data.table data.table
 #'
 #' @export
 #' @example man/examples/ex-get_edgelist_from_adj_matrix.R

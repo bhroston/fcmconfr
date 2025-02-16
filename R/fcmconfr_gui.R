@@ -18,6 +18,8 @@
 #' @returns On exit, this function outputs a copy-and-paste-able sample script
 #' to call \code{\link{fcmconfr}} with the selected inputs.
 #'
+#' @importFrom cli format_error
+#'
 #' @export
 #' @examples
 #' NULL
