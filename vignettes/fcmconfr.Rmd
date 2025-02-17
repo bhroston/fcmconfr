@@ -95,7 +95,7 @@ tfn_fcms <- list(tfn_fcm_1, tfn_fcm_2, ..., tfn_fcm_n)
 
 ### 1.4 Interacting with IVFN and TFN Adjacency Matrix Elements
 
-Since users can make IVFN or TFN adjacency matrices by importing matrices from files, they will rarely have to create an IVFN or TFN matrix from scratch. However, the example below illustrates how `fcmconfr` creates such objects. The example we provide below is for an IVFN matrix. The approach for a TFN matrix is similar, but uses three- rather than two-element lists.
+Since users can make IVFN or TFN adjacency matrices by importing matrices from files, they will rarely need to create an IVFN or TFN matrix from scratch. However, the example below illustrates how `fcmconfr` creates such objects. The example we provide below is for an IVFN matrix. The approach for a TFN matrix is similar, but uses three- rather than two-element lists.
 
 ```{r eval=FALSE}
 # First, create a dataframe from a n x n matrix of lists
@@ -111,9 +111,7 @@ ivfn_fcm[2, 1][[1]] <- list(ivfn(0.7, 0.8))
 ivfn_fcm[2, 2][[1]] <- list(ivfn(0, 0))
 ```
 
-::: {style="text-align: center;"}
-![`ivfn_df` formats. The console output for `ivfn_fcm` will vary depending on whether it is loaded as a matrix or dataframe. As a dataframe it will print out the IVFN values, while as a matrix it will print out the object types, `ivfn, 2`. These differences do not impact the way we interact with `ivfn_fcm`.](images/ivfn_df_formats.png){width="70%"}
-:::
+![`ivfn_df` formats. The console output for `ivfn_fcm` will vary depending on whether it is loaded as a matrix or dataframe. If loaded as a dataframe it will print out IVFN values. If loaded as a matrix it will print out object types (e.g., `ivfn,2`).](images/ivfn_df_formats.png){width="50%"}
 
 <br>
 
@@ -134,9 +132,7 @@ upper_adj_matrix <- apply(ivfn_df, c(1, 2), function(element) element[[1]]$upper
 
 ### 1.5 Viewing Imported FCMs
 
-Users may display FCMs in RStudio's Viewer pane using `fcm_view()`, which plots an FCM (adjacency matrix) as a `visNetwork` object. The resulting plot is interactive. Users can manipulate node positions (i.e. node layout) to explore the FCM from different angles. The function can be used with any of the three FCM types recognized by `fcmconfr`. For IVFN and TFN-FCMs, `fcm_view()` plots the average edge weight to simplify the output.
-
-`fcm_view()` returns a visNetwork object which, if called without being defined to a variable, plots in RStudio's Viewer pane.
+Users may display FCMs in RStudio's Viewer pane using `fcm_view()`, which plots an FCM (adjacency matrix) as a `visNetwork` object. The resulting plot is interactive. Users can manipulate node positions (i.e. node layout) to explore the FCM from different angles. The function can be used with any of the three FCM types recognized by `fcmconfr`. For IVFN and TFN-FCMs, `fcm_view()` plots the average edge weight to simplify the node layout.
 
 At its core, `fcm_view()` is just a call to `visNetwork` functions. Users who have experience with `visNetwork` should feel free to plot FCMs directly with `visNetwork` for greater flexibility.
 
@@ -158,17 +154,9 @@ fcm_view_output # Shows FCM in Viewer Pane
 
 `fcm_view()` also offers more in-depth ways to interact with FCM layouts through a GUI that can be accessed by adding `shiny = TRUE` to the function call.
 
-```{r eval=FALSE}
-fcm_view(fcm_adj_matrix = adj_matrix, shiny = TRUE)
-```
-
 ::: {style="text-align: center;"}
 ![The fcm_view() GUI expands the ways users can view FCM layouts from changing node visibility to how the curves of edges are illustrated.](images/fcm_view_gui.png){width="90%"}
 :::
-
-To save the changes made to the FCM `visNetwork` object in the GUI, users will have to assign a variable to the call to `fcm_view()` beforehand.
-
-An alert will pop-up when the GUI launches to remind users that they need to preemptively tell `fcm_view()` whether they want to save changes made in the GUI by storing the call to a variable like the example below.
 
 ```{r eval=FALSE}
 # Opens GUI but will not save output
@@ -212,9 +200,9 @@ The GUI interface is organized into four tabs: Data, Agg. and Monte Carlo Option
 
 -   Data: The Data tab is where the user selects the FCMs they want to analyze (drop-down menu titled Adj. Matrix or List of Adj. Matrices). It is also where they manipulate values in the Initial State (Pulse) Vector or Clamping Vector to identify the dynamic simulations they wish to explore.
 
-    *(Note: It is best practice to set every value in the Initial State (Pulse) Vector to 1 and to set only the node(s)-of-interest to 1 in the Clamping Vector. In this configuration, the Initial State (Pulse) Vector is used to determine the network's state at equilibrium and the clamping vector is used to determine the network's state in response to continuous activation of one or more nodes. The difference between the two is a measure of the impact of those particular nodes on the system.)*
+    *(Note: It is common to set every value in the Initial State (Pulse) Vector to 1 and to set only the node(s)-of-interest to 1 in the Clamping Vector. In this configuration, the Initial State (Pulse) Vector is used to determine the network's state at equilibrium and the clamping vector is used to determine the network's state in response to continuous activation of one or more nodes. The difference between the two is a measure of the impact of those particular nodes on the system.)*
 
--   Agg. and Monte Carlo Options: The Agg. and Monte Carlo Options tab is where the user specifies their preferences regarding FCM aggregation and Monte Carlo sampling. Aggregation options are only available when datasets contain multiple FCMs. Monte Carlo sampling is available for `list` objects of conventiona, IVFN- and TFN-FCMs as well as individual IVFN-/TFN-FCMs, but not individual conventional FCMs. Aggregation and Monte Carlo options can be toggled off to speed up the simulation process.
+-   Agg. and Monte Carlo Options: The Agg. and Monte Carlo Options tab is where the user specifies their preferences regarding FCM aggregation and Monte Carlo sampling. Aggregation options are only available when datasets contain multiple FCMs. Monte Carlo sampling is available for `list` objects of conventional, IVFN- and TFN-FCMs as well as individual IVFN-/TFN-FCMs, but not individual conventional FCMs. Aggregation and Monte Carlo options can be toggled off to speed up the simulation process.
 
     -   Aggregation options allow the user to specify whether multiple FCMs should be aggregated into a single collective model so that dynamic simulations can be performed on the aggregate in addition to individual FCMs. The user can specify the aggregation method (mean or median) and whether zero-weighted edges should be included in the aggregation process. See `?aggregate_fcms()` for more information on aggregating FCMs outside of the primary `fcmconfr()` function.
 
@@ -317,7 +305,7 @@ estimate_lambda(example_ivfn_fcm, squashing = "sigmoid")
 estimate_lambda(example_tfn_fcm, squashing = "sigmoid")
 ```
 
-It is important to note that `estimate_lambda()` returns a [potential]{.underline} lambda value, not a perfect lambda value, though values less than the `estimate_lambda()` output are more likely to be appropriate than values greater than the `estimate_lambda()` output.
+Since `estimate_lambda()` returns a different value for each adjacency matrix, users will want to identify a value that will work well with all FCMs being analyzed in each call to `fcmconfr()`. Given this, we recommend estimating lambda separately for each adjacency matrix and using the minimum lambda value in `fcmconfr()`. See example below:
 
 ```{r eval=FALSE}
 # Estimating lambda for dynamic simulations with multiple FCMs
@@ -327,11 +315,7 @@ example_fcms <- sample_fcms$simple_fcms$conventional_fcms
 lambda_estimates <- lapply(
   example_fcms, function(fcm) estimate_lambda(fcm, squashing = "sigmoid")
 )
-```
 
-Since `estimate_lambda()` returns a different value for each adjacency matrix, users will want to identify a value that will work well with all FCMs being analyzed in each call to `fcmconfr()`. Given this, we recommend estimating lambda separately for each adjacency matrix and using the minimum lambda value in `fcmconfr()`. See example below:
-
-```{r eval=FALSE}
 # Unlist the output lambda estimates to create a vector
 # and calculate the minimum value
 lambda_for_example_fcms <- min(unlist(lambda_estimates))
@@ -377,7 +361,7 @@ Note: When using parallel processing, the following error can occur: `Error in s
 
 ## 4. Explore `fcmconfr()` Results
 
-The output of `fcmconfr()` is a large object with many compomnents. Given this, the `fcmconfr` package includes several functions designed to help users identify and explore the most important outputs.
+The output of `fcmconfr()` is a large object with many compomnents. Given this, the `fcmconfr` package includes several functions designed to help users identify and explore important outputs.
 
 The figure below graphically represents the organization of an `fcmconfr()` object. Each branch represents a `list` that can be accessed via `fcmconfr_obj$...`.
 
@@ -464,7 +448,7 @@ FCM inferences are calculated from FCM simulations, which can include hundreds o
 
 The `get_inferences()` function returns standard inference estimates only (e.g., the final point of convergence for each node or the peak simulated value for each node, as specified in the original call to `fcmconfr()`)
 
-Users interested in calculating their own inferences directly from simulation time-series can access thaat data as follows:
+Users interested in calculating their own inferences directly from simulation time-series can access that data as follows:
 
 ```{r eval=FALSE}
 # Simulations for individual_fcms
