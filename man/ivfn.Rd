@@ -38,6 +38,8 @@ ivfn(lower = 0, upper = 1)
 ivfn(-1, 1)
 }
 \references{
+\insertRef{mooreIntervalAnalysisFuzzy2003}{fcmconfr}
+
 \insertRef{dimuroIntervalFuzzyNumbers2011}{fcmconfr}
 }
 \seealso{

@@ -195,7 +195,7 @@ check_infer_fcm_set_inputs <- function(adj_matrices = list(matrix()),
 #'
 #' The state of the art of fcm typically applies one of three activation functions
 #' in calculating iterative state vector values: kosko, modified-kosko, and
-#' rescale (as identified in Gonzales et al. 2018 - https://doi.org/10.1142/S0218213018600102).
+#' rescale.
 #'
 #' kosko: Only considers the current iteration (Kosko, 1986 - https://doi.org/10.1016/S0020-7373(86)80040-2)
 #'
@@ -203,7 +203,7 @@ check_infer_fcm_set_inputs <- function(adj_matrices = list(matrix()),
 #'
 #' rescale: Like modified-kosko, but assigns nodes with no value with a
 #' value of 0.5 to reduce the influence that a lack of initial state information
-#' can have on the simulation output (rescale, 2011 - https://doi.org/10.1016/j.asoc.2009.12.010)=
+#' can have on the simulation output (Papageorgiou, 2011 - https://doi.org/10.1016/j.asoc.2009.12.010)
 #'
 #' Use vignette("fcm-class") for more information.
 #'

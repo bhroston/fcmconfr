@@ -27,7 +27,7 @@
 #'        over multiple iterations to understand the effect those nodes have
 #'        on the network. Scenarios are established using the initial state
 #'        vector (non-zero values perturb a node). All values in the clamping
-#'        vector must be set to zero (ADD REFERENCE HERE)
+#'        vector must be set to zero (Stylios, 1997).
 #'        \item Clamped: In clamped simulations, one or more nodes of interest
 #'        are continuously activated (the scenario) and the result is compared
 #'        to baseline conditions. Scenarios are established using the clamping
@@ -46,6 +46,14 @@
 #'    activation functions (Kosko, Modified-Kosko, or Rescale) and squashing
 #'    functions (Sigmoid, Tanh)
 #'
+#'    Conventional FCM simulations use the traditional FCM simulation algorithm
+#'    as established in Kosko (1986); Stylios (1997); Ozesmi & Ozesmi (2003),
+#'    etc. (See Details for equations)
+#'
+#'    IVFN- and TFN-FCM simulations use the algorithm from Yesil et al. (2014)
+#'    where average values of IVFN and TFN elements in state vectors are passed
+#'    to the IVFN- or TFN-FCM adjacency matrix. (See Details for equations)
+#'
 #'    \item Model Aggregation: Generates a single "collective" adjacency matrix
 #'    from a list of adjacency matrices. Aggregation is performed by calculating
 #'    the mean/median edge weight for all edges included in a set of input FCMs
@@ -55,7 +63,7 @@
 #'    weights (reflecting the absence of a connection between two nodes)
 #'    shouldbe included when calculating the mean/median.
 #'
-#'    \emphasize{Aggregate analysis can be toggled off to reduce runtime.}
+#'    \emph{Aggregate analysis can be toggled off to reduce runtime.}
 #'
 #'    \item Monte Carlo Analysis: This method assesses uncertainty in dynamic
 #'    simulations by generating a distribution of possible inferences. Edge
@@ -68,7 +76,7 @@
 #'    Bootstrapping (optional) can also be performed to estimat 95% confidence
 #'    bounds about the mean or median inference for each node.
 #'
-#'    \emphasize{Monte Carlo analysis can be toggled off to reduce runtime.}
+#'    \emph{Monte Carlo analysis can be toggled off to reduce runtime.}
 #' }
 #'
 #' \code{fcmconfr} can accommodate three types of FCMs. Note that each FCM type
@@ -90,20 +98,82 @@
 #'    (Yesil et al., 2014).
 #' }
 #'
-#'  accepts three different types of FCMs which differ in how they
-#' represent edge weights. Note: All input FCMs must be the same type (i.e. a
-#' list of input FCMs must all be of one type or another, but cannot contain
-#' multiple types of FCMs in the same input set).
-#'
 #' @references \insertRef{ozesmiParticipatoryApproachEcosystem2003}{fcmconfr}
 #' @references \insertRef{aminpourWisdomStakeholderCrowds2020}{fcmconfr}
 #' @references \insertRef{styliosIntroducingTheoryFuzzy1997}{fcmconfr}
 #' @references \insertRef{mooreIntervalAnalysisFuzzy2003}{fcmconfr}
 #' @references \insertRef{hajek_interval-valued_2016}{fcmconfr}
 #' @references \insertRef{yesil_triangular_2014}{fcmconfr}
+#' @references \insertRef{stylios_modeling_2004}{fcmconfr}
+#' @references \insertRef{papageorgiou_new_2011}{fcmconfr}
+#' @references \insertRef{dikopoulou_fuzzy_2021}{fcmconfr}
 #'
 #' @details
-#' Call \code{\link{fcmconfr_gui}}. for assistance with inputs.
+#'
+#' FCM simulations are iterative applications of an activation function
+#' (\eqn{f_{A}}) that describes how node values at a particular state
+#' (\eqn{C^{(t)}}) are influenced by the edge weights defined in the
+#' adjacency matrix (\eqn{w}) to calculate the node values at the following
+#' state (\eqn{C^{(t+1)}}), and a squashing function (\eqn{f_{S}}) that
+#' restricts node values within a particular range.
+#'
+#' In conventional FCM simulations the current state vector (\eqn{C^{(t)}}) is
+#' used to calculate the next state vector (\eqn{C^{(t+1)}}).
+#' \deqn{
+#' C_{i}^{( t+1)} =f_{S}\left( f_{A}\left( w_{ji} ,\ C_{i}^{( t)}\right)\right)
+#' }
+#'
+#' In IVFN- and TFN-FCM simulations, the averages of the IVFN/TFN values are
+#' used to calculate the next state vector.
+#'
+#' \deqn{
+#' C^{( t+1)} =f_{S}\left( f_{A}\left( w ,\ \overline{C}^{( t)}\right)\right)
+#' }
+#' with \eqn{\overline{C}^{( t)}} for IVFN-FCM simulations defined as
+#' \deqn{
+#' \overline{C}^{( t)}_{IVFN} =\left\{\frac{\left( C_{1}^{( t)}\right)_{lower} +\left( C_{1}^{( t)}\right)_{upper}}{2} ,\ ...,\ \frac{\left( C_{i}^{( t)}\right)_{lower} +\left( C_{i}^{( t)}\right)_{upper}}{2}\right\}
+#' }
+#'
+#' or for TFN-FCM simulations defined as
+#' \deqn{
+#' \overline{C}_{TFN}^{( t)} =\left\{\frac{\left( C_{1}^{( t)}\right)_{lower} +\left( C_{1}^{( t)}\right)_{mode} +\left( C_{1}^{( t)}\right)_{upper}}{2} ,\ ...,\ \frac{\left( C_{i}^{( t)}\right)_{lower} +\left( C_{1}^{( t)}\right)_{mode} +\left( C_{i}^{( t)}\right)_{upper}}{2}\right\}
+#' }
+#'
+#' \code{fcmconfr} supports the Kosko, Modified-Kosko, and Rescale activation
+#' functions as defined here:
+#'
+#' \itemize{
+#'    \item Kosko (Kosko, 1986)
+#'    \deqn{
+#'    C_{i}^{( t+1)} =f\left(\sum _{ \begin{array}{l}
+#'    j\ =\ i\\
+#'    i\ \neq \ j
+#'    \end{array}}^{M} w_{ji} C_{j}^{( t)}\right)
+#'    }
+#'    \item Modfied-Kosko (Stylio & Groumpos, 2004)
+#'    \deqn{
+#'    C_{i}^{( t+1)} =f\left(\sum _{ \begin{array}{l}
+#'    j\ =\ i\\
+#'    i\ \neq \ j
+#'    \end{array}}^{M} w_{ji} C_{j}^{( t)} +C_{i}^{( t)}\right)
+#'    }
+#'    \item Rescale (Papageorgiou, 2011; Dikopoulou, 2021)
+#'    \deqn{
+#'    C_{i}^{( t+1)} =f\left(\sum _{ \begin{array}{l}
+#'    j\ =\ i\\
+#'    i\ \neq \ j
+#'    \end{array}}^{M} w_{ji}\left( 2C_{j}^{( t)} -1\right) +\left( 2C_{i}^{( t)} -1\right)\right)
+#'    }
+#' }
+#'
+#' \code{fcmconfr} supports the sigmoid and hyperbolic tangent (tanh) squashing
+#' functions.
+#' \deqn{
+#' f_{sigmoid}( x) =\frac{1}{1+e^{\lambda x}}
+#' }
+#' \deqn{
+#' f_{tanh}( x) =\frac{e^{x} -e^{-x}}{e^{x} +e^{-x}}
+#' }
 #'
 #' @param adj_matrices A list of adjacency matrices (n x n) representing FCMs. This
 #' can also be an individual adjacency matrix.Adj. Matrices can be conventional FCMs,
