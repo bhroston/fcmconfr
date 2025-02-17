@@ -44,7 +44,7 @@
 #'    of these measures in the scenario-of-interest and their equivalent values
 #'    in the baseline simulation. Simulations can be run using different
 #'    activation functions (Kosko, Modified-Kosko, or Rescale) and squashing
-#'    functions (Sigmoid, Tanh)
+#'    functions (sigmoid, tanh)
 #'
 #'    Conventional FCM simulations use the traditional FCM simulation algorithm
 #'    as established in Kosko (1986); Stylios (1997); Ozesmi & Ozesmi (2003),
