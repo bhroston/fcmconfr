@@ -37,6 +37,9 @@ where \eqn{x^{L}} and \eqn{x^{U}} are the lower and upper bounds of the IVFN.
 ivfn(lower = 0, upper = 1)
 ivfn(-1, 1)
 }
+\references{
+\insertRef{dimuroIntervalFuzzyNumbers2011}{fcmconfr}
+}
 \seealso{
 Other interval-valued-fuzzy-numbers: 
 \code{\link{c.ivfn}()},

@@ -201,6 +201,8 @@ make_adj_matrix_w_ivfns <- function(lower = matrix(), upper = matrix()) {
 #'
 #' @importFrom cli format_error
 #'
+#' @references \insertRef{dimuroIntervalFuzzyNumbers2011}{fcmconfr}
+#'
 #' @export
 #' @example  man/examples/ex-ivfn.R
 ivfn <- function(lower = double(), upper = double()) {
@@ -479,6 +481,10 @@ make_adj_matrix_w_tfns <- function(lower = matrix(),
 #' @returns A triangular fuzzy number (TFN)
 #'
 #' @importFrom cli format_error
+#'
+#' @references \insertRef{chakravertyFuzzyNumbers2019}{fcmconfr}
+#' @references \insertRef{hanssAppliedFuzzyArithmetic2005}{fcmconfr}
+#' @references \insertRef{trillasFuzzyArithmetic2015}{fcmconfr}
 #'
 #' @export
 #' @example  man/examples/ex-tfn.R

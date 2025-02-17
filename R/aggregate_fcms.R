@@ -31,7 +31,7 @@
 #'
 #' @details
 #' This function implements FCM aggregation methods used in
-#' Aminpout 2020 (https://doi.org/10.1038/s41893-019-0467-z) for use with
+#' Aminpour 2020 (https://doi.org/10.1038/s41893-019-0467-z) for use with
 #' conventional FCMs, and expands upon them for IVFN- and TFN-FCMs.
 #'
 #' \strong{Conventional FCMs}

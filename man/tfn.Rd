@@ -42,6 +42,13 @@ tfn(-1, 0, 1)
 tfn(0, 0, 1)
 tfn(1, 1, 1)
 }
+\references{
+\insertRef{chakravertyFuzzyNumbers2019}{fcmconfr}
+
+\insertRef{hanssAppliedFuzzyArithmetic2005}{fcmconfr}
+
+\insertRef{trillasFuzzyArithmetic2015}{fcmconfr}
+}
 \seealso{
 Other triangular-fuzzy-numbers: 
 \code{\link{make_adj_matrix_w_tfns}()},
