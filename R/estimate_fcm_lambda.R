@@ -92,6 +92,10 @@
 #'
 #' @importFrom cli format_error
 #'
+#' @references \insertRef{kacprzyk_fuzzy_2010}{fcmconfr}
+#' @references \insertRef{harmati_existence_2018}{fcmconfr}
+#' @references \insertRef{koutsellis_parameter_2022}{fcmconfr}
+#'
 #' @export
 #' @example man/examples/ex-estimate_fcm_lambda.R
 estimate_fcm_lambda <- function(fcm_adj_matrix = matrix(),

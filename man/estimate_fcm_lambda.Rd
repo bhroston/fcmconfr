@@ -109,3 +109,10 @@ estimate_fcm_lambda(sample_fcms$simple_fcms$conventional_fcms[[1]], squashing = 
 
 estimate_fcm_lambda(sample_fcms$simple_fcms$tfn_fcms[[1]], squashing = "sigmoid")
 }
+\references{
+\insertRef{kacprzyk_fuzzy_2010}{fcmconfr}
+
+\insertRef{harmati_existence_2018}{fcmconfr}
+
+\insertRef{koutsellis_parameter_2022}{fcmconfr}
+}

@@ -132,7 +132,7 @@ upper_adj_matrix <- apply(ivfn_df, c(1, 2), function(element) element[[1]]$upper
 
 ### 1.5 Viewing Imported FCMs
 
-Users may display FCMs in RStudio's Viewer pane using `fcm_view()`, which plots an FCM (adjacency matrix) as a `visNetwork` object. The resulting plot is interactive. Users can manipulate node positions (i.e. node layout) to explore the FCM from different angles. The function can be used with any of the three FCM types recognized by `fcmconfr`. For IVFN and TFN-FCMs, `fcm_view()` plots the average edge weight to simplify the node layout.
+Users may display FCMs in RStudio's Viewer pane using `fcm_view()`, which plots an FCM (adjacency matrix) as a `visNetwork` object. The resulting plot is interactive. Users can manipulate node positions (i.e. the node layout) to explore the FCM from different angles. The function can be used with any of the three FCM types recognized by `fcmconfr`. For IVFN and TFN-FCMs, `fcm_view()` plots the average edge weight to simplify the node layout.
 
 At its core, `fcm_view()` is just a call to `visNetwork` functions. Users who have experience with `visNetwork` should feel free to plot FCMs directly with `visNetwork` for greater flexibility.
 
