@@ -12,8 +12,10 @@ fcm_view(
 )
 }
 \arguments{
-\item{fcm_adj_matrix}{An adjacency matrix representing an FCM. fcm_view
-accepts either an fcm_adj_matrix or fcm_visNetwork input but NOT both.}
+\item{fcm_adj_matrix}{An n x n adjacency matrix that represents an FCM.
+fcm_view accepts either an fcm_adj_matrix or fcm_visNetwork input
+but NOT both. Accepts \link{data.frame, tbl_df, tbl} objects representing
+conventional, IVFN-, or TFN- adj. matrices.}
 
 \item{fcm_visNetwork}{An fcm_view visNetwork object output. fcm_view accepts
 either an fcm_adj_matrix or fcm_visNetwork input but NOT both.}

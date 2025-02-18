@@ -101,6 +101,14 @@
 estimate_fcm_lambda <- function(fcm_adj_matrix = matrix(),
                                 squashing = c("sigmoid", "tanh")) {
 
+  if (is.null(dim(fcm_adj_matrix))) {
+    warning(cli::format_error(c(
+      "x" = "Error: {.var fcm_adj_matrix} must be an (n x n) adj. matrix",
+      "+++++> Input The operation dim(fcm_adj_matrix) returned NULL"
+    )))
+    return(invisible(NULL))
+  }
+
   fcm_class <- get_adj_matrices_input_type(fcm_adj_matrix)$object_types_in_list[1]
   if (fcm_class == "conventional") {
     as_conventional_adj_matrix <- fcm_adj_matrix
@@ -109,6 +117,8 @@ estimate_fcm_lambda <- function(fcm_adj_matrix = matrix(),
   } else if (fcm_class == "tfn") {
     as_conventional_adj_matrix <- apply(fcm_adj_matrix, c(1, 2), function(element) (element[[1]]$lower + element[[1]]$mode + element[[1]]$upper)/3)
   }
+
+  squashing <- tolower(squashing)
 
   if (identical(squashing, c("sigmoid", "tanh"))) {
     stop(cli::format_error(c(

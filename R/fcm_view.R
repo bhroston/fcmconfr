@@ -15,8 +15,10 @@
 #' edges, and (6) the ability to change the curvature of edges and the smoothing
 #' method used.
 #'
-#' @param fcm_adj_matrix An adjacency matrix representing an FCM. fcm_view
-#' accepts either an fcm_adj_matrix or fcm_visNetwork input but NOT both.
+#' @param fcm_adj_matrix An n x n adjacency matrix that represents an FCM.
+#' fcm_view accepts either an fcm_adj_matrix or fcm_visNetwork input
+#' but NOT both. Accepts [data.frame, tbl_df, tbl] objects representing
+#' conventional, IVFN-, or TFN- adj. matrices.
 #' @param fcm_visNetwork An fcm_view visNetwork object output. fcm_view accepts
 #' either an fcm_adj_matrix or fcm_visNetwork input but NOT both.
 #' @param shiny View visNetwork output in an interactive shiny app. Allows the
@@ -43,45 +45,104 @@ fcm_view <- function(fcm_adj_matrix = matrix(),
                      ...) {
 
   # Checks ----
-  if (!identical(fcm_adj_matrix, matrix()) & !identical(fcm_visNetwork, list())) {
+  if (identical(fcm_adj_matrix, matrix())) {
+    fcm_adj_matrix_is_dummy <- TRUE
+    fcm_adj_matrix <- matrix(0)
+  } else {
+    fcm_adj_matrix_is_dummy <- FALSE
+  }
+
+  if (is.null(dim(fcm_adj_matrix))) {
+    warning(cli::format_error(c(
+      "x" = "Error: {.var fcm_adj_matrix} must be an (n x n) adj. matrix",
+      "+++++> Input The operation dim(fcm_adj_matrix) returned NULL"
+    )))
+    return(invisible(NULL))
+  }
+
+  if (!identical(fcm_adj_matrix, matrix()) & (length(unique(dim(fcm_adj_matrix))) > 1)) {
     stop(cli::format_error(c(
-      "x" = "Error: fcm_view accepts either {.var fcm_adj_matrix} OR {.var fcm_visNetwork} as inputs",
-      "+++++> Either input only a {.var fcm_adj_matrix} OR {.var fcm_visNetwork} (a visNetwork object)"
+      "x" = "Error: {.var fcm_adj_matrix} must be a single (n x n) adj. matrix.",
+      "+++++> Input {.var fcm_adj_matrix} had dimensions: {dim(fcm_adj_matrix)}"
     )))
   }
 
-  if (!(is.logical(shiny))) {
+  fcm_adj_matrix_input_type <- get_adj_matrices_input_type(fcm_adj_matrix)
+  # if ((fcm_adj_matrix_input_type$adj_matrices_input_is_list) & (length(fcm_adj_matrix) > 1)) {
+  #   stop(cli::format_error(c(
+  #     "x" = "Error: {.var fcm_adj_matrix} must be a single adj. matrix.",
+  #     "+++++> Input {.var fcm_adj_matrix} was a list of {length(fcm_adj_matrix)} adj. matrices."
+  #   )))
+  # } else if (fcm_adj_matrix_input_type$adj_matrices_input_is_list & (length(fcm_adj_matrix) == 1)) {
+  #   fcm_adj_matrix <- fcm_adj_matrix[[1]]
+  # }
+  fcm_adj_matrix_class <- fcm_adj_matrix_input_type$fcm_class
+  if (fcm_adj_matrix_class == "conventional") {
+    fcm_adj_matrix <- fcm_adj_matrix
+  } else if (fcm_adj_matrix_class == "ivfn") {
+    fcm_adj_matrix <- apply(fcm_adj_matrix, c(1, 2), function(x) mean(x[[1]]$lower, x[[1]]$upper))
+  } else if (fcm_adj_matrix_class == "tfn") {
+    fcm_adj_matrix <- apply(fcm_adj_matrix, c(1, 2), function(x) mean(x[[1]]$lower, x[[1]]$mode,  x[[1]]$upper))
+  }
+
+  if (identical(fcm_visNetwork, list())) {
+    # Create a dummy visNetwork object
+    fcm_visNetwork <- visNetwork::visNetwork(list(0), list(0))
+    fcm_visNetwork_is_dummy <- TRUE
+  } else {
+    fcm_visNetwork_is_dummy <- FALSE
+  }
+
+  if (!identical(methods::is(fcm_visNetwork), "visNetwork")) {
+    warning(cli::format_error(c(
+      "x" = "Error: {.var fcm_visNetwork} must a visNetwork object.",
+      "+++++> Input {.var fcm_visNetwork} was of type: {methods::is(fcm_visNetwork)[1]}"
+    )))
+    return(invisible(NULL))
+  }
+
+  if (!(is.logical(shiny)) | length(shiny) != 1) {
     stop(cli::format_error(c(
       "x" = "Error: {.var shiny} must be a logical (TRUE/FALSE) value.",
       "+++++> Input {.var shiny} was: {shiny}"
     )))
   }
 
+  if (!identical(fcm_adj_matrix, matrix()) & !fcm_visNetwork_is_dummy) {
+    stop(cli::format_error(c(
+        "x" = "Error: fcm_view accepts either {.var fcm_adj_matrix} OR {.var fcm_visNetwork} as inputs",
+        "+++++> Either input only a {.var fcm_adj_matrix} OR {.var fcm_visNetwork} (a visNetwork object)"
+    )))
+  }
+
   additional_params <- list(...)
-  if (length(additional_params) > 0 & (!("alert_on_open" %in% names(additional_params)))) {
+  additional_params_names <- names(additional_params)
+  if (length(additional_params) > 0 & !("alert_on_open" %in% additional_params_names)) {
     stop(cli::format_error(c(
       "x" = "Error: {.var ...} may only be {.var alert_on_open} = TRUE/FALSE",
       "+++++> Input {.var ...} contained: {names(additional_params)}"
     )))
   }
-  if ("alert_on_open" %in% names(additional_params) & !shiny) {
+
+  if (("alert_on_open" %in% additional_params_names) & !shiny) {
     warning(cli::format_warning(c(
       "!" = "Warning: {.var alert_on_open} is only used if {.var shiny} is TRUE",
       "~~~~~ Ignoring {.var alert_on_open}"
     )))
   }
-  if ("alert_on_open" %in% names(additional_params) & !is.logical(additional_params$alert_on_open)) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var alert_on_open} must be a logical (TRUE/FALSE) value.",
-      "+++++> Input {.var alert_on_open} was: {additional_params$alert_on_open}"
-    )))
-  }
-  if ("alert_on_open" %in% names(additional_params)) {
+
+  if (("alert_on_open" %in% additional_params_names) & shiny) {
     alert_on_open <- additional_params$alert_on_open
   } else {
     alert_on_open <- TRUE
   }
 
+  if ((!is.logical(alert_on_open) | (length(alert_on_open) != 1))) {
+    stop(cli::format_error(c(
+      "x" = "Error: {.var alert_on_open} must be a logical (TRUE/FALSE) value.",
+      "+++++> Input {.var alert_on_open} was: {additional_params$alert_on_open}"
+    )))
+  }
 
   if (identical(methods::is(fcm_adj_matrix), "visNetwork")) {
     options(warn = 1) # Make sure warning shows before launching shiny app
@@ -95,66 +156,29 @@ fcm_view <- function(fcm_adj_matrix = matrix(),
   }
   # ----
 
-  if (!identical(fcm_visNetwork, list()) & !identical(methods::is(fcm_visNetwork), "visNetwork")) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var fcm_visNetwork} must be a visNetwork object (preferrably directly from fcm_view",
-      "+++++> Input {.var fcm_visNetwork} was of type: {methods::is(fcm_visNetwork)[1]}"
-    )))
-  } else if (!identical(fcm_visNetwork, list()) & identical(methods::is(fcm_visNetwork), "visNetwork")) {
-    fcm_as_visNetwork_obj <- fcm_visNetwork
-  }
-
-  if (!identical(fcm_adj_matrix, matrix())) {
-    if (length(unique(dim(fcm_adj_matrix))) > 1) {
-      stop(cli::format_error(c(
-        "x" = "Error: {.var fcm_adj_matrix} must be a single (n x n) adj. matrix.",
-        "+++++> Input {.var fcm_adj_matrix} had dimensions: {dim(fcm_adj_matrix)}"
-      )))
-    }
-
-    fcm_adj_matrix_input_type <- get_adj_matrices_input_type(fcm_adj_matrix)
-
-    if ((fcm_adj_matrix_input_type$adj_matrices_input_is_list) & (length(fcm_adj_matrix) > 1)) {
-      stop(cli::format_error(c(
-        "x" = "Error: {.var fcm_adj_matrix} must be a single adj. matrix.",
-        "+++++> Input {.var fcm_adj_matrix} was a list of {length(fcm_adj_matrix)} adj. matrices."
-      )))
-    } else if ((fcm_adj_matrix_input_type$adj_matrices_input_is_list) & (length(fcm_adj_matrix) == 1)) {
-      fcm_adj_matrix <- fcm_adj_matrix[[1]]
-    }
-
-    fcm_adj_matrix_class <- fcm_adj_matrix_input_type$fcm_class
-    if (fcm_adj_matrix_class == "conventional") {
-      conventional_fcm <- fcm_adj_matrix
-    } else if (fcm_adj_matrix_class == "ivfn") {
-      conventional_fcm <- apply(fcm_adj_matrix, c(1, 2), function(x) mean(x[[1]]$lower, x[[1]]$upper))
-    } else if (fcm_adj_matrix_class == "tfn") {
-      conventional_fcm <- apply(fcm_adj_matrix, c(1, 2), function(x) mean(x[[1]]$lower, x[[1]]$mode,  x[[1]]$upper))
-    }
-
+  if (!fcm_adj_matrix_is_dummy) {
     # Translate fcm into an igraph object and then convert to visNetwork
-    fcm_as_igraph_obj <- igraph::graph_from_adjacency_matrix(as.matrix(conventional_fcm), weighted = TRUE, mode = "directed")
-    fcm_as_visNetwork_obj <- visNetwork::visIgraph(fcm_as_igraph_obj) %>%
+    fcm_as_igraph_obj <- igraph::graph_from_adjacency_matrix(as.matrix(fcm_adj_matrix), weighted = TRUE, mode = "directed")
+    fcm_visNetwork <- visNetwork::visIgraph(fcm_as_igraph_obj) %>%
       visNetwork::visIgraphLayout()
 
     # Add aesthetics for nodes
-    fcm_as_visNetwork_obj$x$nodes$color <- "lightgrey"
-    fcm_as_visNetwork_obj$x$nodes$base_color <- "lightgrey"
-    fcm_as_visNetwork_obj$x$options$nodes$size <- 25 # 25 is the default value for visNetwork
-    fcm_as_visNetwork_obj$x$options$nodes$font <- list(size = 14)
-    fcm_as_visNetwork_obj$x$nodes$physics <- FALSE
+    fcm_visNetwork$x$nodes$color <- "lightgrey"
+    fcm_visNetwork$x$nodes$base_color <- "lightgrey"
+    fcm_visNetwork$x$options$nodes$size <- 25 # 25 is the default value for visNetwork
+    fcm_visNetwork$x$options$nodes$font <- list(size = 14)
+    fcm_visNetwork$x$nodes$physics <- FALSE
 
     # Add aesthetics for edges
-    edges_df <- fcm_as_visNetwork_obj$x$edges
+    edges_df <- fcm_visNetwork$x$edges
     edges_df$label <- paste(round(edges_df$weight, 2))
     edges_df$color <- ifelse(edges_df$weight >= 0, "black", "red")
     edges_df$base_color <- edges_df$color
     edges_df$width <- abs(edges_df$weight*2)
-    # edges_df$hidden <- FALSE
-    fcm_as_visNetwork_obj$x$edges <- edges_df
+    fcm_visNetwork$x$edges <- edges_df
 
     # Load plot
-    fcm_as_visNetwork_obj <- fcm_as_visNetwork_obj %>%
+    fcm_visNetwork <- fcm_visNetwork %>%
       visNetwork::visIgraphLayout() %>%
       visNetwork::visEdges(
         arrows = list(to = list(enabled = TRUE, scaleFactor = 1)),
@@ -162,25 +186,19 @@ fcm_view <- function(fcm_adj_matrix = matrix(),
         physics = FALSE
       )
 
-    node_x_coords <- fcm_as_visNetwork_obj$x$nodes$x
-    node_y_coords <- fcm_as_visNetwork_obj$x$nodes$y
-
+    # Increase space between nodes
+    node_x_coords <- fcm_visNetwork$x$nodes$x
+    node_y_coords <- fcm_visNetwork$x$nodes$y
     spaced_node_x_coords <- node_x_coords*1.5
     spaced_node_y_coords <- node_y_coords*2
-
-    fcm_as_visNetwork_obj$x$nodes$x <- spaced_node_x_coords
-    fcm_as_visNetwork_obj$x$nodes$y <- spaced_node_y_coords
-    # ----
+    fcm_visNetwork$x$nodes$x <- spaced_node_x_coords
+    fcm_visNetwork$x$nodes$y <- spaced_node_y_coords
   }
 
-  if (!shiny) {
-    fcm_as_visNetwork_obj
-  } else {
-    # Using shiny ----
-
+  if (shiny) {
     # Calculate optimal sidebar width so all variable names fit on individual lines
     # with their corresponding check box
-    node_names <- fcm_as_visNetwork_obj$x$nodes$id
+    node_names <- fcm_visNetwork$x$nodes$id
     nchars_in_node_names <- vapply(node_names, nchar, numeric(1))
     node_name_w_max_nchars <- node_names[nchars_in_node_names == max(nchars_in_node_names)]
     max_node_name_px_width <- graphics::strwidth(node_name_w_max_nchars, font = 12, units = 'in')*96 # 1px = 1/96in
@@ -189,7 +207,7 @@ fcm_view <- function(fcm_adj_matrix = matrix(),
 
     # Create temp env to pass variables into and out of shiny app
     shiny_env <- new.env()
-    assign("fcm_as_visNetwork_obj", fcm_as_visNetwork_obj, shiny_env)
+    assign("fcm_visNetwork", fcm_visNetwork, shiny_env)
     assign("sidebar_width", sidebar_width, shiny_env)
     assign("alert_on_open", alert_on_open, shiny_env)
     server <- source(system.file(file.path('shiny', 'fcm_view', 'server.R'), package = 'fcmconfr'), local = TRUE)$value
@@ -205,19 +223,24 @@ fcm_view <- function(fcm_adj_matrix = matrix(),
     shiny::runApp(app)
 
     # Scale things down to decimal point
-    shiny_fcm_visNetwork <- shiny_env$updated_fcm_visNetwork_obj
-    if (max(abs(shiny_fcm_visNetwork$x$nodes$x)) > 100) {
-      shiny_fcm_visNetwork$x$nodes$x <- shiny_fcm_visNetwork$x$nodes$x/100
-    } else if ((max(abs(shiny_fcm_visNetwork$x$nodes$x)) > 10)) {
-      shiny_fcm_visNetwork$x$nodes$x <- shiny_fcm_visNetwork$x$nodes$x/10
-    }
-    if (max(abs(shiny_fcm_visNetwork$x$nodes$y)) > 100) {
-      shiny_fcm_visNetwork$x$nodes$y <- shiny_fcm_visNetwork$x$nodes$y/100
-    } else if ((max(abs(shiny_fcm_visNetwork$x$nodes$y)) > 10)) {
-      shiny_fcm_visNetwork$x$nodesyx <- shiny_fcm_visNetwork$x$nodes$y/10
-    }
+    shiny_fcm_visNetwork <- shiny_env$updated_fcm_visNetwork
+    shiny_fcm_visNetwork$x$nodes$x <- shiny_fcm_visNetwork$x$nodes$x/100
+    shiny_fcm_visNetwork$x$nodes$y <- shiny_fcm_visNetwork$x$nodes$y/100
+
+    # if (max(abs(shiny_fcm_visNetwork$x$nodes$x)) > 100) {
+    #   shiny_fcm_visNetwork$x$nodes$x <- shiny_fcm_visNetwork$x$nodes$x/100
+    # } else if ((max(abs(shiny_fcm_visNetwork$x$nodes$x)) > 10)) {
+    #   shiny_fcm_visNetwork$x$nodes$x <- shiny_fcm_visNetwork$x$nodes$x/10
+    # }
+    # if (max(abs(shiny_fcm_visNetwork$x$nodes$y)) > 100) {
+    #   shiny_fcm_visNetwork$x$nodes$y <- shiny_fcm_visNetwork$x$nodes$y/100
+    # } else if ((max(abs(shiny_fcm_visNetwork$x$nodes$y)) > 10)) {
+    #   shiny_fcm_visNetwork$x$nodesyx <- shiny_fcm_visNetwork$x$nodes$y/10
+    # }
     # ----
 
     shiny_fcm_visNetwork
+  } else {
+    fcm_visNetwork
   }
 }

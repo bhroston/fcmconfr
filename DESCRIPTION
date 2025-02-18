@@ -23,7 +23,8 @@ Description: fcmconfr streamlines the process of conducting dynamic simulations
 License: GPL (>= 3) + file LICENSE
 Encoding: UTF-8
 LazyData: true
-Suggests: 
+Suggests:
+    spelling, 
     covr (>= 3.6.4),
     knitr (>= 1.44),
     rmarkdown (>= 2.25),
@@ -61,3 +62,4 @@ VignetteBuilder: knitr
 URL: https://github.com/bhroston/fcmconfr
 BugReports: https://github.com/bhroston/fcmconfr/issues
 Roxygen: list(markdown = TRUE)
+Language: en-US

@@ -21,8 +21,8 @@ calculations. (i.e. if edges not included in a map should count as a zero-weight
 edge or not at all)}
 }
 \value{
-An aggregate adj. matrix (of class 'aggregate') with edges represented
-as IVFN data types
+An 'aggregate_of_fcms_w_ivfns' object which is an aggregate adj.
+matrix with edges represented as IVFN data types
 }
 \description{
 Generate an aggregate adj. matrix from a list of (IVFN) adj. matrices.
@@ -112,8 +112,8 @@ fcms_w_ivfns <- list(adj_matrix_1, adj_matrix_2, adj_matrix_3, adj_matrix_4)
 # Note that Row (1), Column(2) of adj_matrix 3 has a false-zero lower
 # edge weight. See how the aggregate incorporates those values even though
 # include_zeroes = FALSE
-aggregate_fcms_w_ivfns(fcms_w_ivfns, "mean", include_zeroes = FALSE)
-aggregate_fcms_w_ivfns(fcms_w_ivfns, "mean", include_zeroes = TRUE)
+aggregate_fcms_w_ivfns(fcms_w_ivfns, "mean", include_zeroes_in_sampling = FALSE)
+aggregate_fcms_w_ivfns(fcms_w_ivfns, "mean", include_zeroes_in_sampling = TRUE)
 }
 \seealso{
 Other aggregate_fcms: 

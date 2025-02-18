@@ -30,70 +30,80 @@ fcmconfr(
 )
 }
 \arguments{
-\item{adj_matrices}{A list of adjacency matrices (n x n) representing FCMs. This
-can also be an individual adjacency matrix.Adj. Matrices can be conventional FCMs,
-FCMs with edge weights as Interval Value Fuzzy Numbers (IVFNs) or FCMs with edge
-weights as Triangular Fuzzy Numbers (TFNs)}
+\item{adj_matrices}{A single adjacency matrix or a list of adjacency matrices
+(n x n) representing FCMs. Matrices can have conventional edge weights, IVFN
+edge weights or TFN edge weights}
 
-\item{agg_function}{Aggregate the adj. matrices into a single FCM by taking
-either the mean or median of the edge weights for edges included in multiple maps}
+\item{agg_function}{Choice of aggregation method (mean, median) for
+producing a single "collective" FCM from a group of individual FCMs. Omit
+this argument when analyzing a single, conventional FCM.}
 
-\item{num_mc_fcms}{The number of FCMs to generate via monte carlo
-sampling from the input adj. matrices}
+\item{num_mc_fcms}{Number of inferences to generate via Monte Carlo sampling.
+Omit this argument when analyzing a single, conventional FCM.}
 
-\item{initial_state_vector}{A list state values at the start of an fcm simulation}
+\item{initial_state_vector}{A list of state values (one per node) at the
+start of an FCM simulation. In pulse simulations the
+\code{initial_state_vector}  controls the scenario (i.e., a non-zero value
+is a transient perturbation). In clamped simulations all values in the
+\code{initial_state_vector} are set to 1.}
 
-\item{clamping_vector}{A list of values representing specific actions taken to
-control the behavior of an FCM. Specifically, non-zero values defined in this vector
-will remain constant throughout the entire simulation as if they were "clamped" at those values.}
+\item{clamping_vector}{A l;ist of values (one per node) that indicates
+whether clamped simulations will be performed. In clamped simulations the
+\code{clamping_vector} controls the scenario (nodes assigned non-zero values
+will remain at those values for the entire simulation). In pulse simulations
+all values in the \code{clamping_vector} are set to 0.}
 
-\item{activation}{The activation function to be applied. Must be one of the following:
+\item{activation}{The activation function used. Must be one of the following:
 'kosko', 'modified-kosko', or 'rescale'.}
 
-\item{squashing}{A squashing function to apply. Must be one of the following:
+\item{squashing}{The squashing function used. Must be one of the following:
 'tanh', or 'sigmoid'.}
 
-\item{lambda}{A numeric value that defines the steepness of the slope of the
-squashing function when tanh or sigmoid are applied}
+\item{lambda}{A numeric value that defines the steepness of the squashing
+function}
 
-\item{point_of_inference}{The point along the simulation time-series to be
-identified as the inference. Must be one of the following: 'peak' or 'final'}
+\item{point_of_inference}{Definition of an inference. The metric used to
+calculate  the response of each node to a scenario of interest from
+simulation timeseries. Must be one of the following: 'peak' (the maximum
+value) or 'final' (the state at equilibrium).}
 
-\item{max_iter}{The maximum number of iterations to run if the minimum error value is not achieved}
+\item{max_iter}{The maximum number of iterations to run (increase if the
+minimum error value is not achieved)}
 
-\item{min_error}{The lowest error (sum of the absolute value of the current state
-vector minus the previous state vector) at which no more iterations are necessary
-and the simulation will stop}
+\item{min_error}{The error past which a simulation has converged and no
+further iterations are necessary. \emph{Error equals the sum of the
+absolute value of the current state vector minus the previous state vector}.}
 
 \item{ci_centering_function}{Estimate confidence intervals about the "mean" or "median" of
-inferences from the monte carlo simulations}
+inferences from Monte Carlo simulations}
 
-\item{confidence_interval}{The confidence interval to estimate for the inferences
-of each concept across all monte carlo FCMs (via bootstrap)}
+\item{confidence_interval}{Bootstrapped confidence level}
 
-\item{num_ci_bootstraps}{The number of bootstraps to perform in
-estimating the confidence interval for the inferences of each concept across all monte
-carlo FCMs}
+\item{num_ci_bootstraps}{Number of bootstrap draws}
 
-\item{show_progress}{TRUE/FALSE Show progress bar when creating fmcm. Uses pbmapply
-from the pbapply package as the underlying function.}
+\item{show_progress}{TRUE/FALSE Show progress bar when running FCM
+simulations.}
 
 \item{parallel}{TRUE/FALSE Whether to utilize parallel processing}
 
 \item{n_cores}{Number of cores to use in parallel processing. If no input given,
-will use all available cores in the machine.}
+all available cores will be used.}
 
-\item{run_agg_calcs}{TRUE/FALSE Run the code to generate and simulate an aggregate FCM generated from the input adj_matrices}
+\item{run_agg_calcs}{TRUE/FALSE Generate an aggregate FCM and perform dynamic
+simulations using the aggregate}
 
-\item{run_mc_calcs}{TRUE/FALSE Run the code to generate and simulate monte carlo-generated FCM sampled from the input adj_matrices}
+\item{run_mc_calcs}{TRUE/FALSE Perform Monte Carlo sampling to estimate
+uncertainty in simulation inferences.}
 
-\item{run_ci_calcs}{TRUE/FALSE Run the code to estimate the 95 percent CI bounds about the means of the inferences of the monte carlo adj matrices}
+\item{run_ci_calcs}{TRUE/FALSE Estimate bootstrapped confidence bounds about
+the central tendency of Monte Carlo inferences.}
 
-\item{include_zeroes_in_sampling}{TRUE/FALSE Whether to incorporate zeroes as intentionally-defined edge weights or ignore
-them when aggregating adj. matrices and sampling for monte carlo FCMs}
+\item{include_zeroes_in_sampling}{TRUE/FALSE Incorporate zero-weighted edges
+during FCM aggregation and Monte Carlo sampling.}
 
-\item{include_sims_in_output}{TRUE/FALSE Whether to include simulations of monte carlo FCMs. Switch to FALSE if concerned
-about the size of the output of fcmconfr (simulations are necessary and will run regardless)}
+\item{include_sims_in_output}{TRUE/FALSE Include Monte Carlo FCMs in addition
+to Monte Carlo simulations (and inferences) in fcmconfr output. Switch to
+FALSE to reduce output size.}
 }
 \value{
 A list of outputs generated from the individual_fcms simulations,
@@ -185,6 +195,10 @@ that one value within the range (the mode) is more likely than any other
 (i.e., the probability distribution for each edge is triangular)
 (Yesil et al., 2014).
 }
+
+The fcmcofnr package includes \code{fcmconfr_gui}, an interactive GUI tool
+that can be used to help select appropriate values for each argument in
+\code{fcmconfr()}.
 }
 \details{
 FCM simulations are iterative applications of an activation function

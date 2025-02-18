@@ -16,7 +16,7 @@ adj_matrix_4 <- data.frame(
   "B" = c(0.5, 0)
 )
 fcms <- list(adj_matrix_1, adj_matrix_2, adj_matrix_3, adj_matrix_4)
-aggregate_fcms(fcms, "mean", include_zeroes = TRUE)
+aggregate_fcms(fcms, "mean", include_zeroes_in_sampling = TRUE)
 
 
 # Aggregate IVFN FCMs
@@ -63,4 +63,4 @@ fcms_w_ivfns <- list(adj_matrix_1, adj_matrix_2, adj_matrix_3, adj_matrix_4)
 # the assumption that a stakeholder simply did not include the edge is invalid.
 # Thus, since the 0-lower bound is meaningful, it is included in mean/median
 # calculations even if include_zeroes = FALSE
-aggregate_fcms(fcms_w_ivfns, "mean", include_zeroes = FALSE)
+aggregate_fcms(fcms_w_ivfns, "mean", include_zeroes_in_sampling = FALSE)
