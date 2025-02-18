@@ -47,7 +47,7 @@ start of an FCM simulation. In pulse simulations the
 is a transient perturbation). In clamped simulations all values in the
 \code{initial_state_vector} are set to 1.}
 
-\item{clamping_vector}{A l;ist of values (one per node) that indicates
+\item{clamping_vector}{A list of values (one per node) that indicates
 whether clamped simulations will be performed. In clamped simulations the
 \code{clamping_vector} controls the scenario (nodes assigned non-zero values
 will remain at those values for the entire simulation). In pulse simulations
@@ -211,23 +211,34 @@ restricts node values within a particular range.
 In conventional FCM simulations the current state vector (\eqn{C^{(t)}}) is
 used to calculate the next state vector (\eqn{C^{(t+1)}}).
 \deqn{
-C_{i}^{( t+1)} =f_{S}\left( f_{A}\left( w_{ji} ,\ C_{i}^{( t)}\right)\right)
+C_{i}^{( t+1)} =f_{S}\left( f_{A}\left( w,\ C_{i}^{( t)}\right)\right)
 }
 
-In IVFN- and TFN-FCM simulations, the averages of the IVFN/TFN values are
-used to calculate the next state vector.
+In IVFN- and TFN-FCM simulations, the current state vector has to be
+translated into crisp values prior to calculating the next state vector.
+
+Formulas for crisp values:
+\deqn{
+\left(\overline{C}_{i}^{( t)}\right)_{IVFN} =\frac{\left( C_{i}^{( t)}\right)_{lower} +\left( C_{i}^{( t)}\right)_{upper}}{2}
+}
+\deqn{
+\left(\overline{C}_{i}^{( t)}\right)_{TFN} =\frac{\left( C_{i}^{( t)}\right)_{lower} +\left( C_{1}^{( t)}\right)_{mode} +\left( C_{i}^{( t)}\right)_{upper}}{3}
+}
+
+Formulas for next state vector:
+\deqn{
+\left( C_{i}^{( t+1)}\right)_{IVFN} =\left[\left( C_{i}^{( t+1)}\right)_{lower} ,\ \left( C_{i}^{( t+1)}\right)_{upper}\right] \ where\ \left\{\begin{array}{ c }
+\left( C_{i}^{( t+1)}\right)_{lower} =f_{S}\left( f_{A}\left( w_{lower} ,\ \overline{C}_{i}^{( t)}\right)\right)\\
+\left( C_{i}^{( t+1)}\right)_{upper} =f_{S}\left( f_{A}\left( w_{upper} ,\ \overline{C}_{i}^{( t)}\right)\right)
+\end{array}\right.
+}
 
 \deqn{
-C^{( t+1)} =f_{S}\left( f_{A}\left( w ,\ \overline{C}^{( t)}\right)\right)
-}
-with \eqn{\overline{C}^{( t)}} for IVFN-FCM simulations defined as
-\deqn{
-\overline{C}^{( t)}_{IVFN} =\left\{\frac{\left( C_{1}^{( t)}\right)_{lower} +\left( C_{1}^{( t)}\right)_{upper}}{2} ,\ ...,\ \frac{\left( C_{i}^{( t)}\right)_{lower} +\left( C_{i}^{( t)}\right)_{upper}}{2}\right\}
-}
-
-or for TFN-FCM simulations defined as
-\deqn{
-\overline{C}_{TFN}^{( t)} =\left\{\frac{\left( C_{1}^{( t)}\right)_{lower} +\left( C_{1}^{( t)}\right)_{mode} +\left( C_{1}^{( t)}\right)_{upper}}{2} ,\ ...,\ \frac{\left( C_{i}^{( t)}\right)_{lower} +\left( C_{1}^{( t)}\right)_{mode} +\left( C_{i}^{( t)}\right)_{upper}}{2}\right\}
+\left( C_{i}^{( t+1)}\right)_{TFN} =\left[\left( C_{i}^{( t+1)}\right)_{lower} ,\ \left( C_{i}^{( t+1)}\right)_{upper}\right] \ where\ \left\{\begin{array}{ c }
+\left( C_{i}^{( t+1)}\right)_{lower} =f_{S}\left( f_{A}\left( w_{lower} ,\ \overline{C}_{i}^{( t)}\right)\right)\\
+\left( C_{i}^{( t+1)}\right)_{mode} =f_{S}\left( f_{A}\left( w_{mode} ,\ \overline{C}_{i}^{( t)}\right)\right)\\
+\left( C_{i}^{( t+1)}\right)_{upper} =f_{S}\left( f_{A}\left( w_{upper} ,\ \overline{C}_{i}^{( t)}\right)\right)
+\end{array}\right.
 }
 
 \code{fcmconfr} supports the Kosko, Modified-Kosko, and Rescale activation
