@@ -201,6 +201,9 @@ make_adj_matrix_w_ivfns <- function(lower = matrix(), upper = matrix()) {
 #'
 #' @importFrom cli format_error
 #'
+#' @references \insertRef{mooreIntervalAnalysisFuzzy2003}{fcmconfr}
+#' @references \insertRef{dimuroIntervalFuzzyNumbers2011}{fcmconfr}
+#'
 #' @export
 #' @example  man/examples/ex-ivfn.R
 ivfn <- function(lower = double(), upper = double()) {
@@ -281,14 +284,22 @@ ivfn <- function(lower = double(), upper = double()) {
 #' subtract_ivfn(ivfn(-0.5, 0.3), ivfn(0.4, 0.6))
 #' subtract_ivfn(ivfn(-1, 1), ivfn(-0.5, 0.5))
 subtract_ivfn <- function(ivfn_1 = ivfn(), ivfn_2 = ivfn()) {
-  # browser()
-
   if ((!identical(methods::is(ivfn_1), "ivfn")) | (!identical(methods::is(ivfn_2), "ivfn"))) {
     stop("Input Error: Both inputs must be valid ivfn objects")
   }
 
   new_lower <- ivfn_1$lower - ivfn_2$upper
+
+  # Moore & Lodwick (2003)
   new_upper <- ivfn_1$upper - ivfn_2$lower
+
+  # Hajek & Prochazka (2016)
+  #new_upper <- max(ivfn_1$lower - ivfn_2$lower, ivfn_1$upper - ivfn_2$upper)
+
+  # The two methods to calculate the upper value for the difference are
+  # both referenced throughout the literature. However, after testing, Moore
+  # & Lodwick (2003) was found to produce more reliable results.
+
   ivfn(new_lower, new_upper)
 }
 
@@ -479,6 +490,10 @@ make_adj_matrix_w_tfns <- function(lower = matrix(),
 #' @returns A triangular fuzzy number (TFN)
 #'
 #' @importFrom cli format_error
+#'
+#' @references \insertRef{chakravertyFuzzyNumbers2019}{fcmconfr}
+#' @references \insertRef{hanssAppliedFuzzyArithmetic2005}{fcmconfr}
+#' @references \insertRef{trillasFuzzyArithmetic2015}{fcmconfr}
 #'
 #' @export
 #' @example  man/examples/ex-tfn.R

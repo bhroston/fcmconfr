@@ -10,8 +10,10 @@ interactive_plot_fcmconfr(x, ...)
 \item{x}{A direct output of the \code{\link{fcmconfr}} function}
 
 \item{...}{Additional inputs:
-- filter_limit Remove concepts whose inferences do not exceed this value
-- coord_flip Swap x- and y-axes (i.e. rotate plot)}
+\itemize{
+\item filter_limit Remove concepts whose inferences do not exceed this value
+\item coord_flip Swap x- and y-axes (i.e. rotate plot)
+}}
 }
 \value{
 A shiny window displaying a plot of an fcmconfr object's results

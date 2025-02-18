@@ -27,8 +27,8 @@ edges are those that contain zero as a lower bound for IVFNs and/or mode for
 TFNs but a non-zero value for the upper bound)}
 }
 \value{
-An aggregate adj. matrix (of class 'aggregate') with edges represented
-as numeric data types
+An 'aggregate_of_conventional_fcms' object that is an aggregate adj.
+matrix with edges represented as numeric data types
 }
 \description{
 Generate an aggregate adj. matrix from a list of (Conventional) adj. matrices.
@@ -91,8 +91,8 @@ ex_adj_matrix_4 <- data.frame(
 ex_fcms <- list(
   ex_adj_matrix_1, ex_adj_matrix_2, ex_adj_matrix_3, ex_adj_matrix_4
 )
-aggregate_conventional_fcms(ex_fcms, "mean", include_zeroes = TRUE)
-aggregate_conventional_fcms(ex_fcms, "mean", include_zeroes = FALSE)
+aggregate_conventional_fcms(ex_fcms, "mean", include_zeroes_in_sampling = TRUE)
+aggregate_conventional_fcms(ex_fcms, "mean", include_zeroes_in_sampling = FALSE)
 aggregate_conventional_fcms(ex_fcms, "median")
 }
 \seealso{

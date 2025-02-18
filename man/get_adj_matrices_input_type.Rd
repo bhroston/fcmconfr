@@ -11,29 +11,27 @@ get_adj_matrices_input_type(adj_matrix_list_input)
 }
 \value{
 a named list with two variables:
- adj_matrices_input_is_list: TRUE/FALSE Whether the input is a list of adj. matrices
- object_types_in_list: The 'class' of the input adj. matrices
+adj_matrices_input_is_list: TRUE/FALSE Whether the input is a list of adj. matrices
+object_types_in_list: The 'class' of the input adj. matrices
 }
 \description{
 This function performs two actions:
-
- 1. This function identifies whether the input is a list of adjacency matrices
-    or is an individual adj matrix (input_type)
-
- 2. This function identifies the 'class' of the input adj. matrices from the
-    following options: 'conventional' 'ivfn' 'tfn' or 'unavailable'
-
-     - 'conventional' means that the adj. matrices contain only numeric objects
-
-     - 'ivfn' means that the adj. matrices contain only 'ivfn' objects (interval-
-       valued fuzzy number) NOTE: also returns the matrix class type (i.e.
-       data.frame, tibble, etc.)
-
-     - 'tfn' means that the adj. matrices contain only 'tfn' objects (triangular
-       fuzzy number)
-
-     - 'unavailable' means that the adj. matrices contain non-numeric data that
-       are not of types 'ivfn' or 'tfn'
+\enumerate{
+\item This function identifies whether the input is a list of adjacency matrices
+or is an individual adj matrix (input_type)
+\item This function identifies the 'class' of the input adj. matrices from the
+following options: 'conventional' 'ivfn' 'tfn' or 'unavailable'
+\itemize{
+\item 'conventional' means that the adj. matrices contain only numeric objects
+\item 'ivfn' means that the adj. matrices contain only 'ivfn' objects (interval-
+valued fuzzy number) NOTE: also returns the matrix class type (i.e.
+data.frame, tibble, etc.)
+\item 'tfn' means that the adj. matrices contain only 'tfn' objects (triangular
+fuzzy number)
+\item 'unavailable' means that the adj. matrices contain non-numeric data that
+are not of types 'ivfn' or 'tfn'
+}
+}
 }
 \examples{
 # Individual Conventional Adj. Matrix ----

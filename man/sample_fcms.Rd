@@ -5,9 +5,11 @@
 \alias{sample_fcms}
 \title{sample_fcms}
 \format{
-## `sample_fcms`
+\subsection{\code{sample_fcms}}{
+
 A collection of simple and large FCMs with conventional, ivfn, and tfn
 edge types
+}
 }
 \usage{
 sample_fcms
@@ -27,14 +29,16 @@ Public.Education.Programs, Salts.Added.during.Water.Treatment,
 Salts.Added.by.Winter.Maintenance.Activities, Ecosystem.Health,
 Public.Awareness.of.Reservoir.Salinization, and
 Salinization.of.the.Reservoir. (Renamd, but based on nodes in larger FCMs)
- - $conventional_fcms: A list of smaller, simplified conventional FCMs
- - $ivfn_fcms: A list of smaller, simplified ivfn FCMs
- - $tfn_fcms: A list of smaller, simplified tfn FCMs
+\itemize{
+\item $conventional_fcms: A list of smaller, simplified conventional FCMs
+\item $ivfn_fcms: A list of smaller, simplified ivfn FCMs
+\item $tfn_fcms: A list of smaller, simplified tfn FCMs
 $large_fcms: these FCMs are large (n > 40) and will likely increase runtimes
 but represent a more complete dataset
- - $conventional_fcms: A list of large conventional FCMs
- - $ivfn_fcms: A list of large ivfn FCMs
- - $tfn_fcms: A list of large tfn FCMs
+\item $conventional_fcms: A list of large conventional FCMs
+\item $ivfn_fcms: A list of large ivfn FCMs
+\item $tfn_fcms: A list of large tfn FCMs
+}
 
 Given in Rippy et al, (In Review); Not all stakeholder FCMs used here.
 }

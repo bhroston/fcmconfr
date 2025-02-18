@@ -30,139 +30,252 @@ fcmconfr(
 )
 }
 \arguments{
-\item{adj_matrices}{A list of adjacency matrices (n x n) representing FCMs. This
-can also be an individual adjacency matrix.Adj. Matrices can be conventional FCMs,
-FCMs with edge weights as Interval Value Fuzzy Numbers (IVFNs) or FCMs with edge
-weights as Triangular Fuzzy Numbers (TFNs)}
+\item{adj_matrices}{A single adjacency matrix or a list of adjacency matrices
+(n x n) representing FCMs. Matrices can have conventional edge weights, IVFN
+edge weights or TFN edge weights}
 
-\item{agg_function}{Aggregate the adj. matrices into a single FCM by taking
-either the mean or median of the edge weights for edges included in multiple maps}
+\item{agg_function}{Choice of aggregation method (mean, median) for
+producing a single "collective" FCM from a group of individual FCMs. Omit
+this argument when analyzing a single, conventional FCM.}
 
-\item{num_mc_fcms}{The number of FCMs to generate via monte carlo
-sampling from the input adj. matrices}
+\item{num_mc_fcms}{Number of inferences to generate via Monte Carlo sampling.
+Omit this argument when analyzing a single, conventional FCM.}
 
-\item{initial_state_vector}{A list state values at the start of an fcm simulation}
+\item{initial_state_vector}{A list of state values (one per node) at the
+start of an FCM simulation. In pulse simulations the
+\code{initial_state_vector}  controls the scenario (i.e., a non-zero value
+is a transient perturbation). In clamped simulations all values in the
+\code{initial_state_vector} are set to 1.}
 
-\item{clamping_vector}{A list of values representing specific actions taken to
-control the behavior of an FCM. Specifically, non-zero values defined in this vector
-will remain constant throughout the entire simulation as if they were "clamped" at those values.}
+\item{clamping_vector}{A list of values (one per node) that indicates
+whether clamped simulations will be performed. In clamped simulations the
+\code{clamping_vector} controls the scenario (nodes assigned non-zero values
+will remain at those values for the entire simulation). In pulse simulations
+all values in the \code{clamping_vector} are set to 0.}
 
-\item{activation}{The activation function to be applied. Must be one of the following:
+\item{activation}{The activation function used. Must be one of the following:
 'kosko', 'modified-kosko', or 'rescale'.}
 
-\item{squashing}{A squashing function to apply. Must be one of the following:
+\item{squashing}{The squashing function used. Must be one of the following:
 'tanh', or 'sigmoid'.}
 
-\item{lambda}{A numeric value that defines the steepness of the slope of the
-squashing function when tanh or sigmoid are applied}
+\item{lambda}{A numeric value that defines the steepness of the squashing
+function}
 
-\item{point_of_inference}{The point along the simulation time-series to be
-identified as the inference. Must be one of the following: 'peak' or 'final'}
+\item{point_of_inference}{Definition of an inference. The metric used to
+calculate  the response of each node to a scenario of interest from
+simulation timeseries. Must be one of the following: 'peak' (the maximum
+value) or 'final' (the state at equilibrium).}
 
-\item{max_iter}{The maximum number of iterations to run if the minimum error value is not achieved}
+\item{max_iter}{The maximum number of iterations to run (increase if the
+minimum error value is not achieved)}
 
-\item{min_error}{The lowest error (sum of the absolute value of the current state
-vector minus the previous state vector) at which no more iterations are necessary
-and the simulation will stop}
+\item{min_error}{The error past which a simulation has converged and no
+further iterations are necessary. \emph{Error equals the sum of the
+absolute value of the current state vector minus the previous state vector}.}
 
 \item{ci_centering_function}{Estimate confidence intervals about the "mean" or "median" of
-inferences from the monte carlo simulations}
+inferences from Monte Carlo simulations}
 
-\item{confidence_interval}{The confidence interval to estimate for the inferences
-of each concept across all monte carlo FCMs (via bootstrap)}
+\item{confidence_interval}{Bootstrapped confidence level}
 
-\item{num_ci_bootstraps}{The number of bootstraps to perform in
-estimating the confidence interval for the inferences of each concept across all monte
-carlo FCMs}
+\item{num_ci_bootstraps}{Number of bootstrap draws}
 
-\item{show_progress}{TRUE/FALSE Show progress bar when creating fmcm. Uses pbmapply
-from the pbapply package as the underlying function.}
+\item{show_progress}{TRUE/FALSE Show progress bar when running FCM
+simulations.}
 
 \item{parallel}{TRUE/FALSE Whether to utilize parallel processing}
 
 \item{n_cores}{Number of cores to use in parallel processing. If no input given,
-will use all available cores in the machine.}
+all available cores will be used.}
 
-\item{run_agg_calcs}{TRUE/FALSE Run the code to generate and simulate an aggregate FCM generated from the input adj_matrices}
+\item{run_agg_calcs}{TRUE/FALSE Generate an aggregate FCM and perform dynamic
+simulations using the aggregate}
 
-\item{run_mc_calcs}{TRUE/FALSE Run the code to generate and simulate monte carlo-generated FCM sampled from the input adj_matrices}
+\item{run_mc_calcs}{TRUE/FALSE Perform Monte Carlo sampling to estimate
+uncertainty in simulation inferences.}
 
-\item{run_ci_calcs}{TRUE/FALSE Run the code to estimate the 95 percent CI bounds about the means of the inferences of the monte carlo adj matrices}
+\item{run_ci_calcs}{TRUE/FALSE Estimate bootstrapped confidence bounds about
+the central tendency of Monte Carlo inferences.}
 
-\item{include_zeroes_in_sampling}{TRUE/FALSE Whether to incorporate zeroes as intentionally-defined edge weights or ignore
-them when aggregating adj. matrices and sampling for monte carlo FCMs}
+\item{include_zeroes_in_sampling}{TRUE/FALSE Incorporate zero-weighted edges
+during FCM aggregation and Monte Carlo sampling.}
 
-\item{include_sims_in_output}{TRUE/FALSE Whether to include simulations of monte carlo FCMs. Switch to FALSE if concerned
-about the size of the output of fcmconfr (simulations are necessary and will run regardless)}
+\item{include_sims_in_output}{TRUE/FALSE Include Monte Carlo FCMs in addition
+to Monte Carlo simulations (and inferences) in fcmconfr output. Switch to
+FALSE to reduce output size.}
 }
 \value{
 A list of outputs generated from the individual_fcms simulations,
-         aggregate_fcm analysis, and monte_carlo_fcms analysis. Bootstrap
-         estimates of inferences from monte carlo analysis are included, as
-         well as function inputs.
+aggregate_fcm analysis, and monte_carlo_fcms analysis. Bootstrap
+estimates of inferences from monte carlo analysis are included, as
+well as function inputs.
 }
 \description{
 This is the primary function of the fcmconfr package. This function performs
-up to three different analyses of a set of (or an individual) input FCM(s).
-Use \code{\link{fcmconfr_gui}} to help select fcmconfr parameters using an
-interactive GUI.
+the following three analyses on input fuzzy cognitive maps (FCMs).
 
 \enumerate{
-   \item FCM Simulation: Simulate the (raw/unmodified) input FCMs to estimate
-         their inferences. Inferences are calculated by comparing the simulation
-         output of a particular scenario with the simulation output of the
-         baseline (i.e. the natural behavior of the network without external
-         perturbation), (Ozesmi & Ozesmi, 2003) and help distinguish
-         decision-making impacts with the structural or
-         expected, steady-state of the system.
-   \item Aggregate Analysis: Generate an aggregate adj. matrix from a list of
-         adj. matrices. FCM aggregation works by calculating the mean/median
-         edge weight for all edges across the input adj. matrices (i.e. the
-         mean/median of the edge weight connecting A -> B across all maps,
-         the mean/median of the edge weight connecting B -> C across all
-         maps, and so on) (Aminpour et al., 2020). The user may dictate
-         whether to incorporate 0-valued edge weights in the mean/median
-         calculations. See \code{\link{aggregate_fcms}} for more
-         information on aggregating FCMs outside of the
-         primary \code{\link{fcmconfr}} function.
-   \item Monte Carlo Analysis: Generate empirical adj. matrices whose edge
-         weights are drawn from edge weights from the input FCMs using
-         monte carlo sampling methods.These empirical FCMs are then simulated
-         in bulk using the FCM Simulation method previously described. This
-         outputs a dataframe of inferences across all empirical FCMs that
-         represent the possibility space of inferences representative of the
-         collective. This function also uses bootstrapping methods to
-         estimate confidence intervals about the inferences generated from
-         the empirical FCMs (may be toggled off if wanting to reduce runtime).
+\item Dynamic Simulation: The dynamic behvaior of one or more input FCMs
+is evaluated in response to a perturbation. Two types of simulations can
+be performed, pulse and clamped.
+\itemize{
+\item Pulse: In pulse simulations one or more nodes are transiently
+perturbed (the scenario) and allowed to relax back to equilibrium
+over multiple iterations to understand the effect those nodes have
+on the network. Scenarios are established using the initial state
+vector (non-zero values perturb a node). All values in the clamping
+vector must be set to zero (Stylios, 1997).
+\item Clamped: In clamped simulations, one or more nodes of interest
+are continuously activated (the scenario) and the result is compared
+to baseline conditions. Scenarios are established using the clamping
+vector (non-zero values clamp a node) and the baseline is
+established by setting all nodes in the initial state vector to one
+(i.e., it represents the response of the network to a transient
+pulse event involving all nodes) (Ozesmi & Ozesmi, 2003).
+}
+The final response of each node of an FCM in a scenario-of-interest is
+known as an inference. Inferences can be calculated using the maximum
+(peak) or the final resting state (final) of a node. In pulse simulations
+inferences are the difference between either of these two measures and
+zero. In clamped simulations inferences are the difference between either
+of these measures in the scenario-of-interest and their equivalent values
+in the baseline simulation. Simulations can be run using different
+activation functions (Kosko, Modified-Kosko, or Rescale) and squashing
+functions (sigmoid, tanh)
+
+Conventional FCM simulations use the traditional FCM simulation algorithm
+as established in Kosko (1986); Stylios (1997); Ozesmi & Ozesmi (2003),
+etc. (See Details for equations)
+
+IVFN- and TFN-FCM simulations use the algorithm from Yesil et al. (2014)
+where average values of IVFN and TFN elements in state vectors are passed
+to the IVFN- or TFN-FCM adjacency matrix. (See Details for equations)
+
+\item Model Aggregation: Generates a single "collective" adjacency matrix
+from a list of adjacency matrices. Aggregation is performed by calculating
+the mean/median edge weight for all edges included in a set of input FCMs
+(i.e. the mean/median of the edge weight connecting A->B across all maps,
+the mean/median of the edge weight connecting B->C across all maps, and
+so on) (Aminpour et al., 2020). The user specifies whether 0-valued edge
+weights (reflecting the absence of a connection between two nodes)
+shouldbe included when calculating the mean/median.
+
+\emph{Aggregate analysis can be toggled off to reduce runtime.}
+
+\item Monte Carlo Analysis: This method assesses uncertainty in dynamic
+simulations by generating a distribution of possible inferences. Edge
+weights are randomly sampled fro input FCMs to construct a set of \eqn{N}
+Monte Carlo FCMs. Each FCM undergoes dyamic simulation, producing \eqn{N}
+inferences per node. These inferences represent the range of possible
+values each node may assume, providing a way to quantify uncertainty.
+
+Min, Max, Median, and 25th/75th quantiles are estimated for each node.
+Bootstrapping (optional) can also be performed to estimat 95\% confidence
+bounds about the mean or median inference for each node.
+
+\emph{Monte Carlo analysis can be toggled off to reduce runtime.}
 }
 
-This function accepts three different types of FCMs which differ in how they
-represent edge weights. Note: All input FCMs must be the same type (i.e. a
-list of input FCMs must all be of one type or another, but cannot contain
-multiple types of FCMs in the same input set).
+\code{fcmconfr} can accommodate three types of FCMs. Note that each FCM type
+must be analyzed separately (i.e. they cannot be co-evaluated in a single
+input set). The three supported types of FCMs include:
 
 \enumerate{
-   \item Conventional FCMs: These represent edge weights as fuzzy numbers and
-         represent FCMs in thir traditional form (Stylios, 1997)
-   \item Interval-Valued Fuzzy Number (IVFN) FCMs: An extension of Conventional
-         FCMs, these represent edge weights as interval-valued fuzzy numbers
-         (IVFNs) which describe a range of values and are defined by a lower
-         and upper bound (e.g. [0.2, 0.8] represents the set of values
-         between 0.2 and 0.8 which may be represented as a uniform distribution
-         via runif(N, min = 0.2, max = 0.8)) (Moore & Lodwick, 2003)
-   \item Triangular Fuzzy Number (TFN) FCMs: An extension of Conventional
-         FCMs, these represent edge weights as triangular fuzzy numbers (TFNs)
-         which describe a bounded range of values with a greater density of
-         values at some point in between, such that the probability density
-         function of the distribution appears triangular (Moore & Lodwick, 2003).
-         These are defined by their lower and upper bounds as well as a mode
-         value, and can be called within this package via the
-         \code{\link{rtriangular_dist}} function or with other packages
-         such as EnvStats::rtri().
+\item Conventional FCMs, where edge weights are single-valued fuzzy
+numbers (Stylios, 1997).
+\item Interval-Valued Fuzzy Number (IVFN) FCMs, which are an extension
+of conventional FCMs. IVFN-FCMs represent edge weights as ranges
+\link{min, max}, where any value within the range is as likely as any other
+(i.e., the probability distribution for each edge is uniform)
+(Moore & Lodwick, 2003; Hajek & Prochazka, 2016); and
+\item Triangular Fuzzy Number (TFN) FCMs, which are an extension of
+IVFN-FCMs. TFN-FCMs also represent edge weights as ranges, but assume
+that one value within the range (the mode) is more likely than any other
+(i.e., the probability distribution for each edge is triangular)
+(Yesil et al., 2014).
 }
+
+The fcmcofnr package includes \code{fcmconfr_gui}, an interactive GUI tool
+that can be used to help select appropriate values for each argument in
+\code{fcmconfr()}.
 }
 \details{
-Call \code{\link{fcmconfr_gui}}. for assistance with inputs.
+FCM simulations are iterative applications of an activation function
+(\eqn{f_{A}}) that describes how node values at a particular state
+(\eqn{C^{(t)}}) are influenced by the edge weights defined in the
+adjacency matrix (\eqn{w}) to calculate the node values at the following
+state (\eqn{C^{(t+1)}}), and a squashing function (\eqn{f_{S}}) that
+restricts node values within a particular range.
+
+In conventional FCM simulations the current state vector (\eqn{C^{(t)}}) is
+used to calculate the next state vector (\eqn{C^{(t+1)}}).
+\deqn{
+C_{i}^{( t+1)} =f_{S}\left( f_{A}\left( w,\ C_{i}^{( t)}\right)\right)
+}
+
+In IVFN- and TFN-FCM simulations, the current state vector has to be
+translated into crisp values prior to calculating the next state vector.
+
+Formulas for crisp values:
+\deqn{
+\left(\overline{C}_{i}^{( t)}\right)_{IVFN} =\frac{\left( C_{i}^{( t)}\right)_{lower} +\left( C_{i}^{( t)}\right)_{upper}}{2}
+}
+\deqn{
+\left(\overline{C}_{i}^{( t)}\right)_{TFN} =\frac{\left( C_{i}^{( t)}\right)_{lower} +\left( C_{1}^{( t)}\right)_{mode} +\left( C_{i}^{( t)}\right)_{upper}}{3}
+}
+
+Formulas for next state vector:
+\deqn{
+\left( C_{i}^{( t+1)}\right)_{IVFN} =\left[\left( C_{i}^{( t+1)}\right)_{lower} ,\ \left( C_{i}^{( t+1)}\right)_{upper}\right] \ where\ \left\{\begin{array}{ c }
+\left( C_{i}^{( t+1)}\right)_{lower} =f_{S}\left( f_{A}\left( w_{lower} ,\ \overline{C}_{i}^{( t)}\right)\right)\\
+\left( C_{i}^{( t+1)}\right)_{upper} =f_{S}\left( f_{A}\left( w_{upper} ,\ \overline{C}_{i}^{( t)}\right)\right)
+\end{array}\right.
+}
+
+\deqn{
+\left( C_{i}^{( t+1)}\right)_{TFN} =\left[\left( C_{i}^{( t+1)}\right)_{lower} ,\ \left( C_{i}^{( t+1)}\right)_{upper}\right] \ where\ \left\{\begin{array}{ c }
+\left( C_{i}^{( t+1)}\right)_{lower} =f_{S}\left( f_{A}\left( w_{lower} ,\ \overline{C}_{i}^{( t)}\right)\right)\\
+\left( C_{i}^{( t+1)}\right)_{mode} =f_{S}\left( f_{A}\left( w_{mode} ,\ \overline{C}_{i}^{( t)}\right)\right)\\
+\left( C_{i}^{( t+1)}\right)_{upper} =f_{S}\left( f_{A}\left( w_{upper} ,\ \overline{C}_{i}^{( t)}\right)\right)
+\end{array}\right.
+}
+
+\code{fcmconfr} supports the Kosko, Modified-Kosko, and Rescale activation
+functions as defined here:
+
+\itemize{
+\item Kosko (Kosko, 1986)
+\deqn{
+   C_{i}^{( t+1)} =f\left(\sum _{ \begin{array}{l}
+   j\ =\ i\\
+   i\ \neq \ j
+   \end{array}}^{M} w_{ji} C_{j}^{( t)}\right)
+   }
+\item Modfied-Kosko (Stylio & Groumpos, 2004)
+\deqn{
+   C_{i}^{( t+1)} =f\left(\sum _{ \begin{array}{l}
+   j\ =\ i\\
+   i\ \neq \ j
+   \end{array}}^{M} w_{ji} C_{j}^{( t)} +C_{i}^{( t)}\right)
+   }
+\item Rescale (Papageorgiou, 2011; Dikopoulou, 2021)
+\deqn{
+   C_{i}^{( t+1)} =f\left(\sum _{ \begin{array}{l}
+   j\ =\ i\\
+   i\ \neq \ j
+   \end{array}}^{M} w_{ji}\left( 2C_{j}^{( t)} -1\right) +\left( 2C_{i}^{( t)} -1\right)\right)
+   }
+}
+
+\code{fcmconfr} supports the sigmoid and hyperbolic tangent (tanh) squashing
+functions.
+\deqn{
+f_{sigmoid}( x) =\frac{1}{1+e^{\lambda x}}
+}
+\deqn{
+f_{tanh}( x) =\frac{e^{x} -e^{-x}}{e^{x} +e^{-x}}
+}
 }
 \examples{
 # Conventional FCMs
@@ -352,4 +465,14 @@ ex_tfn_fcmconfr <- fcmconfr(
 \insertRef{styliosIntroducingTheoryFuzzy1997}{fcmconfr}
 
 \insertRef{mooreIntervalAnalysisFuzzy2003}{fcmconfr}
+
+\insertRef{hajek_interval-valued_2016}{fcmconfr}
+
+\insertRef{yesil_triangular_2014}{fcmconfr}
+
+\insertRef{stylios_modeling_2004}{fcmconfr}
+
+\insertRef{papageorgiou_new_2011}{fcmconfr}
+
+\insertRef{dikopoulou_fuzzy_2021}{fcmconfr}
 }

@@ -61,10 +61,12 @@ The function returns the difference in simulation results between the scenario a
 activity to understand how system manipulations compare to structural expectations of the system.
 
 This function produces the same output as mental modeler for the following inputs:
- - initial_state_vector = c(1, 1, ..., 1)
- - activation = "kosko"
- - squashing = either "sigmoid" or "tanh"
- - lambda = 1
+\itemize{
+\item initial_state_vector = c(1, 1, ..., 1)
+\item activation = "kosko"
+\item squashing = either "sigmoid" or "tanh"
+\item lambda = 1
+}
 }
 \examples{
 # Inference w/ Interval-Valued Fuzzy Numbers (IVFNs)

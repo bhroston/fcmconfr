@@ -23,8 +23,9 @@ calculations. (i.e. if edges not included in a map should count as a zero-weight
 edge or not at all)}
 }
 \value{
-An aggregate adj. matrix (of class 'aggregate') with edges represented
-as the same data types as the inputs (i.e. Numerics for conventional, IVFNs, or TFNs)
+An 'aggregate' object which is an aggregate adj. matrix with edges
+represented as the same data types as the inputs (i.e. Numerics for
+conventional, IVFNs, or TFNs)
 }
 \description{
 Generate an aggregate adj. matrix from a list of adj. matrices. FCM
@@ -40,7 +41,7 @@ sure all adj. matrices have the same dimensions.
 }
 \details{
 This function implements FCM aggregation methods used in
-Aminpout 2020 (https://doi.org/10.1038/s41893-019-0467-z) for use with
+Aminpour 2020 (https://doi.org/10.1038/s41893-019-0467-z) for use with
 conventional FCMs, and expands upon them for IVFN- and TFN-FCMs.
 
 \strong{Conventional FCMs}
@@ -156,7 +157,7 @@ adj_matrix_4 <- data.frame(
   "B" = c(0.5, 0)
 )
 fcms <- list(adj_matrix_1, adj_matrix_2, adj_matrix_3, adj_matrix_4)
-aggregate_fcms(fcms, "mean", include_zeroes = TRUE)
+aggregate_fcms(fcms, "mean", include_zeroes_in_sampling = TRUE)
 
 
 # Aggregate IVFN FCMs
@@ -203,7 +204,7 @@ fcms_w_ivfns <- list(adj_matrix_1, adj_matrix_2, adj_matrix_3, adj_matrix_4)
 # the assumption that a stakeholder simply did not include the edge is invalid.
 # Thus, since the 0-lower bound is meaningful, it is included in mean/median
 # calculations even if include_zeroes = FALSE
-aggregate_fcms(fcms_w_ivfns, "mean", include_zeroes = FALSE)
+aggregate_fcms(fcms_w_ivfns, "mean", include_zeroes_in_sampling = FALSE)
 }
 \references{
 \insertRef{aminpourWisdomStakeholderCrowds2020}{fcmconfr}

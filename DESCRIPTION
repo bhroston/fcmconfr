@@ -23,11 +23,12 @@ Description: fcmconfr streamlines the process of conducting dynamic simulations
 License: GPL (>= 3) + file LICENSE
 Encoding: UTF-8
 LazyData: true
-Suggests: 
+Suggests:
     covr (>= 3.6.4),
     knitr (>= 1.44),
     rmarkdown (>= 2.25),
     testthat (>= 3.0.0),
+    autotest (>= 0.0.2.211),
     vdiffr (>= 1.0.8)
 Config/testthat/edition: 3
 RoxygenNote: 7.3.2
@@ -60,3 +61,5 @@ Depends:
 VignetteBuilder: knitr
 URL: https://github.com/bhroston/fcmconfr
 BugReports: https://github.com/bhroston/fcmconfr/issues
+Roxygen: list(markdown = TRUE)
+Language: en-US

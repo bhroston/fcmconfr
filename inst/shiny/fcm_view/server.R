@@ -3,7 +3,7 @@ server <- function(input, output) {
 
   # Load input visNetwork obj ----
   input_visNetwork <- shiny::reactive({
-    fcm_as_visNetwork_obj
+    fcm_visNetwork
   })
 
   input_nodes <- shiny::reactive({
@@ -22,7 +22,7 @@ server <- function(input, output) {
 
   # fcm_display and visNetworkProxy ----
   output$fcm_display <- visNetwork::renderVisNetwork({
-    fcm_as_visNetwork_obj %>%
+    fcm_visNetwork %>%
       visNetwork::visOptions(nodesIdSelection = TRUE) %>%
       visNetwork::visInteraction(zoomSpeed = 0.5) %>%
       visNetwork::visEdges(
@@ -280,7 +280,7 @@ server <- function(input, output) {
 
   updated_fcm_visNetwork <- shiny::reactive({
     if (!is.null(fcm_display)) {
-      updated_visNetwork <- fcm_as_visNetwork_obj
+      updated_visNetwork <- fcm_visNetwork
       # Node updates
       updated_visNetwork$x$nodes <- nodes()
       updated_visNetwork$x$options$nodes$shape <- input$node_shape
@@ -298,13 +298,13 @@ server <- function(input, output) {
   })
 
   shiny::observeEvent(input$close_app, {
-    assign(x = "updated_fcm_visNetwork_obj", value = shiny::isolate(updated_fcm_visNetwork()), envir = shiny_env)
+    assign(x = "updated_fcm_visNetwork", value = shiny::isolate(updated_fcm_visNetwork()), envir = shiny_env)
     shiny::stopApp()
   })
 
   shiny::onStop(
     function() {
-      assign(x = "updated_fcm_visNetwork_obj", value = shiny::isolate(updated_fcm_visNetwork()), envir = shiny_env)
+      assign(x = "updated_fcm_visNetwork", value = shiny::isolate(updated_fcm_visNetwork()), envir = shiny_env)
     }
   )
 }

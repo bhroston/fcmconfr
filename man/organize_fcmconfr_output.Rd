@@ -18,7 +18,7 @@ and critically, neatly-arranged data structures to clean code written in
 the \code{\link{fcmconfr}} function.
 }
 \details{
-[INTENDED FOR DEVELOPER USE ONLY]
+\link{INTENDED FOR DEVELOPER USE ONLY}
 }
 \examples{
 NULL

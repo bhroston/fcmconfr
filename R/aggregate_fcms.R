@@ -31,7 +31,7 @@
 #'
 #' @details
 #' This function implements FCM aggregation methods used in
-#' Aminpout 2020 (https://doi.org/10.1038/s41893-019-0467-z) for use with
+#' Aminpour 2020 (https://doi.org/10.1038/s41893-019-0467-z) for use with
 #' conventional FCMs, and expands upon them for IVFN- and TFN-FCMs.
 #'
 #' \strong{Conventional FCMs}
@@ -139,8 +139,9 @@
 #'
 #' @references \insertRef{aminpourWisdomStakeholderCrowds2020}{fcmconfr}
 #'
-#' @returns An aggregate adj. matrix (of class 'aggregate') with edges represented
-#' as the same data types as the inputs (i.e. Numerics for conventional, IVFNs, or TFNs)
+#' @returns An 'aggregate' object which is an aggregate adj. matrix with edges
+#' represented as the same data types as the inputs (i.e. Numerics for
+#' conventional, IVFNs, or TFNs)
 #'
 #' @importFrom Rdpack reprompt
 #'
@@ -242,8 +243,8 @@ aggregate_fcms <- function(adj_matrices = list(matrix()),
 #' edges are those that contain zero as a lower bound for IVFNs and/or mode for
 #' TFNs but a non-zero value for the upper bound)
 #'
-#' @returns An aggregate adj. matrix (of class 'aggregate') with edges represented
-#' as numeric data types
+#' @returns An 'aggregate_of_conventional_fcms' object that is an aggregate adj.
+#' matrix with edges represented as numeric data types
 #'
 #' @importFrom stats median
 #'
@@ -255,6 +256,14 @@ aggregate_conventional_fcms <- function(adj_matrices = list(matrix()),
                                         agg_function = c("mean", "median"),
                                         include_zeroes_in_sampling = TRUE,
                                         false_zero_locs_by_adj_matrix = list()) {
+
+  agg_function <- tolower(agg_function)
+  if (!is.logical(include_zeroes_in_sampling)) {
+    stop(cli::format_error(c(
+      "x" = "Error: {.var include_zeroes_in_sampling} must be logical (TRUE/FALSE)",
+      "+++++> Input {.var include_zeroes_in_sampling} was: {include_zeroes_in_sampling}"
+    )))
+  }
 
   concepts_in_adj_matrices <- lapply(adj_matrices, function(x) get_node_IDs_from_input(x))
   node_names <- unlist(unique(concepts_in_adj_matrices))
@@ -367,8 +376,8 @@ aggregate_conventional_fcms <- function(adj_matrices = list(matrix()),
 #' calculations. (i.e. if edges not included in a map should count as a zero-weighted
 #' edge or not at all)
 #'
-#' @returns An aggregate adj. matrix (of class 'aggregate') with edges represented
-#' as IVFN data types
+#' @returns An 'aggregate_of_fcms_w_ivfns' object which is an aggregate adj.
+#' matrix with edges represented as IVFN data types
 #'
 #' @keywords internal
 #'
@@ -477,8 +486,8 @@ aggregate_fcms_w_ivfns <- function(adj_matrices = list(matrix()),
 #' calculations. (i.e. if edges not included in a map should count as a zero-weighted
 #' edge or not at all)
 #'
-#' @returns An aggregate adj. matrix (of class 'aggregate') with edges represented
-#' as TFN data types
+#' @returns An 'aggregate_of_fcms_w_tfns' object which is an aggregate adj.
+#' matrix with edges represented as TFN data types
 #'
 #' @keywords internal
 #'
