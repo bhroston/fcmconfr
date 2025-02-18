@@ -4,10 +4,11 @@
 \alias{get_node_IDs_from_input}
 \title{Get Node IDs (Concepts) from Adj. Matrix}
 \usage{
-get_node_IDs_from_input(adj_matrix = matrix())
+get_node_IDs_from_input(adj_matrix = data.frame())
 }
 \arguments{
-\item{adj_matrix}{An n x n adjacency matrix that represents an FCM}
+\item{adj_matrix}{An \link{data.frame} n x n adjacency matrix that represents
+an FCM}
 }
 \value{
 A vector of concept names
@@ -33,7 +34,6 @@ Other utility:
 \code{\link{check_if_local_machine_has_access_to_show_progress_functionalities}()},
 \code{\link{fcm_view}()},
 \code{\link{get_adj_matrices_input_type}()},
-\code{\link{get_edgelist_from_adj_matrix}()},
 \code{\link{get_inferences}()},
 \code{\link{standardize_adj_matrices}()}
 }

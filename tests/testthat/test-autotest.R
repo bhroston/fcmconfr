@@ -53,9 +53,32 @@ test_that("fcm_view passes autotest", {
 })
 
 
+test_that("utils-general functions pass autotest", {
+  functions_to_test <- c(
+    "standardize_adj_matrices",
+    "check_if_local_machine_has_access_to_parallel_processing_functionalities",
+    "check_if_local_machine_has_access_to_show_progress_functionalities",
+    "get_adj_matrices_input_type",
+    "get_node_IDs_from_input"
+  )
 
-yaml_list <- examples_to_yaml(package = ".", functions = functions_to_test)
-res <- autotest_yaml(yaml = yaml_list, test = TRUE)
+  test_data <- autotest::autotest_types()
+  test_data$notes <- ""
 
-autotest::expect_autotest_no_err(res)
-autotest::expect_autotest_no_warn(res)
+  x <- autotest::autotest_package(
+    functions = functions_to_test,
+    test = TRUE,
+    test_data = test_data
+  )
+
+  autotest::expect_autotest_no_err(x)
+  autotest::expect_autotest_no_warn(x)
+})
+
+
+
+# yaml_list <- examples_to_yaml(package = ".", functions = functions_to_test)
+# res <- autotest_yaml(yaml = yaml_list, test = TRUE)
+#
+# autotest::expect_autotest_no_err(res)
+# autotest::expect_autotest_no_warn(res)

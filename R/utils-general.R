@@ -364,13 +364,14 @@ get_adj_matrices_input_type <- function(adj_matrix_list_input = list()) {
 #'
 #' Intended for developer use only to improve package readability.
 #'
-#' @param adj_matrix An n x n adjacency matrix that represents an FCM
+#' @param adj_matrix An [data.frame] n x n adjacency matrix that represents
+#' an FCM
 #'
 #' @returns A vector of concept names
 #'
 #' @export
 #' @example man/examples/ex-get_node_IDs_from_input.R
-get_node_IDs_from_input <- function(adj_matrix = matrix()) {
+get_node_IDs_from_input <- function(adj_matrix = data.frame()) {
   empty_colnames <- identical(colnames(adj_matrix), NULL)
   if (empty_colnames) {
     IDs <- paste0("C", 1:nrow(adj_matrix))
