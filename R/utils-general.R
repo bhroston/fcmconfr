@@ -6,7 +6,6 @@
 # tools used throughout the package.
 #
 #   - standardize_adj_matrices
-#   - estimate_fcm_lambda
 #   - check_if_local_machine_has_access_to_parallel_processing_functionalities
 #   - check_if_local_machine_has_access_to_show_progress_functionalities
 #   - get_adj_matrices_input_type
@@ -123,7 +122,21 @@ standardize_adj_matrices <- function(adj_matrices = list(matrix())) {
 #' @export
 #' @example man/examples/ex-check_if_local_machine_has_access_to_parallel_processing_functionalities.R
 check_if_local_machine_has_access_to_parallel_processing_functionalities <- function(use_parallel, use_show_progress) {
-  # Confirm packages necessary packages are available. If not, change run options
+
+  if (!is.logical(use_parallel) | length(use_parallel) > 1) {
+    stop(cli::format_error(c(
+      "x" = "Error: {.var use_parallel} must be logical (TRUE/FALSE)",
+      "+++++> Input {.var use_parallel} was: {use_parallel}"
+    )))
+  }
+
+  if (!is.logical(use_show_progress) | length(use_show_progress) > 1) {
+    stop(cli::format_error(c(
+      "x" = "Error: {.var use_show_progress} must be logical (TRUE/FALSE)",
+      "+++++> Input {.var use_show_progress} was: {use_show_progress}"
+    )))
+  }
+
   parallel_check <- use_parallel
   show_progress_check <- use_show_progress
 
@@ -174,7 +187,21 @@ check_if_local_machine_has_access_to_parallel_processing_functionalities <- func
 #' @export
 #' @example man/examples/ex-check_if_local_machine_has_access_to_show_progress_functionalities.R
 check_if_local_machine_has_access_to_show_progress_functionalities <- function(use_parallel, use_show_progress) {
-  # Confirm packages necessary packages are available. If not, change run options
+
+  if (!is.logical(use_parallel) | length(use_parallel) > 1) {
+    stop(cli::format_error(c(
+      "x" = "Error: {.var use_parallel} must be logical (TRUE/FALSE)",
+      "+++++> Input {.var use_parallel} was: {use_parallel}"
+    )))
+  }
+
+  if (!is.logical(use_show_progress) | length(use_show_progress) > 1) {
+    stop(cli::format_error(c(
+      "x" = "Error: {.var use_show_progress} must be logical (TRUE/FALSE)",
+      "+++++> Input {.var use_show_progress} was: {use_show_progress}"
+    )))
+  }
+
   parallel_check <- use_parallel
   show_progress_check <- use_show_progress
 
@@ -208,30 +235,34 @@ check_if_local_machine_has_access_to_show_progress_functionalities <- function(u
 #'
 #' @description
 #' This function performs two actions:
+#' \enumerate{
+#'    \item This function identifies whether the input is a list of adjacency
+#'    matrices or is an individual adj matrix (input_type)
+#'    \item This function identifies the 'class' of the input adj. matrices from
+#'    the following options: 'conventional' 'ivfn' 'tfn' or 'unavailable'
+#'    \itemize{
+#'        \item 'conventional' means that the adj. matrices contain only
+#'        numeric objects
+#'        \item 'ivfn' means that the adj. matrices contain only 'ivfn' objects
+#'        (interval-valued fuzzy number) NOTE: also returns the matrix class
+#'        type (i.e. data.frame, tibble, etc.)
+#'        \item 'tfn' means that the adj. matrices contain only 'tfn' objects
+#'        (triangular fuzzy number)
+#'        \item 'unavailable' means that the adj. matrices contain non-numeric
+#'        data that are not of types 'ivfn' or 'tfn'
+#'    }
+#' }
 #'
-#'  1. This function identifies whether the input is a list of adjacency matrices
-#'     or is an individual adj matrix (input_type)
-#'
-#'  2. This function identifies the 'class' of the input adj. matrices from the
-#'     following options: 'conventional' 'ivfn' 'tfn' or 'unavailable'
-#'
-#'      - 'conventional' means that the adj. matrices contain only numeric objects
-#'
-#'      - 'ivfn' means that the adj. matrices contain only 'ivfn' objects (interval-
-#'        valued fuzzy number) NOTE: also returns the matrix class type (i.e.
-#'        data.frame, tibble, etc.)
-#'
-#'      - 'tfn' means that the adj. matrices contain only 'tfn' objects (triangular
-#'        fuzzy number)
-#'
-#'      - 'unavailable' means that the adj. matrices contain non-numeric data that
-#'        are not of types 'ivfn' or 'tfn'
-#'
-#' @param adj_matrix_list_input A list of adj matrices or an individual adj matrix
+#' @param adj_matrix_list_input A [list] of adj matrices or an
+#' individual adj matrix [data.frame]. Converts an individual adj.
+#' matrix to a list if not already.
 #'
 #' @returns a named list with two variables:
-#'  adj_matrices_input_is_list: TRUE/FALSE Whether the input is a list of adj. matrices
-#'  object_types_in_list: The 'class' of the input adj. matrices
+#' \itemize{
+#'    \item adj_matrices_input_is_list: TRUE/FALSE Whether the input is a list
+#'    of adj. matrices
+#'    \item object_types_in_list: The 'class' of the input adj. matrices
+#' }
 #'
 #' @importFrom methods is
 #' @importFrom data.table data.table
@@ -242,13 +273,13 @@ check_if_local_machine_has_access_to_show_progress_functionalities <- function(u
 #'
 #' @export
 #' @example man/examples/ex-get_adj_matrices_input_type.R
-get_adj_matrices_input_type <- function(adj_matrix_list_input) {
+get_adj_matrices_input_type <- function(adj_matrix_list_input = list()) {
   classes_in_list_objects <- methods::is(list())
-  classes_in_dataframe_objects <- methods::is(data.frame())
-  classes_in_matrix_objects <- methods::is(matrix())
-  classes_in_datatable_objects <- methods::is(data.table::data.table())
-  classes_in_tibble_objects <- methods::is(tibble::tibble())
-  classes_in_sparseMatrix_objects <- methods::is(Matrix::Matrix(data = 1:2, sparse = TRUE)) # add data = 1:2 to get accurate datatyps is methods::is
+  # classes_in_dataframe_objects <- methods::is(data.frame())
+  # classes_in_matrix_objects <- methods::is(matrix())
+  # classes_in_datatable_objects <- methods::is(data.table::data.table())
+  # classes_in_tibble_objects <- methods::is(tibble::tibble())
+  # classes_in_sparseMatrix_objects <- methods::is(Matrix::Matrix(data = 1:2, sparse = TRUE)) # add data = 1:2 to get accurate datatyps is methods::is
 
   classes_in_adj_matrix_list_input <- methods::is(adj_matrix_list_input)
   if (identical(classes_in_adj_matrix_list_input, classes_in_list_objects)) {
@@ -272,17 +303,17 @@ get_adj_matrices_input_type <- function(adj_matrix_list_input) {
     adj_matrix_list_input <- list(adj_matrix_list_input)
   }
 
-  if (identical(object_types_in_input_list, classes_in_dataframe_objects)) {
-    object_types_in_input_list <- c("data.frame")
-  } else if (identical(object_types_in_input_list, classes_in_matrix_objects)) {
-    object_types_in_input_list <- c("matrix")
-  } else if (identical(object_types_in_input_list, classes_in_datatable_objects)) {
-    object_types_in_input_list <- c("data.table")
-  } else if (identical(object_types_in_input_list, classes_in_tibble_objects)) {
-    object_types_in_input_list <- c("tibble")
-  } else if (identical(object_types_in_input_list, classes_in_sparseMatrix_objects)) {
-    object_types_in_input_list <- c("sparseMatrix")
-  }
+  # if (identical(object_types_in_input_list, classes_in_dataframe_objects)) {
+  #   object_types_in_input_list <- c("data.frame")
+  # } else if (identical(object_types_in_input_list, classes_in_matrix_objects)) {
+  #   object_types_in_input_list <- c("matrix")
+  # } else if (identical(object_types_in_input_list, classes_in_datatable_objects)) {
+  #   object_types_in_input_list <- c("data.table")
+  # } else if (identical(object_types_in_input_list, classes_in_tibble_objects)) {
+  #   object_types_in_input_list <- c("tibble")
+  # } else if (identical(object_types_in_input_list, classes_in_sparseMatrix_objects)) {
+  #   object_types_in_input_list <- c("sparseMatrix")
+  # }
 
   element_types_in_objects_in_input_list <- unique(
     lapply(adj_matrix_list_input,
@@ -319,150 +350,6 @@ get_adj_matrices_input_type <- function(adj_matrix_list_input) {
     adj_matrices_input_is_list = adj_matrices_input_is_list,
     object_types_in_list = object_types_in_input_list
   )
-}
-
-
-
-#' Create an Adjacency Matrix from an Edgelist
-#'
-#'
-#' @description
-#' Creates an adjacency matrix from an edgelist
-#'
-#' @details
-#' The input edgelist must have the following column names: 'source' or 'from',
-#' 'target' or 'to'. The user must manually note if different names are used
-#' for the edgelist. An additional column may be selected to describe a value
-#' attributed to a given edge (default value column name is 'weight').
-#'
-#' The input edgelist can be either a matrix, data.frame, tibble, or
-#' data.table type object.
-#'
-#' @param edgelist An edgelist representing an fcm. Default column names are
-#' "source", "target", and "weight", but these may be defined explicitly.
-#' @param source_colname Column name in the input eddgelist that represents
-#' edge source nodes
-#' @param target_colname Column name in the input edgelist that represents
-#' edge target nodes
-#' @param value_colname Column name in the input edgelist that represents represents
-#' the values displayed in the adjacency matrix (i.e. weight, standard_deviation)
-#' @param node_order The order in which concepts should be arranged in the output
-#' adjacency matrix. If no input given, concepts will be arranged alphabetically.
-#'
-#' @returns An adjacency matrix (data.frame)
-#'
-#' @export
-#' @example man/examples/ex-get_adj_matrix_from_edgelist.R
-get_adj_matrix_from_edgelist <- function(edgelist = matrix(),
-                                         source_colname = "source",
-                                         target_colname = "target",
-                                         value_colname = "weight",
-                                         node_order = c()) {
-
-  edgelist_column_inputs <- c(source_colname, target_colname, value_colname)
-  edgelist_columns_match_inputs <- identical(colnames(edgelist), edgelist_column_inputs)
-
-  if (!edgelist_columns_match_inputs) {
-    stop("Edgelist column names do not match inputs source_colname, target_colname
-         or value_colname. The default values for these are 'sourrce', 'target',
-         and 'weight'. Check to make sure that these match the actual column
-         names of the input edgelist.")
-  }
-
-  source_nodes <- edgelist[[source_colname]]
-  target_nodes <- edgelist[[target_colname]]
-  edge_values <- edgelist[[value_colname]]
-
-  nodes <- unique(c(source_nodes, target_nodes))
-
-  adj_matrix <- data.frame(matrix(data = 0, nrow = length(nodes), ncol = length(nodes)))
-  colnames(adj_matrix) <- nodes
-  rownames(adj_matrix) <- nodes
-
-  for (i in seq_along(edge_values)) {
-    edge <- edgelist[i, ]
-    edge_row_loc <- which(nodes == edge[[source_colname]])
-    edge_col_loc <- which(nodes == edge[[target_colname]])
-    adj_matrix[edge_row_loc, edge_col_loc] <- edge_values[i]
-  }
-
-  node_order_given <- !identical(node_order, c())
-  node_order_is_not_correct_length <- length(node_order) != length(nodes)
-  node_order_input_is_not_type_character <- !identical(unique(typeof(node_order)), "character")
-  if (!node_order_given) {
-    adj_matrix <- adj_matrix
-  } else if (node_order_given & (node_order_is_not_correct_length | node_order_input_is_not_type_character)) {
-    stop("Input node_order must only contain character strings and must contain
-         as many values as their are unique nodes depicted in the input edgelist.")
-  } else {
-    adj_matrix <- adj_matrix[node_order, node_order]
-  }
-
-  adj_matrix
-}
-
-
-
-#' Convert an Adjacency Matrix to an Edgelist
-#'
-#' @family utility
-#'
-#' @description
-#' Converts an adjacency matrix into an edgelist
-#'
-#' @details
-#' The input adjacency matrix must be a square n x n matrix. It can be either
-#' a matrix, data.frame, tibble, or data.table type object.
-#'
-#' If the input matrix has named columns, those names will be used as concepts
-#' in the edgelist. Otherwise, generic node IDs will be used (C1, C2, ... Cn)
-#'
-#' @param adj_matrix An n x n adjacency matrix that represents an FCM
-#'
-#' @returns An edgelist with the following columns: source, target, weight
-#'
-#' @importFrom data.table data.table
-#'
-#' @export
-#' @example man/examples/ex-get_edgelist_from_adj_matrix.R
-get_edgelist_from_adj_matrix <- function(adj_matrix = matrix()) {
-  # Check adj matrix
-  rows <- nrow(adj_matrix)
-  cols <- ncol(adj_matrix)
-  if (rows != cols) {
-    stop("Failed Input Validation: Input adjacency matrix must be a square (n x n) matrix")
-  }
-
-  # Confirm adj_matrix has either Conventional, IVFN, or TFN data types
-  get_adj_matrices_input_type(adj_matrix)$object_types_in_list[1]
-
-  # #data_types_in_adj_matrix <- unique(do.call(c, (apply(adj_matrix, c(1, 2), function(x) list(methods::is(x[[1]]))))))
-  # all_data_are_numeric <- all(apply(adj_matrix, c(1, 2), is.numeric))
-  # if (!all_data_are_numeric) {
-  #   stop("Failed Input Validation: Input adjacency matrix must contain objects of the same type. Either numerics, ivfns, or tfns.")
-  # }
-
-  empty_colnames <- identical(colnames(adj_matrix), NULL)
-  if (empty_colnames) {
-    IDs <- paste0("C", 1:nrow(adj_matrix))
-    colnames(adj_matrix) <- IDs
-  } else if (!empty_colnames) {
-    IDs <- colnames(adj_matrix)
-  }
-
-  edge_locs <- data.table::data.table(which(adj_matrix != 0, arr.ind = TRUE))
-  edge_weights <- mapply(function(row, col) adj_matrix[row, col], row = edge_locs$row, col = edge_locs$col)
-
-  source_IDs <- IDs[edge_locs$row]
-  target_IDs <- IDs[edge_locs$col]
-
-  edgelist <- data.frame(
-    source = source_IDs,
-    target = target_IDs,
-    weight = edge_weights
-  )
-
-  edgelist
 }
 
 

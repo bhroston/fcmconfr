@@ -5,7 +5,7 @@
 \title{Create an Adjacency Matrix from an Edgelist}
 \usage{
 get_adj_matrix_from_edgelist(
-  edgelist = matrix(),
+  edgelist = list(),
   source_colname = "source",
   target_colname = "target",
   value_colname = "weight",
