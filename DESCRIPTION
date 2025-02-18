@@ -60,3 +60,4 @@ Depends:
 VignetteBuilder: knitr
 URL: https://github.com/bhroston/fcmconfr
 BugReports: https://github.com/bhroston/fcmconfr/issues
+Roxygen: list(markdown = TRUE)

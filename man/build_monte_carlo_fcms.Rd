@@ -47,7 +47,7 @@ defined in the input FCMs.
 For IVFN and TFN FCMs, edge weights are sampled from the combined
 distributions representative of the IVFN/TFN edge weights. For example,
 if an edge is given the following weights across two maps: IVFN(0.4, 0.8) and
-IVFN[0.5, 0.7], the samples will be drawn from the combined distribution:
+IVFN\link{0.5, 0.7}, the samples will be drawn from the combined distribution:
 sample(N, c(runif(N, 0.4, 0.8), runif(N, 0.5, 0.7)), replace = TRUE).
 }
 \examples{

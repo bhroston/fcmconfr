@@ -97,74 +97,74 @@ about the size of the output of fcmconfr (simulations are necessary and will run
 }
 \value{
 A list of outputs generated from the individual_fcms simulations,
-         aggregate_fcm analysis, and monte_carlo_fcms analysis. Bootstrap
-         estimates of inferences from monte carlo analysis are included, as
-         well as function inputs.
+aggregate_fcm analysis, and monte_carlo_fcms analysis. Bootstrap
+estimates of inferences from monte carlo analysis are included, as
+well as function inputs.
 }
 \description{
 This is the primary function of the fcmconfr package. This function performs
 the following three analyses on input fuzzy cognitive maps (FCMs).
 
 \enumerate{
-   \item Dynamic Simulation: The dynamic behvaior of one or more input FCMs
-   is evaluated in response to a perturbation. Two types of simulations can
-   be performed, pulse and clamped.
-   \itemize{
-       \item Pulse: In pulse simulations one or more nodes are transiently
-       perturbed (the scenario) and allowed to relax back to equilibrium
-       over multiple iterations to understand the effect those nodes have
-       on the network. Scenarios are established using the initial state
-       vector (non-zero values perturb a node). All values in the clamping
-       vector must be set to zero (Stylios, 1997).
-       \item Clamped: In clamped simulations, one or more nodes of interest
-       are continuously activated (the scenario) and the result is compared
-       to baseline conditions. Scenarios are established using the clamping
-       vector (non-zero values clamp a node) and the baseline is
-       established by setting all nodes in the initial state vector to one
-       (i.e., it represents the response of the network to a transient
-       pulse event involving all nodes) (Ozesmi & Ozesmi, 2003).
-   }
-   The final response of each node of an FCM in a scenario-of-interest is
-   known as an inference. Inferences can be calculated using the maximum
-   (peak) or the final resting state (final) of a node. In pulse simulations
-   inferences are the difference between either of these two measures and
-   zero. In clamped simulations inferences are the difference between either
-   of these measures in the scenario-of-interest and their equivalent values
-   in the baseline simulation. Simulations can be run using different
-   activation functions (Kosko, Modified-Kosko, or Rescale) and squashing
-   functions (Sigmoid, Tanh)
+\item Dynamic Simulation: The dynamic behvaior of one or more input FCMs
+is evaluated in response to a perturbation. Two types of simulations can
+be performed, pulse and clamped.
+\itemize{
+\item Pulse: In pulse simulations one or more nodes are transiently
+perturbed (the scenario) and allowed to relax back to equilibrium
+over multiple iterations to understand the effect those nodes have
+on the network. Scenarios are established using the initial state
+vector (non-zero values perturb a node). All values in the clamping
+vector must be set to zero (Stylios, 1997).
+\item Clamped: In clamped simulations, one or more nodes of interest
+are continuously activated (the scenario) and the result is compared
+to baseline conditions. Scenarios are established using the clamping
+vector (non-zero values clamp a node) and the baseline is
+established by setting all nodes in the initial state vector to one
+(i.e., it represents the response of the network to a transient
+pulse event involving all nodes) (Ozesmi & Ozesmi, 2003).
+}
+The final response of each node of an FCM in a scenario-of-interest is
+known as an inference. Inferences can be calculated using the maximum
+(peak) or the final resting state (final) of a node. In pulse simulations
+inferences are the difference between either of these two measures and
+zero. In clamped simulations inferences are the difference between either
+of these measures in the scenario-of-interest and their equivalent values
+in the baseline simulation. Simulations can be run using different
+activation functions (Kosko, Modified-Kosko, or Rescale) and squashing
+functions (sigmoid, tanh)
 
-   Conventional FCM simulations use the traditional FCM simulation algorithm
-   as established in Kosko (1986); Stylios (1997); Ozesmi & Ozesmi (2003),
-   etc. (See Details for equations)
+Conventional FCM simulations use the traditional FCM simulation algorithm
+as established in Kosko (1986); Stylios (1997); Ozesmi & Ozesmi (2003),
+etc. (See Details for equations)
 
-   IVFN- and TFN-FCM simulations use the algorithm from Yesil et al. (2014)
-   where average values of IVFN and TFN elements in state vectors are passed
-   to the IVFN- or TFN-FCM adjacency matrix. (See Details for equations)
+IVFN- and TFN-FCM simulations use the algorithm from Yesil et al. (2014)
+where average values of IVFN and TFN elements in state vectors are passed
+to the IVFN- or TFN-FCM adjacency matrix. (See Details for equations)
 
-   \item Model Aggregation: Generates a single "collective" adjacency matrix
-   from a list of adjacency matrices. Aggregation is performed by calculating
-   the mean/median edge weight for all edges included in a set of input FCMs
-   (i.e. the mean/median of the edge weight connecting A->B across all maps,
-   the mean/median of the edge weight connecting B->C across all maps, and
-   so on) (Aminpour et al., 2020). The user specifies whether 0-valued edge
-   weights (reflecting the absence of a connection between two nodes)
-   shouldbe included when calculating the mean/median.
+\item Model Aggregation: Generates a single "collective" adjacency matrix
+from a list of adjacency matrices. Aggregation is performed by calculating
+the mean/median edge weight for all edges included in a set of input FCMs
+(i.e. the mean/median of the edge weight connecting A->B across all maps,
+the mean/median of the edge weight connecting B->C across all maps, and
+so on) (Aminpour et al., 2020). The user specifies whether 0-valued edge
+weights (reflecting the absence of a connection between two nodes)
+shouldbe included when calculating the mean/median.
 
-   \emph{Aggregate analysis can be toggled off to reduce runtime.}
+\emph{Aggregate analysis can be toggled off to reduce runtime.}
 
-   \item Monte Carlo Analysis: This method assesses uncertainty in dynamic
-   simulations by generating a distribution of possible inferences. Edge
-   weights are randomly sampled fro input FCMs to construct a set of \eqn{N}
-   Monte Carlo FCMs. Each FCM undergoes dyamic simulation, producing \eqn{N}
-   inferences per node. These inferences represent the range of possible
-   values each node may assume, providing a way to quantify uncertainty.
+\item Monte Carlo Analysis: This method assesses uncertainty in dynamic
+simulations by generating a distribution of possible inferences. Edge
+weights are randomly sampled fro input FCMs to construct a set of \eqn{N}
+Monte Carlo FCMs. Each FCM undergoes dyamic simulation, producing \eqn{N}
+inferences per node. These inferences represent the range of possible
+values each node may assume, providing a way to quantify uncertainty.
 
-   Min, Max, Median, and 25th/75th quantiles are estimated for each node.
-   Bootstrapping (optional) can also be performed to estimat 95% confidence
-   bounds about the mean or median inference for each node.
+Min, Max, Median, and 25th/75th quantiles are estimated for each node.
+Bootstrapping (optional) can also be performed to estimat 95\% confidence
+bounds about the mean or median inference for each node.
 
-   \emph{Monte Carlo analysis can be toggled off to reduce runtime.}
+\emph{Monte Carlo analysis can be toggled off to reduce runtime.}
 }
 
 \code{fcmconfr} can accommodate three types of FCMs. Note that each FCM type
@@ -172,18 +172,18 @@ must be analyzed separately (i.e. they cannot be co-evaluated in a single
 input set). The three supported types of FCMs include:
 
 \enumerate{
-   \item Conventional FCMs, where edge weights are single-valued fuzzy
-   numbers (Stylios, 1997).
-   \item Interval-Valued Fuzzy Number (IVFN) FCMs, which are an extension
-   of conventional FCMs. IVFN-FCMs represent edge weights as ranges
-   [min, max], where any value within the range is as likely as any other
-   (i.e., the probability distribution for each edge is uniform)
-   (Moore & Lodwick, 2003; Hajek & Prochazka, 2016); and
-   \item Triangular Fuzzy Number (TFN) FCMs, which are an extension of
-   IVFN-FCMs. TFN-FCMs also represent edge weights as ranges, but assume
-   that one value within the range (the mode) is more likely than any other
-   (i.e., the probability distribution for each edge is triangular)
-   (Yesil et al., 2014).
+\item Conventional FCMs, where edge weights are single-valued fuzzy
+numbers (Stylios, 1997).
+\item Interval-Valued Fuzzy Number (IVFN) FCMs, which are an extension
+of conventional FCMs. IVFN-FCMs represent edge weights as ranges
+\link{min, max}, where any value within the range is as likely as any other
+(i.e., the probability distribution for each edge is uniform)
+(Moore & Lodwick, 2003; Hajek & Prochazka, 2016); and
+\item Triangular Fuzzy Number (TFN) FCMs, which are an extension of
+IVFN-FCMs. TFN-FCMs also represent edge weights as ranges, but assume
+that one value within the range (the mode) is more likely than any other
+(i.e., the probability distribution for each edge is triangular)
+(Yesil et al., 2014).
 }
 }
 \details{
@@ -220,22 +220,22 @@ or for TFN-FCM simulations defined as
 functions as defined here:
 
 \itemize{
-   \item Kosko (Kosko, 1986)
-   \deqn{
+\item Kosko (Kosko, 1986)
+\deqn{
    C_{i}^{( t+1)} =f\left(\sum _{ \begin{array}{l}
    j\ =\ i\\
    i\ \neq \ j
    \end{array}}^{M} w_{ji} C_{j}^{( t)}\right)
    }
-   \item Modfied-Kosko (Stylio & Groumpos, 2004)
-   \deqn{
+\item Modfied-Kosko (Stylio & Groumpos, 2004)
+\deqn{
    C_{i}^{( t+1)} =f\left(\sum _{ \begin{array}{l}
    j\ =\ i\\
    i\ \neq \ j
    \end{array}}^{M} w_{ji} C_{j}^{( t)} +C_{i}^{( t)}\right)
    }
-   \item Rescale (Papageorgiou, 2011; Dikopoulou, 2021)
-   \deqn{
+\item Rescale (Papageorgiou, 2011; Dikopoulou, 2021)
+\deqn{
    C_{i}^{( t+1)} =f\left(\sum _{ \begin{array}{l}
    j\ =\ i\\
    i\ \neq \ j

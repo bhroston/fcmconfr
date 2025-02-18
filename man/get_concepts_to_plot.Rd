@@ -23,10 +23,10 @@ reach a certain activation level throughout the simulation (i.e. whose
 }
 \details{
 This function removes:
-    - Clamped Nodes because they would be held at 1 and would increase the
-    x-axis, potentially diminishing the ability to view other data
-    - Inactivated Nodes because they do not display on the plot and would
-    add unnecessary whitespace to the plot.
+- Clamped Nodes because they would be held at 1 and would increase the
+x-axis, potentially diminishing the ability to view other data
+- Inactivated Nodes because they do not display on the plot and would
+add unnecessary whitespace to the plot.
 }
 \examples{
 NULL
