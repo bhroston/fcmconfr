@@ -1595,18 +1595,28 @@ check_simulation_inputs <- function(adj_matrix = matrix(),
                                     max_iter = 100,
                                     min_error = 1e-4) {
 
-  if (is.null(dim(adj_matrix)) & !is.numeric(length(adj_matrix))) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var adj_matrix} must be a square (n x n) adjacency matrix", "HERE",
-      "+++++> dim(adj_matrix) returned NULL"
-    )))
-  } else if (is.null(dim(adj_matrix)) & is.numeric(length(adj_matrix))) {
-    stop(cli::format_error(c(
-      "x" = "Error: {dim(data.frame(lapply(adj_matrix, as.numeric)))}"
-    ))
-    )
-  }
-  adj_matrix_input_type <- get_adj_matrices_input_type(adj_matrix)
+  check_square_adj_matrix(adj_matrix)
+  check_numeric_vector(initial_state_vector, var_name = "initial_state_vector")
+  check_numeric_vector(clamping_vector, var_name = "clamping_vector")
+  check_choice_selection(activation, c("kosko", "modified-kosko", "rescale"), var_name = "activation")
+  check_choice_selection(squashing, c("sigmoid", "tanh"), var_name = "squashing")
+  check_positive_number(lambda, var_name = "lambda")
+  check_choice_selection(point_of_inference, c("peak", "final"), var_name = "point_of_inference")
+  check_positive_integer(max_iter, var_name = "max_iter")
+  check_positive_number(min_error, var_name = "min_error")
+
+  # if (is.null(dim(adj_matrix)) & !is.numeric(length(adj_matrix))) {
+  #   stop(cli::format_error(c(
+  #     "x" = "Error: {.var adj_matrix} must be a square (n x n) adjacency matrix", "HERE",
+  #     "+++++> dim(adj_matrix) returned NULL"
+  #   )))
+  # } else if (is.null(dim(adj_matrix)) & is.numeric(length(adj_matrix))) {
+  #   stop(cli::format_error(c(
+  #     "x" = "Error: {dim(data.frame(lapply(adj_matrix, as.numeric)))}"
+  #   ))
+  #   )
+  # }
+  # adj_matrix_input_type <- get_adj_matrices_input_type(adj_matrix)
   #
   # # Check for individal adj_matrix ----
   # adj_matrix_is_list <- adj_matrix_input_type$adj_matrices_input_is_list
@@ -1695,136 +1705,136 @@ check_simulation_inputs <- function(adj_matrix = matrix(),
   #
   #
   # Check activation and squashing ----
-  activation <- tolower(activation)
-  if (identical(activation, c("kosko", "modified-kosko", "rescale"))) {
-    warning(cli::format_warning(c(
-      "!" = "Warning: No {.var activation_function} given",
-      "~~~~~ Assuming activation = 'kosko'"
-    )))
-    activation <- "kosko"
-  }
-  if (!(activation %in% c("kosko", "modified-kosko", "rescale"))) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var activation} must be one of the following: 'kosko', 'modified-kosko', or 'rescale'",
-      "+++++ Input {.var activation} was '{activation}'"
-    )))
-  }
-
-  squashing <- tolower(squashing)
-  if (identical(squashing, c("sigmoid", "tanh"))) {
-    warning(cli::format_warning(c(
-      "!" = "Warning: No {.var squashing_function} given",
-      "~~~~~ Assuming squashing = 'sigmoid'"
-    )))
-    squashing <- "sigmoid"
-  }
-  if (!(squashing %in% c("sigmoid", "tanh"))) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var squashing} must be one of the following: 'sigmoid', 'tanh'",
-      "+++++ Input {.var squashing} was '{squashing}'"
-    )))
-  }
-  if (activation == "rescale" & squashing != "sigmoid") {
-    stop(cli::format_error(c(
-      "x" = "Error: '{squashing}' is not compatible with the 'rescale' activation function",
-      "+++++ The 'rescale' activation function is designed to optimize performance of the sigmoid squashing function",
-      "+++++ Results are unreliable with incompatible squashing functions."
-    )))
-  } else if (activation == "modified-kosko" & squashing == "tanh") {
-    warning(cli::format_warning(c(
-      "!" = "Warning: The 'tanh' squashing function performs poorly with the 'modified-kosko' activation function",
-      "~~~~~ Simulation inference values tend to approach 0 as the number of simulation iterations increases"
-    )))
-  }
-  # ----
-
-  # Check lambda ----
-  if (!is.numeric(lambda)) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var lambda} must be numeric",
-      "+++++ Input {.var lambda} was {lambda}"
-    )))
-  }
-  if (lambda <= 0) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var lambda} must be greater than 0",
-      "+++++ Input {.var lambda} was {lambda}"
-    )))
-  }
-  if (lambda > 10) {
-    warning(cli::format_warning(c(
-      "!" = "Warning: {.var lambda} is typically less than 10 and greater than 0, with 1 being the typical value",
-      "~~~~~ Input {.var lambda} was {lambda}"
-    )))
-  }
-  # ----
-
-  # Check point_of_inference ----
-  point_of_inference <- tolower(point_of_inference)
-  if (identical(point_of_inference, c("peak", "final"))) {
-    warning(cli::format_warning(c(
-      "!" = "Warning: No {.var point_of_inference} given",
-      "~~~~~ Assuming point_of_inference = 'final'"
-    )))
-    point_of_inference <- "final"
-  }
-  if (!(point_of_inference %in% c("peak", "final"))) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var point_of_inference} must be one of the following: 'peak' or 'final'",
-      "+++++ Input {.var point_of_inference} was '{point_of_inference}'"
-    )))
-  }
-  if (point_of_inference == "peak" & all(initial_state_vector == 1)) {
-    warning(cli::format_warning(c(
-      "!" = "Warning: Simulation inferences will return all 1's if {.var point_of_difference} = 'peak' and all concept activation levels start at 1; i.e. initial_state_vector = c(1, 1, ..., 1) "
-    )))
-  }
-  # ----
+  # activation <- tolower(activation)
+  # if (identical(activation, c("kosko", "modified-kosko", "rescale"))) {
+  #   warning(cli::format_warning(c(
+  #     "!" = "Warning: No {.var activation_function} given",
+  #     "~~~~~ Assuming activation = 'kosko'"
+  #   )))
+  #   activation <- "kosko"
+  # }
+  # if (!(activation %in% c("kosko", "modified-kosko", "rescale"))) {
+  #   stop(cli::format_error(c(
+  #     "x" = "Error: {.var activation} must be one of the following: 'kosko', 'modified-kosko', or 'rescale'",
+  #     "+++++ Input {.var activation} was '{activation}'"
+  #   )))
+  # }
   #
-  # Check max_iter ----
-  if (!is.numeric(max_iter) & is.na(as.numeric(max_iter))) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var max_iter} must be a positive integer",
-      "+++++ Input {.var max_iter} was {max_iter}"
-    )))
-  } else if (!is.na(as.numeric(max_iter))) {
-    max_iter <- as.numeric(max_iter)
-  }
-  # if ((max_iter - round(max_iter) != 0)) {
-  if (!all.equal(max_iter, as.integer(max_iter), check.attributes = FALSE)) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var max_iter} must be a positive integer (rounding error)",
-      "+++++ Input {.var max_iter} was {max_iter}"
-    )))
-  }
-  if (max_iter <= 0) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var max_iter} must be a positive integer",
-      "+++++ Input {.var max_iter} was {max_iter}"
-    )))
-  }
-  # ----
-
-  # Check min_error ----
-  if (!is.numeric(min_error)) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var min_error} must be a positive number",
-      "+++++ Input {.var min_error} was {min_error}"
-    )))
-  }
-  if (min_error <= 0) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var min_error} must be a positive number",
-      "+++++ Input {.var min_error} was {min_error}"
-    )))
-  }
-  if (min_error >= 1) {
-    warning(cli::format_warning(c(
-      "!" = "Warning: {.var point_of_inference} value of {point_of_inference} may be too high.",
-      "~~~~~ Typically {.var min_error} < 0.001, but greater than 0"
-    )))
-  }
-  # ----
+  # squashing <- tolower(squashing)
+  # if (identical(squashing, c("sigmoid", "tanh"))) {
+  #   warning(cli::format_warning(c(
+  #     "!" = "Warning: No {.var squashing_function} given",
+  #     "~~~~~ Assuming squashing = 'sigmoid'"
+  #   )))
+  #   squashing <- "sigmoid"
+  # }
+  # if (!(squashing %in% c("sigmoid", "tanh"))) {
+  #   stop(cli::format_error(c(
+  #     "x" = "Error: {.var squashing} must be one of the following: 'sigmoid', 'tanh'",
+  #     "+++++ Input {.var squashing} was '{squashing}'"
+  #   )))
+  # }
+  # if (activation == "rescale" & squashing != "sigmoid") {
+  #   stop(cli::format_error(c(
+  #     "x" = "Error: '{squashing}' is not compatible with the 'rescale' activation function",
+  #     "+++++ The 'rescale' activation function is designed to optimize performance of the sigmoid squashing function",
+  #     "+++++ Results are unreliable with incompatible squashing functions."
+  #   )))
+  # } else if (activation == "modified-kosko" & squashing == "tanh") {
+  #   warning(cli::format_warning(c(
+  #     "!" = "Warning: The 'tanh' squashing function performs poorly with the 'modified-kosko' activation function",
+  #     "~~~~~ Simulation inference values tend to approach 0 as the number of simulation iterations increases"
+  #   )))
+  # }
+  # # ----
+  #
+  # # Check lambda ----
+  # if (!is.numeric(lambda)) {
+  #   stop(cli::format_error(c(
+  #     "x" = "Error: {.var lambda} must be numeric",
+  #     "+++++ Input {.var lambda} was {lambda}"
+  #   )))
+  # }
+  # if (lambda <= 0) {
+  #   stop(cli::format_error(c(
+  #     "x" = "Error: {.var lambda} must be greater than 0",
+  #     "+++++ Input {.var lambda} was {lambda}"
+  #   )))
+  # }
+  # if (lambda > 10) {
+  #   warning(cli::format_warning(c(
+  #     "!" = "Warning: {.var lambda} is typically less than 10 and greater than 0, with 1 being the typical value",
+  #     "~~~~~ Input {.var lambda} was {lambda}"
+  #   )))
+  # }
+  # # ----
+  #
+  # # Check point_of_inference ----
+  # point_of_inference <- tolower(point_of_inference)
+  # if (identical(point_of_inference, c("peak", "final"))) {
+  #   warning(cli::format_warning(c(
+  #     "!" = "Warning: No {.var point_of_inference} given",
+  #     "~~~~~ Assuming point_of_inference = 'final'"
+  #   )))
+  #   point_of_inference <- "final"
+  # }
+  # if (!(point_of_inference %in% c("peak", "final"))) {
+  #   stop(cli::format_error(c(
+  #     "x" = "Error: {.var point_of_inference} must be one of the following: 'peak' or 'final'",
+  #     "+++++ Input {.var point_of_inference} was '{point_of_inference}'"
+  #   )))
+  # }
+  # if (point_of_inference == "peak" & all(initial_state_vector == 1)) {
+  #   warning(cli::format_warning(c(
+  #     "!" = "Warning: Simulation inferences will return all 1's if {.var point_of_difference} = 'peak' and all concept activation levels start at 1; i.e. initial_state_vector = c(1, 1, ..., 1) "
+  #   )))
+  # }
+  # # ----
+  # #
+  # # Check max_iter ----
+  # if (!is.numeric(max_iter) & is.na(as.numeric(max_iter))) {
+  #   stop(cli::format_error(c(
+  #     "x" = "Error: {.var max_iter} must be a positive integer",
+  #     "+++++ Input {.var max_iter} was {max_iter}"
+  #   )))
+  # } else if (!is.na(as.numeric(max_iter))) {
+  #   max_iter <- as.numeric(max_iter)
+  # }
+  # # if ((max_iter - round(max_iter) != 0)) {
+  # if (!all.equal(max_iter, as.integer(max_iter), check.attributes = FALSE)) {
+  #   stop(cli::format_error(c(
+  #     "x" = "Error: {.var max_iter} must be a positive integer (rounding error)",
+  #     "+++++ Input {.var max_iter} was {max_iter}"
+  #   )))
+  # }
+  # if (max_iter <= 0) {
+  #   stop(cli::format_error(c(
+  #     "x" = "Error: {.var max_iter} must be a positive integer",
+  #     "+++++ Input {.var max_iter} was {max_iter}"
+  #   )))
+  # }
+  # # ----
+  #
+  # # Check min_error ----
+  # if (!is.numeric(min_error)) {
+  #   stop(cli::format_error(c(
+  #     "x" = "Error: {.var min_error} must be a positive number",
+  #     "+++++ Input {.var min_error} was {min_error}"
+  #   )))
+  # }
+  # if (min_error <= 0) {
+  #   stop(cli::format_error(c(
+  #     "x" = "Error: {.var min_error} must be a positive number",
+  #     "+++++ Input {.var min_error} was {min_error}"
+  #   )))
+  # }
+  # if (min_error >= 1) {
+  #   warning(cli::format_warning(c(
+  #     "!" = "Warning: {.var point_of_inference} value of {point_of_inference} may be too high.",
+  #     "~~~~~ Typically {.var min_error} < 0.001, but greater than 0"
+  #   )))
+  # }
+  # # ----
 
   # list(
   #   fcm_class = adj_matrix_input_type$fcm_class,
