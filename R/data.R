@@ -1,4 +1,5 @@
 
+
 #' sample_fcms
 #'
 #' An collection of FCM datasets based on stakeholder perceptions of rising
@@ -28,6 +29,8 @@
 #' @format ## `sample_fcms`
 #' A collection of simple and large FCMs with conventional, ivfn, and tfn
 #' edge types
+#'
+#' @srrstats {G5.1} *Data sets created within, and used to test, a package should be exported (or otherwise made generally available) so that users can confirm tests and run examples.*
 #'
 "sample_fcms"
 
