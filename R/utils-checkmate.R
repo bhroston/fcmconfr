@@ -1,9 +1,44 @@
 
+################################################################################
+# utils-input_validation.R
+#
+# This contains internal input validation functions to ensure inputs pass
+# mutation testing from autotest.
+#
+#   - check_square_adj_matrix
+#   - check_numeric_vector
+#   - check_choice_selection
+#   - check_positive_number
+#   - check_positive_integer
+#   - assert_var_name
+#
+################################################################################
 
-#' Check Square Matrix
+#' @srrstats {G1.4} *Software should use [`roxygen2`](https://roxygen2.r-lib.org/) to document all functions.*
+#' @srrstats {G1.4a} *All internal (non-exported) functions should also be documented in standard [`roxygen2`](https://roxygen2.r-lib.org/) format, along with a final `@noRd` tag to suppress automatic generation of `.Rd` files.*
+#' @srrstats {G2.0} *Implement assertions on lengths of inputs, particularly through asserting that inputs expected to be single- or multi-valued are indeed so.*
+#' @srrstats {G2.0a} Provide explicit secondary documentation of any expectations on lengths of inputs
+#' @srrstats {G2.1} *Implement assertions on types of inputs (see the initial point on nomenclature above).*
+#' @srrstats {G2.1a} *Provide explicit secondary documentation of expectations on data types of all vector inputs.*
+#' @srrstats {G2.2} *Appropriately prohibit or restrict submission of multivariate input to parameters expected to be univariate.*
+#' @srrstats {G2.3} *For univariate character input:*
+#' @srrstats {G2.3a} *Use `match.arg()` or equivalent where applicable to only permit expected values.*
+#' @srrstats {G2.4} *Provide appropriate mechanisms to convert between different data types, potentially including:*
+#' @srrstats {G2.4a} *explicit conversion to `integer` via `as.integer()`*
+#' @srrstats {G2.4b} *explicit conversion to continuous via `as.numeric()`*
+#' @srrstats {G2.4c} *explicit conversion to character via `as.character()` (and not `paste` or `paste0`)*
+#' @srrstats {G2.6} *Software which accepts one-dimensional input should ensure values are appropriately pre-processed regardless of class structures.*
+#' @srrstats {G2.7} *Software should accept as input as many of the above standard tabular forms as possible, including extension to domain-specific forms.*
+#' @srrstats {G2.9} *Software should issue diagnostic messages for type conversion in which information is lost (such as conversion of variables from factor to character; standardisation of variable names; or removal of meta-data such as those associated with [`sf`-format](https://r-spatial.github.io/sf/) data) or added (such as insertion of variable or column names where none were provided).*
+#' @srrstats {G2.12} *Software should ensure that `data.frame`-like tabular objects which have list columns should ensure that those columns are appropriately pre-processed either through being removed, converted to equivalent vector columns where appropriate, or some other appropriate treatment such as an informative error. This behaviour should be tested.*
+
+
+
+#' Check Square Adj. Matrix
 #'
 #' @description
-#' Blank description
+#' This function checks whether an input (x) is a square adjacency matrix
+#' [data.frame]-like object that can be passed throughout fcmconfr functions.
 #'
 #' @details
 #' INTENDED FOR DEVELOPER USE ONLY
@@ -13,11 +48,9 @@
 #' @returns The input object if x is a square matrix, or an error message if not
 #'
 #' @keywords internal
+#' @noRd
 #'
-#' @export
 #' @example /man/examples/ex-check_square_matrix.R
-#'
-#' @srrstats {G2.7} *Software should accept as input as many of the above standard tabular forms as possible, including extension to domain-specific forms.*
 check_square_adj_matrix = function(x = matrix()) {
   produced_warning <- FALSE
 
@@ -102,16 +135,16 @@ check_square_adj_matrix = function(x = matrix()) {
 
 
 
-
 #' Check Numeric Vector
 #'
 #' @description
-#' Blank description
+#' This function checks whether an input (x) is a numeric [vector] object that
+#' can be passed throughout fcmconfr functions.
 #'
 #' @details
 #' INTENDED FOR DEVELOPER USE ONLY
 #'
-#' @param x a vector of [numeric] values
+#' @param x a [vector] of [numeric] values
 #' @param var_name a character object for the name of the input variable to
 #' be displayed in the error message
 #'
@@ -119,12 +152,9 @@ check_square_adj_matrix = function(x = matrix()) {
 #' message if not
 #'
 #' @keywords internal
+#' @noRd
 #'
-#' @export
 #' @example /man/examples/ex-check_numeric_vector.R
-#'
-#' @srrstats {G2.1} *Implement assertions on types of inputs (see the initial point on nomenclature above).*
-#' @srrstats {G2.1a} *Provide explicit secondary documentation of expectations on data types of all vector inputs.*
 check_numeric_vector = function(x, var_name = "") {
   # Skip test if no input given; an empty input will create an assumed
   # initial_state_vector/clamping_vector
@@ -158,10 +188,11 @@ check_numeric_vector = function(x, var_name = "") {
 }
 
 
-#' Check Choices
+#' Check Choice Selection
 #'
 #' @description
-#' Blank description
+#' This function checks whether an input (x) is a [character] string that
+#' matches one entry in a given set of choices.
 #'
 #' @details
 #' INTENDED FOR DEVELOPER USE ONLY
@@ -175,12 +206,9 @@ check_numeric_vector = function(x, var_name = "") {
 #' error message if not
 #'
 #' @keywords internal
+#' @noRd
 #'
-#' @export
 #' @example /man/examples/ex-check_choice_selection.R
-#'
-#' @srrstats {G2.1} *Implement assertions on types of inputs (see the initial point on nomenclature above).*
-#' @srrstats {G2.1a} *Provide explicit secondary documentation of expectations on data types of all vector inputs.*
 check_choice_selection <- function(x, choices = c(), var_name = "") {
   var_name <- assert_var_name(var_name)
 
@@ -220,12 +248,12 @@ check_choice_selection <- function(x, choices = c(), var_name = "") {
 #' Check Numeric
 #'
 #' @description
-#' Blank description
+#' This function checks whether an input (x) is a [numeric] object.
 #'
 #' @details
 #' INTENDED FOR DEVELOPER USE ONLY
 #'
-#' @param x a positive [integer] [> 0]
+#' @param x a positive [numeric] [> 0]
 #' @param var_name a character object for the name of the input variable to
 #' be displayed in the error message
 #'
@@ -233,12 +261,9 @@ check_choice_selection <- function(x, choices = c(), var_name = "") {
 #' message if not
 #'
 #' @keywords internal
+#' @noRd
 #'
-#' @export
 #' @example /man/examples/ex-check_positive_number.R
-#'
-#' @srrstats {G2.1} *Implement assertions on types of inputs (see the initial point on nomenclature above).*
-#' @srrstats {G2.1a} *Provide explicit secondary documentation of expectations on data types of all vector inputs.*
 check_positive_number <- function(x = numeric(), var_name = "") {
   var_name <- assert_var_name(var_name)
 
@@ -296,7 +321,7 @@ check_positive_number <- function(x = numeric(), var_name = "") {
 #' @details
 #' INTENDED FOR DEVELOPER USE ONLY
 #'
-#' @param x a positive [integer] [> 0]
+#' @param x a single, positive [integer] [> 0]
 #' @param var_name a character object for the name of the input variable to
 #' be displayed in the error message
 #'
@@ -304,12 +329,9 @@ check_positive_number <- function(x = numeric(), var_name = "") {
 #' message if not
 #'
 #' @keywords internal
+#' @noRd
 #'
-#' @export
 #' @example /man/examples/ex-check_positive_integer.R
-#'
-#' @srrstats {G2.1} *Implement assertions on types of inputs (see the initial point on nomenclature above).*
-#' @srrstats {G2.1a} *Provide explicit secondary documentation of expectations on data types of all vector inputs.*
 check_positive_integer <- function(x = 1L, var_name = "") {
   var_name <- assert_var_name(var_name)
 
@@ -372,7 +394,9 @@ check_positive_integer <- function(x = 1L, var_name = "") {
 #' Assert var_name
 #'
 #' @description
-#' Blank description
+#' This function checks whether an input (var_name) can be asserted as an
+#' acceptable [character] string and if so, asserts var_name is a [character]
+#' string using as.character().
 #'
 #' @details
 #' INTENDED FOR DEVELOPER USE ONLY
@@ -383,8 +407,8 @@ check_positive_integer <- function(x = 1L, var_name = "") {
 #' @returns the var_name input if acceptable, error messages if not
 #'
 #' @keywords internal
+#' @noRd
 #'
-#' @export
 #' @examples
 #' assert_var_name("one")
 #' assert_var_name(1234)
@@ -405,24 +429,5 @@ assert_var_name <- function(var_name_input = "") {
   }
   return(var_name_input)
 }
-
-
-
-
-
-#if (class_of_x[1] == "character") {
-# x <- suppressWarnings(as.numeric(x))
-# if (any(is.na(x))) {
-#   x <- "NA"
-# }
-# return(cli::cli_inform(c(
-#   "x" = "Warning: Vector contained numeric values as strings (ex. '1' instead of 1)",
-#   "~~~~~> Changing vector to numeric values",
-#   "{class_of_x}"
-# )))
-#}
-
-
-
 
 
