@@ -17,20 +17,25 @@ test_that("check_square_adj_matrix works", {
   test_mat <- tibble::as_tibble(matrix(1:9, nrow = 3), .name_repair = "minimal")
   expect_true(check_square_adj_matrix(test_mat))
 
-  test_mat <- Matrix::Matrix(1:9, nrow = 3, sparse = TRUE)
-  expect_false(isTRUE(suppressMessages(
-    check_square_adj_matrix(test_mat)
-  )))
+  # Confirm error on multiple input adj. matrices
+  test_mats <- list(matrix(1:9, nrow = 3), matrix(1:9, nrow = 3))
+  expect_error(check_square_adj_matrix(test_mats))
 
-  # Confirm error on non-acceptable classes
-  test_mat <- structure(.Data = matrix(1:9, nrow = 3), class = "wrong_class")
-  expect_error(suppressMessages(
-    check_square_adj_matrix(test_mat)
-  ))
+  # Confirm warning on sparseMatrix
+  test_mat <- Matrix::Matrix(1:9, nrow = 3, sparse = TRUE)
+  expect_warning(check_square_adj_matrix(test_mat))
+
+  # Confirm warning on custom class
+  test_mat <- structure(.Data = matrix(1:9, nrow = 3), class = "different")
+  expect_warning(check_square_adj_matrix(test_mat))
+
+  # Confirm error on improper format data that cannot be turned into dataframe
+  test_mat <- structure(.Data = list(c(1, 1), c(1, 1, 1), c(1)), class = "different")
+  expect_error(check_square_adj_matrix(test_mat))
 
   # Confirm error on non-square matrices
   test_mat <- matrix(1:12, nrow = 4)
-  expect_error(suppressMessages(check_square_adj_matrix(test_mat)))
+  expect_error(check_square_adj_matrix(test_mat))
 
   # yaml_list <- autotest::examples_to_yaml(package = ".", functions = "check_square_adj_matrix")
   # res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)
