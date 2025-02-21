@@ -41,18 +41,35 @@ check_square_adj_matrix = function(x = matrix()) {
     produced_warning <- TRUE
   }
 
-  class_options <-  c("matrix", "array", "data.frame", "data.table", "tibble", "sparseMatrix")
+  class_options <-  c("matrix", "array", "data.frame", "data.table", "tibble", "tbl_df", "sparseMatrix", "ivfn", "tfn")
   class_options_text <- paste0("'", cli::ansi_collapse(class_options, sep = "' '", sep2 = "' or '", last = "' or '"), "'")
 
-  x_as_df <- tryCatch({
-    x_as_df <- x
-    class(x_as_df) <- NULL
-    as.data.frame(x_as_df)
-  }, warning = function(w) {
-    cli::cli_inform(c(
-      "!" = "Warning: Converting adj. matrix data.frame"
-    ))
-  }, error = function(e) {
+  if (is.null(dim(x))) {
+    x <- x_as_df <- tryCatch({
+      x_as_df <- x
+      class(x_as_df) <- NULL
+      as.data.frame(x_as_df)
+    }, warning = function(w) {
+      cli::cli_inform(c(
+        "!" = "Warning: Converting adj. matrix data.frame"
+      ))
+    }, error = function(e) {
+      cli::cli_inform(c(
+        "x" = "Error: Adj. Matrix must one of the following classes: ", "{class_options_text}",
+        "+++++> Input adj. matrix had class: {methods::is(x)[1]}"
+      ))
+      # Have to use a different stopping algorithm here to work nicely with
+      # autotest
+      return(stop(cli::format_error(c(
+        "^ Found the above {.emph Error(s)} and/or {.emph Warning(s)} ^"
+      )), call. = FALSE))
+    })
+  }
+
+  x_class <- methods::is(x)[1]
+
+  res <- checkmate::check_choice(x_class, choices = class_options)
+  if (!isTRUE(res)) {
     cli::cli_inform(c(
       "x" = "Error: Adj. Matrix must one of the following classes: ", "{class_options_text}",
       "+++++> Input adj. matrix had class: {methods::is(x)[1]}"
@@ -62,10 +79,9 @@ check_square_adj_matrix = function(x = matrix()) {
     return(stop(cli::format_error(c(
       "^ Found the above {.emph Error(s)} and/or {.emph Warning(s)} ^"
     )), call. = FALSE))
-  })
+  }
 
-
-  if (nrow(x_as_df) != ncol(x_as_df)) {
+  if (nrow(x) != ncol(x)) {
     cli::cli_inform(c(
       "x" = "Error: Adj. Matrix must be square (i.e. have dimension n x n)",
       "+++++> Input has dimensions {dim(x)}"

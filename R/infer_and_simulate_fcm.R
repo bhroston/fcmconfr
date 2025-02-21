@@ -1757,9 +1757,7 @@ check_simulation_inputs <- function(adj_matrix = matrix(),
   if (found_warning && found_error) {
     stop(cli::format_error("^ Found the above {.emph Error(s)} and/or {.emph Warning(s)} ^"), call. = FALSE)
   } else if (found_error) {
-    stop(cli::format_error("^ {adj_matrix} ^"), call. = FALSE)
-
-    # stop(cli::format_error("^ {unique(dim(adj_matrix))} Found the above {.emph Error(s)} and/or {.emph Warning(s)} ^"), call. = FALSE)
+    stop(cli::format_error("^ Found the above {.emph Error(s)} and/or {.emph Warning(s)} ^"), call. = FALSE)
   } else if (found_warning) {
     warning(cli::format_warning("^ Found the above {.emph Warning(s)} ^"), call. = FALSE)
   }
