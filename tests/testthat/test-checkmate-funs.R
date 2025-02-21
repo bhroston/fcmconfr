@@ -14,24 +14,26 @@ test_that("check_square_adj_matrix works", {
   test_mat <- data.table::data.table(matrix(1:9, nrow = 3))
   expect_true(check_square_adj_matrix(test_mat))
 
-  test_mat <- tibble::as_tibble(matrix(1:9, nrow = 3))
+  test_mat <- tibble::as_tibble(matrix(1:9, nrow = 3), .name_repair = "minimal")
   expect_true(check_square_adj_matrix(test_mat))
+
+  test_mat <- Matrix::Matrix(1:9, nrow = 3, sparse = TRUE)
+  expect_false(isTRUE(suppressMessages(
+    check_square_adj_matrix(test_mat)
+  )))
 
   # Confirm error on non-acceptable classes
   test_mat <- structure(.Data = matrix(1:9, nrow = 3), class = "wrong_class")
-  invisible(capture.output(
-    expect_false(isTRUE(check_square_adj_matrix(test_mat)))
+  expect_error(suppressMessages(
+    check_square_adj_matrix(test_mat)
   ))
 
   # Confirm error on non-square matrices
   test_mat <- matrix(1:12, nrow = 4)
-  invisible(capture.output(
-    expect_false(isTRUE(check_square_adj_matrix(test_mat)))
-  ))
+  expect_error(suppressMessages(check_square_adj_matrix(test_mat)))
 
   # yaml_list <- autotest::examples_to_yaml(package = ".", functions = "check_square_adj_matrix")
   # res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)
-
 })
 
 
@@ -43,10 +45,10 @@ test_that("check_numeric_vector works", {
   expect_true(check_numeric_vector(test_vec, var_name = "test_vec"))
 
   test_vec <- c("one", "two")
-  expect_false(isTRUE(check_numeric_vector(test_vec, var_name = "test_vec")))
+  expect_error(suppressMessages(check_numeric_vector(test_vec, var_name = "test_vec")))
 
-  yaml_list <- autotest::examples_to_yaml(package = ".", functions = "check_simulation_inputs")
-  res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)
+  # yaml_list <- autotest::examples_to_yaml(package = ".", functions = "check_simulation_inputs")
+  # res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)
 })
 
 
@@ -56,10 +58,10 @@ test_that("check_choice_selection works", {
   expect_true(check_choice_selection("sigmoid", opts, "test"))
 
   random_chars <- paste0(sample(c(letters, LETTERS), size = 10), collapse = "")
-  expect_false(isTRUE(check_choice_selection(random_chars, c("sigmoig", "tanh"))))
+  expect_error(check_choice_selection(random_chars, c("sigmoig", "tanh")))
 
-  yaml_list <- autotest::examples_to_yaml(package = ".", functions = "check_choice_selection")
-  res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)
+  # yaml_list <- autotest::examples_to_yaml(package = ".", functions = "check_choice_selection")
+  # res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)
 
   # yaml_list <- autotest::examples_to_yaml(package = ".", functions = "check_simulation_inputs")
   # res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)
@@ -67,29 +69,40 @@ test_that("check_choice_selection works", {
 
 
 test_that("check_positive_number works", {
-
   expect_true(check_positive_number(1, "lambda"))
   expect_true(check_positive_integer("1", "lambda"))
-  expect_false(isTRUE(check_positive_number(-1, "lambda")))
-  expect_true(check_positive_integer(1.1, "lambda"))
-  expect_false(isTRUE(check_positive_integer("one", "lambda")))
-
+  expect_error(suppressMessages(check_positive_number(-1, "lambda")))
+  expect_true(check_positive_number(1.1, "lambda")) # Check error
+  expect_error(suppressMessages(check_positive_number("one", "lambda")))
   # yaml_list <- autotest::examples_to_yaml(package = ".", functions = "check_positive_number")
   # res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)
 })
 
 
 test_that("check_positive_integer works", {
-
   expect_true(check_positive_integer(1, "max_iter"))
   expect_true(check_positive_integer("1", "max_iter"))
-  expect_false(isTRUE(check_positive_integer(-1, "max_iter")))
-  expect_false(isTRUE(check_positive_integer(1.1, "max_iter")))
-  expect_false(isTRUE(check_positive_integer("one", "max_iter")))
-
+  expect_error(suppressMessages(check_positive_integer(-1, "max_iter")))
+  expect_error(suppressMessages(check_positive_integer(1.1, "max_iter")))
+  expect_error(suppressMessages(check_positive_integer("one", "max_iter")))
   # yaml_list <- autotest::examples_to_yaml(package = ".", functions = "check_positive_integer")
   # res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)
 })
 
+functions_to_check <- c("check_square_adj_matrix",
+                         "check_numeric_vector",
+                         "check_choice_selection",
+                         "check_positive_number",
+                         "check_positive_integer")
+ yaml_list <- autotest::examples_to_yaml(package = ".", functions = functions_to_check)
+ res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)
 
+
+yaml_list <- autotest::examples_to_yaml(package = ".", functions = "check_simulation_inputs")
+res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)
+
+
+test_data <- autotest::autotest_types()
+test_data <- test_data[test_data$test_name == "vector_custom_class", ]
+res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE, test_data = test_data)
 

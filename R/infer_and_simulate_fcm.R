@@ -1557,7 +1557,7 @@ clean_simulation_output <- function(output_obj, concepts) {
 #' format, and also fills in missing inputs for initial_state_vector, clamping_vector,
 #' and IDs when appropriate.
 #'
-#' @param adj_matrix An n x n adjacency matrix that represents an FCM
+#' @param adj_matrix A [matrix] or [data.frame]-like object
 #' @param initial_state_vector A list state values at the start of an fcm simulation
 #' @param clamping_vector A list of values representing specific actions taken to
 #' control the behavior of an FCM. Specifically, non-zero values defined in this vector
@@ -1595,246 +1595,169 @@ check_simulation_inputs <- function(adj_matrix = matrix(),
                                     max_iter = 100,
                                     min_error = 1e-4) {
 
-  check_square_adj_matrix(adj_matrix)
-  check_numeric_vector(initial_state_vector, var_name = "initial_state_vector")
-  check_numeric_vector(clamping_vector, var_name = "clamping_vector")
-  check_choice_selection(activation, c("kosko", "modified-kosko", "rescale"), var_name = "activation")
-  check_choice_selection(squashing, c("sigmoid", "tanh"), var_name = "squashing")
-  check_positive_number(lambda, var_name = "lambda")
-  check_choice_selection(point_of_inference, c("peak", "final"), var_name = "point_of_inference")
-  check_positive_integer(max_iter, var_name = "max_iter")
-  check_positive_number(min_error, var_name = "min_error")
+  found_warning <- FALSE
+  found_error <- FALSE
 
-  # if (is.null(dim(adj_matrix)) & !is.numeric(length(adj_matrix))) {
-  #   stop(cli::format_error(c(
-  #     "x" = "Error: {.var adj_matrix} must be a square (n x n) adjacency matrix", "HERE",
-  #     "+++++> dim(adj_matrix) returned NULL"
-  #   )))
-  # } else if (is.null(dim(adj_matrix)) & is.numeric(length(adj_matrix))) {
-  #   stop(cli::format_error(c(
-  #     "x" = "Error: {dim(data.frame(lapply(adj_matrix, as.numeric)))}"
-  #   ))
-  #   )
-  # }
+  # Have to check adj_matrix input before continuing with other checks
+  adj_matrix_check <- check_square_adj_matrix(adj_matrix)
+  if (isFALSE(adj_matrix_check)) {
+    stop(cli::format_error(c(
+      "^ Found the above {.emph Error(s)} and/or {.emph Warning(s)} ^"
+    )), call. = FALSE)
+  }
+
   # adj_matrix_input_type <- get_adj_matrices_input_type(adj_matrix)
-  #
-  # # Check for individal adj_matrix ----
-  # adj_matrix_is_list <- adj_matrix_input_type$adj_matrices_input_is_list
-  # if (adj_matrix_is_list) {
-  #   stop(cli::format_error(c(
-  #     "x" = "Error: {.var adj_matrix} must be an individual adj. matrix",
-  #     "+++++> Input {.var adj_matrix} is a list of adj_matrices"
-  #   )))
-  # }
-  #
-  # # Check adj_matrix ----
-  # rows <- nrow(adj_matrix)
-  # cols <- ncol(adj_matrix)
-  # # if (rows != cols) {
-  # #   stop(cli::format_error(c(
-  # #     "x" = "Error: {.var adj_matrix} must be a square (n x n) matrix"
-  # #   )))
-  # # }
-  # n_nodes <- unique(dim(adj_matrix))
-  #
-  # if (identical(adj_matrix_input_type$object_types_in_list, c("conventional", "sparseMatrix"))) {
-  #   adj_matrix <- as.matrix(adj_matrix)
-  #   warning(cli::format_warning(c(
-  #     "!" = "Warning: Changed {.var adj_matrix} from sparseMatrix to an ordinary matrix (i.e. using as.matrix)"
-  #   )))
-  # }
-  # # ----
-  #
-  # # Check initial_state_vector ----
-  # if (identical(initial_state_vector, c())) {
-  #   warning(cli::format_warning(c(
-  #     "!" = "Warning: No {.var initial_state_vector} given",
-  #     "~~~~~ Assuming all nodes have an initial state of 1; i.e. initial_state_vector = c(1, 1, ..., 1)"
-  #   )))
-  #   initial_state_vector <- rep(1, nrow(adj_matrix))
-  # }
-  # if (length(initial_state_vector) != n_nodes) {
-  #   stop(cli::format_error(c(
+  n_nodes <- unique(dim(adj_matrix))
+
+  # Make assumptions for empty inputs ----
+  if (identical(initial_state_vector, c())) {
+    cli::cli_inform(c(
+      "!" = "Warning: No {.var initial_state_vector} given",
+      "~~~~~ Assuming all nodes have an initial state of 1; i.e. initial_state_vector = c(1, 1, ..., 1)"
+    ))
+    initial_state_vector <- rep(1, n_nodes)
+    found_warning <- TRUE
+  }
+  if (identical(clamping_vector, c())) {
+    cli::cli_inform(c(
+      "!" = "Warning: No {.var initial_state_vector} given",
+      "~~~~~ Assuming no nodes are clamped; i.e. clamping_vector = c(0, 0, ..., 0)"
+    ))
+    clamping_vector <- rep(0, n_nodes)
+    found_warning <- TRUE
+  }
+  if (identical(activation, c("kosko", "modified-kosko", "rescale"))) {
+    cli::cli_inform(c(
+      "!" = "Warning: No {.var activation_function} given",
+      "~~~~~ Assuming activation = 'kosko'"
+    ))
+    activation <- "kosko"
+    found_warning <- TRUE
+  }
+  if (identical(squashing, c("sigmoid", "tanh"))) {
+    cli::cli_inform(c(
+      "!" = "Warning: No {.var squashing_function} given",
+      "~~~~~ Assuming squashing = 'sigmoid'"
+    ))
+    squashing <- "sigmoid"
+    found_warning <- TRUE
+  }
+  if (identical(point_of_inference, c("peak", "final"))) {
+    cli::cli_inform(c(
+      "!" = "Warning: No {.var point_of_inference} given",
+      "~~~~~ Assuming point_of_inference = 'final'"
+    ))
+    point_of_inference <- "final"
+    found_warning <- TRUE
+  }
+  # ----
+
+  # Generic type (autotest-passing) checkmate tests ----
+  initial_state_vector_check <- check_numeric_vector(initial_state_vector, var_name = "initial_state_vector")
+  clamping_vector_check <- check_numeric_vector(clamping_vector, var_name = "clamping_vector")
+  activation_check <- check_choice_selection(activation, c("kosko", "modified-kosko", "rescale"), var_name = "activation")
+  squashing_check <- check_choice_selection(squashing, c("sigmoid", "tanh"), var_name = "squashing")
+  lambda_check <- check_positive_number(lambda, var_name = "lambda")
+  point_of_inference_check <- check_choice_selection(point_of_inference, c("peak", "final"), var_name = "point_of_inference")
+  max_iter_check <- check_positive_integer(max_iter, var_name = "max_iter")
+  min_error_check <- check_positive_number(min_error, var_name = "min_error")
+
+  generic_input_checks <- c(adj_matrix_check, initial_state_vector_check, clamping_vector_check, activation_check, squashing_check, lambda_check, point_of_inference_check, max_iter_check, min_error_check)
+  # ----
+
+  # Additional checks ----
+  # Additional initial_state_vector_checks
+  initial_state_vector_generic_check_passed <- isTRUE(initial_state_vector_check)
+  # if (initial_state_vector_generic_check_passed && (length(initial_state_vector) != n_nodes)) {
+  #   cli::cli_inform(c(
   #     "x" = "Error: {.var initial_state_vector} must be the same length as the number of nodes in input {.var adj_matrix}",
   #     "+++++ Length of {.var initial_state_vector} is {length(initial_state_vector)}, but should be {n_nodes}"
-  #   )))
+  #   ))
+  #   found_error <- TRUE
   # }
-  # data_types_in_initial_state_vector <- unlist(unique(sapply(initial_state_vector, methods::is, simplify = FALSE)))
-  # if (!identical(data_types_in_initial_state_vector, methods::is(numeric()))) {
-  #   invalid_indexes <- is.na(suppressWarnings(as.numeric(initial_state_vector)))
-  #   stop(cli::format_error(c(
-  #     "x" = "Error: {.var initial_state_vector} must contain only numeric values.",
-  #     "+++++ Invalid element(s): {initial_state_vector[invalid_indexes]}"
-  #   )))
-  # }
-  #
-  # # ----
-  #
-  # # Check clamping_vector ----
-  # if (identical(clamping_vector, c())) {
-  #   warning(cli::format_warning(c(
-  #     "!" = "Warning: No {.var initial_state_vector} given",
-  #     "~~~~~ Assuming no nodes are clamped; i.e. clamping_vector = c(0, 0, ..., 0)"
-  #   )))
-  #   clamping_vector <- rep(0, length(initial_state_vector))
-  # }
-  #
-  # if (length(clamping_vector) != n_nodes) {
-  #   stop(cli::format_error(c(
+
+  # # Additional clamping_vector_checks
+  # clamping_vector_generic_check_passed <- isTRUE(clamping_vector_check)
+  # if (clamping_vector_generic_check_passed && length(clamping_vector) != n_nodes) {
+  #   cli::cli_inform(c(
   #     "x" = "Error: {.var clamping_vector} must be the same length as the number of nodes in input {.var adj_matrix}",
   #     "+++++ Length of {.var clamping_vector} is {length(clamping_vector)}, but should be {n_nodes}"
-  #   )))
+  #   ))
+  #   found_error <- TRUE
   # }
   #
-  # data_types_in_clamping_vector <- unlist(unique(sapply(clamping_vector, methods::is, simplify = FALSE)))
-  # if (!identical(data_types_in_clamping_vector, methods::is(numeric()))) {
-  #   invalid_indexes <- is.na(suppressWarnings(as.numeric(clamping_vector)))
-  #   stop(cli::format_error(c(
-  #     "x" = "Error: {.var clamping_vector} must contain only numeric values.",
-  #     "+++++ Invalid element(s): {clamping_vector[invalid_indexes]}"
-  #   )))
-  # }
-  #
-  # if (any(clamping_vector != 0) & !all(initial_state_vector == 1)) {
-  #   stop(cli::format_error(c(
+  # initial_state_and_clamping_vector_generic_checks_passed <- initial_state_vector_generic_check_passed && clamping_vector_generic_check_passed
+  # if ((initial_state_and_clamping_vector_generic_checks_passed) && ((any(clamping_vector != 0) & !all(initial_state_vector == 1)))) {
+  #   cli::cli_inform(c(
   #     "x" = "Error: If any nodes are clamped (i.e. {.var clamping_vector} contains non-zero elements),
   #     all elements in {.var initial_state_vector} must be seet to 1 to perform the analysis correctly; i.e. initial_state_vector = c(1, 1, ..., 1)"
-  #   )))
-  # }
-  # # ----
-  #
-  #
-  # Check activation and squashing ----
-  # activation <- tolower(activation)
-  # if (identical(activation, c("kosko", "modified-kosko", "rescale"))) {
-  #   warning(cli::format_warning(c(
-  #     "!" = "Warning: No {.var activation_function} given",
-  #     "~~~~~ Assuming activation = 'kosko'"
-  #   )))
-  #   activation <- "kosko"
-  # }
-  # if (!(activation %in% c("kosko", "modified-kosko", "rescale"))) {
-  #   stop(cli::format_error(c(
-  #     "x" = "Error: {.var activation} must be one of the following: 'kosko', 'modified-kosko', or 'rescale'",
-  #     "+++++ Input {.var activation} was '{activation}'"
-  #   )))
+  #   ))
+  #   found_error <- TRUE
   # }
   #
-  # squashing <- tolower(squashing)
-  # if (identical(squashing, c("sigmoid", "tanh"))) {
-  #   warning(cli::format_warning(c(
-  #     "!" = "Warning: No {.var squashing_function} given",
-  #     "~~~~~ Assuming squashing = 'sigmoid'"
-  #   )))
-  #   squashing <- "sigmoid"
-  # }
-  # if (!(squashing %in% c("sigmoid", "tanh"))) {
-  #   stop(cli::format_error(c(
-  #     "x" = "Error: {.var squashing} must be one of the following: 'sigmoid', 'tanh'",
-  #     "+++++ Input {.var squashing} was '{squashing}'"
-  #   )))
-  # }
+  # # Additional activation and squashing checks
   # if (activation == "rescale" & squashing != "sigmoid") {
-  #   stop(cli::format_error(c(
+  #   cli::cli_inform(c(
   #     "x" = "Error: '{squashing}' is not compatible with the 'rescale' activation function",
   #     "+++++ The 'rescale' activation function is designed to optimize performance of the sigmoid squashing function",
   #     "+++++ Results are unreliable with incompatible squashing functions."
-  #   )))
+  #   ))
+  #   found_error <- TRUE
   # } else if (activation == "modified-kosko" & squashing == "tanh") {
-  #   warning(cli::format_warning(c(
+  #   cli::cli_inform(c(
   #     "!" = "Warning: The 'tanh' squashing function performs poorly with the 'modified-kosko' activation function",
   #     "~~~~~ Simulation inference values tend to approach 0 as the number of simulation iterations increases"
-  #   )))
+  #   ))
+  #   found_warning <- TRUE
   # }
-  # # ----
   #
-  # # Check lambda ----
-  # if (!is.numeric(lambda)) {
-  #   stop(cli::format_error(c(
-  #     "x" = "Error: {.var lambda} must be numeric",
-  #     "+++++ Input {.var lambda} was {lambda}"
-  #   )))
-  # }
-  # if (lambda <= 0) {
-  #   stop(cli::format_error(c(
-  #     "x" = "Error: {.var lambda} must be greater than 0",
-  #     "+++++ Input {.var lambda} was {lambda}"
-  #   )))
-  # }
+  # # Additional lambda checks
   # if (lambda > 10) {
-  #   warning(cli::format_warning(c(
+  #   cli::cli_inform(c(
   #     "!" = "Warning: {.var lambda} is typically less than 10 and greater than 0, with 1 being the typical value",
   #     "~~~~~ Input {.var lambda} was {lambda}"
-  #   )))
+  #   ))
+  #   found_warning <- TRUE
   # }
-  # # ----
   #
-  # # Check point_of_inference ----
-  # point_of_inference <- tolower(point_of_inference)
-  # if (identical(point_of_inference, c("peak", "final"))) {
-  #   warning(cli::format_warning(c(
-  #     "!" = "Warning: No {.var point_of_inference} given",
-  #     "~~~~~ Assuming point_of_inference = 'final'"
-  #   )))
-  #   point_of_inference <- "final"
-  # }
-  # if (!(point_of_inference %in% c("peak", "final"))) {
-  #   stop(cli::format_error(c(
-  #     "x" = "Error: {.var point_of_inference} must be one of the following: 'peak' or 'final'",
-  #     "+++++ Input {.var point_of_inference} was '{point_of_inference}'"
-  #   )))
-  # }
+  # # Additional point_of_inference checks
   # if (point_of_inference == "peak" & all(initial_state_vector == 1)) {
-  #   warning(cli::format_warning(c(
+  #   cli::cli_inform(c(
   #     "!" = "Warning: Simulation inferences will return all 1's if {.var point_of_difference} = 'peak' and all concept activation levels start at 1; i.e. initial_state_vector = c(1, 1, ..., 1) "
-  #   )))
+  #   ))
+  #   found_warning <- TRUE
   # }
-  # # ----
-  # #
-  # # Check max_iter ----
-  # if (!is.numeric(max_iter) & is.na(as.numeric(max_iter))) {
-  #   stop(cli::format_error(c(
-  #     "x" = "Error: {.var max_iter} must be a positive integer",
-  #     "+++++ Input {.var max_iter} was {max_iter}"
-  #   )))
-  # } else if (!is.na(as.numeric(max_iter))) {
-  #   max_iter <- as.numeric(max_iter)
-  # }
-  # # if ((max_iter - round(max_iter) != 0)) {
-  # if (!all.equal(max_iter, as.integer(max_iter), check.attributes = FALSE)) {
-  #   stop(cli::format_error(c(
-  #     "x" = "Error: {.var max_iter} must be a positive integer (rounding error)",
-  #     "+++++ Input {.var max_iter} was {max_iter}"
-  #   )))
-  # }
-  # if (max_iter <= 0) {
-  #   stop(cli::format_error(c(
-  #     "x" = "Error: {.var max_iter} must be a positive integer",
-  #     "+++++ Input {.var max_iter} was {max_iter}"
-  #   )))
-  # }
-  # # ----
   #
-  # # Check min_error ----
-  # if (!is.numeric(min_error)) {
-  #   stop(cli::format_error(c(
-  #     "x" = "Error: {.var min_error} must be a positive number",
-  #     "+++++ Input {.var min_error} was {min_error}"
-  #   )))
-  # }
-  # if (min_error <= 0) {
-  #   stop(cli::format_error(c(
-  #     "x" = "Error: {.var min_error} must be a positive number",
-  #     "+++++ Input {.var min_error} was {min_error}"
-  #   )))
-  # }
+  # # Additional min_error checks
   # if (min_error >= 1) {
-  #   warning(cli::format_warning(c(
+  #   cli::cli_inform(c(
   #     "!" = "Warning: {.var point_of_inference} value of {point_of_inference} may be too high.",
   #     "~~~~~ Typically {.var min_error} < 0.001, but greater than 0"
-  #   )))
+  #   ))
+  #   found_warning <- TRUE
   # }
-  # # ----
+
+  # ----
+
+  # Output Checks ----
+  # if (found_warning || any(generic_input_checks == "warning")) {
+  #   found_warning <- TRUE
+  # }
+  # if (found_error || any(generic_input_checks == "error")) {
+  #   found_error <- TRUE
+  # }
+  #
+  # if (found_warning && found_error) {
+  #   stop(cli::format_error("^ Found the above {.emph Error(s)} and/or {.emph Warning(s)} ^"), call. = FALSE)
+  # } else if (found_error) {
+  #   stop(cli::format_error("^ Found the above {.emph Error(s)} and/or {.emph Warning(s)} ^"), call. = FALSE)
+  # } else if (found_warning) {
+  #   warning(cli::format_warning("^ Found the above {.emph Warning(s)} ^"), call. = FALSE)
+  # }
+  # ----
+
+
+
 
   # list(
   #   fcm_class = adj_matrix_input_type$fcm_class,

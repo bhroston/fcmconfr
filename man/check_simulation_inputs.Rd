@@ -17,7 +17,7 @@ check_simulation_inputs(
 )
 }
 \arguments{
-\item{adj_matrix}{An n x n adjacency matrix that represents an FCM}
+\item{adj_matrix}{A \link{matrix} or \link{data.frame}-like object}
 
 \item{initial_state_vector}{A list state values at the start of an fcm simulation}
 

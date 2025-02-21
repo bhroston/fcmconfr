@@ -5,11 +5,9 @@
 \title{Check Numeric Vector}
 \usage{
 check_numeric_vector(x, var_name = "")
-
-check_numeric_vector(x, var_name = "")
 }
 \arguments{
-\item{x}{a matrix}
+\item{x}{a vector of \link{numeric} values}
 
 \item{var_name}{a character object for the name of the input variable to
 be displayed in the error message}
@@ -17,25 +15,14 @@ be displayed in the error message}
 \value{
 TRUE if the input object if x is a numeric vector, or an error
 message if not
-
-TRUE if the input object if x is a numeric vector, or an error
-message if not
 }
 \description{
-Blank description
-
 Blank description
 }
 \details{
 INTENDED FOR DEVELOPER USE ONLY
-
-INTENDED FOR DEVELOPER USE ONLY
 }
 \examples{
-
-check_numeric_vector(c(1, 1, 1))
-check_numeric_vector(c(1, "1", 1))
-check_numeric_vector(c("one", "two"))
 
 check_numeric_vector(c(1, 1, 1))
 check_numeric_vector(c(1, "1", 1))

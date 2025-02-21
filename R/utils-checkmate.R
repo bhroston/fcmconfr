@@ -8,7 +8,7 @@
 #' @details
 #' INTENDED FOR DEVELOPER USE ONLY
 #'
-#' @param x a matrix
+#' @param x a [matrix] or [data.frame]-like object
 #'
 #' @returns The input object if x is a square matrix, or an error message if not
 #'
@@ -18,24 +18,70 @@
 #' @example /man/examples/ex-check_square_matrix.R
 #'
 #' @srrstats {G2.7} *Software should accept as input as many of the above standard tabular forms as possible, including extension to domain-specific forms.*
-check_square_adj_matrix = function(x) {
-  res <- checkmate::check_multi_class(
-    x,
-    classes = c("matrix", "array", "data.frame", "data.table", "tibble")
-  )
-  if (!isTRUE(res)) {
-    return(cli::cli_bullets(c(
-      "x" = "Error: Adj. Matrix must one of the following classes: matrix, array, data.frame, data.table, tibble",
-      "+++++> Input adj. matrix had class: {methods::is(x)[1]}"
-    )))
+check_square_adj_matrix = function(x = matrix()) {
+  produced_warning <- FALSE
+
+  if (methods::is(x)[1] == "list" & length(x) > 1) {
+    cli::cli_inform(c(
+      "x" = "Error: Adj. Matrix must be an individual adjacency matrix",
+      "+++++> Input adj. matrix was a list of {length(x)} adj. matrices."
+    ))
+    # Have to use a different stopping algorithm here to work nicely with
+    # autotest
+    return(stop(cli::format_error(c(
+      "^ Found the above {.emph Error(s)} and/or {.emph Warning(s)} ^"
+    )), call. = FALSE))
   }
-  if (nrow(x) != ncol(x)) {
-    return(cli::cli_bullets(c(
+
+  if ("sparseMatrix" %in% methods::is(x)) {
+    cli::cli_inform(c(
+      "!" = "Warning: Converting sparseMatrix input to matrix"
+    ))
+    x <- as.matrix(x)
+    produced_warning <- TRUE
+  }
+
+  class_options <-  c("matrix", "array", "data.frame", "data.table", "tibble", "sparseMatrix")
+  class_options_text <- paste0("'", cli::ansi_collapse(class_options, sep = "' '", sep2 = "' or '", last = "' or '"), "'")
+
+  x_as_df <- tryCatch({
+    x_as_df <- x
+    class(x_as_df) <- NULL
+    as.data.frame(x_as_df)
+  }, warning = function(w) {
+    cli::cli_inform(c(
+      "!" = "Warning: Converting adj. matrix data.frame"
+    ))
+  }, error = function(e) {
+    cli::cli_inform(c(
+      "x" = "Error: Adj. Matrix must one of the following classes: ", "{class_options_text}",
+      "+++++> Input adj. matrix had class: {methods::is(x)[1]}"
+    ))
+    # Have to use a different stopping algorithm here to work nicely with
+    # autotest
+    return(stop(cli::format_error(c(
+      "^ Found the above {.emph Error(s)} and/or {.emph Warning(s)} ^"
+    )), call. = FALSE))
+  })
+
+
+  if (nrow(x_as_df) != ncol(x_as_df)) {
+    cli::cli_inform(c(
       "x" = "Error: Adj. Matrix must be square (i.e. have dimension n x n)",
       "+++++> Input has dimensions {dim(x)}"
-    )))
+    ))
+    # Have to use a different stopping algorithm here to work nicely with
+    # autotest
+    return(stop(cli::format_error(c(
+      "^ {nrow(x)}, {ncol(x)} Found the above {.emph Error(s)} and/or {.emph Warning(s)} ^"
+    )), call. = FALSE))
   }
-  return(TRUE)
+
+  if (produced_warning) {
+    return("warning")
+  } else {
+    return(TRUE)
+  }
 }
 
 
@@ -49,7 +95,7 @@ check_square_adj_matrix = function(x) {
 #' @details
 #' INTENDED FOR DEVELOPER USE ONLY
 #'
-#' @param x a matrix
+#' @param x a vector of [numeric] values
 #' @param var_name a character object for the name of the input variable to
 #' be displayed in the error message
 #'
@@ -64,81 +110,34 @@ check_square_adj_matrix = function(x) {
 #' @srrstats {G2.1} *Implement assertions on types of inputs (see the initial point on nomenclature above).*
 #' @srrstats {G2.1a} *Provide explicit secondary documentation of expectations on data types of all vector inputs.*
 check_numeric_vector = function(x, var_name = "") {
+  # Skip test if no input given; an empty input will create an assumed
+  # initial_state_vector/clamping_vector
+  if (identical(x, c())) {
+    return(TRUE)
+  }
+
+  var_name <- assert_var_name(var_name)
+
   class_of_x <- methods::is(x)
-
-  if (length(var_name) > 1 | isTRUE(is.na(var_name))) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var var_name} must be a single character object",
-      "+++++++> Input {.var var_name} had length: {length(var_name)}"
-    )))
-  }
-  if (methods::is(var_name)[1] != "character") {
-    var_name <- as.character(var_name)
-  }
-
   res <- checkmate::check_numeric(x)
-  if (grepl("character", res, fixed = TRUE)) {
+  non_numeric_input_can_be_numeric <- all(vapply(x, function(val) !grepl("\\D", val), logical(length(1))))
+  if  (non_numeric_input_can_be_numeric) {
     x <- suppressWarnings(as.numeric(x))
-    x <- ifelse(is.na(x), "", x)
   }
+
   res <- checkmate::check_numeric(x)
   if (!isTRUE(res)) {
-    return(cli::cli_bullets(c(
+    cli::cli_inform(c(
       "x" = "Error: {var_name} must be a numeric vector",
       "+++++++> Input {var_name} vector had class: {class_of_x[1]}"
-    )))
-  }
-  return(TRUE)
-}
-
-
-#' Check Numeric Vector
-#'
-#' @description
-#' Blank description
-#'
-#' @details
-#' INTENDED FOR DEVELOPER USE ONLY
-#'
-#' @param x a matrix
-#' @param var_name a character object for the name of the input variable to
-#' be displayed in the error message
-#'
-#' @returns TRUE if the input object if x is a numeric vector, or an error
-#' message if not
-#'
-#' @keywords internal
-#'
-#' @export
-#' @example /man/examples/ex-check_numeric_vector.R
-#'
-#' @srrstats {G2.1} *Implement assertions on types of inputs (see the initial point on nomenclature above).*
-#' @srrstats {G2.1a} *Provide explicit secondary documentation of expectations on data types of all vector inputs.*
-check_numeric_vector = function(x, var_name = "") {
-  class_of_x <- methods::is(x)
-
-  if (length(var_name) > 1 | isTRUE(is.na(var_name))) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var var_name} must be a single character object",
-      "+++++++> Input {.var var_name} had length: {length(var_name)}"
-    )))
-  }
-  if (methods::is(var_name)[1] != "character") {
-    var_name <- as.character(var_name)
+    ))
+    # Have to use a different stopping algorithm here to work nicely with
+    # autotest
+    return(stop(cli::format_error(c(
+      "^ Found the above {.emph Error(s)} and/or {.emph Warning(s)} ^"
+    )), call. = FALSE))
   }
 
-  res <- checkmate::check_numeric(x)
-  if (grepl("character", res, fixed = TRUE)) {
-    x <- suppressWarnings(as.numeric(x))
-    x <- ifelse(is.na(x), "", x)
-  }
-  res <- checkmate::check_numeric(x)
-  if (!isTRUE(res)) {
-    return(cli::cli_bullets(c(
-      "x" = "Error: {var_name} must be a numeric vector",
-      "+++++++> Input {var_name} vector had class: {class_of_x[1]}"
-    )))
-  }
   return(TRUE)
 }
 
@@ -167,21 +166,20 @@ check_numeric_vector = function(x, var_name = "") {
 #' @srrstats {G2.1} *Implement assertions on types of inputs (see the initial point on nomenclature above).*
 #' @srrstats {G2.1a} *Provide explicit secondary documentation of expectations on data types of all vector inputs.*
 check_choice_selection <- function(x, choices = c(), var_name = "") {
-  if (length(var_name) > 1 | isTRUE(is.na(var_name))) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var var_name} must be a single character object",
-      "+++++++> Input {.var var_name} had length: {length(var_name)}"
-    )))
-  }
-  if (methods::is(var_name)[1] != "character") {
-    var_name <- as.character(var_name)
-  }
+  var_name <- assert_var_name(var_name)
+
+  choices_text <- paste0("'", cli::ansi_collapse(choices, sep = "' '", sep2 = "' or '", last = "' or '"), "'")
 
   if (length(x) > 1) {
-    return(cli::cli_inform(c(
+    cli::cli_inform(c(
       "x" = "Error: '{var_name}' must be ONLY one of the following: {choices_text}",
       "+++++++> Input {var_name} was: '{x}'"
-    )))
+    ))
+    # Have to use a different stopping algorithm here to work nicely with
+    # autotest
+    return(stop(cli::format_error(c(
+      "^ Found the above {.emph Error(s)} and/or {.emph Warning(s)} ^"
+    )), call. = FALSE))
   }
 
   x <- tolower(x)
@@ -189,11 +187,15 @@ check_choice_selection <- function(x, choices = c(), var_name = "") {
 
   res <- checkmate::check_choice(x, choices = choices)
   if (!isTRUE(res)) {
-    choices_text <- paste0("'", cli::ansi_collapse(choices, sep = "' '", sep2 = "' or '", last = "' or '"), "'")
-    stop(cli::format_error(c(
+    cli::cli_inform(c(
       "x" = "Error: '{var_name}' must be one of the following: {choices_text}",
       "+++++++> Input {var_name} was: '{x}'"
-    )))
+    ))
+    # Have to use a different stopping algorithm here to work nicely with
+    # autotest
+    return(stop(cli::format_error(c(
+      "^ Found the above {.emph Error(s)} and/or {.emph Warning(s)} ^"
+    )), call. = FALSE))
   }
   return(TRUE)
 }
@@ -222,21 +224,18 @@ check_choice_selection <- function(x, choices = c(), var_name = "") {
 #' @srrstats {G2.1} *Implement assertions on types of inputs (see the initial point on nomenclature above).*
 #' @srrstats {G2.1a} *Provide explicit secondary documentation of expectations on data types of all vector inputs.*
 check_positive_number <- function(x = numeric(), var_name = "") {
-  if (length(var_name) > 1 | isTRUE(is.na(var_name))) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var var_name} must be a single character object",
-      "+++++++> Input {.var var_name} had length: {length(var_name)}"
-    )))
-  }
-  if (methods::is(var_name)[1] != "character") {
-    var_name <- as.character(var_name)
-  }
+  var_name <- assert_var_name(var_name)
 
   if (length(x) > 1) {
-    stop(cli::format_error(c(
+    cli::cli_inform(c(
       "x" = "Error: '{var_name}' must be a single, positive integer value",
       "+++++++> Input {var_name} was: {x}"
-    )))
+    ))
+    # Have to use a different stopping algorithm here to work nicely with
+    # autotest
+    return(stop(cli::format_error(c(
+      "^ Found the above {.emph Error(s)} and/or {.emph Warning(s)} ^"
+    )), call. = FALSE))
   }
 
   class_of_x <- methods::is(x)
@@ -247,16 +246,26 @@ check_positive_number <- function(x = numeric(), var_name = "") {
   }
   res <- checkmate::check_numeric(x)
   if (!isTRUE(res)) {
-    return(cli::cli_bullets(c(
+    cli::cli_inform(c(
       "x" = "Error: {var_name} must be a positive value",
       "+++++++> Input {var_name} vector had class: {class_of_x[1]}"
-    )))
+    ))
+    # Have to use a different stopping algorithm here to work nicely with
+    # autotest
+    return(stop(cli::format_error(c(
+      "^ Found the above {.emph Error(s)} and/or {.emph Warning(s)} ^"
+    )), call. = FALSE))
   }
   if (x <= 0) {
-    return(cli::cli_bullets(c(
+    cli::cli_inform(c(
       "x" = "Error: {var_name} must be a positive value",
       "+++++++> Input {var_name} was: {x}"
-    )))
+    ))
+    # Have to use a different stopping algorithm here to work nicely with
+    # autotest
+    return(stop(cli::format_error(c(
+      "^ Found the above {.emph Error(s)} and/or {.emph Warning(s)} ^"
+    )), call. = FALSE))
   }
 
   return(TRUE)
@@ -286,21 +295,18 @@ check_positive_number <- function(x = numeric(), var_name = "") {
 #' @srrstats {G2.1} *Implement assertions on types of inputs (see the initial point on nomenclature above).*
 #' @srrstats {G2.1a} *Provide explicit secondary documentation of expectations on data types of all vector inputs.*
 check_positive_integer <- function(x = 1L, var_name = "") {
-  if (length(var_name) > 1 | isTRUE(is.na(var_name))) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var var_name} must be a single character object",
-      "+++++++> Input {.var var_name} had length: {length(var_name)}"
-    )))
-  }
-  if (methods::is(var_name)[1] != "character") {
-    var_name <- as.character(var_name)
-  }
+  var_name <- assert_var_name(var_name)
 
   if (length(x) > 1) {
-    stop(cli::format_error(c(
+    cli::format_error(c(
       "x" = "Error: '{var_name}' must be a single, positive integer value",
       "+++++++> Input {var_name} was: {x}"
-    )))
+    ))
+    # Have to use a different stopping algorithm here to work nicely with
+    # autotest
+    return(stop(cli::format_error(c(
+      "^ Found the above {.emph Error(s)} and/or {.emph Warning(s)} ^"
+    )), call. = FALSE))
   }
 
   class_of_x <- methods::is(x)
@@ -311,39 +317,81 @@ check_positive_integer <- function(x = 1L, var_name = "") {
   }
   res <- checkmate::check_numeric(x)
   if (!isTRUE(res)) {
-    return(cli::cli_bullets(c(
+    cli::cli_inform(c(
       "x" = "Error: {var_name} must be a positive integer value",
       "+++++++> Input {var_name} vector had class: {class_of_x[1]}"
-    )))
+    ))
+    # Have to use a different stopping algorithm here to work nicely with
+    # autotest
+    return(stop(cli::format_error(c(
+      "^ Found the above {.emph Error(s)} and/or {.emph Warning(s)} ^"
+    )), call. = FALSE))
   }
   if (x <= 0) {
-    return(cli::cli_bullets(c(
+    cli::cli_inform(c(
       "x" = "Error: {var_name} must be a positive value",
       "+++++++> Input {var_name} was: {x}"
-    )))
+    ))
+    # Have to use a different stopping algorithm here to work nicely with
+    # autotest
+    return(stop(cli::format_error(c(
+      "^ Found the above {.emph Error(s)} and/or {.emph Warning(s)} ^"
+    )), call. = FALSE))
   }
-  if (as.integer(x) - x > 1e-10) {
-    return(cli::cli_inform(c(
+  if (abs(as.integer(x) - x) > 1e-10) {
+    cli::cli_inform(c(
       "x" = "Error: {var_name} must be a positive integer value",
       "+++++++> Input {var_name} was: {x}"
-    )))
+    ))
+    # Have to use a different stopping algorithm here to work nicely with
+    # autotest
+    return(stop(cli::format_error(c(
+      "^ Found the above {.emph Error(s)} and/or {.emph Warning(s)} ^"
+    )), call. = FALSE))
   }
   return(TRUE)
 }
 
 
+#' Assert var_name
+#'
+#' @description
+#' Blank description
+#'
+#' @details
+#' INTENDED FOR DEVELOPER USE ONLY
+#'
+#' @param var_name_input a character object for the name of the input variable
+#' to be displayed in the error message
+#'
+#' @returns the var_name input if acceptable, error messages if not
+#'
+#' @keywords internal
+#'
+#' @export
+#' @examples
+#' assert_var_name("one")
+#' assert_var_name(1234)
 assert_var_name <- function(var_name_input = "") {
-  if (length(var_name) > 1 | isTRUE(is.na(var_name))) {
-    stop(cli::format_error(c(
+  if (length(var_name_input) > 1 | isTRUE(is.na(var_name_input))) {
+    cli::format_error(c(
       "x" = "Error: {.var var_name} must be a single character object",
       "+++++++> Input {.var var_name} had length: {length(var_name)}"
-    )))
+    ))
+    # Have to use a different stopping algorithm here to work nicely with
+    # autotest
+    return(stop(cli::format_error(c(
+      "^ Found the above {.emph Error(s)} and/or {.emph Warning(s)} ^"
+    )), call. = FALSE))
   }
-  if (methods::is(var_name)[1] != "character") {
-    var_name <- as.character(var_name)
+  if (methods::is(var_name_input)[1] != "character") {
+    var_name_input <- as.character(var_name_input)
   }
-  return(var_name)
+  return(var_name_input)
 }
+
+
+
 
 
 #if (class_of_x[1] == "character") {
@@ -351,7 +399,7 @@ assert_var_name <- function(var_name_input = "") {
 # if (any(is.na(x))) {
 #   x <- "NA"
 # }
-# return(cli::cli_bullets(c(
+# return(cli::cli_inform(c(
 #   "x" = "Warning: Vector contained numeric values as strings (ex. '1' instead of 1)",
 #   "~~~~~> Changing vector to numeric values",
 #   "{class_of_x}"

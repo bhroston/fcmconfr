@@ -4,10 +4,10 @@
 \alias{check_square_adj_matrix}
 \title{Check Square Matrix}
 \usage{
-check_square_adj_matrix(x)
+check_square_adj_matrix(x = matrix())
 }
 \arguments{
-\item{x}{a matrix}
+\item{x}{a \link{matrix} or \link{data.frame}-like object}
 }
 \value{
 The input object if x is a square matrix, or an error message if not
@@ -22,10 +22,10 @@ INTENDED FOR DEVELOPER USE ONLY
 
 # a quick test:
 X = matrix(1:9, nrow = 3)
-Y = matrix(1:12, nrow = 4)
+# Y = matrix(1:12, nrow = 4)
 Z = data.frame(matrix(1:9, nrow = 3))
 check_square_adj_matrix(X)
-check_square_adj_matrix(Y)
+# check_square_adj_matrix(Y)
 check_square_adj_matrix(Z)
 }
 \keyword{internal}
