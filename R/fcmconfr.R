@@ -1,7 +1,3 @@
-# #' @srrstats {G1.0} *Statistical Software should list at least one primary reference from published academic literature.*
-# #' @srrstats {G1.3} *All statistical terminology should be clarified and unambiguously defined.*
-
-
 
 ################################################################################
 # fcmconfr.R
@@ -13,6 +9,13 @@
 #   - get_inferences
 #
 ################################################################################
+
+# rOpenSci Statistical Software Standards ----
+#' @srrstats {G1.0} *Statistical Software should list at least one primary reference from published academic literature.*
+#' @srrstats {G1.3} *All statistical terminology should be clarified and unambiguously defined.*
+NULL
+# ----
+
 
 
 #' fcmconfr
