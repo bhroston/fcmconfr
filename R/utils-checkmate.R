@@ -5,11 +5,13 @@
 # This contains internal input validation functions to ensure inputs pass
 # mutation testing from autotest.
 #
+#   - check_fcmconfr_input
 #   - check_square_adj_matrix
 #   - check_numeric_vector
 #   - check_choice_selection
 #   - check_positive_number
 #   - check_positive_integer
+#   - check_logical
 #   - assert_var_name
 #
 ################################################################################
@@ -69,7 +71,7 @@ NULL
 #'    \item{logical - checks that the input is a logical (TRUE/FALSE) value}
 #'  }
 #' @param var_name A [character] string of the variable name of (x)
-#' @param choice_selection_choices ONLY used if check = 'choice_selection'. A
+#' @param choice_selection_opts ONLY used if check = 'choice_selection'. A
 #' vector of character strings; choices to make sure the 'choice_selection'
 #' check ensures a match.
 #'
@@ -82,7 +84,7 @@ NULL
 check_fcmconfr_input <- function(x,
                                  check = c("square_adj_matrix", "numeric_vector", "choice_selection", "positive_number", "positive_integer", "logical"),
                                  var_name = character(),
-                                 choice_selection_choices = c()) {
+                                 choice_selection_opts = c()) {
 
   var_name <- assert_var_name(var_name)
 
@@ -106,53 +108,26 @@ check_fcmconfr_input <- function(x,
     )))
   }
 
-  if (identical(check, "choice_selection") && identical(choice_selection_input, c())) {
+  if (identical(check, "choice_selection") && identical(choice_selection_opts, c())) {
 
     stop(cli::format_error(c(
-      "x" = "Error: {.var choice_selection_input} must be defined if check = 'choice_selection'"
+      "x" = "Error: {.var choice_selection_opts} must be defined if check = 'choice_selection'"
     )))
   }
 
-  # if (!is.null(names(additional_inputs$choices))) {
-  #   input_choices <- additional_inputs$choices
-  # } else if (is.null(names(additional_inputs$choices)) && identical(check, "choice_selection")) {
-  #   browser()
-  #   return(stop(cli::format_error(c(
-  #     "x" = "Error: 'choices' must be included as an additional parameter if
-  #         using 'check = choice_selection'"
-  #   ))))
-  # }
-
-
-
-  # if (check == "choice_selection" && !("choices" %in% names(additional_inputs))) {
-  #   stop(cli::format_error(c(
-  #     "x" = "Error: 'choices' must be included as an additional parameter if
-  #     using 'check = choice_selection'"
-  #   )))
-  # }
-  # if (check == "choice_selection" && (identical(additional_inputs$choices, character()))) {
-  #   stop(cli::format_error(c(
-  #     "x" = "Error: 'choices' must be included as an additional parameter if
-  #     {.var check} = 'choice_selection"
-  #   )))
-  # } else {
-  #   input_choices <- tolower(additional_inputs$choices)
-  # }
-
-  # if (check == "square_adj_matrix") {
-  #   check_square_adj_matrix(x)
-  # } else if (check == "choice_selection") {
-  #   check_choice_selection(x, choices = input_choices, var_name = var_name)
-  # } else if (check == "numeric_vector") {
-  #   check_numeric_vector(x, var_name = var_name)
-  # } else if (check == "positive_number") {
-  #   check_positive_number(x, var_name = var_name)
-  # } else if (check == "positive_integer") {
-  #   check_positive_integer(x, var_name = var_name)
-  # } else if (check == "logical") {
-  #   check_logical(x, var_name = var_name)
-  # }
+  if (check == "square_adj_matrix") {
+    check_square_adj_matrix(x)
+  } else if (check == "choice_selection") {
+    check_choice_selection(x, choices = choice_selection_opts, var_name = var_name)
+  } else if (check == "numeric_vector") {
+    check_numeric_vector(x, var_name = var_name)
+  } else if (check == "positive_number") {
+    check_positive_number(x, var_name = var_name)
+  } else if (check == "positive_integer") {
+    check_positive_integer(x, var_name = var_name)
+  } else if (check == "logical") {
+    check_logical(x, var_name = var_name)
+  }
 
   return(TRUE)
 }
@@ -506,10 +481,10 @@ check_logical <- function(x = TRUE, var_name = "") {
 #' assert_var_name("one")
 #' assert_var_name(1234)
 assert_var_name <- function(var_name_input = "") {
-  if (length(var_name_input) > 1 | isTRUE(is.na(var_name_input))) {
+  if (length(var_name_input) > 1 || isTRUE(is.na(var_name_input))) {
     stop(cli::format_error(c(
-      "x" = "Error: {.var var_name} must be a single character object",
-      "+++++++> Input {.var var_name} had length: {length(var_name)}"
+      "x" = "Error: {.var var_name_input} must be a single character object",
+      "+++++++> Input {.var var_name_input} had length: {length(var_name_input)}"
     )))
   }
   if (methods::is(var_name_input)[1] != "character") {

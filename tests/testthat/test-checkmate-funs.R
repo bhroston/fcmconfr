@@ -2,12 +2,20 @@
 test_that("check_fcmconfr_input works", {
   test_mat <- sample_fcms$simple_fcms$conventional_fcms[[1]]
 
+  # Confirm error if check is not an available option
   expect_error(check_fcmconfr_input(x = 1, check = "not_available"))
+
+  # Confirm error if chocie_selection but no choice_selection_opts given
   expect_error(check_fcmconfr_input(x = "sigmoid", check = "choice_selection", var_name = "squashing"))
-  expect_error(check_fcmconfr_input(x = "sigmoid", check = "choice_selection", var_name = "squashing", choices = character()))
+
+  # Confirm error if choices left blank
+  expect_error(check_fcmconfr_input(x = "sigmoid", check = "choice_selection", var_name = "squashing", choice_selection_opts = c()))
+
+  # Confirm error if multiple checks given
+  expect_error(check_fcmconfr_input(x = 1, check = c("square_adj_matrix", "choice_selection")))
 
   expect_no_error(check_fcmconfr_input(test_mat, check = "square_adj_matrix", "adj_matrix"))
-  expect_no_error(check_fcmconfr_input("sigmoid", check = "choice_selection", var_name = "squashing", choices = c("sigmoid", "squashing")))
+  expect_no_error(check_fcmconfr_input("sigmoid", check = "choice_selection", var_name = "squashing", choice_selection_opts = c("sigmoid", "squashing")))
   expect_no_error(check_fcmconfr_input(c(1, 1, 1), check = "numeric_vector", "state_vector"))
   expect_no_error(check_fcmconfr_input(1.1, check = "positive_number", "lambda"))
   expect_no_error(check_fcmconfr_input(1, check = "positive_integer", "max_iter"))
@@ -65,6 +73,8 @@ test_that("check_numeric_vector works", {
 
   test_vec <- c("1", "2")
   expect_true(check_numeric_vector(test_vec, var_name = "test_vec"))
+
+  expect_true(check_numeric_vector(c(), var_name = "empty"))
 
   test_vec <- c("one", "two")
   expect_error(check_numeric_vector(test_vec, var_name = "test_vec"))
@@ -128,6 +138,9 @@ test_that("check_positive_integer works", {
   # Confirm error if numeric but not integer
   expect_error(check_positive_integer(1.1, "max_iter"))
 
+  # Confirm error if more than one input given
+  expect_error(check_positive_integer(c(1, 1), "max_iter"))
+
   # Confirm error if non-integer
   expect_error(check_positive_integer("one", "max_iter"))
 
@@ -154,30 +167,60 @@ test_that("check_logical works", {
 })
 
 
+test_that("check_logical works", {
+
+  # Confirm error on multiple value input
+  expect_error(check_logical(c(TRUE, FALSE), var_name = "include_zeroes"))
+
+  # Confirm no error if string can be converted to logical
+  expect_no_error(check_logical("TRUE", var_name = "include_zeroes"))
+
+  # Confirm error on non-logical input
+  expect_error(check_logical(1.23421, var_name = "include_zeroes"))
+
+  expect_true(check_logical(TRUE, var_name = "include_zeroes"))
+
+  # yaml_list <- autotest::examples_to_yaml(package = ".", functions = "check_logical")
+  # res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)
+})
 
 
-functions_to_check <- c("check_square_adj_matrix",
-                         "check_numeric_vector",
-                         "check_choice_selection",
-                         "check_positive_number",
-                         "check_positive_integer")
- yaml_list <- autotest::examples_to_yaml(package = ".", functions = functions_to_check)
- res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)
+test_that("assert_var_name works", {
 
+  # Confirm error if multiple var_names given
+  expect_error(assert_var_name(var_name_input = c("asdv", "asdfas")))
 
-yaml_list <- autotest::examples_to_yaml(package = ".", functions = "check_fcmconfr_input")
-res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)
+  # Confirm error if var_name is NA
+  expect_error(assert_var_name(var_name_input = NA))
 
+  expect_no_error(assert_var_name(var_name = 1))
 
+  expect_no_error(assert_var_name(var_name = "test_var_name"))
+})
 
-
-test_data <- autotest::autotest_types()
-
-test_data <- test_data[test_data$test_name %in% tests_to_check, ]
-res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE, test_data = test_data)
-
-res <- autotest::autotest_yaml(yaml = yaml_list,
-                               test = TRUE,
-                               test_data = test_data)
-print (xt2)
-
+#
+# functions_to_check <- c("check_square_adj_matrix",
+#                          "check_numeric_vector",
+#                          "check_choice_selection",
+#                          "check_positive_number",
+#                          "check_positive_integer")
+#  yaml_list <- autotest::examples_to_yaml(package = ".", functions = functions_to_check)
+#  res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)
+#
+#
+# yaml_list <- autotest::examples_to_yaml(package = ".", functions = "check_fcmconfr_input")
+# res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)
+#
+#
+#
+#
+# test_data <- autotest::autotest_types()
+#
+# test_data <- test_data[test_data$test_name %in% tests_to_check, ]
+# res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE, test_data = test_data)
+#
+# res <- autotest::autotest_yaml(yaml = yaml_list,
+#                                test = TRUE,
+#                                test_data = test_data)
+# print (xt2)
+#
