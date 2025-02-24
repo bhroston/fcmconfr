@@ -38,6 +38,126 @@
 NULL
 # ----
 
+
+#' Check fcmconfr Input
+#'
+#' @description
+#' This function checks whether an input (x) is an acceptable input for a
+#' particular type of fcmoconfr input (e.g. a square adjacency matrix,
+#' a numeric vector, a choice from a particular set of choices, a positive
+#' number, a positive integer, or a logical value).
+#'
+#' @details
+#' INTENDED FOR DEVELOPER USE ONLY
+#'
+#' @param x A character string, a [numeric]/[numercic vector], a [matrix]
+#' or [data.frame]-like object, or a [logical] (TRUE/FALSE) value
+#' @param check A character of the check to perform. Must be one of the
+#' following:
+#'  \itemize{
+#'    \item{square_adj_matrix - checks that the input is a square adjacency matrix
+#'    that can be passed throughout the suite of fcmconfr functions}
+#'    \item{numeric_vector - checks that the input is a vector (length > 1) of
+#'    numeric-type objects}
+#'    \item{choice_selection - checks that the input is one of a given set
+#'    of choices. Must include the additional 'choices' parameter (see example)}
+#'    \item{positive_number - checks that the input is a positive numeric-type
+#'    object (i.e. passes is.numeric(x))}
+#'    \item{positive_integer - checks that the input is a positive integer; in
+#'    that as.integer(x) returns the same as (x), but does not necessarily
+#'    require that (x) is the 'integer'-type R object}
+#'    \item{logical - checks that the input is a logical (TRUE/FALSE) value}
+#'  }
+#' @param var_name A [character] string of the variable name of (x)
+#' @param choice_selection_choices ONLY used if check = 'choice_selection'. A
+#' vector of character strings; choices to make sure the 'choice_selection'
+#' check ensures a match.
+#'
+#' @returns TRUE if the input passes the selected check, or an error if not
+#'
+#' @keywords internal
+#' @export
+#'
+#' @example /man/examples/ex-check_fcmconfr_input.R
+check_fcmconfr_input <- function(x,
+                                 check = c("square_adj_matrix", "numeric_vector", "choice_selection", "positive_number", "positive_integer", "logical"),
+                                 var_name = character(),
+                                 choice_selection_choices = c()) {
+
+  var_name <- assert_var_name(var_name)
+
+  check_choices <-  c("square_adj_matrix", "numeric_vector", "choice_selection", "positive_number", "positive_integer", "logical")
+  check_choices_text <- paste0("'", cli::ansi_collapse(check_choices, sep = "' '", sep2 = "' or '", last = "' or '"), "'")
+
+  if (length(check) > 1) {
+    stop(cli::format_error(c(
+      "x" = "Error: '{check}' must be ONLY one of the following: {check_choices_text}",
+      "+++++++> Input {.var check} was: {check}"
+    )))
+  }
+
+  check <- tolower(check)
+
+  res <- checkmate::check_choice(check, choices = check_choices)
+  if (!isTRUE(res)) {
+    stop(cli::format_error(c(
+      "x" = "Error: '{check}' must be one of the following: {check_choices_text}",
+      "+++++++> Input {.var check} was: {check}"
+    )))
+  }
+
+  if (identical(check, "choice_selection") && identical(choice_selection_input, c())) {
+
+    stop(cli::format_error(c(
+      "x" = "Error: {.var choice_selection_input} must be defined if check = 'choice_selection'"
+    )))
+  }
+
+  # if (!is.null(names(additional_inputs$choices))) {
+  #   input_choices <- additional_inputs$choices
+  # } else if (is.null(names(additional_inputs$choices)) && identical(check, "choice_selection")) {
+  #   browser()
+  #   return(stop(cli::format_error(c(
+  #     "x" = "Error: 'choices' must be included as an additional parameter if
+  #         using 'check = choice_selection'"
+  #   ))))
+  # }
+
+
+
+  # if (check == "choice_selection" && !("choices" %in% names(additional_inputs))) {
+  #   stop(cli::format_error(c(
+  #     "x" = "Error: 'choices' must be included as an additional parameter if
+  #     using 'check = choice_selection'"
+  #   )))
+  # }
+  # if (check == "choice_selection" && (identical(additional_inputs$choices, character()))) {
+  #   stop(cli::format_error(c(
+  #     "x" = "Error: 'choices' must be included as an additional parameter if
+  #     {.var check} = 'choice_selection"
+  #   )))
+  # } else {
+  #   input_choices <- tolower(additional_inputs$choices)
+  # }
+
+  # if (check == "square_adj_matrix") {
+  #   check_square_adj_matrix(x)
+  # } else if (check == "choice_selection") {
+  #   check_choice_selection(x, choices = input_choices, var_name = var_name)
+  # } else if (check == "numeric_vector") {
+  #   check_numeric_vector(x, var_name = var_name)
+  # } else if (check == "positive_number") {
+  #   check_positive_number(x, var_name = var_name)
+  # } else if (check == "positive_integer") {
+  #   check_positive_integer(x, var_name = var_name)
+  # } else if (check == "logical") {
+  #   check_logical(x, var_name = var_name)
+  # }
+
+  return(TRUE)
+}
+
+
 #' Check Square Adj. Matrix
 #'
 #' @description
@@ -49,7 +169,7 @@ NULL
 #'
 #' @param x a [matrix] or [data.frame]-like object
 #'
-#' @returns The input object if x is a square matrix, or an error message if not
+#' @returns TRUE if x is a square matrix, or an error message if not
 #'
 #' @keywords internal
 #' @noRd
@@ -316,6 +436,54 @@ check_positive_integer <- function(x = 1L, var_name = "") {
 }
 
 
+#' Check Integer
+#'
+#' @description
+#' Blank description
+#'
+#' @details
+#' INTENDED FOR DEVELOPER USE ONLY
+#'
+#' @param x a single, [logical] TRUE/FALSE value
+#' @param var_name a character object for the name of the input variable to
+#' be displayed in the error message
+#'
+#' @returns TRUE if the input object x is a logical value, or an error
+#' message if not
+#'
+#' @keywords internal
+#' @noRd
+#'
+#' @example /man/examples/ex-check_logical.R
+check_logical <- function(x = TRUE, var_name = "") {
+  var_name <- assert_var_name(var_name)
+
+  if (length(x) > 1) {
+    stop(cli::format_error(c(
+      "x" = "Error: '{var_name}' must be a single, logical (TRUE/FALSE) value",
+      "+++++++> Input {var_name} was: {x}"
+    )))
+  }
+
+  class_of_x <- methods::is(x)
+  res <- checkmate::check_logical(x)
+  if (grepl("character", res, fixed = TRUE)) {
+    x <- suppressWarnings(as.logical(x))
+    x <- ifelse(is.na(x), "", x)
+  }
+  res <- checkmate::check_logical(x)
+  if (!isTRUE(res)) {
+    stop(cli::format_error(c(
+      "x" = "Error: {var_name} must be a logical (TRUE/FALSE) value",
+      "+++++++> Input {var_name} vector had class: {class_of_x[1]}"
+    )))
+  }
+
+  return(TRUE)
+}
+
+
+
 #' Assert var_name
 #'
 #' @description
@@ -349,5 +517,7 @@ assert_var_name <- function(var_name_input = "") {
   }
   return(var_name_input)
 }
+
+
 
 
