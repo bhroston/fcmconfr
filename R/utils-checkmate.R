@@ -63,11 +63,6 @@ check_square_adj_matrix = function(x = matrix()) {
       "x" = "Error: Adj. Matrix must be an individual adjacency matrix",
       "+++++> Input adj. matrix was a list of {length(x)} adj. matrices."
     ))))
-    # Have to use a different stopping algorithm here to work nicely with
-    # autotest
-    # return(stop(cli::format_error(c(
-    #   "^ fcmconfr found Error(s) and/or Warning(s) ^"
-    # ))))
   }
 
   if ("sparseMatrix" %in% methods::is(x)) {
@@ -96,11 +91,6 @@ check_square_adj_matrix = function(x = matrix()) {
         "x" = "Error: Adj. Matrix must one of the following classes: ", "{class_options_text}",
         "+++++> Input adj. matrix had class: {methods::is(x)[1]}"
       ))))
-      # Have to use a different stopping algorithm here to work nicely with
-      # autotest
-      # return(stop(cli::format_error(c(
-      #   "^ fcmconfr found Error(s) and/or Warning(s) ^"
-      # ))))
     })
   }
 
@@ -109,11 +99,6 @@ check_square_adj_matrix = function(x = matrix()) {
       "x" = "Error: Adj. Matrix must be square (i.e. have dimension n x n)",
       "+++++> Input has dimensions {dim(x)}"
     ))))
-    # Have to use a different stopping algorithm here to work nicely with
-    # autotest
-    # return(stop(cli::format_error(c(
-    #   "^ fcmconfr found Error(s) and/or Warning(s) ^"
-    # ))))
   }
 
   if (produced_warning) {
@@ -147,7 +132,7 @@ check_square_adj_matrix = function(x = matrix()) {
 #' @example /man/examples/ex-check_numeric_vector.R
 check_numeric_vector = function(x, var_name = "") {
   # Skip test if no input given; an empty input will create an assumed
-  # initial_state_vector/clamping_vector
+  # initial_state_vector/clamping_vector in the check function that called this
   if (identical(x, c())) {
     return(TRUE)
   }
@@ -163,15 +148,10 @@ check_numeric_vector = function(x, var_name = "") {
 
   res <- checkmate::check_numeric(x)
   if (!isTRUE(res)) {
-    cli::cli_inform(c(
+    stop(cli::format_error(c(
       "x" = "Error: {var_name} must be a numeric vector",
       "+++++++> Input {var_name} vector had class: {class_of_x[1]}"
-    ))
-    # Have to use a different stopping algorithm here to work nicely with
-    # autotest
-    return(stop(cli::format_error(c(
-      "^ Found the above {.emph Error(s)} and/or {.emph Warning(s)} ^"
-    )), call. = FALSE))
+    )))
   }
 
   return(TRUE)
@@ -205,15 +185,10 @@ check_choice_selection <- function(x, choices = c(), var_name = "") {
   choices_text <- paste0("'", cli::ansi_collapse(choices, sep = "' '", sep2 = "' or '", last = "' or '"), "'")
 
   if (length(x) > 1) {
-    cli::cli_inform(c(
-      "x" = "Error: '{var_name}' must be ONLY one of the following: {choices_text}",
-      "+++++++> Input {var_name} was: '{x}'"
-    ))
-    # Have to use a different stopping algorithm here to work nicely with
-    # autotest
-    return(stop(cli::format_error(c(
-      "^ Found the above {.emph Error(s)} and/or {.emph Warning(s)} ^"
-    )), call. = FALSE))
+    stop(cli::format_error(c(
+      "x" = "Error: {.var var_name} must be ONLY one of the following: {choices_text}",
+      "+++++++> Input {.var var_name} was: '{x}'"
+    )))
   }
 
   x <- tolower(x)
@@ -221,15 +196,10 @@ check_choice_selection <- function(x, choices = c(), var_name = "") {
 
   res <- checkmate::check_choice(x, choices = choices)
   if (!isTRUE(res)) {
-    cli::cli_inform(c(
-      "x" = "Error: '{var_name}' must be one of the following: {choices_text}",
-      "+++++++> Input {var_name} was: '{x}'"
-    ))
-    # Have to use a different stopping algorithm here to work nicely with
-    # autotest
-    return(stop(cli::format_error(c(
-      "^ Found the above {.emph Error(s)} and/or {.emph Warning(s)} ^"
-    )), call. = FALSE))
+    stop(cli::format_error(c(
+      "x" = "Error: {.var var_name} must be one of the following: {choices_text}",
+      "+++++++> Input {.var var_name} was: '{x}'"
+    )))
   }
   return(TRUE)
 }
@@ -258,15 +228,10 @@ check_positive_number <- function(x = numeric(), var_name = "") {
   var_name <- assert_var_name(var_name)
 
   if (length(x) > 1) {
-    cli::cli_inform(c(
+    stop(cli::format_error(c(
       "x" = "Error: '{var_name}' must be a single, positive integer value",
       "+++++++> Input {var_name} was: {x}"
-    ))
-    # Have to use a different stopping algorithm here to work nicely with
-    # autotest
-    return(stop(cli::format_error(c(
-      "^ Found the above {.emph Error(s)} and/or {.emph Warning(s)} ^"
-    )), call. = FALSE))
+    )))
   }
 
   class_of_x <- methods::is(x)
@@ -277,26 +242,16 @@ check_positive_number <- function(x = numeric(), var_name = "") {
   }
   res <- checkmate::check_numeric(x)
   if (!isTRUE(res)) {
-    cli::cli_inform(c(
+    stop(cli::format_error(c(
       "x" = "Error: {var_name} must be a positive value",
       "+++++++> Input {var_name} vector had class: {class_of_x[1]}"
-    ))
-    # Have to use a different stopping algorithm here to work nicely with
-    # autotest
-    return(stop(cli::format_error(c(
-      "^ Found the above {.emph Error(s)} and/or {.emph Warning(s)} ^"
-    )), call. = FALSE))
+    )))
   }
   if (x <= 0) {
-    cli::cli_inform(c(
+    stop(cli::format_error(c(
       "x" = "Error: {var_name} must be a positive value",
       "+++++++> Input {var_name} was: {x}"
-    ))
-    # Have to use a different stopping algorithm here to work nicely with
-    # autotest
-    return(stop(cli::format_error(c(
-      "^ Found the above {.emph Error(s)} and/or {.emph Warning(s)} ^"
-    )), call. = FALSE))
+    )))
   }
 
   return(TRUE)
@@ -326,15 +281,10 @@ check_positive_integer <- function(x = 1L, var_name = "") {
   var_name <- assert_var_name(var_name)
 
   if (length(x) > 1) {
-    cli::format_error(c(
+    stop(cli::format_error(c(
       "x" = "Error: '{var_name}' must be a single, positive integer value",
       "+++++++> Input {var_name} was: {x}"
-    ))
-    # Have to use a different stopping algorithm here to work nicely with
-    # autotest
-    return(stop(cli::format_error(c(
-      "^ Found the above {.emph Error(s)} and/or {.emph Warning(s)} ^"
-    )), call. = FALSE))
+    )))
   }
 
   class_of_x <- methods::is(x)
@@ -345,37 +295,22 @@ check_positive_integer <- function(x = 1L, var_name = "") {
   }
   res <- checkmate::check_numeric(x)
   if (!isTRUE(res)) {
-    cli::cli_inform(c(
+    stop(cli::format_error(c(
       "x" = "Error: {var_name} must be a positive integer value",
       "+++++++> Input {var_name} vector had class: {class_of_x[1]}"
-    ))
-    # Have to use a different stopping algorithm here to work nicely with
-    # autotest
-    return(stop(cli::format_error(c(
-      "^ Found the above {.emph Error(s)} and/or {.emph Warning(s)} ^"
-    )), call. = FALSE))
+    )))
   }
   if (x <= 0) {
-    cli::cli_inform(c(
+    stop(cli::format_error(c(
       "x" = "Error: {var_name} must be a positive value",
       "+++++++> Input {var_name} was: {x}"
-    ))
-    # Have to use a different stopping algorithm here to work nicely with
-    # autotest
-    return(stop(cli::format_error(c(
-      "^ Found the above {.emph Error(s)} and/or {.emph Warning(s)} ^"
-    )), call. = FALSE))
+    )))
   }
   if (abs(as.integer(x) - x) > 1e-10) {
-    cli::cli_inform(c(
+    stop(cli::format_error(c(
       "x" = "Error: {var_name} must be a positive integer value",
       "+++++++> Input {var_name} was: {x}"
-    ))
-    # Have to use a different stopping algorithm here to work nicely with
-    # autotest
-    return(stop(cli::format_error(c(
-      "^ Found the above {.emph Error(s)} and/or {.emph Warning(s)} ^"
-    )), call. = FALSE))
+    )))
   }
   return(TRUE)
 }
@@ -404,15 +339,10 @@ check_positive_integer <- function(x = 1L, var_name = "") {
 #' assert_var_name(1234)
 assert_var_name <- function(var_name_input = "") {
   if (length(var_name_input) > 1 | isTRUE(is.na(var_name_input))) {
-    cli::format_error(c(
+    stop(cli::format_error(c(
       "x" = "Error: {.var var_name} must be a single character object",
       "+++++++> Input {.var var_name} had length: {length(var_name)}"
-    ))
-    # Have to use a different stopping algorithm here to work nicely with
-    # autotest
-    return(stop(cli::format_error(c(
-      "^ Found the above {.emph Error(s)} and/or {.emph Warning(s)} ^"
-    )), call. = FALSE))
+    )))
   }
   if (methods::is(var_name_input)[1] != "character") {
     var_name_input <- as.character(var_name_input)

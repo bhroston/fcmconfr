@@ -727,19 +727,19 @@ test_that("check_simulation_inputs works", {
   test_clamping_vector <- rep(0, unique(dim(sample_fcms$simple_fcms$ivfn_fcms[[1]])))
   test_clamping_vector[3] <- 1
   # Check for individual adj_matrix ----
-  expect_error(suppressMessages(
+  expect_error(
     check_simulation_inputs(adj_matrix = sample_fcms$simple_fcms$conventional_fcms, initial_state_vector = test_initial_state_vector, clamping_vector = test_clamping_vector)
-  ))
+  )
   # ----
 
   # Check adj_matrices ----
-  expect_error(suppressMessages(
+  expect_error(
     check_simulation_inputs(cbind(test_adj_matrix, sample_fcms$simple_fcms$conventional_fcms[[2]]))
-  ))
+  )
   test_sparseMatrix <- Matrix::Matrix(as.matrix(test_adj_matrix), sparse = TRUE)
-  expect_warning(suppressMessages(
+  expect_warning(
     check_simulation_inputs(adj_matrix = test_sparseMatrix, initial_state_vector = test_initial_state_vector, clamping_vector = test_clamping_vector, activation = "kosko", squashing = "tanh", point_of_inference = "final")
-  ))
+  )
   expect_no_error(
     check_simulation_inputs(adj_matrix = test_adj_matrix, initial_state_vector = test_initial_state_vector, clamping_vector = test_clamping_vector, activation = "kosko", squashing = "tanh", point_of_inference = "final")
   )
@@ -752,17 +752,17 @@ test_that("check_simulation_inputs works", {
   # ----
 
   # Check initial_state_vector ----
-  expect_warning(suppressMessages(
+  expect_warning(
     check_simulation_inputs(adj_matrix = sample_fcms$simple_fcms$tfn_fcms[[1]], initial_state_vector = c(), clamping_vector = test_clamping_vector, activation = "kosko",  squashing = "tanh",  point_of_inference = "final")
-  ))
-  expect_error(suppressMessages(
-    check_simulation_inputs(adj_matrix = sample_fcms$simple_fcms$conventional_fcms[[1]], initial_state_vector = c(1, 1, 1), clamping_vector = test_clamping_vector, point_of_inference = "final")
-  ))
+  )
+  expect_error(
+    check_simulation_inputs(adj_matrix = sample_fcms$simple_fcms$conventional_fcms[[1]], initial_state_vector = c(1, 1, 1), clamping_vector = test_clamping_vector, activation = "kosko",  squashing = "tanh", point_of_inference = "final")
+  )
   bad_initial_state_vector <- test_initial_state_vector
   bad_initial_state_vector[3] <- "a"
-  expect_error(suppressMessages(
-    check_simulation_inputs(adj_matrix = sample_fcms$simple_fcms$ivfn_fcms[[1]], initial_state_vector = bad_initial_state_vector, clamping_vector = test_clamping_vector, point_of_inference = "final")
-  ))
+  expect_error(
+    check_simulation_inputs(adj_matrix = sample_fcms$simple_fcms$ivfn_fcms[[1]], initial_state_vector = bad_initial_state_vector, clamping_vector = test_clamping_vector, activation = "kosko",  squashing = "tanh", point_of_inference = "final")
+  )
 
   expect_no_error(
     check_simulation_inputs(adj_matrix = sample_fcms$simple_fcms$ivfn_fcms[[1]], initial_state_vector = test_initial_state_vector, clamping_vector = test_clamping_vector, activation = "kosko", squashing = "tanh", point_of_inference = "final")
@@ -770,32 +770,32 @@ test_that("check_simulation_inputs works", {
   # ----
 
   # Check clamping_vector ----
-  expect_warning(suppressMessages(
+  expect_warning(
     check_simulation_inputs(adj_matrix = sample_fcms$simple_fcms$tfn_fcms[[1]], initial_state_vector = test_initial_state_vector, clamping_vector = c(), activation = "kosko", squashing = "tanh", point_of_inference = "final")
-  ))
-  expect_error(suppressMessages(
+  )
+  expect_error(
     check_simulation_inputs(adj_matrix = sample_fcms$simple_fcms$conventional_fcms[[1]], initial_state_vector = test_initial_state_vector, clamping_vector = c(0, 0, 1), activation = "kosko", squashing = "tanh", point_of_inference = "final")
-  ))
+  )
   bad_clamping_vector <- test_clamping_vector
   bad_clamping_vector[3] <- "A"
-  expect_error(suppressMessages(
+  expect_error(
     check_simulation_inputs(adj_matrix = sample_fcms$simple_fcms$ivfn_fcms[[1]], initial_state_vector = test_initial_state_vector, clamping_vector = bad_clamping_vector, activation = "kosko", squashing = "tanh", point_of_inference = "final")
-  ))
-  expect_error(suppressMessages(
+  )
+  expect_error(
     check_simulation_inputs(adj_matrix = sample_fcms$simple_fcms$ivfn_fcms[[1]], initial_state_vector = test_initial_state_vector, clamping_vector = c(1, 0, 0, 0, 0, 0, 0, 0, 0), activation = "kosko", squashing = "tanh", point_of_inference = "final")
-  ))
+  )
   expect_no_error(
     check_simulation_inputs(adj_matrix = sample_fcms$simple_fcms$ivfn_fcms[[1]], initial_state_vector = test_initial_state_vector, clamping_vector = test_clamping_vector, activation = "kosko", squashing = "tanh", point_of_inference = "final")
   )
   # ----
 
   # Check activation ----
-  expect_warning(suppressMessages(
+  expect_warning(
     check_simulation_inputs(adj_matrix = sample_fcms$simple_fcms$conventional_fcms[[1]], initial_state_vector = test_initial_state_vector, clamping_vector = test_clamping_vector, squashing = "tanh", point_of_inference = "final")
-  ))
-  expect_error(suppressMessages(
+  )
+  expect_error(
     check_simulation_inputs(adj_matrix = sample_fcms$simple_fcms$conventional_fcms[[1]], initial_state_vector = test_initial_state_vector, clamping_vector = test_clamping_vector, activation = "wrong", squashing = "tanh",  point_of_inference = "final")
-  ))
+  )
 
   expect_no_error(
     check_simulation_inputs(adj_matrix = sample_fcms$simple_fcms$conventional_fcms[[1]], initial_state_vector = test_initial_state_vector, clamping_vector = test_clamping_vector, activation = "kosko", squashing = "tanh",  point_of_inference = "final")
@@ -809,18 +809,18 @@ test_that("check_simulation_inputs works", {
   # ----
 
   # Check squashing ----
-  expect_warning(suppressMessages(
+  expect_warning(
     check_simulation_inputs(adj_matrix = sample_fcms$simple_fcms$conventional_fcms[[1]], initial_state_vector = test_initial_state_vector, clamping_vector = test_clamping_vector, activation = "kosko",  point_of_inference = "final")
-  ))
-  expect_error(suppressMessages(
+  )
+  expect_error(
     check_simulation_inputs(adj_matrix = sample_fcms$simple_fcms$conventional_fcms[[1]], initial_state_vector = test_initial_state_vector, clamping_vector = test_clamping_vector, activation = "kosko", squashing = "wrong", point_of_inference = "final")
-  ))
-  expect_error(suppressMessages(
+  )
+  expect_error(
     check_simulation_inputs(adj_matrix = sample_fcms$simple_fcms$conventional_fcms[[1]], initial_state_vector = test_initial_state_vector, clamping_vector = test_clamping_vector, activation = "rescale", squashing = "tanh", point_of_inference = "final")
-  ))
-  expect_warning(suppressMessages(
+  )
+  expect_warning(
     check_simulation_inputs(adj_matrix = sample_fcms$simple_fcms$conventional_fcms[[1]], initial_state_vector = test_initial_state_vector, clamping_vector = test_clamping_vector, activation = "modified-kosko", squashing = "tanh", point_of_inference = "final")
-  ))
+  )
 
   expect_no_error(
     check_simulation_inputs(adj_matrix = sample_fcms$simple_fcms$conventional_fcms[[1]], initial_state_vector = test_initial_state_vector, clamping_vector = test_clamping_vector, activation = "kosko", squashing = "sigmoid", point_of_inference = "final")
@@ -828,27 +828,27 @@ test_that("check_simulation_inputs works", {
   expect_no_error(
     check_simulation_inputs(adj_matrix = sample_fcms$simple_fcms$conventional_fcms[[1]], initial_state_vector = test_initial_state_vector, clamping_vector = test_clamping_vector, activation = "kosko", squashing = "tanh", point_of_inference = "final")
   )
-  expect_error(suppressMessages(
+  expect_error(
     check_simulation_inputs(adj_matrix = sample_fcms$simple_fcms$conventional_fcms[[1]], initial_state_vector = test_initial_state_vector, clamping_vector = test_clamping_vector, activation = "kosko", squashing = "saturation", point_of_inference = "final")
-  ))
-  expect_error(suppressMessages(
+  )
+  expect_error(
     check_simulation_inputs(adj_matrix = sample_fcms$simple_fcms$conventional_fcms[[1]], initial_state_vector = test_initial_state_vector, clamping_vector = test_clamping_vector, activation = "kosko", squashing = "bivalent", point_of_inference = "final")
-  ))
-  expect_error(suppressMessages(
+  )
+  expect_error(
     check_simulation_inputs(adj_matrix = sample_fcms$simple_fcms$conventional_fcms[[1]], initial_state_vector = test_initial_state_vector, clamping_vector = test_clamping_vector, activation = "kosko", squashing = "trivalent", point_of_inference = "final")
-  ))
+  )
   # ----
 
   # Check lambda ----
-  expect_error(suppressMessages(
+  expect_error(
     check_simulation_inputs(adj_matrix = sample_fcms$simple_fcms$conventional_fcms[[1]], initial_state_vector = test_initial_state_vector, clamping_vector = test_clamping_vector, activation = "modified-kosko", squashing = "sigmoid", lambda = "a", point_of_inference = "final")
-  ))
-  expect_error(suppressMessages(
+  )
+  expect_error(
     check_simulation_inputs(adj_matrix = sample_fcms$simple_fcms$conventional_fcms[[1]], initial_state_vector = test_initial_state_vector, clamping_vector = test_clamping_vector, activation = "modified-kosko", squashing = "sigmoid", lambda = -1, point_of_inference = "final")
-  ))
-  expect_warning(suppressMessages(
+  )
+  expect_warning(
     check_simulation_inputs(adj_matrix = sample_fcms$simple_fcms$conventional_fcms[[1]], initial_state_vector = test_initial_state_vector, clamping_vector = test_clamping_vector, activation = "modified-kosko", squashing = "sigmoid", lambda = 12, point_of_inference = "final")
-  ))
+  )
 
   expect_no_error(
     check_simulation_inputs(adj_matrix = sample_fcms$simple_fcms$conventional_fcms[[1]], initial_state_vector = test_initial_state_vector, clamping_vector = test_clamping_vector, activation = "modified-kosko", squashing = "sigmoid", lambda = 1, point_of_inference = "final")
@@ -856,15 +856,15 @@ test_that("check_simulation_inputs works", {
   # ----
 
   # Check point_of_inference ----
-  expect_warning(suppressMessages(
+  expect_warning(
     check_simulation_inputs(adj_matrix = sample_fcms$simple_fcms$conventional_fcms[[1]], initial_state_vector = test_initial_state_vector, clamping_vector = test_clamping_vector, activation = "modified-kosko", squashing = "sigmoid")
-  ))
-  expect_error(suppressMessages(
+  )
+  expect_error(
     check_simulation_inputs(adj_matrix = sample_fcms$simple_fcms$conventional_fcms[[1]], initial_state_vector = test_initial_state_vector, clamping_vector = test_clamping_vector, activation = "modified-kosko", squashing = "sigmoid", point_of_inference = "incorrect")
-  ))
-  expect_warning(suppressMessages(
+  )
+  expect_warning(
     check_simulation_inputs(adj_matrix = sample_fcms$simple_fcms$conventional_fcms[[1]], initial_state_vector = test_initial_state_vector, clamping_vector = test_clamping_vector, activation = "modified-kosko", squashing = "sigmoid", point_of_inference = "peak")
-  ))
+  )
 
   expect_no_error(
     check_simulation_inputs(adj_matrix = sample_fcms$simple_fcms$conventional_fcms[[1]], initial_state_vector = test_initial_state_vector, clamping_vector = test_clamping_vector, activation = "modified-kosko", squashing = "sigmoid", lambda = 1, point_of_inference = "final")
@@ -872,15 +872,15 @@ test_that("check_simulation_inputs works", {
   # ----
 
   # Check max_iter ----
-  expect_error(suppressMessages(
+  expect_error(
     check_simulation_inputs(adj_matrix = sample_fcms$simple_fcms$conventional_fcms[[1]], initial_state_vector = test_initial_state_vector, clamping_vector = test_clamping_vector, activation = "modified-kosko", squashing = "sigmoid", point_of_inference = "final", max_iter = "a")
-  ))
-  expect_error(suppressMessages(
+  )
+  expect_error(
     check_simulation_inputs(adj_matrix = sample_fcms$simple_fcms$conventional_fcms[[1]], initial_state_vector = test_initial_state_vector, clamping_vector = test_clamping_vector, activation = "modified-kosko", squashing = "sigmoid", point_of_inference = "final", max_iter = 2.4)
-  ))
-  expect_error(suppressMessages(
+  )
+  expect_error(
     check_simulation_inputs(adj_matrix = sample_fcms$simple_fcms$conventional_fcms[[1]], initial_state_vector = test_initial_state_vector, clamping_vector = test_clamping_vector, activation = "modified-kosko", squashing = "sigmoid", point_of_inference = "final", max_iter = -1)
-  ))
+  )
 
   expect_no_error(
     check_simulation_inputs(adj_matrix = sample_fcms$simple_fcms$conventional_fcms[[1]], initial_state_vector = test_initial_state_vector, clamping_vector = test_clamping_vector, activation = "modified-kosko", squashing = "sigmoid", lambda = 1, point_of_inference = "final", max_iter = 1000)
@@ -888,15 +888,15 @@ test_that("check_simulation_inputs works", {
   # ----
 
   # Check min_error ----
-  expect_error(suppressMessages(
+  expect_error(
     check_simulation_inputs(adj_matrix = sample_fcms$simple_fcms$conventional_fcms[[1]], initial_state_vector = test_initial_state_vector, clamping_vector = test_clamping_vector, activation = "modified-kosko", squashing = "sigmoid", point_of_inference = "final", max_iter = 100, min_error = "a")
-  ))
-  expect_error(suppressMessages(
+  )
+  expect_error(
     check_simulation_inputs(adj_matrix = sample_fcms$simple_fcms$conventional_fcms[[1]], initial_state_vector = test_initial_state_vector, clamping_vector = test_clamping_vector, activation = "modified-kosko", squashing = "sigmoid", point_of_inference = "final", max_iter = 100, min_error = -1)
-  ))
-  expect_warning(suppressMessages(
+  )
+  expect_warning(
     check_simulation_inputs(adj_matrix = sample_fcms$simple_fcms$conventional_fcms[[1]], initial_state_vector = test_initial_state_vector, clamping_vector = test_clamping_vector, activation = "modified-kosko", squashing = "sigmoid", point_of_inference = "final", max_iter = 100, min_error = 1)
-  ))
+  )
 
   expect_no_error(
     check_simulation_inputs(adj_matrix = sample_fcms$simple_fcms$conventional_fcms[[1]], initial_state_vector = test_initial_state_vector, clamping_vector = test_clamping_vector, activation = "modified-kosko", squashing = "sigmoid", lambda = 1, point_of_inference = "final", max_iter = 1000, min_error = 1e-3)

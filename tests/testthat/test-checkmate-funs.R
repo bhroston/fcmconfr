@@ -1,7 +1,5 @@
 
 test_that("check_square_adj_matrix works", {
-
-  # Confirm matrix, array, data.frame, data.table, and tibble classes accepted
   test_mat <- matrix(1:9, nrow = 3)
   expect_true(check_square_adj_matrix(test_mat))
 
@@ -50,7 +48,7 @@ test_that("check_numeric_vector works", {
   expect_true(check_numeric_vector(test_vec, var_name = "test_vec"))
 
   test_vec <- c("one", "two")
-  expect_error(suppressMessages(check_numeric_vector(test_vec, var_name = "test_vec")))
+  expect_error(check_numeric_vector(test_vec, var_name = "test_vec"))
 
   # yaml_list <- autotest::examples_to_yaml(package = ".", functions = "check_simulation_inputs")
   # res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)
@@ -62,6 +60,10 @@ test_that("check_choice_selection works", {
   opts <- c("sigmoid", "tanh")
   expect_true(check_choice_selection("sigmoid", opts, "test"))
 
+  # Confirm error for multiple inputs
+  expect_error(check_choice_selection(opts, choices = opts))
+
+  # Confirm error for non-match
   random_chars <- paste0(sample(c(letters, LETTERS), size = 10), collapse = "")
   expect_error(check_choice_selection(random_chars, c("sigmoig", "tanh")))
 
@@ -74,11 +76,22 @@ test_that("check_choice_selection works", {
 
 
 test_that("check_positive_number works", {
+
   expect_true(check_positive_number(1, "lambda"))
+
   expect_true(check_positive_integer("1", "lambda"))
-  expect_error(suppressMessages(check_positive_number(-1, "lambda")))
-  expect_true(check_positive_number(1.1, "lambda")) # Check error
+
+  expect_true(check_positive_number(1.1, "lambda"))
+
+  # Confirm error if more than one input given
+  expect_error(check_positive_number(c(1, 1), "lambda"))
+
+  # Confirm error if character value cannot be transformed using as.numeric
   expect_error(suppressMessages(check_positive_number("one", "lambda")))
+
+  # Confirm error on negative input
+  expect_error(check_positive_number(-1, "lambda"))
+
   # yaml_list <- autotest::examples_to_yaml(package = ".", functions = "check_positive_number")
   # res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)
 })

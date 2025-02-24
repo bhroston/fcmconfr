@@ -1595,16 +1595,8 @@ check_simulation_inputs <- function(adj_matrix = matrix(),
                                     max_iter = 100,
                                     min_error = 1e-4) {
 
-  found_warning <- FALSE
-  found_error <- FALSE
-
   # Have to check adj_matrix input before continuing with other checks
   adj_matrix_check <- check_square_adj_matrix(adj_matrix)
-  if (isFALSE(adj_matrix_check)) {
-    stop(cli::format_error(c(
-      "^ Found the above {.emph Error(s)} and/or {.emph Warning(s)} ^"
-    )), call. = FALSE)
-  }
 
   # adj_matrix_input_type <- get_adj_matrices_input_type(adj_matrix)
   if (is.null(dim(adj_matrix))) {
@@ -1616,44 +1608,39 @@ check_simulation_inputs <- function(adj_matrix = matrix(),
 
   # Make assumptions for empty inputs ----
   if (identical(initial_state_vector, c())) {
-    cli::cli_inform(c(
+    warning(cli::format_warning(c(
       "!" = "Warning: No {.var initial_state_vector} given",
       "~~~~~ Assuming all nodes have an initial state of 1; i.e. initial_state_vector = c(1, 1, ..., 1)"
-    ))
+    )))
     initial_state_vector <- rep(1, n_nodes)
-    found_warning <- TRUE
   }
   if (identical(clamping_vector, c())) {
-    cli::cli_inform(c(
+    warning(cli::format_warning(c(
       "!" = "Warning: No {.var initial_state_vector} given",
       "~~~~~ Assuming no nodes are clamped; i.e. clamping_vector = c(0, 0, ..., 0)"
-    ))
+    )))
     clamping_vector <- rep(0, n_nodes)
-    found_warning <- TRUE
   }
   if (identical(activation, c("kosko", "modified-kosko", "rescale"))) {
-    cli::cli_inform(c(
+    warning(cli::format_warning(c(
       "!" = "Warning: No {.var activation_function} given",
       "~~~~~ Assuming activation = 'kosko'"
-    ))
+    )))
     activation <- "kosko"
-    found_warning <- TRUE
   }
   if (identical(squashing, c("sigmoid", "tanh"))) {
-    cli::cli_inform(c(
+    warning(cli::format_warning(c(
       "!" = "Warning: No {.var squashing_function} given",
       "~~~~~ Assuming squashing = 'sigmoid'"
-    ))
+    )))
     squashing <- "sigmoid"
-    found_warning <- TRUE
   }
   if (identical(point_of_inference, c("peak", "final"))) {
-    cli::cli_inform(c(
+    warning(cli::format_warning(c(
       "!" = "Warning: No {.var point_of_inference} given",
       "~~~~~ Assuming point_of_inference = 'final'"
-    ))
+    )))
     point_of_inference <- "final"
-    found_warning <- TRUE
   }
   # ----
 
@@ -1673,98 +1660,68 @@ check_simulation_inputs <- function(adj_matrix = matrix(),
   # Additional checks ----
   # Additional initial_state_vector_checks
   initial_state_vector_generic_check_passed <- isTRUE(initial_state_vector_check)
-  # length(initial_state_vector)
-  # if (initial_state_vector_generic_check_passed && (length(initial_state_vector) != n_nodes)) {
   if (initial_state_vector_generic_check_passed && (!setequal(length(initial_state_vector), n_nodes))) {
-    cli::cli_inform(c(
+    stop(cli::format_error(c(
       "x" = "Error: {.var initial_state_vector} must be the same length as the number of nodes in input {.var adj_matrix}",
       "+++++ Length of {.var initial_state_vector} is {length(initial_state_vector)}, but should be {n_nodes}"
-    ))
-    found_error <- TRUE
+    )))
   }
 
-  # # Additional clamping_vector_checks
+  # Additional clamping_vector_checks
   clamping_vector_generic_check_passed <- isTRUE(clamping_vector_check)
   if (clamping_vector_generic_check_passed && (!setequal(length(clamping_vector), n_nodes))) {
-    cli::cli_inform(c(
+    stop(cli::format_error(c(
       "x" = "Error: {.var clamping_vector} must be the same length as the number of nodes in input {.var adj_matrix}",
       "+++++ Length of {.var clamping_vector} is {length(clamping_vector)}, but should be {n_nodes}"
-    ))
-    found_error <- TRUE
+    )))
   }
 
   initial_state_and_clamping_vector_generic_checks_passed <- initial_state_vector_generic_check_passed && clamping_vector_generic_check_passed
   if ((initial_state_and_clamping_vector_generic_checks_passed) && ((any(clamping_vector != 0) & !all(initial_state_vector == 1)))) {
-    cli::cli_inform(c(
+    stop(cli::format_error(c(
       "x" = "Error: If any nodes are clamped (i.e. {.var clamping_vector} contains non-zero elements),
       all elements in {.var initial_state_vector} must be seet to 1 to perform the analysis correctly; i.e. initial_state_vector = c(1, 1, ..., 1)"
-    ))
-    found_error <- TRUE
+    )))
   }
 
   # Additional activation and squashing checks
   if (activation == "rescale" & squashing != "sigmoid") {
-    cli::cli_inform(c(
+    stop(cli::format_error(c(
       "x" = "Error: '{squashing}' is not compatible with the 'rescale' activation function",
       "+++++ The 'rescale' activation function is designed to optimize performance of the sigmoid squashing function",
       "+++++ Results are unreliable with incompatible squashing functions."
-    ))
-    found_error <- TRUE
+    )))
   } else if (activation == "modified-kosko" & squashing == "tanh") {
-    cli::cli_inform(c(
+    warning(cli::format_warning(c(
       "!" = "Warning: The 'tanh' squashing function performs poorly with the 'modified-kosko' activation function",
       "~~~~~ Simulation inference values tend to approach 0 as the number of simulation iterations increases"
-    ))
-    found_warning <- TRUE
+    )))
   }
 
   # Additional lambda checks
   if (lambda > 10) {
-    cli::cli_inform(c(
+    warning(cli::format_warning(c(
       "!" = "Warning: {.var lambda} is typically less than 10 and greater than 0, with 1 being the typical value",
       "~~~~~ Input {.var lambda} was {lambda}"
-    ))
-    found_warning <- TRUE
+    )))
   }
 
   # Additional point_of_inference checks
   if (point_of_inference == "peak" & all(initial_state_vector == 1)) {
-    cli::cli_inform(c(
+    warning(cli::format_warning(c(
       "!" = "Warning: Simulation inferences will return all 1's if {.var point_of_difference} = 'peak' and all concept activation levels start at 1; i.e. initial_state_vector = c(1, 1, ..., 1) "
-    ))
-    found_warning <- TRUE
+    )))
   }
 
   # Additional min_error checks
   if (min_error >= 1) {
-    cli::cli_inform(c(
+    warning(cli::format_warning(c(
       "!" = "Warning: {.var point_of_inference} value of {point_of_inference} may be too high.",
       "~~~~~ Typically {.var min_error} < 0.001, but greater than 0"
-    ))
-    found_warning <- TRUE
+    )))
   }
 
   # ----
-
-  # Output Checks ----
-  if (found_warning || any(generic_input_checks == "warning")) {
-    found_warning <- TRUE
-  }
-  if (found_error || any(generic_input_checks == "error")) {
-    found_error <- TRUE
-  }
-
-  if (found_warning && found_error) {
-    stop(cli::format_error("^ Found the above {.emph Error(s)} and/or {.emph Warning(s)} ^"), call. = FALSE)
-  } else if (found_error) {
-    stop(cli::format_error("^ Found the above {.emph Error(s)} and/or {.emph Warning(s)} ^"), call. = FALSE)
-  } else if (found_warning) {
-    warning(cli::format_warning("^ Found the above {.emph Warning(s)} ^"), call. = FALSE)
-  }
-  # ----
-
-
-
 
   # list(
   #   fcm_class = adj_matrix_input_type$fcm_class,
