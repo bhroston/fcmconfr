@@ -1,6 +1,6 @@
 
 ################################################################################
-# utils-input_validation.R
+# utils-input_checks.R
 #
 # This contains internal input validation functions to ensure inputs pass
 # mutation testing from autotest.
@@ -13,6 +13,7 @@
 #   - check_positive_integer
 #   - check_logical
 #   - assert_var_name
+#   - check_access_to_parallel_processing_and_progress_display_functionalities
 #
 ################################################################################
 
@@ -78,7 +79,7 @@ NULL
 #' @returns TRUE if the input passes the selected check, or an error if not
 #'
 #' @keywords internal
-#' @export
+#' @noRd
 #'
 #' @example /man/examples/ex-check_fcmconfr_input.R
 check_fcmconfr_input <- function(x,
@@ -495,4 +496,102 @@ assert_var_name <- function(var_name_input = "") {
 
 
 
+#' Check if the local machine can access internal parallel processing and progress display functionalities
+#'
+#' @family utility
+#'
+#' @description
+#' Check whether the local machine has access to the necessary packages to
+#' run code in parallel and/or using a progress bar. Specifically, checks for
+#' the parallel, doSNOW, foreach, and pbapply packages.
+#'
+#' @details
+#' Confirms that a local machine can access the required packages for parallel
+#' processing and/or displaying progress bars at runtime. Will revise inputs
+#' if particular packages are unavailable and warn the user of such changes, but will
+#' not halt a run.
+#'
+#' @param use_parallel A [logical] (TRUE/FALSE) object declaring whether the
+#' user intends to use parallel processing (TRUE) or not (FALSE)
+#' @param use_show_progress A [logical] (TRUE/FALSE) object declaring whether
+#' the user intends to display progress bars (TRUE) or not (FALSE)
+#' @param testing_use_parallel A [logical] (TRUE/FALSE) object declaring whether
+#' the function should be run as a test that restricts access to packages
+#' required for parallel processing (TRUE) to force use_parallel to FALSE or
+#' not (FALSE)
+#' @param testing_use_show_progress A [logical] (TRUE/FALSE) object declaring
+#' whether the function should be run as a test that restricts access to
+#' packages required for progress display (TRUE) to force use_show_progress
+#' to FALSE or not (FALSE)
+#'
+#' @returns TRUE/FALSE Whether the machine has access to the dependencies to
+#' access internal parallel processing functionalities
+#'
+#' @keywords internal
+#' @noRd
+#'
+#' @example man/examples/ex-check_access_to_parallel_processing_and_progress_display_functionalities.R
+check_access_to_parallel_processing_and_progress_display_functionalities <- function(use_parallel = TRUE,
+                                                                                     use_show_progress = TRUE,
+                                                                                     testing_use_parallel = FALSE,
+                                                                                     testing_use_show_progress = FALSE) {
 
+  check_fcmconfr_input(use_parallel, "logical", var_name = "use_parallel")
+  check_fcmconfr_input(use_show_progress, "logical", var_name = "use_show_progress")
+  check_fcmconfr_input(testing_use_parallel, "logical", var_name = "testing_use_parallel")
+  check_fcmconfr_input(testing_use_show_progress, "logical", var_name = "testing_use_show_progress")
+
+  local_machine_has_access_to_parallel <- requireNamespace("parallel")
+  local_machine_has_access_to_doSNOW <- requireNamespace("doSNOW")
+  local_machine_has_access_to_foreach <- requireNamespace("foreach")
+
+  local_machine_has_access_to_pbapply <- requireNamespace("pbapply")
+
+  can_run_in_parallel_and_can_show_progress <- (local_machine_has_access_to_parallel && local_machine_has_access_to_doSNOW && local_machine_has_access_to_foreach)
+  can_run_in_parallel_and_cannot_show_progress <- (local_machine_has_access_to_parallel)
+  can_show_progress <- local_machine_has_access_to_pbapply
+
+  if ((use_parallel && use_show_progress) && (!can_run_in_parallel_and_can_show_progress || testing_use_parallel) && (can_show_progress && !testing_use_show_progress)) {
+    warning(cli::format_warning(c(
+      "!" = "Parallel processing with progress pisplay requires the 'parallel', 'doSNOW' and 'foreach' packages which are not currently installed.",
+      "~~~~~> Running without parallel processing, but with progress display"
+    )))
+    use_parallel <- FALSE
+    use_show_progress <- TRUE
+  } else if ((use_parallel && use_show_progress) && (!can_run_in_parallel_and_can_show_progress || testing_use_parallel) && (!can_show_progress || testing_use_show_progress)) {
+    warning(cli::format_warning(c(
+      "!" = "Parallel processing with progress pisplay requires the 'parallel', 'doSNOW' and 'foreach' packages which are not currently installed.",
+      "~~~~~> Running without parallel processing or progress display"
+    )))
+    use_parallel <- FALSE
+    use_show_progress <- FALSE
+  } else if ((use_parallel && !use_show_progress) && (!local_machine_has_access_to_parallel || testing_use_parallel) && (can_show_progress && !testing_use_show_progress)) {
+    warning(cli::format_warning(c(
+      "!" = "Parallel processing requires the 'parallel', 'doSNOW' and 'foreach' packages which are not currently installed.",
+      "~~~~~> Running without parallel processing, but with progress display"
+    )))
+    use_parallel <- FALSE
+    use_show_progress <- TRUE
+  } else if ((use_parallel && !use_show_progress) && (!local_machine_has_access_to_parallel || testing_use_parallel) && (!can_show_progress || testing_use_show_progress)) {
+    warning(cli::format_warning(c(
+      "!" = "Parallel processing with progress pisplay requires the 'parallel', 'doSNOW' and 'foreach' packages which are not currently installed.",
+      "~~~~~> Running without parallel processing or progress display"
+    )))
+    use_parallel <- FALSE
+    use_show_progress <- FALSE
+  } else if ((!use_parallel && use_show_progress) && (!can_show_progress || testing_use_show_progress)) {
+    warning(cli::format_warning(c(
+      "!" = "Progress display (even without parallel processing) requires the 'pbabpply package which is not currently installed.",
+      "~~~~~> Running without progress display"
+    )))
+    use_parallel <- FALSE
+    use_show_progress <- FALSE
+  }
+
+  return(
+    list(
+      use_parallel = use_parallel,
+      use_show_progress = use_show_progress
+    )
+  )
+}

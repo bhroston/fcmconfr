@@ -9,8 +9,6 @@
 # These functions do not facilitate a specific analysis, but are rather tools
 # to navigate throughout the package
 #
-#   - check_if_local_machine_has_access_to_parallel_processing_functionalities
-#   - check_if_local_machine_has_access_to_show_progress_functionalities
 #   - get_adj_matrices_input_type
 #   - get_node_IDs_from_input
 #   - standardize_adj_matrices
@@ -18,20 +16,31 @@
 ################################################################################
 
 
-test_that("check_if_local_machine_has_access_to_parallel_processing_functionalities works", {
-  expect_no_error(check_if_local_machine_has_access_to_parallel_processing_functionalities(use_parallel = TRUE, use_show_progress = TRUE))
-  expect_no_error(check_if_local_machine_has_access_to_parallel_processing_functionalities(use_parallel = TRUE, use_show_progress = FALSE))
-  expect_no_error(check_if_local_machine_has_access_to_parallel_processing_functionalities(use_parallel = FALSE, use_show_progress = FALSE))
-  expect_no_error(check_if_local_machine_has_access_to_parallel_processing_functionalities(use_parallel = FALSE, use_show_progress = TRUE))
+test_that("get_fcm_class_from_adj_matrix works", {
+
+  # Confirm error if elements are non-numeric (and not ivfn's or tfn's)
+  test_element <- structure(.Data = "a", class = "Different")
+  test_mat <- data.frame(
+    c(test_element, test_element),
+    c(test_element, test_element)
+  )
+  expect_error(get_fcm_class_from_adj_matrix(test_mat))
+
+  test_mat <- sample_fcms$simple_fcms$conventional_fcms[[1]]
+  expect_identical(get_fcm_class_from_adj_matrix(test_mat), "conventional")
+
+  test_mat <- sample_fcms$simple_fcms$ivfn_fcms[[1]]
+  expect_identical(get_fcm_class_from_adj_matrix(test_mat), "ivfn")
+
+  test_mat <- sample_fcms$simple_fcms$tfn_fcms[[1]]
+  expect_identical(get_fcm_class_from_adj_matrix(test_mat), "tfn")
+
+  # yaml_list <- autotest::examples_to_yaml(package = ".", functions = "get_fcm_class_from_adj_matrix")
+  # res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)
 })
 
 
-test_that("check_if_local_machine_has_access_to_show_progress_functionalities works", {
-  expect_no_error(check_if_local_machine_has_access_to_show_progress_functionalities(use_parallel = TRUE, use_show_progress = TRUE))
-  expect_no_error(check_if_local_machine_has_access_to_show_progress_functionalities(use_parallel = TRUE, use_show_progress = FALSE))
-  expect_no_error(check_if_local_machine_has_access_to_show_progress_functionalities(use_parallel = FALSE, use_show_progress = FALSE))
-  expect_no_error(check_if_local_machine_has_access_to_show_progress_functionalities(use_parallel = FALSE, use_show_progress = TRUE))
-})
+
 
 
 test_that("get_adj_matrices_input_type works", {

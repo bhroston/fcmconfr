@@ -117,7 +117,7 @@ standardize_adj_matrices <- function(adj_matrices = list(matrix())) {
 #' 'ivfn', or 'tfn' (or will throw an error if none are identified)
 #'
 #' @keywords internal
-#' @keywords noRd
+#' @noRd
 #'
 #' @export
 #' @example man/examples/ex-get_fcm_class_from_adj_matrix.R
@@ -143,7 +143,7 @@ get_fcm_class_from_adj_matrix <- function(adj_matrix = data.frame()) {
     stop(cli::format_error(c(
       "x" = "Error: Unrecognized element types in input {.var adj_matrix}",
       "+++++> Adjacency matrix elements must be either numeric, ivfn, or tfn, and all matrices must have elements of the same type.",
-      "+++++> Input {.var adj_matrix} had elements of type: {element_types_in_adj_matrix}"
+      "+++++> Input {.var adj_matrix} had elements of type: {element_types_in_adj_matrix[1]}"
     )))
   }
 

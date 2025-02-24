@@ -1,3 +1,17 @@
+# test-input_checks.R
+#
+#   - check_fcmconfr_input
+#   - check_square_adj_matrix
+#   - check_numeric_vector
+#   - check_choice_selection
+#   - check_positive_number
+#   - check_positive_integer
+#   - check_logical
+#   - assert_var_name
+#   - check_access_to_parallel_processing_and_progress_display_functionalities
+#
+################################################################################
+
 
 test_that("check_fcmconfr_input works", {
   test_mat <- sample_fcms$simple_fcms$conventional_fcms[[1]]
@@ -167,24 +181,6 @@ test_that("check_logical works", {
 })
 
 
-test_that("check_logical works", {
-
-  # Confirm error on multiple value input
-  expect_error(check_logical(c(TRUE, FALSE), var_name = "include_zeroes"))
-
-  # Confirm no error if string can be converted to logical
-  expect_no_error(check_logical("TRUE", var_name = "include_zeroes"))
-
-  # Confirm error on non-logical input
-  expect_error(check_logical(1.23421, var_name = "include_zeroes"))
-
-  expect_true(check_logical(TRUE, var_name = "include_zeroes"))
-
-  # yaml_list <- autotest::examples_to_yaml(package = ".", functions = "check_logical")
-  # res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)
-})
-
-
 test_that("assert_var_name works", {
 
   # Confirm error if multiple var_names given
@@ -199,29 +195,51 @@ test_that("assert_var_name works", {
 })
 
 
+test_that("check_access_to_parallel_processing_and_progress_display_functionalities works", {
 
-test_that("check_if_local_machine_has_access_to_parallel_processing_functionalities works", {
+  # Confirm warning if 'parallel' 'doSNOW' or 'foreach' packages missing and use_parallel = TRUE and use_show_progress = TRUE
+  # testing_use_parallel = TRUE testing_use_show_progress = FALSE
+  expect_warning(
+    check_access_to_parallel_processing_and_progress_display_functionalities(use_parallel = TRUE, use_show_progress = TRUE, testing_use_parallel = TRUE, testing_use_show_progress = FALSE)
+  )
 
-  expect_no_error(check_if_local_machine_has_access_to_parallel_processing_functionalities(use_parallel = TRUE, use_show_progress = TRUE, test_mode = TRUE))
+  # Confirm warning if 'parallel' 'doSNOW' or 'foreach' packages missing and use_parallel = TRUE and use_show_progress = TRUE
+  # testing_use_parallel = TRUE testing_use_show_progress = TRUE
+  expect_warning(
+    check_access_to_parallel_processing_and_progress_display_functionalities(use_parallel = TRUE, use_show_progress = TRUE, testing_use_parallel = TRUE, testing_use_show_progress = TRUE)
+  )
 
-  expect_no_error(check_if_local_machine_has_access_to_parallel_processing_functionalities(use_parallel = TRUE, use_show_progress = FALSE, test_mode = TRUE))
+  # Confirm warning if 'parallel' 'doSNOW' or 'foreach' packages missing and use_parallel = TRUE and use_show_progress = FALSE
+  # testing_use_parallel = TRUE testing_use_show_progress = FALSE
+  expect_warning(
+    check_access_to_parallel_processing_and_progress_display_functionalities(use_parallel = TRUE, use_show_progress = FALSE, testing_use_parallel = TRUE, testing_use_show_progress = FALSE)
+  )
 
-  expect_no_error(check_if_local_machine_has_access_to_parallel_processing_functionalities(use_parallel = FALSE, use_show_progress = FALSE, test_mode = TRUE))
+  # Confirm warning if 'parallel' 'doSNOW' or 'foreach' packages missing and use_parallel = TRUE and use_show_progress = FALSE
+  # testing_use_parallel = TRUE testing_use_show_progress = TRUE
+  expect_warning(
+    check_access_to_parallel_processing_and_progress_display_functionalities(use_parallel = TRUE, use_show_progress = FALSE, testing_use_parallel = TRUE, testing_use_show_progress = TRUE)
+  )
 
-  expect_no_error(check_if_local_machine_has_access_to_parallel_processing_functionalities(use_parallel = FALSE, use_show_progress = TRUE, test_mode = TRUE))
+  # Confirm warning if 'pbapply' package missing and use_parallel = FALSE and use_show_progress = TRUE
+  # testing_use_parallel = FALSE testing_use_show_progress = TRUE
+  expect_warning(
+    check_access_to_parallel_processing_and_progress_display_functionalities(use_parallel = FALSE, use_show_progress = TRUE, testing_use_parallel = FALSE, testing_use_show_progress = TRUE)
+  )
+
+  expect_no_error(check_access_to_parallel_processing_and_progress_display_functionalities(use_parallel = TRUE, use_show_progress = TRUE))
+
+  expect_no_error(check_access_to_parallel_processing_and_progress_display_functionalities(use_parallel = TRUE, use_show_progress = FALSE))
+
+  expect_no_error(check_access_to_parallel_processing_and_progress_display_functionalities(use_parallel = FALSE, use_show_progress = FALSE))
+
+  expect_no_error(check_access_to_parallel_processing_and_progress_display_functionalities(use_parallel = FALSE, use_show_progress = TRUE))
+
+  # yaml_list <- autotest::examples_to_yaml(package = ".", functions = "check_access_to_parallel_processing_and_progress_display_functionalities")
+  # res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)
 })
 
 
-test_that("check_if_local_machine_has_access_to_show_progress_functionalities works", {
-
-  expect_no_error(check_if_local_machine_has_access_to_show_progress_functionalities(use_parallel = TRUE, use_show_progress = TRUE))
-
-  expect_no_error(check_if_local_machine_has_access_to_show_progress_functionalities(use_parallel = TRUE, use_show_progress = FALSE))
-
-  expect_no_error(check_if_local_machine_has_access_to_show_progress_functionalities(use_parallel = FALSE, use_show_progress = FALSE))
-
-  expect_no_error(check_if_local_machine_has_access_to_show_progress_functionalities(use_parallel = FALSE, use_show_progress = TRUE))
-})
 
 #
 # functions_to_check <- c("check_square_adj_matrix",
