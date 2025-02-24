@@ -97,259 +97,57 @@ standardize_adj_matrices <- function(adj_matrices = list(matrix())) {
 }
 
 
-
-#' Check if the local machine can access internal parallel processing functionalities
+#' Get FCM Class from Individual Adjacency Matrix
 #'
 #' @family utility
 #'
 #' @description
-#' Check whether the local machine has access to the necessary packages to
-#' run code in parallel and/or using a progress bar. Specifically, checks for
-#' the parallel, doSNOW, foreach, and pbapply packages.
-#'
-#' @details
-#' Confirms that a local machine can access the required packages for parallel
-#' processing and/or displaying progress bars at runtime. Will revise inputs
-#' if particular packages are unavailable and warn the user of such changes, but will
-#' not halt a run.
-#'
-#' @param use_parallel TRUE/FALSE The user intends to use parallel processing
-#' @param use_show_progress TRUE/FALSE The user intends to display progress bars
-#'
-#' @returns TRUE/FALSE Whether the machine has access to the dependencies to
-#' access internal parallel processing functionalities
-#'
-#' @export
-#' @example man/examples/ex-check_if_local_machine_has_access_to_parallel_processing_functionalities.R
-check_if_local_machine_has_access_to_parallel_processing_functionalities <- function(use_parallel, use_show_progress) {
-
-  if (!is.logical(use_parallel) | length(use_parallel) > 1) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var use_parallel} must be logical (TRUE/FALSE)",
-      "+++++> Input {.var use_parallel} was: {use_parallel}"
-    )))
-  }
-
-  if (!is.logical(use_show_progress) | length(use_show_progress) > 1) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var use_show_progress} must be logical (TRUE/FALSE)",
-      "+++++> Input {.var use_show_progress} was: {use_show_progress}"
-    )))
-  }
-
-  parallel_check <- use_parallel
-  show_progress_check <- use_show_progress
-
-  if (use_parallel) {
-    if (use_show_progress) {
-      local_machine_has_access_to_doSNOW <- requireNamespace("doSNOW")
-      local_machine_has_access_to_foreach <- requireNamespace("foreach")
-      if (!local_machine_has_access_to_doSNOW | !local_machine_has_access_to_foreach) {
-        parallel_check <- FALSE
-        warning("\tShowing progress with parallel processing requires the 'doSNOW' and 'foreach' packages which are
-        currently not installed. Running in parallel but without showing progress.")
-      }
-    } else {
-      local_machine_has_access_to_parallel <- requireNamespace("parallel")
-      if (!local_machine_has_access_to_parallel) {
-        parallel_check <- FALSE
-        warning("\tParallel processing requires the 'parallel' package which is
-        currently not installed. Running without parallel processing.")
-      }
-    }
-  }
-  parallel_check
-}
-
-
-
-#' Check if the local machine can access internal 'show_progress' functionalities
-#'
-#' @family utility
-#'
-#' @description
-#' Check whether the local machine has access to the necessary packages to
-#' run code in parallel and/or using a progress bar. Specifically, checks for
-#' the doSNOW, foreach, and pbapply packages.
-#'
-#' @details
-#' Confirms that a local machine can access the required packages for
-#' displaying progress bars at runtime. Will revise inputs
-#' if particular packages are unavailable and warn the user of such changes, but will
-#' not halt a run.
-#'
-#' @param use_parallel TRUE/FALSE The user intends to use parallel processing
-#' @param use_show_progress TRUE/FALSE The user intends to display progress bars
-#'
-#' @returns TRUE/FALSE Whether the machine has access to the dependencies to
-#' access internal 'show_progress' functionalities
-#'
-#' @export
-#' @example man/examples/ex-check_if_local_machine_has_access_to_show_progress_functionalities.R
-check_if_local_machine_has_access_to_show_progress_functionalities <- function(use_parallel, use_show_progress) {
-
-  if (!is.logical(use_parallel) | length(use_parallel) > 1) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var use_parallel} must be logical (TRUE/FALSE)",
-      "+++++> Input {.var use_parallel} was: {use_parallel}"
-    )))
-  }
-
-  if (!is.logical(use_show_progress) | length(use_show_progress) > 1) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var use_show_progress} must be logical (TRUE/FALSE)",
-      "+++++> Input {.var use_show_progress} was: {use_show_progress}"
-    )))
-  }
-
-  parallel_check <- use_parallel
-  show_progress_check <- use_show_progress
-
-  if (use_show_progress) {
-    if (use_parallel) {
-      local_machine_has_access_to_doSNOW <- requireNamespace("doSNOW")
-      local_machine_has_access_to_foreach <- requireNamespace("foreach")
-      if (!local_machine_has_access_to_doSNOW | !local_machine_has_access_to_foreach) {
-        show_progress_check <- FALSE
-        warning("\tShowing progress with parallel processing requires the 'doSNOW' and 'foreach' packages which are
-        currently not installed. Running in parallel but without showing progress.")
-      }
-    } else {
-      local_machine_has_access_to_pbapply <- requireNamespace("pbapply")
-      if (!local_machine_has_access_to_pbapply) {
-        show_progress_check <- FALSE
-        warning("\tShowing progress requires the 'pbapply' package which is
-        currently not installed. Running without showing progress.")
-      }
-    }
-  }
-
-  show_progress_check
-}
-
-
-
-#' Get the data types of adjacency matrices in a list
-#'
-#' @family utility
-#'
-#' @description
-#' This function performs two actions:
-#' \enumerate{
-#'    \item This function identifies whether the input is a list of adjacency
-#'    matrices or is an individual adj matrix (input_type)
-#'    \item This function identifies the 'class' of the input adj. matrices from
-#'    the following options: 'conventional' 'ivfn' 'tfn' or 'unavailable'
-#'    \itemize{
-#'        \item 'conventional' means that the adj. matrices contain only
-#'        numeric objects
-#'        \item 'ivfn' means that the adj. matrices contain only 'ivfn' objects
-#'        (interval-valued fuzzy number) NOTE: also returns the matrix class
-#'        type (i.e. data.frame, tibble, etc.)
-#'        \item 'tfn' means that the adj. matrices contain only 'tfn' objects
-#'        (triangular fuzzy number)
-#'        \item 'unavailable' means that the adj. matrices contain non-numeric
-#'        data that are not of types 'ivfn' or 'tfn'
-#'    }
-#' }
-#'
-#' @param adj_matrix_list_input A [list] of adj matrices or an
-#' individual adj matrix [data.frame]. Converts an individual adj.
-#' matrix to a list if not already.
-#'
-#' @returns a named list with two variables:
+#' Get the FCM class of an adjacency matrix. May be one of the following:
 #' \itemize{
-#'    \item adj_matrices_input_is_list: TRUE/FALSE Whether the input is a list
-#'    of adj. matrices
-#'    \item object_types_in_list: The 'class' of the input adj. matrices
+#'  \item{'conventional' if all elements are numeric}
+#'  \item{'ivfn' if all elements are Interval-Value Fuzzy Numbers}
+#'  \item{'tfn' if all elements are Triangular Fuzzy Numbers}
 #' }
 #'
-#' @importFrom methods is
-#' @importFrom data.table data.table
-#' @importFrom tibble tibble
-#' @importFrom Matrix Matrix
-#' @importFrom shiny isRunning
-#' @importFrom cli format_error
+#' @param adj_matrix  A [data.frame]-like object of single adjacency matrix
+#' (n x n) representing an FCMs. Matrices can have conventional edge weights,
+#' IVFN edge weights or TFN edge weights
+#'
+#' @returns A [character] string of the fcm class. Either 'conventional',
+#' 'ivfn', or 'tfn' (or will throw an error if none are identified)
+#'
+#' @keywords internal
+#' @keywords noRd
 #'
 #' @export
-#' @example man/examples/ex-get_adj_matrices_input_type.R
-get_adj_matrices_input_type <- function(adj_matrix_list_input = list()) {
-  classes_in_list_objects <- methods::is(list())
-  # classes_in_dataframe_objects <- methods::is(data.frame())
-  # classes_in_matrix_objects <- methods::is(matrix())
-  # classes_in_datatable_objects <- methods::is(data.table::data.table())
-  # classes_in_tibble_objects <- methods::is(tibble::tibble())
-  # classes_in_sparseMatrix_objects <- methods::is(Matrix::Matrix(data = 1:2, sparse = TRUE)) # add data = 1:2 to get accurate datatyps is methods::is
+#' @example man/examples/ex-get_fcm_class_from_adj_matrix.R
+get_fcm_class_from_adj_matrix <- function(adj_matrix = data.frame()) {
+  check_fcmconfr_input(adj_matrix, check = "square_adj_matrix", var_name = "adj_matrix")
 
-  classes_in_adj_matrix_list_input <- methods::is(adj_matrix_list_input)
-  if (identical(classes_in_adj_matrix_list_input, classes_in_list_objects)) {
-    adj_matrices_input_is_list <- TRUE
-  } else {
-    adj_matrices_input_is_list <- FALSE
-  }
+  element_types_in_adj_matrix <- unique(as.vector(as.matrix(apply(adj_matrix, c(1, 2), function(x) methods::is(x[[1]])))))
 
-  if (adj_matrices_input_is_list) {
-    num_object_types_in_input_list <- length(unique(lapply(adj_matrix_list_input, methods::is)))
-    if (shiny::isRunning() & num_object_types_in_input_list != 1) {
-      object_types_in_input_list = "unavailable"
-    } else if (!shiny::isRunning() & num_object_types_in_input_list != 1) {
-      stop(cli::format_error(c(
-        "x" = "Error: All objects in {.var adj_matrix_list} must be of the same type."
-      )))
-    }
-    object_types_in_input_list <- unique(lapply(adj_matrix_list_input, methods::is))[[1]]
-  } else {
-    object_types_in_input_list <- methods::is(adj_matrix_list_input)
-    adj_matrix_list_input <- list(adj_matrix_list_input)
-  }
-
-  # if (identical(object_types_in_input_list, classes_in_dataframe_objects)) {
-  #   object_types_in_input_list <- c("data.frame")
-  # } else if (identical(object_types_in_input_list, classes_in_matrix_objects)) {
-  #   object_types_in_input_list <- c("matrix")
-  # } else if (identical(object_types_in_input_list, classes_in_datatable_objects)) {
-  #   object_types_in_input_list <- c("data.table")
-  # } else if (identical(object_types_in_input_list, classes_in_tibble_objects)) {
-  #   object_types_in_input_list <- c("tibble")
-  # } else if (identical(object_types_in_input_list, classes_in_sparseMatrix_objects)) {
-  #   object_types_in_input_list <- c("sparseMatrix")
-  # }
-
-  element_types_in_objects_in_input_list <- unique(
-    lapply(adj_matrix_list_input,
-           function(adj_matrix) {
-             unique(as.vector(as.matrix(apply(adj_matrix, c(1, 2), function(x) methods::is(x[[1]])))))
-           })
-  )[[1]]
-
-  if (identical(element_types_in_objects_in_input_list, methods::is(numeric()))) {
+  if (identical(element_types_in_adj_matrix, methods::is(numeric()))) {
     fcm_class <- "conventional"
-    object_types_in_input_list <- c("conventional", object_types_in_input_list)
-  } else if (identical(element_types_in_objects_in_input_list, "ivfn")) {
+  } else if (identical(element_types_in_adj_matrix, "ivfn")) {
     fcm_class <- "ivfn"
-    object_types_in_input_list <- "ivfn"
-  } else if (identical(element_types_in_objects_in_input_list, "tfn")) {
+  } else if (identical(element_types_in_adj_matrix, "tfn")) {
     fcm_class <- "tfn"
-    object_types_in_input_list <- "tfn"
   } else {
-    if (shiny::isRunning()) {
-      object_types_in_input_list <- "unavailable"
-    } else {
-      stop(cli::format_error(c(
-        "x" = "Error: {.var adj_matrix} must be an adjacency matrix with edges represented as either numeric values, ivfns, or tfns"
-      )))
-    }
+    # if (shiny::isRunning()) {
+    #   object_types_in_input_list <- "unavailable"
+    # } else {
+    #   stop(cli::format_error(c(
+    #     "x" = "Error: {.var adj_matrix} must be an adjacency matrix with edges represented as either numeric values, ivfns, or tfns"
+    #   )))
+    # }
     stop(cli::format_error(c(
-      "x" = "Error: Unrecognized element types in input matrices.",
-      "+++++> Adjacency matrix elements must be either numeric, ivfn, or tfn, and all matrices must have elements of the same type."
+      "x" = "Error: Unrecognized element types in input {.var adj_matrix}",
+      "+++++> Adjacency matrix elements must be either numeric, ivfn, or tfn, and all matrices must have elements of the same type.",
+      "+++++> Input {.var adj_matrix} had elements of type: {element_types_in_adj_matrix}"
     )))
   }
 
-  list(
-    fcm_class = fcm_class,
-    adj_matrices_input_is_list = adj_matrices_input_is_list,
-    object_types_in_list = object_types_in_input_list
-  )
+  return(fcm_class)
 }
 
 

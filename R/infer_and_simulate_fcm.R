@@ -1579,11 +1579,11 @@ clean_simulation_output <- function(output_obj, concepts) {
 #' @returns A formatted initial_state_vector and clamping_vector
 #'
 #' @keywords internal
+#' @noRd
 #'
 #' @importFrom cli format_error format_warning
 #' @importFrom methods is
 #'
-#' @export
 #' @example man/examples/ex-check_simulation_inputs.R
 check_simulation_inputs <- function(adj_matrix = matrix(),
                                     initial_state_vector = c(),

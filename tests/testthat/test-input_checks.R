@@ -198,6 +198,31 @@ test_that("assert_var_name works", {
   expect_no_error(assert_var_name(var_name = "test_var_name"))
 })
 
+
+
+test_that("check_if_local_machine_has_access_to_parallel_processing_functionalities works", {
+
+  expect_no_error(check_if_local_machine_has_access_to_parallel_processing_functionalities(use_parallel = TRUE, use_show_progress = TRUE, test_mode = TRUE))
+
+  expect_no_error(check_if_local_machine_has_access_to_parallel_processing_functionalities(use_parallel = TRUE, use_show_progress = FALSE, test_mode = TRUE))
+
+  expect_no_error(check_if_local_machine_has_access_to_parallel_processing_functionalities(use_parallel = FALSE, use_show_progress = FALSE, test_mode = TRUE))
+
+  expect_no_error(check_if_local_machine_has_access_to_parallel_processing_functionalities(use_parallel = FALSE, use_show_progress = TRUE, test_mode = TRUE))
+})
+
+
+test_that("check_if_local_machine_has_access_to_show_progress_functionalities works", {
+
+  expect_no_error(check_if_local_machine_has_access_to_show_progress_functionalities(use_parallel = TRUE, use_show_progress = TRUE))
+
+  expect_no_error(check_if_local_machine_has_access_to_show_progress_functionalities(use_parallel = TRUE, use_show_progress = FALSE))
+
+  expect_no_error(check_if_local_machine_has_access_to_show_progress_functionalities(use_parallel = FALSE, use_show_progress = FALSE))
+
+  expect_no_error(check_if_local_machine_has_access_to_show_progress_functionalities(use_parallel = FALSE, use_show_progress = TRUE))
+})
+
 #
 # functions_to_check <- c("check_square_adj_matrix",
 #                          "check_numeric_vector",
