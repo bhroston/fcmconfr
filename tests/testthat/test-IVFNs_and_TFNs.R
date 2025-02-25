@@ -1,3 +1,18 @@
+
+# All checks pass
+test_that("defuzz_ivfn_or_tfn works", {
+  expect_equal(defuzz_ivfn_or_tfn(1), 1)
+  expect_equal(defuzz_ivfn_or_tfn(ivfn(0.2, 0.6)), 0.4)
+  expect_equal(defuzz_ivfn_or_tfn(tfn(0.1, 0.3, 0.8)), 0.4)
+
+
+  test_val <- structure(.Data = 1, class = "not_correct")
+  expect_error(defuzz_ivfn_or_tfn(test_val))
+
+})
+
+
+
 # IVFN Tests ----
 test_that("make_adj_matrix_w_ivfns works", {
   test_lower_adj_matrix <- data.frame(

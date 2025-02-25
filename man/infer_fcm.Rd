@@ -44,8 +44,8 @@ identified as the inference. Must be one of the following: 'peak' or 'final'}
 vector minus the previous state vector) at which no more iterations are necessary
 and the simulation will stop}
 
-\item{skip_checks}{FOR DEVELOPER USE ONLY. TRUE if infer_fcm is called within
-fcmconfr() and checks have already been performed}
+\item{skip_checks}{FOR DEVELOPER USE ONLY. TRUE if function is called within
+another function and checks have already been performed}
 }
 \value{
 A list of fcm inference results (including baseline and simulation outputs)

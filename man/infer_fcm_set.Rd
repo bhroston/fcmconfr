@@ -59,13 +59,13 @@ from the pbapply package as the underlying function.}
 \item{include_sims_in_output}{TRUE/FALSE whether to include simulations of monte-carlo-generated
 FCM. Will dramatically increase size of output if TRUE.}
 
-\item{skip_checks}{FOR DEVELOPER USE ONLY. TRUE if infer_fcm is called within
-fcmconfr() and checks have already been performed}
+\item{skip_checks}{FOR DEVELOPER USE ONLY. TRUE if function is called within
+another function and checks have already been performed}
 }
 \value{
-A list of two dataframes: the first contains all inference estimates
-across the empirical (monte carlo) FCM inferences, and the second is an
-elongated version of the first dataframe that organizes the data for
+A list of two \link{data.frames}. The first contains all inference
+estimates across the empirical (monte carlo) FCM inferences, and the second
+is an elongated version of the first dataframe that organizes the data for
 plotting (particularly with ggplot2)
 }
 \description{
@@ -265,14 +265,4 @@ mc_fcms_inferences <- infer_fcm_set(
   show_progress = TRUE
 )
 }
-\seealso{
-Other monte-carlo-model-generation-and-simulation: 
-\code{\link{build_monte_carlo_fcms}()},
-\code{\link{build_monte_carlo_fcms_from_conventional_adj_matrices}()},
-\code{\link{build_monte_carlo_fcms_from_fuzzy_set_adj_matrices}()},
-\code{\link{check_build_monte_carlo_fcms_inputs}()},
-\code{\link{check_infer_fcm_set_inputs}()},
-\code{\link{check_monte_carlo_bootstrap_inputs}()},
-\code{\link{get_mc_simulations_inference_CIs_w_bootstrap}()}
-}
-\concept{monte-carlo-model-generation-and-simulation}
+\concept{infer_and_simulate_fcm}

@@ -37,10 +37,8 @@ Other monte-carlo-model-generation-and-simulation:
 \code{\link{build_monte_carlo_fcms}()},
 \code{\link{build_monte_carlo_fcms_from_conventional_adj_matrices}()},
 \code{\link{build_monte_carlo_fcms_from_fuzzy_set_adj_matrices}()},
-\code{\link{check_infer_fcm_set_inputs}()},
 \code{\link{check_monte_carlo_bootstrap_inputs}()},
-\code{\link{get_mc_simulations_inference_CIs_w_bootstrap}()},
-\code{\link{infer_fcm_set}()}
+\code{\link{get_mc_simulations_inference_CIs_w_bootstrap}()}
 }
 \concept{monte-carlo-model-generation-and-simulation}
 \keyword{internal}

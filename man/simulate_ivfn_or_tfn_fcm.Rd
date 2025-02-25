@@ -13,7 +13,8 @@ simulate_ivfn_or_tfn_fcm(
   lambda = 1,
   point_of_inference = c("peak", "final"),
   max_iter = 100,
-  min_error = 1e-05
+  min_error = 1e-05,
+  skip_checks = FALSE
 )
 }
 \arguments{
@@ -42,6 +43,9 @@ identified as the inference. Must be one of the following: 'peak' or 'final'}
 \item{min_error}{The lowest error (sum of the absolute value of the current state
 vector minus the previous state vector) at which no more iterations are necessary
 and the simulation will stop}
+
+\item{skip_checks}{FOR DEVELOPER USE ONLY. TRUE if function is called within
+another function and checks have already been performed}
 }
 \value{
 (IVFN or TFN) FCM simulation results
@@ -64,71 +68,4 @@ This function produces the same output as mental modeler for the following input
 \item squashing = either "sigmoid" or "tanh"
 \item lambda = 1
 }
-}
-\examples{
-
-# Inference w/ Interval-Valued Fuzzy Numbers (IVFNs)
-lower_adj_matrix <- data.frame(
-  C1 = c(0, 0, 0, 0, 0, 0),
-  C2 = c(-0.85, 0, 0, 0.35, 0, 0),
-  C3 = c(0, 0, 0, 0, 0, 0),
-  C4 = c(-0.7, 0.6, -1, 0, -1, 0),
-  C5 = c(0.1, 0, 0, -0.8, 0, 0),
-  C6 = c(0, -0.95, 0, 0, -0.95, 0)
-)
-upper_adj_matrix <- data.frame(
-  C1 = c(0, 0, 0, 0, 0, 0),
-  C2 = c(-0.2, 0, 0, 0.9, 0, 0),
-  C3 = c(0, 0, 0, 0, 0, 0),
-  C4 = c(-0.3, 0.9, -0.5, 0, -0.5, 0),
-  C5 = c(0.5, 0, 0, -0.3, 0, 0),
-  C6 = c(0, -0.4, 0, 0, -0.5, 0)
-)
-adj_matrix <- make_adj_matrix_w_ivfns(lower_adj_matrix, upper_adj_matrix)
-
-simulate_fcm(adj_matrix,
-             initial_state_vector = c(1, 1, 1, 1, 1, 1),
-             clamping_vector = c(1, 0, 0, 0, 0, 0),
-             activation = "kosko",
-             squashing = "sigmoid",
-             lambda = 1,
-             point_of_inference = "final")
-
-
-# Inference w/ Triangular Fuzzy Numbers (TFNs)
-lower_adj_matrix <- data.frame(
-  C1 = c(0, 0, 0, 0, 0, 0),
-  C2 = c(-0.85, 0, 0, 0.35, 0, 0),
-  C3 = c(0, 0, 0, 0, 0, 0),
-  C4 = c(-0.7, 0.6, -1, 0, -1, 0),
-  C5 = c(0.1, 0, 0, -0.8, 0, 0),
-  C6 = c(0, -0.95, 0, 0, -0.95, 0)
-)
-mode_adj_matrix <- data.frame(
-  C1 = c(0, 0, 0, 0, 0, 0),
-  C2 = c(-0.5, 0, 0, 0.6, 0, 0),
-  C3 = c(0, 0, 0, 0, 0, 0),
-  C4 = c(-0.5, 0.7, -0.8, 0, -0.8, 0),
-  C5 = c(0.2, 0, 0, -0.6, 0, 0),
-  C6 = c(0, -0.7, 0, 0, -0.6, 0)
-)
-upper_adj_matrix <- data.frame(
-  C1 = c(0, 0, 0, 0, 0, 0),
-  C2 = c(-0.2, 0, 0, 0.9, 0, 0),
-  C3 = c(0, 0, 0, 0, 0, 0),
-  C4 = c(-0.3, 0.9, -0.5, 0, -0.5, 0),
-  C5 = c(0.5, 0, 0, -0.3, 0, 0),
-  C6 = c(0, -0.4, 0, 0, -0.5, 0)
-)
-adj_matrix <- make_adj_matrix_w_tfns(
-  lower_adj_matrix, mode_adj_matrix, upper_adj_matrix
-)
-
-simulate_fcm(adj_matrix,
-             initial_state_vector = c(1, 1, 1, 1, 1, 1),
-             clamping_vector = c(1, 0, 0, 0, 0, 0),
-             activation = "kosko",
-             squashing = "sigmoid",
-             lambda = 1,
-             point_of_inference = "final")
 }

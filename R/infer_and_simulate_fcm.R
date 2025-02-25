@@ -31,7 +31,7 @@
 
 #' Infer Multiple FCMs in a List
 #'
-#' @family monte-carlo-model-generation-and-simulation
+#' @family infer_and_simulate_fcm
 #'
 #' @description
 #' This function mass simulates a set of FCMs (Conventional, IVFN, and/or TFN)
@@ -67,12 +67,12 @@
 #' will use all available cores in the machine.
 #' @param include_sims_in_output TRUE/FALSE whether to include simulations of monte-carlo-generated
 #' FCM. Will dramatically increase size of output if TRUE.
-#' @param skip_checks FOR DEVELOPER USE ONLY. TRUE if infer_fcm is called within
-#' fcmconfr() and checks have already been performed
+#' @param skip_checks FOR DEVELOPER USE ONLY. TRUE if function is called within
+#' another function and checks have already been performed
 #'
-#' @returns A list of two dataframes: the first contains all inference estimates
-#' across the empirical (monte carlo) FCM inferences, and the second is an
-#' elongated version of the first dataframe that organizes the data for
+#' @returns A list of two [data.frames]. The first contains all inference
+#' estimates across the empirical (monte carlo) FCM inferences, and the second
+#' is an elongated version of the first dataframe that organizes the data for
 #' plotting (particularly with ggplot2)
 #'
 #' @importFrom cli format_error
@@ -100,19 +100,16 @@ infer_fcm_set <- function(adj_matrices = list(matrix()),
   # Adding for R CMD check. Does not impact logic.
   i <- NULL
 
-  if (!is.logical(skip_checks)) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var skip_checks} must be a logical value (TRUE/FALSE)",
-      "+++++> Input {.var skip_checks} was: {skip_checks}"
-    )))
-  }
-  # Perform input checks ----
+  # Check inputs ----
+  check_fcmconfr_input(skip_checks, check = "logical", var_name = "skip_checks")
+  skip_checks <- as.logical(skip_checks)
+
+  check_fcmconfr_input(adj_matrices, check = "adj_matrix_list")
+  # adj_matrices <- lapply(adj_matrices, function(mat) mat)
+  # Figure out how to make adj_matrices checks work especially with only one adj matrix input
+
   if (!skip_checks) {
-    checks <- check_infer_fcm_set_inputs(
-      adj_matrices,
-      initial_state_vector, clamping_vector, activation, squashing, lambda, point_of_inference, max_iter, min_error,
-      parallel, n_cores, show_progress, include_sims_in_output
-    )
+    checks <- check_simulation_inputs(adj_matrices[[1]], initial_state_vector, clamping_vector, activation, squashing, lambda, point_of_inference, max_iter, min_error, parallel, n_cores, show_progress, include_sims_in_output)
     fcm_class <- checks$fcm_class
     adj_matrices <- checks$adj_matrices
     initial_state_vector <- checks$initial_state_vector
@@ -120,14 +117,17 @@ infer_fcm_set <- function(adj_matrices = list(matrix()),
     activation <- checks$activation
     squashing <- checks$squashing
     point_of_inference <- checks$point_of_inference
-    show_progress <- checks$show_progress
     parallel <- checks$parallel
+    n_cores <- checks$n_cores
+    show_progress <- checks$show_progress
+    include_sims_in_output <- checks$include_sims_in_output
   } else {
-    fcm_class <- get_adj_matrices_input_type(adj_matrices)$object_types_in_list[1]
+    fcm_class <- get_fcm_class_from_adj_matrix(adj_matrix)
   }
   # ----
 
-  if (parallel & show_progress) {
+  if (parallel && show_progress) {
+    # Parallal and Show Progress ----
     print("Initializing cluster", quote = FALSE)
     cl <- parallel::makeCluster(n_cores)
     fcmconfr_env <- rlang::search_envs()[[which(names(rlang::search_envs()) == "package:fcmconfr")]]
@@ -154,7 +154,9 @@ infer_fcm_set <- function(adj_matrices = list(matrix()),
     )
     names(inferences_for_adj_matrices) <- paste0("adj_matrix_", seq_along(inferences_for_adj_matrices))
     parallel::stopCluster(cl)
-  } else if (parallel & !show_progress) {
+    # ----
+  } else if (parallel && !show_progress) {
+    # Parallel and NOT Show Progress ----
     print("Initializing cluster", quote = FALSE)
     cl <- parallel::makeCluster(n_cores)
     fcmconfr_env <- rlang::search_envs()[[which(names(rlang::search_envs()) == "package:fcmconfr")]]
@@ -181,11 +183,11 @@ infer_fcm_set <- function(adj_matrices = list(matrix()),
       )
     )
     parallel::stopCluster(cl)
-
-  } else if (!parallel & show_progress) {
+    # ----
+  } else if (!parallel && show_progress) {
+    # NOT Parallel and Show Progress ----
     cat("\n")
     print("Running Simulations", quote = FALSE)
-
     inferences_for_adj_matrices <- pbapply::pblapply(
       adj_matrices,
       function(adj_matrix) {
@@ -202,8 +204,9 @@ infer_fcm_set <- function(adj_matrices = list(matrix()),
         )
       }
     )
-
-  } else if (!parallel & !show_progress) {
+    # ----
+  } else if (!parallel && !show_progress) {
+    # NOT Parallel and NOT Show Progres ----
     cat("\n")
     print("Running simulations", quote = FALSE)
     inferences_for_adj_matrices <- lapply(
@@ -222,6 +225,7 @@ infer_fcm_set <- function(adj_matrices = list(matrix()),
         )
       }
     )
+    # ----
   }
 
   if (identical(fcm_class, "conventional")) {
@@ -291,8 +295,8 @@ infer_fcm_set <- function(adj_matrices = list(matrix()),
 #' @param min_error The lowest error (sum of the absolute value of the current state
 #' vector minus the previous state vector) at which no more iterations are necessary
 #' and the simulation will stop
-#' @param skip_checks FOR DEVELOPER USE ONLY. TRUE if infer_fcm is called within
-#' fcmconfr() and checks have already been performed
+#' @param skip_checks FOR DEVELOPER USE ONLY. TRUE if function is called within
+#' another function and checks have already been performed
 #'
 #' @returns A list of fcm inference results (including baseline and simulation outputs)
 #'
@@ -312,12 +316,9 @@ infer_fcm <- function(adj_matrix = matrix(),
                       min_error = 1e-5,
                       skip_checks = FALSE) {
 
-  if (!is.logical(skip_checks)) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var skip_checks} must be a logical value (TRUE/FALSE)",
-      "+++++> Input {.var skip_checks} was: {skip_checks}"
-    )))
-  }
+  # Check inputs ----
+  check_fcmconfr_input(skip_checks, check = "logical", var_name = "skip_checks")
+  skip_checks <- as.logical(skip_checks)
 
   if (!skip_checks) {
     checks <- check_simulation_inputs(adj_matrix, initial_state_vector, clamping_vector, activation, squashing, lambda, point_of_inference, max_iter, min_error)
@@ -329,18 +330,17 @@ infer_fcm <- function(adj_matrix = matrix(),
     squashing <- checks$squashing
     point_of_inference <- checks$point_of_inference
   } else {
-    fcm_class <- get_adj_matrices_input_type(adj_matrix)$object_types_in_list[1]
+    fcm_class <- get_fcm_class_from_adj_matrix(adj_matrix)
   }
+  # ----
 
   if (fcm_class == "conventional") {
-    inference <- infer_conventional_fcm(adj_matrix, initial_state_vector, clamping_vector, activation, squashing, lambda, point_of_inference, max_iter, min_error)
+    inference <- infer_conventional_fcm(adj_matrix, initial_state_vector, clamping_vector, activation, squashing, lambda, point_of_inference, max_iter, min_error, skip_checks)
   } else if (fcm_class %in% c("ivfn", "tfn")) {
-    inference <- infer_ivfn_or_tfn_fcm(adj_matrix, initial_state_vector, clamping_vector, activation, squashing, lambda, point_of_inference, max_iter, min_error)
+    inference <- infer_ivfn_or_tfn_fcm(adj_matrix, initial_state_vector, clamping_vector, activation, squashing, lambda, point_of_inference, max_iter, min_error, skip_checks)
   }
 
-  inference
-  #infer_conventional_fcm(adj_matrix, initial_state_vector, clamping_vector, activation, squashing, lambda, max_iter, min_error)
-
+  return(inference)
 }
 
 
@@ -384,6 +384,8 @@ infer_fcm <- function(adj_matrix = matrix(),
 #' @param min_error The lowest error (sum of the absolute value of the current state
 #' vector minus the previous state vector) at which no more iterations are necessary
 #' and the simulation will stop
+#' @param skip_checks FOR DEVELOPER USE ONLY. TRUE if function is called within
+#' another function and checks have already been performed
 #'
 #' @returns A list of (conventional) fcm inference results (including baseline
 #' and simulation outputs)
@@ -400,13 +402,30 @@ infer_conventional_fcm <- function(adj_matrix = matrix(),
                                    lambda = 1,
                                    point_of_inference = c("peak", "final"),
                                    max_iter = 100,
-                                   min_error = 1e-5) {
+                                   min_error = 1e-5,
+                                   skip_checks = FALSE) {
 
+  # Check inputs ----
+  check_fcmconfr_input(skip_checks, check = "logical", var_name = "skip_checks")
+  skip_checks <- as.logical(skip_checks)
+
+  if (!skip_checks) {
+    checks <- check_simulation_inputs(adj_matrix, initial_state_vector, clamping_vector, activation, squashing, lambda, point_of_inference, max_iter, min_error)
+    fcm_class <- checks$fcm_class
+    adj_matrix <- checks$adj_matrix
+    initial_state_vector <- checks$initial_state_vector
+    clamping_vector <- checks$clamping_vector
+    activation <- checks$activation
+    squashing <- checks$squashing
+    point_of_inference <- checks$point_of_inference
+  } else {
+    fcm_class <- get_fcm_class_from_adj_matrix(adj_matrix)
+  }
+  # ----
 
   iter <- NULL # for R CMD Check, does not impact logic
 
-  fcm_class <- get_adj_matrices_input_type(adj_matrix)$fcm_class
-  if (!(fcm_class %in% c("conventional"))) {
+  if (!identical(fcm_class, "conventional")) {
     stop(cli::format_error(c(
       "x" = "{.var adj_matrix} must be an adjacency matrix with edges represented as discrete numeric values (Conventional) only",
       "+++++> Edges in input {.var adj_matrix} are represented as {fcm_class}'s"
@@ -423,13 +442,13 @@ infer_conventional_fcm <- function(adj_matrix = matrix(),
     dummy_clamping_vector <- rep(0, length(initial_state_vector))
     # Use activation = "kosko" and squashing = "tanh" to force 0's to remain 0's, rather than converting
     # 0's to 0.5's if squashing = "sigmoid"
-    baseline_simulation <- simulate_fcm(adj_matrix, dummy_initial_state_vector, dummy_clamping_vector, activation = "kosko", squashing = "tanh", lambda, point_of_inference, max_iter, min_error)
+    baseline_simulation <- simulate_fcm(adj_matrix, dummy_initial_state_vector, dummy_clamping_vector, activation = "kosko", squashing = "tanh", lambda, point_of_inference, max_iter, min_error, skip_checks)
     baseline_simulation_is_dummy <- TRUE
   } else {
     # Get baseline simulation
     baseline_initial_state_vector <- rep(1, length(initial_state_vector))
     baseline_clamping_vector <- rep(0, length(clamping_vector))
-    baseline_simulation <- simulate_fcm(adj_matrix, baseline_initial_state_vector, baseline_clamping_vector, activation, squashing, lambda, point_of_inference, max_iter, min_error)
+    baseline_simulation <- simulate_fcm(adj_matrix, baseline_initial_state_vector, baseline_clamping_vector, activation, squashing, lambda, point_of_inference, max_iter, min_error, skip_checks)
     baseline_simulation_is_dummy <- FALSE
   }
 
@@ -496,6 +515,8 @@ infer_conventional_fcm <- function(adj_matrix = matrix(),
 #' @param min_error The lowest error (sum of the absolute value of the current state
 #' vector minus the previous state vector) at which no more iterations are necessary
 #' and the simulation will stop
+#' @param skip_checks FOR DEVELOPER USE ONLY. TRUE if function is called within
+#' another function and checks have already been performed
 #'
 #' @returns A list of (ivfn or tfn) fcm inference results (including baseline
 #' and simulation outputs)
@@ -513,9 +534,27 @@ infer_ivfn_or_tfn_fcm <- function(adj_matrix = matrix(),
                                   lambda = 1,
                                   point_of_inference = c("peak", "final"),
                                   max_iter = 100,
-                                  min_error = 1e-5) {
+                                  min_error = 1e-5,
+                                  skip_checks = FALSE) {
 
-  fcm_class <- get_adj_matrices_input_type(adj_matrix)$fcm_class
+  # Check inputs ----
+  check_fcmconfr_input(skip_checks, check = "logical", var_name = "skip_checks")
+  skip_checks <- as.logical(skip_checks)
+
+  if (!skip_checks) {
+    checks <- check_simulation_inputs(adj_matrix, initial_state_vector, clamping_vector, activation, squashing, lambda, point_of_inference, max_iter, min_error)
+    fcm_class <- checks$fcm_class
+    adj_matrix <- checks$adj_matrix
+    initial_state_vector <- checks$initial_state_vector
+    clamping_vector <- checks$clamping_vector
+    activation <- checks$activation
+    squashing <- checks$squashing
+    point_of_inference <- checks$point_of_inference
+  } else {
+    fcm_class <- get_fcm_class_from_adj_matrix(adj_matrix)
+  }
+  # ----
+
   if (!(fcm_class %in% c("ivfn", "tfn"))) {
     stop(cli::format_error(c(
       "x" = "Error: {.var adj_matrix} must be an adjacency matrix with edges represented as
@@ -529,21 +568,21 @@ infer_ivfn_or_tfn_fcm <- function(adj_matrix = matrix(),
   scenario_initial_state_vector <- initial_state_vector
   # scenario_initial_state_vector <- c(1, 0, 0)
   scenario_clamping_vector <- clamping_vector
-  scenario_simulation <- simulate_fcm(adj_matrix, scenario_initial_state_vector, scenario_clamping_vector, activation, squashing, lambda, point_of_inference, max_iter, min_error)
+  scenario_simulation <- simulate_fcm(adj_matrix, scenario_initial_state_vector, scenario_clamping_vector, activation, squashing, lambda, point_of_inference, max_iter, min_error, skip_checks)
 
   if (all(clamping_vector == 0)) {
     dummy_initial_state_vector <- rep(0, length(initial_state_vector))
     dummy_clamping_vector <- rep(0, length(initial_state_vector))
     # Use squashing = "tanh" to force 0's to remain 0's, rather than converting
     # 0's to 0.5's if squashing = "sigmoid"
-    baseline_simulation <- simulate_fcm(adj_matrix, dummy_initial_state_vector, dummy_clamping_vector, activation = "kosko", squashing = "tanh", lambda, point_of_inference, max_iter, min_error)
+    baseline_simulation <- simulate_fcm(adj_matrix, dummy_initial_state_vector, dummy_clamping_vector, activation = "kosko", squashing = "tanh", lambda, point_of_inference, max_iter, min_error, skip_checks)
     baseline_simulation_is_dummy <- TRUE
   } else {
     # Get baseline simulation
     baseline_initial_state_vector <- rep(1, length(initial_state_vector))
     # baseline_initial_state_vector <- initial_state_vector
     baseline_clamping_vector <- rep(0, length(clamping_vector))
-    baseline_simulation <- simulate_fcm(adj_matrix, baseline_initial_state_vector, baseline_clamping_vector, activation, squashing, lambda, point_of_inference, max_iter, min_error)
+    baseline_simulation <- simulate_fcm(adj_matrix, baseline_initial_state_vector, baseline_clamping_vector, activation, squashing, lambda, point_of_inference, max_iter, min_error, skip_checks)
     baseline_simulation_is_dummy <- FALSE
   }
 
@@ -607,7 +646,6 @@ infer_ivfn_or_tfn_fcm <- function(adj_matrix = matrix(),
     .Data = list(
       inferences = inferences,
       inferences_df = inferences_df,
-      # inferences_for_plotting = inferences_plot_data,
       simulations = list(
         scenario_simulation = scenario_simulation,
         baseline_simulation = baseline_simulation
@@ -616,7 +654,6 @@ infer_ivfn_or_tfn_fcm <- function(adj_matrix = matrix(),
     class = "infer_ivfn_or_tfn_fcm"
   )
 }
-
 
 
 
@@ -656,6 +693,8 @@ infer_ivfn_or_tfn_fcm <- function(adj_matrix = matrix(),
 #' @param min_error The lowest error (sum of the absolute value of the current state
 #' vector minus the previous state vector) at which no more iterations are necessary
 #' and the simulation will stop
+#' @param skip_checks FOR DEVELOPER USE ONLY. TRUE if function is called within
+#' another function and checks have already been performed
 #'
 #' @returns (Conventional, IVFN, or TFN) FCM simulation results
 #'
@@ -669,21 +708,31 @@ simulate_fcm <- function(adj_matrix = matrix(),
                          lambda = 1,
                          point_of_inference = c("peak", "final"),
                          max_iter = 100,
-                         min_error = 1e-5) {
+                         min_error = 1e-5,
+                         skip_checks = FALSE) {
 
-  checks <- check_simulation_inputs(adj_matrix, initial_state_vector, clamping_vector, activation, squashing, lambda, point_of_inference, max_iter, min_error)
-  fcm_class <- checks$fcm_class
-  adj_matrix <- checks$adj_matrix
-  initial_state_vector <- checks$initial_state_vector
-  clamping_vector <- checks$clamping_vector
-  activation <- checks$activation
-  squashing <- checks$squashing
-  point_of_inference <- checks$point_of_inference
+  # Check inputs ----
+  check_fcmconfr_input(skip_checks, check = "logical", var_name = "skip_checks")
+  skip_checks <- as.logical(skip_checks)
+
+  if (!skip_checks) {
+    checks <- check_simulation_inputs(adj_matrix, initial_state_vector, clamping_vector, activation, squashing, lambda, point_of_inference, max_iter, min_error)
+    fcm_class <- checks$fcm_class
+    adj_matrix <- checks$adj_matrix
+    initial_state_vector <- checks$initial_state_vector
+    clamping_vector <- checks$clamping_vector
+    activation <- checks$activation
+    squashing <- checks$squashing
+    point_of_inference <- checks$point_of_inference
+  } else {
+    fcm_class <- get_fcm_class_from_adj_matrix(adj_matrix)
+  }
+  # ----
 
   if (fcm_class == "conventional") {
-    simulation <- simulate_conventional_fcm(adj_matrix, initial_state_vector, clamping_vector, activation, squashing, lambda, point_of_inference, max_iter, min_error)
+    simulation <- simulate_conventional_fcm(adj_matrix, initial_state_vector, clamping_vector, activation, squashing, lambda, point_of_inference, max_iter, min_error, skip_checks)
   } else if (fcm_class %in% c("ivfn", "tfn")) {
-    simulation <- simulate_ivfn_or_tfn_fcm(adj_matrix, initial_state_vector, clamping_vector, activation, squashing, lambda, point_of_inference, max_iter, min_error)
+    simulation <- simulate_ivfn_or_tfn_fcm(adj_matrix, initial_state_vector, clamping_vector, activation, squashing, lambda, point_of_inference, max_iter, min_error, skip_checks)
   }
 
   simulation
@@ -727,6 +776,8 @@ simulate_fcm <- function(adj_matrix = matrix(),
 #' @param min_error The lowest error (sum of the absolute value of the current state
 #' vector minus the previous state vector) at which no more iterations are necessary
 #' and the simulation will stop
+#' @param skip_checks FOR DEVELOPER USE ONLY. TRUE if function is called within
+#' another function and checks have already been performed
 #'
 #' @returns (Conventional) FCM simulation results
 #'
@@ -743,10 +794,29 @@ simulate_conventional_fcm <- function(adj_matrix = matrix(),
                                       lambda = 1,
                                       point_of_inference = c("peak", "final"),
                                       max_iter = 100,
-                                      min_error = 1e-5) {
+                                      min_error = 1e-5,
+                                      skip_checks = FALSE) {
 
-  fcm_class <- get_adj_matrices_input_type(adj_matrix)$object_types_in_list[1]
-  if (!(fcm_class %in% c("conventional"))) {
+
+  # Check inputs ----
+  check_fcmconfr_input(skip_checks, check = "logical", var_name = "skip_checks")
+  skip_checks <- as.logical(skip_checks)
+
+  if (!skip_checks) {
+    checks <- check_simulation_inputs(adj_matrix, initial_state_vector, clamping_vector, activation, squashing, lambda, point_of_inference, max_iter, min_error)
+    fcm_class <- checks$fcm_class
+    adj_matrix <- checks$adj_matrix
+    initial_state_vector <- checks$initial_state_vector
+    clamping_vector <- checks$clamping_vector
+    activation <- checks$activation
+    squashing <- checks$squashing
+    point_of_inference <- checks$point_of_inference
+  } else {
+    fcm_class <- get_fcm_class_from_adj_matrix(adj_matrix)
+  }
+  # ----
+
+  if (!identical(fcm_class, "conventional")) {
     stop(cli::format_error(c(
       "x" = "Error: {.var adj_matrix} must be an adjacency matrix with edges represented as
       discrete numeric values (i.e. Conventional FCM) to call `simulate_conventional_fcm()`",
@@ -762,8 +832,8 @@ simulate_conventional_fcm <- function(adj_matrix = matrix(),
 
   for (i in 2:(max_iter + 1)) {
     state_vector <- state_vectors[i - 1, ]
-    next_state_vector <- calculate_next_conventional_fcm_state_vector(adj_matrix, state_vector, activation)
-    normalized_state_vector <- squash(next_state_vector, squashing = squashing, lambda = lambda)
+    next_state_vector <- get_next_state_vector(adj_matrix, state_vector, activation, fcm_class = "conventional", skip_checks = TRUE)
+    normalized_state_vector <- vapply(next_state_vector, function(x) squash(x, squashing = squashing, lambda = lambda, skip_checks = TRUE), numeric(1))
     normalized_state_vector[clamping_vector != 0] <- clamping_vector[clamping_vector != 0]
     state_vectors[i, ] <- normalized_state_vector
     errors[i, ] <- abs(as.matrix(state_vectors[i - 1,]) - as.matrix(state_vectors[i, ]))
@@ -857,6 +927,8 @@ simulate_conventional_fcm <- function(adj_matrix = matrix(),
 #' @param min_error The lowest error (sum of the absolute value of the current state
 #' vector minus the previous state vector) at which no more iterations are necessary
 #' and the simulation will stop
+#' @param skip_checks FOR DEVELOPER USE ONLY. TRUE if function is called within
+#' another function and checks have already been performed
 #'
 #' @returns (IVFN or TFN) FCM simulation results
 #'
@@ -864,7 +936,7 @@ simulate_conventional_fcm <- function(adj_matrix = matrix(),
 #' @importFrom cli format_error format_warning
 #'
 #' @export
-#' @example man/examples/ex-simulate_ivfn_or_tfn_fcm.R
+#' @example
 simulate_ivfn_or_tfn_fcm <- function(adj_matrix = matrix(),
                                      initial_state_vector = c(),
                                      clamping_vector = c(),
@@ -873,9 +945,27 @@ simulate_ivfn_or_tfn_fcm <- function(adj_matrix = matrix(),
                                      lambda = 1,
                                      point_of_inference = c("peak", "final"),
                                      max_iter = 100,
-                                     min_error = 1e-5) {
+                                     min_error = 1e-5,
+                                     skip_checks = FALSE) {
 
-  fcm_class <- get_adj_matrices_input_type(adj_matrix)$object_types_in_list[1]
+  # Check inputs ----
+  check_fcmconfr_input(skip_checks, check = "logical", var_name = "skip_checks")
+  skip_checks <- as.logical(skip_checks)
+
+  if (!skip_checks) {
+    checks <- check_simulation_inputs(adj_matrix, initial_state_vector, clamping_vector, activation, squashing, lambda, point_of_inference, max_iter, min_error)
+    fcm_class <- checks$fcm_class
+    adj_matrices <- checks$adj_matrices
+    initial_state_vector <- checks$initial_state_vector
+    clamping_vector <- checks$clamping_vector
+    activation <- checks$activation
+    squashing <- checks$squashing
+    point_of_inference <- checks$point_of_inference
+  } else {
+    fcm_class <- get_fcm_class_from_adj_matrix(adj_matrix)
+  }
+  # ----
+
   if (!(fcm_class %in% c("ivfn", "tfn"))) {
     stop(cli::format_error(c(
       "x" = "Error: {.var adj_matrix} must be an adjacency matrix with edges represented as
@@ -909,7 +999,7 @@ simulate_ivfn_or_tfn_fcm <- function(adj_matrix = matrix(),
     # Calculate simulation step
     fuzzy_set_state_vector <- fuzzy_set_state_vectors[[i - 1]]
     crisp_state_vector <- crisp_state_vectors[i - 1, ]
-    next_fuzzy_set_state_vector <- calculate_next_fuzzy_set_fcm_state_vector(adj_matrix, fuzzy_set_state_vector, crisp_state_vector, activation, fcm_class)
+    next_fuzzy_set_state_vector <- get_next_state_vector(adj_matrix, fuzzy_set_state_vector, activation, fcm_class, skip_checks = TRUE)
     normalized_next_fuzzy_set_state_vector <- lapply(
       next_fuzzy_set_state_vector,
       function(element) {
@@ -1047,20 +1137,33 @@ simulate_ivfn_or_tfn_fcm <- function(adj_matrix = matrix(),
 #' @param value A numeric value to 'squash'
 #' @param squashing A squashing function to apply. Must be one of the following: 'tanh', or 'sigmoid'
 #' @param lambda A numeric value that defines the steepness of the slope of the squashing function when tanh or sigmoid are applied
+#' @param skip_checks FOR DEVELOPER USE ONLY. TRUE if function is called within
+#' another function and checks have already been performed
 #'
 #' @returns A "squashed" value, the output of the selected transfer ("squashing")
 #' function
 #'
 #' @export
+#'
 #' @examples
 #' squash(1, "sigmoid", lambda = 1)
 #' squash(0.6, "tanh", lambda = 0.7)
 squash <- function(value = numeric(),
                    squashing = c("sigmoid", "tanh"),
-                   lambda = 1) {
-  if (lambda <= 0) {
-    stop("Input lambda must be greater than zero")
+                   lambda = 1,
+                   skip_checks = FALSE) {
+
+  # Check inputs ----
+  check_fcmconfr_input(skip_checks, check = "logical", var_name = "skip_checks")
+  skip_checks <- as.logical(skip_checks)
+
+  if (!skip_checks) {
+    check_fcmconfr_input(abs(value), check = "positive_number", var_name = "value", zero_is_positive = TRUE)
+    value <- as.numeric(value)
+    check_fcmconfr_input(squashing, check = "choice_selection", choice_selection_opts = c("sigmoid", "tanh"), var_name = "squashing")
+    check_fcmconfr_input(lambda, check = "positive_number", var_name = "lambda", zero_is_positive = FALSE)
   }
+  # ----
 
   # Use full names here instead of abbreviations to improve readability even
   # though developers will need to type more characters.
@@ -1079,172 +1182,7 @@ squash <- function(value = numeric(),
 
 
 
-#' Check inputs for running infer_fcm on a list of adj. matrices
-#'
-#' @family monte-carlo-model-generation-and-simulation
-#'
-#' @param adj_matrices A list of adjecency matrices
-#' @param initial_state_vector A list state values at the start of an fcm simulation
-#' @param clamping_vector A list of values representing specific actions taken to
-#' control the behavior of an FCM. Specifically, non-zero values defined in this vector
-#' will remain constant throughout the entire simulation as if they were "clamped" at those values.
-#' @param activation The activation function to be applied. Must be one of the following:
-#' 'kosko', 'modified-kosko', or 'papageorgiou'.
-#' @param squashing A squashing function to apply. Must be one of the following:
-#' 'tanh', or 'sigmoid'.
-#' @param lambda A numeric value that defines the steepness of the slope of the
-#' squashing function when tanh or sigmoid are applied
-#' @param point_of_inference The point along the simulation time-series to be
-#' identified as the inference. Must be one of the following: 'peak' or 'final'
-#' @param max_iter The maximum number of iterations to run if the minimum error value is not achieved
-#' @param min_error The lowest error (sum of the absolute value of the current state
-#' vector minus the previous state vector) at which no more iterations are necessary
-#' and the simulation will stop
-#' @param parallel TRUE/FALSE Whether to utilize parallel processing
-#' @param show_progress TRUE/FALSE Show progress bar when creating fmcm. Uses pbmapply
-#' from the pbapply package as the underlying function.
-#' @param n_cores Number of cores to use in parallel processing. If no input given,
-#' will use all available cores in the machine.
-#' @param mc_sims_in_output TRUE/FALSE whether to include simulations of monte-carlo-generated
-#' FCM. Will dramatically increase size of output if TRUE.
-#'
-#' @returns NULL; Errors if checks fail
-#'
-#' @keywords internal
-#'
-#' @importFrom cli format_error format_warning
-#' @importFrom parallel detectCores
-#'
-#' @export
-#' @examples
-#' NULL
-check_infer_fcm_set_inputs <- function(adj_matrices = list(matrix()),
-                                       initial_state_vector = c(),
-                                       clamping_vector = c(),
-                                       activation = c("kosko", "modified-kosko", "rescale"),
-                                       squashing = c("sigmoid", "tanh"),
-                                       lambda = 1,
-                                       point_of_inference = c("peak", "final"),
-                                       max_iter = 100,
-                                       min_error = 1e-5,
-                                       parallel = TRUE,
-                                       n_cores = integer(),
-                                       show_progress = TRUE,
-                                       mc_sims_in_output = FALSE) {
-
-  # Check adj_matrices ----
-  adj_matrices_input_type <- get_adj_matrices_input_type(adj_matrices)
-  fcm_class <- adj_matrices_input_type$fcm_class
-  if (!adj_matrices_input_type$adj_matrices_input_is_list) {
-    adj_matrices <- list(adj_matrices)
-  }
-  adj_matrices_dims <- lapply(adj_matrices, dim)
-  if (length(unique(unlist(adj_matrices_dims))) > 1) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var adj_matrices} are either different sizes or contain non-square matrices",
-      "+++++> Call standardize_adj_matrices() to standardize the sizes of {.var adj. matrices}"
-    )))
-  }
-  n_nodes <- unique(unlist(adj_matrices_dims))
-  dummy_adj_matrix <- matrix(0, n_nodes, n_nodes)
-
-  identified_concepts <- unique(lapply(adj_matrices, colnames))
-  if (length(identified_concepts) != 1) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var adj_matrices} must have the same concepts",
-      "+++++> Call standardize_adj_matrices() to standardize concepts across {.var adj. matrices}"
-    )))
-  } else {
-    concept_names <- unlist(identified_concepts)
-  }
-
-  if (identical(adj_matrices_input_type$object_types_in_list, c("conventional", "sparseMatrix"))) {
-    adj_matrices <- lapply(adj_matrices, as.matrix)
-    warning(cli::format_warning(c(
-      "!" = "Warning: Changed {.var adj_matrices} from sparseMatrix to an ordinary matrix (i.e. using as.matrix)"
-    )))
-  }
-  # ----
-
-  # Check Simulation Inputs ----
-  sim_checks <- check_simulation_inputs(dummy_adj_matrix, initial_state_vector, clamping_vector, activation, squashing, lambda, point_of_inference, max_iter, min_error)
-  initial_state_vector <- sim_checks$initial_state_vector
-  clamping_vector <- sim_checks$clamping_vector
-  activation <- sim_checks$activation
-  squashing <- sim_checks$squashing
-  point_of_inference <- sim_checks$point_of_inference
-  # ----
-
-  # Check Runtime Options ----
-  show_progress <- check_if_local_machine_has_access_to_show_progress_functionalities(parallel, show_progress)
-  parallel <- check_if_local_machine_has_access_to_parallel_processing_functionalities(parallel, show_progress)
-  if (parallel) {
-    if (identical(n_cores, integer())) {
-      warning(cli::format_warning(c(
-        "!" = "Warning: No {.var n_cores} given.",
-        "~~~~~ Assuming {.var n_cores} is {parallel::detectCores() - 1} (i.e. the max available cores minus 1)"
-      )))
-      n_cores <- parallel::detectCores() - 1
-    }
-    if (!is.numeric(n_cores)) {
-      stop(cli::format_error(c(
-        "x" = "Error: {.var n_cores} must be a positive integer",
-        "+++++ Input {.var n_cores} was '{n_cores}'"
-      )))
-    }
-    if (!(n_cores == round(n_cores))) {
-      stop(cli::format_error(c(
-        "x" = "Error: {.var n_cores} must be a positive integer",
-        "+++++ Input {.var n_cores} was {n_cores}"
-      )))
-    }
-    if (n_cores <= 0) {
-      stop(cli::format_error(c(
-        "x" = "Error: {.var n_cores} must be a positive integer",
-        "+++++ Input {.var n_cores} was {n_cores}"
-      )))
-    }
-    if (n_cores > parallel::detectCores()) {
-      stop(cli::format_error(c(
-        "x" = "Error: {.var n_cores} must be a positive integer less than or equal to {parallel::detectCores()} (i.e. the max available cores on your machine)",
-        "+++++ Input {.var n_cores} was {n_cores}"
-      )))
-    }
-  }
-  if (!parallel & !identical(n_cores, integer())) {
-    warning(cli::format_warning(c(
-      "!" = "Warning: {.var n_cores} given but {.var parallel} = FALSE.",
-      "~~~~~ Ignoring {.var n_cores} input."
-    )))
-  }
-  # ----
-
-  # Check Output Options ----
-  if (!is.logical(mc_sims_in_output)) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var mc_sims_in_output} must be logical (TRUE/FALSE)",
-      "+++++> Input {.var mc_sims_in_output} was {mc_sims_in_output}"
-    )))
-  }
-  # ----
-
-  list(
-    fcm_class = fcm_class,
-    adj_matrices = adj_matrices,
-    concept_names = concept_names,
-    initial_state_vector = initial_state_vector,
-    clamping_vector = clamping_vector,
-    activation = activation,
-    squashing = squashing,
-    point_of_inference = point_of_inference,
-    show_progress = show_progress,
-    parallel = parallel
-  )
-}
-
-
-#' Calculate Next (Conventional) FCM State
-#' Vector
+#' Calculate Next FCM State Vector
 #'
 #' @description
 #' This calculates the next iteration of a state vector in an fcm simulation
@@ -1273,142 +1211,155 @@ check_infer_fcm_set_inputs <- function(adj_matrices = list(matrix()),
 #' @param state_vector A list state values at a particular iteration in an fcm simulation
 #' @param activation The activation function to be applied. Must be one of the following:
 #' 'kosko', 'modified-kosko', or 'rescale'.
+#' @param skip_checks FOR DEVELOPER USE ONLY. TRUE if function is called within
+#' another function and checks have already been performed
 #'
 #' @returns The (i + 1) iteration of the input state_vector based on the
 #' adj_matrix and activation function
 #'
-#' @keywords internal
-#'
 #' @export
-#' @examples
-#' NULL
-calculate_next_conventional_fcm_state_vector <- function(adj_matrix = matrix(),
-                                                         state_vector = c(),
-                                                         activation = c("kosko", "modified-kosko", "rescale")) {
-  adj_matrix <- as.matrix(adj_matrix)
-  state_vector <- as.matrix(state_vector)
+#' @example man/examples/ex-get_next_state_vector.R
+get_next_state_vector <- function(adj_matrix = matrix(),
+                                  state_vector = c(),
+                                  activation = c("kosko", "modified-kosko", "rescale"),
+                                  fcm_class = c("conventional", "ivfn", "tfn"),
+                                  skip_checks = FALSE) {
 
-  if (dim(state_vector)[2] != unique(dim(adj_matrix))) {
-    state_vector <- t(state_vector)
+  # Check inputs ----
+  check_fcmconfr_input(skip_checks, check = "logical", var_name = "skip_checks")
+  skip_checks <- as.logical(skip_checks)
+
+  if (!skip_checks) {
+    check_fcmconfr_input(adj_matrix, check = "square_adj_matrix", var_name = "adj_matrix")
+    check_fcmconfr_input(activation, check = "choice_selection", choice_selection_opts = c("kosko", "modified-kosko", "rescale"), var_name = "activation")
+    check_fcmconfr_input(fcm_class, check = "choice_selection", choice_selection_opts = c("conventional", "ivfn", "tfn"), var_name = "fcm_class")
   }
+  # ----
 
-  if (activation == "kosko") {
-    next_state_vector <- state_vector %*% adj_matrix
-  } else if (activation == "modified-kosko") {
-    next_state_vector <- state_vector %*% adj_matrix + state_vector
-  } else if (activation == "rescale") {
-    next_state_vector <- (2*state_vector - 1) %*% adj_matrix + (2*state_vector - 1)
-  }
-  next_state_vector
-}
-
-
-#' Calculate Next (IVFN-FCM or TFN-FCM) State
-#' Vector
-#'
-#' @description
-#' This calculates the next iteration of a state vector in an fcm simulation
-#' based on the kosko, modified-kosko, or rescale activation functions
-#'
-#' @details
-#' INTENDED FOR DEVELOPER USE ONLY
-#'
-#' The state of the art of fcm typically applies one of three activation functions
-#' in calculating iterative state vector values: kosko, modified-kosko, and
-#' rescale (as identified in Gonzales et al. 2018 - https://doi.org/10.1142/S0218213018600102).
-#'
-#' kosko: Only considers the current iteration (Kosko, 1986 - https://doi.org/10.1016/S0020-7373(86)80040-2)
-#'
-#' modified-kosko: The previous value of a node influences its future value (Stylio & Groumpos, 2004 - https://doi.org/10.1109/TSMCA.2003.818878)
-#'
-#' rescale: Like modified-kosko, but assigns nodes with no value with a
-#' value of 0.5 to reduce the influence that a lack of initial state information
-#' can have on the simulation output (rescale, 2011 - https://doi.org/10.1016/j.asoc.2009.12.010)=
-#'
-#' @param fuzzy_set_adj_matrix An n x n adjacency matrix that represents an FCM
-#' and every element in the matrix is a tfn.
-#' @param fuzzy_set_state_vector A list of state values as tfn objects
-#' @param crisp_state_vector A list of state values as defuzzed tfn objects
-#' @param activation The activation function to be applied. Must be one of the following:
-#' 'kosko', 'modified-kosko', or 'rescale'.
-#' @param fcm_class Class of edges in fuzzy_set_adj_matrix. Either 'ivfn' or 'tfn'
-#'
-#' @returns The (i + 1) iteration of the input state_vector based on the
-#' adj_matrix and activation function
-#'
-#' @keywords internal
-#'
-#' @export
-#' @examples
-#' NULL
-calculate_next_fuzzy_set_fcm_state_vector <- function(fuzzy_set_adj_matrix = matrix(),
-                                                      fuzzy_set_state_vector = c(),
-                                                      crisp_state_vector = c(),
-                                                      activation = c("kosko", "modified-kosko", "rescale"),
-                                                      fcm_class = c("ivfn", "tfn")) {
-
-  next_fuzzy_set_state_vector <- vector(mode = "list", length = length(fuzzy_set_state_vector))
-  for (col in seq_along(fuzzy_set_adj_matrix)) {
-    dot_product_multiplication_only <- mapply(
-      function(coefficient, column_vector) {
-        if (activation == "rescale") coefficient <- 2*coefficient - 1
-        if (coefficient >= 0) {
-          if (fcm_class == "ivfn") {
-            ivfn(coefficient*column_vector$lower, coefficient*column_vector$upper)
-          } else if (fcm_class == "tfn") {
-            tfn(coefficient*column_vector$lower, coefficient*column_vector$mode, coefficient*column_vector$upper)
-          }
-        } else {
-          if (fcm_class == "ivfn") {
-            ivfn(coefficient*column_vector$upper, coefficient*column_vector$lower)
-          } else if (fcm_class == "tfn") {
-            tfn(coefficient*column_vector$upper, coefficient*column_vector$mode, coefficient*column_vector$lower)
-          }
-        }
-      },
-      coefficient = crisp_state_vector,
-      column_vector = fuzzy_set_adj_matrix[, col]
-    )
-    dot_product <- apply(dot_product_multiplication_only, 1, function(row) sum(unlist(row)))
-    if (fcm_class == "ivfn") {
-      next_fuzzy_set_state_vector_column <- ivfn(dot_product[1], dot_product[2])
-    } else if (fcm_class == "tfn") {
-      next_fuzzy_set_state_vector_column <- tfn(dot_product[1], dot_product[2], dot_product[3])
+  if (fcm_class == "conventional") {
+    check_fcmconfr_input(state_vector, check = "numeric_vector", var_name = "state_vector")
+    state_vector <- as.matrix(state_vector)
+    adj_matrix <- as.matrix(adj_matrix)
+    if (dim(state_vector)[2] != unique(dim(adj_matrix))) {
+      state_vector <- t(state_vector)
     }
-    next_fuzzy_set_state_vector[[col]] <- next_fuzzy_set_state_vector_column
+    if (activation == "kosko") {
+      next_state_vector <- state_vector %*% adj_matrix
+    } else if (activation == "modified-kosko") {
+      next_state_vector <- state_vector %*% adj_matrix + state_vector
+    } else if (activation == "rescale") {
+      next_state_vector <- (2*state_vector - 1) %*% adj_matrix + (2*state_vector - 1)
+    }
   }
 
-  if (activation == "kosko") {
-    next_fuzzy_set_state_vector <-  next_fuzzy_set_state_vector
-  } else if (activation == "modified-kosko") {
-    next_fuzzy_set_state_vector <- mapply(
-      function(fuzzy_set_1, fuzzy_set_2) {
-        if (fcm_class == "ivfn") {
-          ivfn(fuzzy_set_1$lower + fuzzy_set_2$lower, fuzzy_set_1$upper + fuzzy_set_2$upper)
-        } else if (fcm_class == "tfn") {
-          tfn(fuzzy_set_1$lower +  fuzzy_set_2$lower, fuzzy_set_1$mode +  fuzzy_set_2$mode, fuzzy_set_1$upper +  fuzzy_set_2$upper)
-        }
-      },
-      fuzzy_set_1 = fuzzy_set_state_vector,
-      fuzzy_set_2 = next_fuzzy_set_state_vector,
-      SIMPLIFY = FALSE
-    )
-  } else if (activation == "rescale") {
-    next_fuzzy_set_state_vector <- mapply(
-      function(fuzzy_set_1, fuzzy_set_2) {
-        if (fcm_class == "ivfn") {
-          ivfn((2*fuzzy_set_1$lower - 1) + fuzzy_set_2$lower, (2*fuzzy_set_1$upper - 1) + fuzzy_set_2$upper)
-        } else if (fcm_class == "tfn") {
-          tfn((2*fuzzy_set_1$lower - 1) +  fuzzy_set_2$lower, (2*fuzzy_set_1$mode - 1) +  fuzzy_set_2$mode, (2*fuzzy_set_1$upper - 1) +  fuzzy_set_2$upper)
-        }
-      },
-      fuzzy_set_1 = fuzzy_set_state_vector,
-      fuzzy_set_2 = next_fuzzy_set_state_vector,
-      SIMPLIFY = FALSE
-    )
+  if (fcm_class == "ivfn") {
+    # Next IVFN state vector ----
+    check_fcmconfr_input(state_vector, check = "ivfn_vector", var_name = "state_vector")
+
+    get_next_ivfn_state_vector <- function(ivfn_state_vector, crisp_ivfn_state_vector, adj_matrix) {
+      dot_product <- vector(mode = "list", length = length(crisp_ivfn_state_vector))
+      for (col in seq_along(colnames(adj_matrix))) {
+        element_wise_products <- mapply(
+          function(crisp_ivfn_state_vector_value, column_vector) {
+            if (activation == "rescale") {
+              crisp_ivfn_state_vector_value <- 2*crisp_ivfn_state_vector_value - 1
+            }
+            value_is_positive <- (crisp_ivfn_state_vector_value >= 0)
+            if (value_is_positive) {
+              ivfn(lower = crisp_ivfn_state_vector_value*column_vector$lower, upper = crisp_ivfn_state_vector_value*column_vector$upper)
+            } else {
+              ivfn(lower = crisp_ivfn_state_vector_value*column_vector$upper, upper = crisp_ivfn_state_vector_value*column_vector$lower)
+            }
+          },
+          crisp_ivfn_state_vector_value = crisp_ivfn_state_vector,
+          column_vector = adj_matrix[, col]
+        )
+        dot_product_entry <- apply(element_wise_products, 1, function(row) sum(unlist(row)))
+        dot_product[[col]] <- ivfn(lower = dot_product_entry[1], upper = dot_product_entry[2])
+      }
+      if (activation == "kosko") {
+        next_ivfn_state_vector <-  dot_product
+      } else if (activation == "modified-kosko") {
+        next_ivfn_state_vector <- mapply(
+          function(prev_ivfn_state, dot_product_ivfn_state) {
+            ivfn(lower = prev_ivfn_state$lower + dot_product_ivfn_state$lower, upper = prev_ivfn_state$upper + dot_product_ivfn_state$upper)
+          },
+          prev_ivfn_state = ivfn_state_vector,
+          dot_product_ivfn_state = dot_product,
+          SIMPLIFY = FALSE
+        )
+      } else if (activation == "rescale") {
+        next_ivfn_state_vector <- mapply(
+          function(prev_ivfn_state, dot_product_ivfn_state) {
+            ivfn(lower = (2*prev_ivfn_state$lower - 1) + dot_product_ivfn_state$lower, upper = (2*prev_ivfn_state$upper - 1) + dot_product_ivfn_state$upper)
+          },
+          prev_ivfn_state = ivfn_state_vector,
+          dot_product_ivfn_state = dot_product,
+          SIMPLIFY = FALSE
+        )
+      }
+      return(next_ivfn_state_vector)
+    }
+
+    crisp_ivfn_state_vector <- vapply(state_vector, function(x) (x$lower + x$upper)/2, numeric(1))
+    next_state_vector <- get_next_ivfn_state_vector(state_vector, crisp_ivfn_state_vector, adj_matrix)
+    # ----
+  } else if (fcm_class == "tfn") {
+    # Next TFN state vector ----
+    check_fcmconfr_input(state_vector, check = "tfn_vector", var_name = "state_vector")
+
+    get_next_tfn_state_vector <- function(tfn_state_vector, crisp_tfn_state_vector, adj_matrix) {
+      dot_product <- vector(mode = "list", length = length(crisp_tfn_state_vector))
+      for (col in seq_along(colnames(adj_matrix))) {
+        element_wise_products <- mapply(
+          function(crisp_tfn_state_vector_value, column_vector) {
+            if (activation == "rescale") {
+              crisp_tfn_state_vector_value <- 2*crisp_tfn_state_vector_value - 1
+            }
+            value_is_positive <- (crisp_tfn_state_vector_value >= 0)
+            if (value_is_positive) {
+              tfn(lower = crisp_tfn_state_vector_value*column_vector$lower, mode = crisp_tfn_state_vector_value*column_vector$mode, upper = crisp_tfn_state_vector_value*column_vector$upper)
+            } else {
+              tfn(lower = crisp_tfn_state_vector_value*column_vector$upper, mode = crisp_tfn_state_vector_value*column_vector$mode, upper = crisp_tfn_state_vector_value*column_vector$lower)
+            }
+          },
+          crisp_tfn_state_vector_value = crisp_tfn_state_vector,
+          column_vector = adj_matrix[, col]
+        )
+        dot_product_entry <- apply(element_wise_products, 1, function(row) sum(unlist(row)))
+        dot_product[[col]] <- tfn(lower = dot_product_entry[1], mode = dot_product_entry[2], upper = dot_product_entry[3])
+      }
+
+      if (activation == "kosko") {
+        next_tfn_state_vector <-  dot_product
+      } else if (activation == "modified-kosko") {
+        next_tfn_state_vector <- mapply(
+          function(prev_tfn_state, dot_product_tfn_state) {
+            tfn(lower = prev_tfn_state$lower + dot_product_tfn_state$lower, mode = prev_tfn_state$mode + dot_product_tfn_state$mode, upper = prev_tfn_state$upper + dot_product_tfn_state$upper)
+          },
+          prev_tfn_state = tfn_state_vector,
+          dot_product_tfn_state = dot_product,
+          SIMPLIFY = FALSE
+        )
+      } else if (activation == "rescale") {
+        next_tfn_state_vector <- mapply(
+          function(prev_tfn_state, dot_product_tfn_state) {
+            tfn(lower = (2*prev_tfn_state$lower - 1) + dot_product_tfn_state$lower, mode = (2*prev_tfn_state$mode - 1) + dot_product_tfn_state$mode, upper = (2*prev_tfn_state$upper - 1) + dot_product_tfn_state$upper)
+          },
+          prev_tfn_state = tfn_state_vector,
+          dot_product_tfn_state = dot_product,
+          SIMPLIFY = FALSE
+        )
+      }
+      return(next_tfn_state_vector)
+    }
+
+    crisp_tfn_state_vector <- vapply(state_vector, function(x) (x$lower + x$mode + x$upper)/3, numeric(1))
+    next_state_vector <- get_next_tfn_state_vector(state_vector, crisp_tfn_state_vector, adj_matrix)
+    # ----
   }
 
-  next_fuzzy_set_state_vector
+  return(next_state_vector)
 }
 
 
@@ -1425,6 +1376,7 @@ calculate_next_fuzzy_set_fcm_state_vector <- function(fuzzy_set_adj_matrix = mat
 #' @returns An [ivfn] or [tfn] representation of a crisp, numeric value
 #'
 #' @keywords internal
+#' @noRd
 #'
 #' @importFrom methods is
 #'
@@ -1466,11 +1418,11 @@ convert_element_to_ivfn_or_tfn_if_numeric <- function(element = list(),
 #' representative distributions
 #'
 #' @keywords internal
+#' @noRd
 #'
 #' @importFrom stats runif
 #' @importFrom methods is
 #'
-#' @export
 #' @example man/examples/ex-convert_fuzzy_set_elements_in_matrix_to_dists.R
 convert_fuzzy_set_elements_in_matrix_to_distributions <- function(fuzzy_set_matrix = matrix(),
                                                                   object_class = c("ivfn", "tfn"),
@@ -1517,11 +1469,11 @@ convert_fuzzy_set_elements_in_matrix_to_distributions <- function(fuzzy_set_matr
 #' @returns A cleaned up simulation output
 #'
 #' @keywords internal
+#' @noRd
 #'
 #' @importFrom methods is
 #' @importFrom stats na.omit
 #'
-#' @export
 #' @examples
 #' NULL
 clean_simulation_output <- function(output_obj, concepts) {
@@ -1575,6 +1527,13 @@ clean_simulation_output <- function(output_obj, concepts) {
 #' @param min_error The lowest error (sum of the absolute value of the current state
 #' vector minus the previous state vector) at which no more iterations are necessary
 #' and the simulation will stop
+#' @param parallel TRUE/FALSE Whether to utilize parallel processing
+#' @param show_progress TRUE/FALSE Show progress bar when creating fmcm. Uses pbmapply
+#' from the pbapply package as the underlying function.
+#' @param n_cores Number of cores to use in parallel processing. If no input given,
+#' will use all available cores in the machine.
+#' @param include_sims_in_output TRUE/FALSE whether to include simulations of monte-carlo-generated
+#' FCM. Will dramatically increase size of output if TRUE.
 #'
 #' @returns A formatted initial_state_vector and clamping_vector
 #'
@@ -1593,10 +1552,16 @@ check_simulation_inputs <- function(adj_matrix = matrix(),
                                     lambda = 1,
                                     point_of_inference = c("peak", "final"),
                                     max_iter = 100,
-                                    min_error = 1e-4) {
+                                    min_error = 1e-4,
+                                    parallel = FALSE,
+                                    n_cores = 1L,
+                                    show_progress = FALSE,
+                                    include_sims_in_output = FALSE) {
 
   # Have to check adj_matrix input before continuing with other checks
   adj_matrix_check <- check_fcmconfr_input(adj_matrix, check = "square_adj_matrix", var_name = "adj_matrix")
+  adj_matrix <- as.matrix(adj_matrix)
+  fcm_class <- get_fcm_class_from_adj_matrix(adj_matrix)
 
   # adj_matrix_input_type <- get_adj_matrices_input_type(adj_matrix)
   if (is.null(dim(adj_matrix))) {
@@ -1642,6 +1607,13 @@ check_simulation_inputs <- function(adj_matrix = matrix(),
     )))
     point_of_inference <- "final"
   }
+  if (isTRUE(parallel) && identical(n_cores, integer())) {
+    warning(cli::format_warning(c(
+      "!" = "Warning: No {.var n_cores} given for parallel processing",
+      "~~~~~ Assuming n_cores = {parallel::detectCores() - 1} (i.e. cores in machine -1)"
+    )))
+    point_of_inference <- "final"
+  }
   # ----
 
   # Generic type (autotest-passing) checkmate tests ----
@@ -1653,8 +1625,12 @@ check_simulation_inputs <- function(adj_matrix = matrix(),
   point_of_inference_check <- check_fcmconfr_input(point_of_inference, check = "choice_selection", choice_selection_opts = c("peak", "final"), var_name = "point_of_inference")
   max_iter_check <- check_fcmconfr_input(max_iter, check = "positive_integer", var_name = "max_iter")
   min_error_check <- check_fcmconfr_input(min_error, check = "positive_number", var_name = "min_error")
+  parallel_check <- check_fcmconfr_input(parallel, check = "logical", var_name = "parallel")
+  n_cores_check <- check_fcmconfr_input(n_cores, check = "positive_integer", var_name = "n_cores")
+  show_progress_check <- check_fcmconfr_input(show_progress, check = "logical", var_name = "show_progress")
+  include_sims_in_output_check <- check_fcmconfr_input(include_sims_in_output, check = "logical", var_name = "include_sims_in_output")
 
-  generic_input_checks <- c(adj_matrix_check, initial_state_vector_check, clamping_vector_check, activation_check, squashing_check, lambda_check, point_of_inference_check, max_iter_check, min_error_check)
+  generic_input_checks <- c(adj_matrix_check, initial_state_vector_check, clamping_vector_check, activation_check, squashing_check, lambda_check, point_of_inference_check, max_iter_check, min_error_check, parallel_check, n_cores_check, show_progress_check, include_sims_in_output_check)
   # ----
 
   # Additional checks ----
@@ -1709,7 +1685,7 @@ check_simulation_inputs <- function(adj_matrix = matrix(),
   # Additional point_of_inference checks
   if (point_of_inference == "peak" & all(initial_state_vector == 1)) {
     warning(cli::format_warning(c(
-      "!" = "Warning: Simulation inferences will return all 1's if {.var point_of_difference} = 'peak' and all concept activation levels start at 1; i.e. initial_state_vector = c(1, 1, ..., 1) "
+      "!" = "Warning: Simulation inferences will return all 1's if {.var point_of_inferences} = 'peak' and all concept activation levels start at 1; i.e. initial_state_vector = c(1, 1, ..., 1) "
     )))
   }
 
@@ -1720,24 +1696,44 @@ check_simulation_inputs <- function(adj_matrix = matrix(),
       "~~~~~ Typically {.var min_error} < 0.001, but greater than 0"
     )))
   }
-
   # ----
 
-  # list(
-  #   fcm_class = adj_matrix_input_type$fcm_class,
-  #   adj_matrix = adj_matrix,
-  #   initial_state_vector = initial_state_vector,
-  #   clamping_vector = clamping_vector,
-  #   activation = activation,
-  #   squashing = squashing,
-  #   point_of_inference = point_of_inference
-  # )
+  # Additional parallel and show_progress checks
+  parallel_and_show_progress_access_checks <- check_access_to_parallel_processing_and_progress_display_functionalities(parallel, show_progress)
+  parallel <- parallel_and_show_progress_access_checks$parallel
+  show_progress <- parallel_and_show_progress_access_checks$show_progress
+
+  # Additional n_cores checks
+  available_cores <- parallel::detectCores()
+  if (n_cores > available_cores) {
+    stop(cli::format_error(c(
+      "x" = "Error: {.var n_cores} was {n_cores} but machine only has {available_cores} cores.",
+      "+++++> Reduce {.var n_cores} to a value lower than {available_cores}."
+    )))
+  }
+
+  list(
+    fcm_class = fcm_class,
+    adj_matrix = adj_matrix,
+    initial_state_vector = initial_state_vector,
+    clamping_vector = clamping_vector,
+    activation = activation,
+    squashing = squashing,
+    lambda = as.numeric(lambda),
+    point_of_inference = point_of_inference,
+    max_iter = as.integer(max_iter),
+    min_error = as.numeric(min_error),
+    parallel = as.logical(parallel),
+    n_cores = as.integer(n_cores),
+    show_progress = as.logical(show_progress),
+    include_sims_in_output = as.logical(include_sims_in_output)
+  )
 }
 
 
 #' Print method for infer_conventional_fcm objects
 #'
-#' @param x an infer_conventional_fcm object
+#' @param x an [infer_conventional_fcm] object
 #' @param ... additional inputs
 #'
 #' @returns A console printout of infer_conventional_fcm results
@@ -1763,7 +1759,7 @@ print.infer_conventional_fcm <- function(x, ...) {
 
 #' Print method for infer_ivfn_or_tfn_fcm objects
 #'
-#' @param x an infer_ivfn_or_tfn_fcm object
+#' @param x an [infer_ivfn_or_tfn_fcm] object
 #' @param ... additional inputs
 #'
 #' @returns A console printout of infer_ivfn_or_tfn_fcm results
@@ -1798,7 +1794,377 @@ print.infer_ivfn_or_tfn_fcm <- function(x, ...) {
         "$baseline_simulation"
     )
   }
-
-
 }
+
+
+
+
+
+#' #' Check inputs for running infer_fcm on a list of adj. matrices
+#' #'
+#' #' @family monte-carlo-model-generation-and-simulation
+#' #'
+#' #' @param adj_matrices A list of adjecency matrices
+#' #' @param initial_state_vector A list state values at the start of an fcm simulation
+#' #' @param clamping_vector A list of values representing specific actions taken to
+#' #' control the behavior of an FCM. Specifically, non-zero values defined in this vector
+#' #' will remain constant throughout the entire simulation as if they were "clamped" at those values.
+#' #' @param activation The activation function to be applied. Must be one of the following:
+#' #' 'kosko', 'modified-kosko', or 'papageorgiou'.
+#' #' @param squashing A squashing function to apply. Must be one of the following:
+#' #' 'tanh', or 'sigmoid'.
+#' #' @param lambda A numeric value that defines the steepness of the slope of the
+#' #' squashing function when tanh or sigmoid are applied
+#' #' @param point_of_inference The point along the simulation time-series to be
+#' #' identified as the inference. Must be one of the following: 'peak' or 'final'
+#' #' @param max_iter The maximum number of iterations to run if the minimum error value is not achieved
+#' #' @param min_error The lowest error (sum of the absolute value of the current state
+#' #' vector minus the previous state vector) at which no more iterations are necessary
+#' #' and the simulation will stop
+#' #' @param parallel TRUE/FALSE Whether to utilize parallel processing
+#' #' @param show_progress TRUE/FALSE Show progress bar when creating fmcm. Uses pbmapply
+#' #' from the pbapply package as the underlying function.
+#' #' @param n_cores Number of cores to use in parallel processing. If no input given,
+#' #' will use all available cores in the machine.
+#' #' @param mc_sims_in_output TRUE/FALSE whether to include simulations of monte-carlo-generated
+#' #' FCM. Will dramatically increase size of output if TRUE.
+#' #'
+#' #' @returns NULL; Errors if checks fail
+#' #'
+#' #' @keywords internal
+#' #'
+#' #' @importFrom cli format_error format_warning
+#' #' @importFrom parallel detectCores
+#' #'
+#' #' @export
+#' #' @examples
+#' #' NULL
+#' check_infer_fcm_set_inputs <- function(adj_matrices = list(matrix()),
+#'                                        initial_state_vector = c(),
+#'                                        clamping_vector = c(),
+#'                                        activation = c("kosko", "modified-kosko", "rescale"),
+#'                                        squashing = c("sigmoid", "tanh"),
+#'                                        lambda = 1,
+#'                                        point_of_inference = c("peak", "final"),
+#'                                        max_iter = 100,
+#'                                        min_error = 1e-5,
+#'                                        parallel = TRUE,
+#'                                        n_cores = integer(),
+#'                                        show_progress = TRUE,
+#'                                        mc_sims_in_output = FALSE) {
+#'
+#'   # Check adj_matrices ----
+#'   adj_matrices_input_type <- get_adj_matrices_input_type(adj_matrices)
+#'   fcm_class <- adj_matrices_input_type$fcm_class
+#'   if (!adj_matrices_input_type$adj_matrices_input_is_list) {
+#'     adj_matrices <- list(adj_matrices)
+#'   }
+#'   adj_matrices_dims <- lapply(adj_matrices, dim)
+#'   if (length(unique(unlist(adj_matrices_dims))) > 1) {
+#'     stop(cli::format_error(c(
+#'       "x" = "Error: {.var adj_matrices} are either different sizes or contain non-square matrices",
+#'       "+++++> Call standardize_adj_matrices() to standardize the sizes of {.var adj. matrices}"
+#'     )))
+#'   }
+#'   n_nodes <- unique(unlist(adj_matrices_dims))
+#'   dummy_adj_matrix <- matrix(0, n_nodes, n_nodes)
+#'
+#'   identified_concepts <- unique(lapply(adj_matrices, colnames))
+#'   if (length(identified_concepts) != 1) {
+#'     stop(cli::format_error(c(
+#'       "x" = "Error: {.var adj_matrices} must have the same concepts",
+#'       "+++++> Call standardize_adj_matrices() to standardize concepts across {.var adj. matrices}"
+#'     )))
+#'   } else {
+#'     concept_names <- unlist(identified_concepts)
+#'   }
+#'   # ----
+#'
+#'   # Check Simulation Inputs ----
+#'   sim_checks <- check_simulation_inputs(dummy_adj_matrix, initial_state_vector, clamping_vector, activation, squashing, lambda, point_of_inference, max_iter, min_error)
+#'   initial_state_vector <- sim_checks$initial_state_vector
+#'   clamping_vector <- sim_checks$clamping_vector
+#'   activation <- sim_checks$activation
+#'   squashing <- sim_checks$squashing
+#'   point_of_inference <- sim_checks$point_of_inference
+#'   # ----
+#'
+#'   # Check Runtime Options ----
+#'   show_progress <- check_if_local_machine_has_access_to_show_progress_functionalities(parallel, show_progress)
+#'   parallel <- check_if_local_machine_has_access_to_parallel_processing_functionalities(parallel, show_progress)
+#'   if (parallel) {
+#'     if (identical(n_cores, integer())) {
+#'       warning(cli::format_warning(c(
+#'         "!" = "Warning: No {.var n_cores} given.",
+#'         "~~~~~ Assuming {.var n_cores} is {parallel::detectCores() - 1} (i.e. the max available cores minus 1)"
+#'       )))
+#'       n_cores <- parallel::detectCores() - 1
+#'     }
+#'     if (!is.numeric(n_cores)) {
+#'       stop(cli::format_error(c(
+#'         "x" = "Error: {.var n_cores} must be a positive integer",
+#'         "+++++ Input {.var n_cores} was '{n_cores}'"
+#'       )))
+#'     }
+#'     if (!(n_cores == round(n_cores))) {
+#'       stop(cli::format_error(c(
+#'         "x" = "Error: {.var n_cores} must be a positive integer",
+#'         "+++++ Input {.var n_cores} was {n_cores}"
+#'       )))
+#'     }
+#'     if (n_cores <= 0) {
+#'       stop(cli::format_error(c(
+#'         "x" = "Error: {.var n_cores} must be a positive integer",
+#'         "+++++ Input {.var n_cores} was {n_cores}"
+#'       )))
+#'     }
+#'     if (n_cores > parallel::detectCores()) {
+#'       stop(cli::format_error(c(
+#'         "x" = "Error: {.var n_cores} must be a positive integer less than or equal to {parallel::detectCores()} (i.e. the max available cores on your machine)",
+#'         "+++++ Input {.var n_cores} was {n_cores}"
+#'       )))
+#'     }
+#'   }
+#'   if (!parallel & !identical(n_cores, integer())) {
+#'     warning(cli::format_warning(c(
+#'       "!" = "Warning: {.var n_cores} given but {.var parallel} = FALSE.",
+#'       "~~~~~ Ignoring {.var n_cores} input."
+#'     )))
+#'   }
+#'   # ----
+#'
+#'   # Check Output Options ----
+#'   if (!is.logical(mc_sims_in_output)) {
+#'     stop(cli::format_error(c(
+#'       "x" = "Error: {.var mc_sims_in_output} must be logical (TRUE/FALSE)",
+#'       "+++++> Input {.var mc_sims_in_output} was {mc_sims_in_output}"
+#'     )))
+#'   }
+#'   # ----
+#'
+#'   list(
+#'     fcm_class = fcm_class,
+#'     adj_matrices = adj_matrices,
+#'     concept_names = concept_names,
+#'     initial_state_vector = initial_state_vector,
+#'     clamping_vector = clamping_vector,
+#'     activation = activation,
+#'     squashing = squashing,
+#'     point_of_inference = point_of_inference,
+#'     show_progress = show_progress,
+#'     parallel = parallel
+#'   )
+#' }
+#'
+#'
+#'
+#'
+#'
+#' #' Calculate Next (Conventional) FCM State
+#' #' Vector
+#' #'
+#' #' @description
+#' #' This calculates the next iteration of a state vector in an fcm simulation
+#' #' based on the kosko, modified-kosko, or rescale activation functions
+#' #'
+#' #' @details
+#' #' INTENDED FOR DEVELOPER USE ONLY
+#' #'
+#' #' The state of the art of fcm typically applies one of three activation functions
+#' #' in calculating iterative state vector values: kosko, modified-kosko, and
+#' #' rescale.
+#' #'
+#' #' The state of the art of fcm typically applies one of three activation functions
+#' #' in calculating iterative state vector values: kosko, modified-kosko, and
+#' #' rescale (as identified in Gonzales et al. 2018 - https://doi.org/10.1142/S0218213018600102).
+#' #'
+#' #' kosko: Only considers the current iteration (Kosko, 1986 - https://doi.org/10.1016/S0020-7373(86)80040-2)
+#' #'
+#' #' modified-kosko: The previous value of a node influences its future value (Stylio & Groumpos, 2004 - https://doi.org/10.1109/TSMCA.2003.818878)
+#' #'
+#' #' rescale: Like modified-kosko, but assigns nodes with no value with a
+#' #' value of 0.5 to reduce the influence that a lack of initial state information
+#' #' can have on the simulation output (rescale, 2011 - https://doi.org/10.1016/j.asoc.2009.12.010)=
+#' #'
+#' #' kosko: Only considers the current iteration (Kosko, 1986 - https://doi.org/10.1016/S0020-7373(86)80040-2)
+#' #'
+#' #' modified-kosko: The previous value of a node influences its future value (Stylio & Groumpos, 2004 - https://doi.org/10.1109/TSMCA.2003.818878)
+#' #'
+#' #' rescale: Like modified-kosko, but assigns nodes with no value with a
+#' #' value of 0.5 to reduce the influence that a lack of initial state information
+#' #' can have on the simulation output (Papageorgiou, 2011 - https://doi.org/10.1016/j.asoc.2009.12.010)
+#' #'
+#' #' Use vignette("fcm-class") for more information.
+#' #'
+#' #' @references Kosko, 1986
+#' #'
+#' #' @param adj_matrix An n x n adjacency matrix that represents an FCM
+#' #' @param state_vector A list state values at a particular iteration in an fcm simulation
+#' #' @param activation The activation function to be applied. Must be one of the following:
+#' #' 'kosko', 'modified-kosko', or 'rescale'.
+#' #' @param skip_checks FOR DEVELOPER USE ONLY. TRUE if function is called within
+#' #' another function and checks have already been performed
+#' #'
+#' #' @returns The (i + 1) iteration of the input state_vector based on the
+#' #' adj_matrix and activation function
+#' #'
+#' #' @export
+#' #' @examples
+#' #' NULL
+#' calculate_next_conventional_fcm_state_vector <- function(adj_matrix = matrix(),
+#'                                                          state_vector = c(),
+#'                                                          activation = c("kosko", "modified-kosko", "rescale"),
+#'                                                          skip_checks = FALSE) {
+#'   # Check inputs ----
+#'   check_fcmconfr_input(skip_checks, check = "logical", var_name = "skip_checks")
+#'   skip_checks <- as.logical(skip_checks)
+#'
+#'   if (!skip_checks) {
+#'     check_fcmconfr_input(adj_matrix, check = "square_adj_matrix", var_name = "adj_matrix")
+#'     adj_matrix <- as.matrix(adj_matrix)
+#'     check_fcmconfr_input(state_vector, check = "numeric_vector", var_name = "state_vector")
+#'     state_vector <- as.matrix(state_vector)
+#'     check_fcmconfr_input(activation, check = "choice_selection", choice_selection_opts = c("kosko", "modified-kosko", "rescale"), var_name = "activation")
+#'   }
+#'   # ----
+#'
+#'   if (dim(state_vector)[2] != unique(dim(adj_matrix))) {
+#'     state_vector <- t(state_vector)
+#'   }
+#'
+#'   if (activation == "kosko") {
+#'     next_state_vector <- state_vector %*% adj_matrix
+#'   } else if (activation == "modified-kosko") {
+#'     next_state_vector <- state_vector %*% adj_matrix + state_vector
+#'   } else if (activation == "rescale") {
+#'     next_state_vector <- (2*state_vector - 1) %*% adj_matrix + (2*state_vector - 1)
+#'   }
+#'   next_state_vector
+#' }
+#'
+#'
+#' #' Calculate Next (IVFN-FCM or TFN-FCM) State
+#' #' Vector
+#' #'
+#' #' @description
+#' #' This calculates the next iteration of a state vector in an fcm simulation
+#' #' based on the kosko, modified-kosko, or rescale activation functions
+#' #'
+#' #' @details
+#' #' INTENDED FOR DEVELOPER USE ONLY
+#' #'
+#' #' The state of the art of fcm typically applies one of three activation functions
+#' #' in calculating iterative state vector values: kosko, modified-kosko, and
+#' #' rescale (as identified in Gonzales et al. 2018 - https://doi.org/10.1142/S0218213018600102).
+#' #'
+#' #' kosko: Only considers the current iteration (Kosko, 1986 - https://doi.org/10.1016/S0020-7373(86)80040-2)
+#' #'
+#' #' modified-kosko: The previous value of a node influences its future value (Stylio & Groumpos, 2004 - https://doi.org/10.1109/TSMCA.2003.818878)
+#' #'
+#' #' rescale: Like modified-kosko, but assigns nodes with no value with a
+#' #' value of 0.5 to reduce the influence that a lack of initial state information
+#' #' can have on the simulation output (rescale, 2011 - https://doi.org/10.1016/j.asoc.2009.12.010)=
+#' #'
+#' #' @param fuzzy_set_adj_matrix An n x n adjacency matrix that represents an FCM
+#' #' and every element in the matrix is a tfn.
+#' #' @param fuzzy_set_state_vector A list of state values as tfn objects
+#' #' @param crisp_state_vector A list of state values as defuzzed tfn objects
+#' #' @param activation The activation function to be applied. Must be one of the following:
+#' #' 'kosko', 'modified-kosko', or 'rescale'.
+#' #' @param fcm_class Class of edges in fuzzy_set_adj_matrix. Either 'ivfn' or 'tfn'
+#' #' @param skip_checks FOR DEVELOPER USE ONLY. TRUE if function is called within
+#' #' another function and checks have already been performed
+#' #'
+#' #' @returns The (i + 1) iteration of the input state_vector based on the
+#' #' adj_matrix and activation function
+#' #'
+#' #' @examples
+#' #' NULL
+#' calculate_next_fuzzy_set_fcm_state_vector <- function(fuzzy_set_adj_matrix = matrix(),
+#'                                                       fuzzy_set_state_vector = c(),
+#'                                                       crisp_state_vector = c(),
+#'                                                       activation = c("kosko", "modified-kosko", "rescale"),
+#'                                                       fcm_class = c("ivfn", "tfn"),
+#'                                                       skip_checks = FALSE) {
+#'
+#'   # Check inputs ----
+#'   check_fcmconfr_input(skip_checks, check = "logical", var_name = "skip_checks")
+#'   skip_checks <- as.logical(skip_checks)
+#'
+#'   if (!skip_checks) {
+#'     check_fcmconfr_input(adj_matrix, check = "square_adj_matrix", var_name = "adj_matrix")
+#'     adj_matrix <- as.matrix(adj_matrix)
+#'     check_fcmconfr_input(state_vector, check = "numeric_vector", var_name = "state_vector")
+#'     state_vector <- as.matrix(state_vector)
+#'     check_fcmconfr_input(crisp_state_vector, check = "numeric_vector", var_name = "crisp_state_vector")
+#'     crisp_state_vector <- as.matrix(crisp_state_vector)
+#'     check_fcmconfr_input(activation, check = "choice_selection", choice_selection_opts = c("kosko", "modified-kosko", "rescale"), var_name = "activation")
+#'     check_fcmconfr_input(fcm_class, check = "choice_selection", choice_selection_opts = c("ivfn", "tfn"), var_name = "fcm_class")
+#'   }
+#'   # ----
+#'
+#'   next_fuzzy_set_state_vector <- vector(mode = "list", length = length(fuzzy_set_state_vector))
+#'   for (col in seq_along(fuzzy_set_adj_matrix)) {
+#'     dot_product_multiplication_only <- mapply(
+#'       function(coefficient, column_vector) {
+#'         if (activation == "rescale") coefficient <- 2*coefficient - 1
+#'         if (coefficient >= 0) {
+#'           if (fcm_class == "ivfn") {
+#'             ivfn(coefficient*column_vector$lower, coefficient*column_vector$upper)
+#'           } else if (fcm_class == "tfn") {
+#'             tfn(coefficient*column_vector$lower, coefficient*column_vector$mode, coefficient*column_vector$upper)
+#'           }
+#'         } else {
+#'           if (fcm_class == "ivfn") {
+#'             ivfn(coefficient*column_vector$upper, coefficient*column_vector$lower)
+#'           } else if (fcm_class == "tfn") {
+#'             tfn(coefficient*column_vector$upper, coefficient*column_vector$mode, coefficient*column_vector$lower)
+#'           }
+#'         }
+#'       },
+#'       coefficient = crisp_state_vector,
+#'       column_vector = fuzzy_set_adj_matrix[, col]
+#'     )
+#'     dot_product <- apply(dot_product_multiplication_only, 1, function(row) sum(unlist(row)))
+#'     if (fcm_class == "ivfn") {
+#'       next_fuzzy_set_state_vector_column <- ivfn(dot_product[1], dot_product[2])
+#'     } else if (fcm_class == "tfn") {
+#'       next_fuzzy_set_state_vector_column <- tfn(dot_product[1], dot_product[2], dot_product[3])
+#'     }
+#'     next_fuzzy_set_state_vector[[col]] <- next_fuzzy_set_state_vector_column
+#'   }
+#'
+#'   if (activation == "kosko") {
+#'     next_fuzzy_set_state_vector <-  next_fuzzy_set_state_vector
+#'   } else if (activation == "modified-kosko") {
+#'     next_fuzzy_set_state_vector <- mapply(
+#'       function(fuzzy_set_1, fuzzy_set_2) {
+#'         if (fcm_class == "ivfn") {
+#'           ivfn(fuzzy_set_1$lower + fuzzy_set_2$lower, fuzzy_set_1$upper + fuzzy_set_2$upper)
+#'         } else if (fcm_class == "tfn") {
+#'           tfn(fuzzy_set_1$lower +  fuzzy_set_2$lower, fuzzy_set_1$mode +  fuzzy_set_2$mode, fuzzy_set_1$upper +  fuzzy_set_2$upper)
+#'         }
+#'       },
+#'       fuzzy_set_1 = fuzzy_set_state_vector,
+#'       fuzzy_set_2 = next_fuzzy_set_state_vector,
+#'       SIMPLIFY = FALSE
+#'     )
+#'   } else if (activation == "rescale") {
+#'     next_fuzzy_set_state_vector <- mapply(
+#'       function(fuzzy_set_1, fuzzy_set_2) {
+#'         if (fcm_class == "ivfn") {
+#'           ivfn((2*fuzzy_set_1$lower - 1) + fuzzy_set_2$lower, (2*fuzzy_set_1$upper - 1) + fuzzy_set_2$upper)
+#'         } else if (fcm_class == "tfn") {
+#'           tfn((2*fuzzy_set_1$lower - 1) +  fuzzy_set_2$lower, (2*fuzzy_set_1$mode - 1) +  fuzzy_set_2$mode, (2*fuzzy_set_1$upper - 1) +  fuzzy_set_2$upper)
+#'         }
+#'       },
+#'       fuzzy_set_1 = fuzzy_set_state_vector,
+#'       fuzzy_set_2 = next_fuzzy_set_state_vector,
+#'       SIMPLIFY = FALSE
+#'     )
+#'   }
+#'
+#'   next_fuzzy_set_state_vector
+#' }
+
 

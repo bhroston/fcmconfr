@@ -7,7 +7,7 @@
 \method{print}{infer_conventional_fcm}(x, ...)
 }
 \arguments{
-\item{x}{an infer_conventional_fcm object}
+\item{x}{an \link{infer_conventional_fcm} object}
 
 \item{...}{additional inputs}
 }

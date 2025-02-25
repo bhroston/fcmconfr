@@ -28,14 +28,56 @@ test_that("check_fcmconfr_input works", {
   # Confirm error if multiple checks given
   expect_error(check_fcmconfr_input(x = 1, check = c("square_adj_matrix", "choice_selection")))
 
+  expect_no_error(check_fcmconfr_input(sample_fcms$simple_fcms$conventional_fcms, check = "adj_matrix_list"))
   expect_no_error(check_fcmconfr_input(test_mat, check = "square_adj_matrix", "adj_matrix"))
   expect_no_error(check_fcmconfr_input("sigmoid", check = "choice_selection", var_name = "squashing", choice_selection_opts = c("sigmoid", "squashing")))
   expect_no_error(check_fcmconfr_input(c(1, 1, 1), check = "numeric_vector", "state_vector"))
+  expect_no_error(check_fcmconfr_input(c(ivfn(1, 1), ivfn(1, 1)), check = "ivfn_vector", "state_vector"))
+  expect_no_error(check_fcmconfr_input(c(tfn(1, 1, 1), tfn(1, 1, 1)), check = "tfn_vector", "state_vector"))
   expect_no_error(check_fcmconfr_input(1.1, check = "positive_number", "lambda"))
   expect_no_error(check_fcmconfr_input(1, check = "positive_integer", "max_iter"))
   expect_no_error(check_fcmconfr_input(TRUE, check = "logical", "include_zeroes"))
 
   # yaml_list <- autotest::examples_to_yaml(package = ".", functions = "check_fcmconfr_input")
+  # res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)
+})
+
+
+test_that("check_adj_matrix_list works", {
+
+  # Confirm error if only 1 adj matrix
+  expect_error(check_adj_matrix_list(sample_fcms$simple_fcms$conventional_fcms[[1]]))
+
+  # Confirm error if multiple FCM classes
+  test_adj_mat_list <- c(sample_fcms$simple_fcms$conventional_fcms, sample_fcms$simple_fcms$ivfn_fcms)
+  expect_error(check_adj_matrix_list(test_adj_mat_list))
+
+  # Confirm error if FCM class is not Conventional, IVFN, or TFN
+  test_adj_mat_list <- sample_fcms$simple_fcms$conventional_fcms
+  test_adj_mat_list <- lapply(test_adj_mat_list, function(mat) rbind(mat, mat))
+  suppressMessages(expect_error(check_adj_matrix_list(test_adj_mat_list)))
+
+  # Confirm error if FCMs have different dimensions
+  test_adj_mat_list <- sample_fcms$simple_fcms$conventional_fcms
+  test_adj_mat_list <- lapply(test_adj_mat_list, function(mat) rbind(mat, mat))
+  test_adj_mat_list <- lapply(test_adj_mat_list, function(mat) cbind(mat, mat))
+  test_adj_mat_list <- c(test_adj_mat_list, sample_fcms$simple_fcms$conventional_fcms)
+  expect_error(check_adj_matrix_list(test_adj_mat_list))
+
+  expect_true(check_adj_matrix_list(sample_fcms$simple_fcms$conventional_fcms))
+
+  expect_true(check_adj_matrix_list(sample_fcms$simple_fcms$ivfn_fcms))
+
+  expect_true(check_adj_matrix_list(sample_fcms$simple_fcms$tfn_fcms))
+
+  # test_adj_mat_list <- lapply(test_adj_mat_list,
+  #                             function(adj_mat) {
+  #                               class(adj_mat) <- NULL
+  #                               adj_mat <- do.call(cbind, adj_mat)
+  #                               structure(.Data = adj_mat, class = "Different")
+  #                             })
+
+  # yaml_list <- autotest::examples_to_yaml(package = ".", functions = "check_adj_matrix_list")
   # res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)
 })
 
@@ -95,6 +137,36 @@ test_that("check_numeric_vector works", {
 
   # yaml_list <- autotest::examples_to_yaml(package = ".", functions = "check_fcmconfr_inputs")
   # res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)
+})
+
+
+test_that("check_ivfn_vector works", {
+
+  # Confirm error for multiple input types
+  test_vec <- c(ivfn(1, 1), 1)
+  expect_error(check_ivfn_vector(test_vec, var_name = "test_vec"))
+
+  # Confirm error for incorrect input types
+  test_vec <- c(1, 1)
+  expect_error(check_ivfn_vector(test_vec, var_name = "test_vec"))
+
+  test_vec <- c(ivfn(1, 1), ivfn(1, 1))
+  expect_true(check_ivfn_vector(test_vec, var_name = "test_vec"))
+})
+
+
+test_that("check_tfn_vector works", {
+
+  # Confirm error for multiple input types
+  test_vec <- c(tfn(1, 1), 1)
+  expect_error(check_tfn_vector(test_vec, var_name = "test_vec"))
+
+  # Confirm error for incorrect input types
+  test_vec <- c(1, 1)
+  expect_error(check_tfn_vector(test_vec, var_name = "test_vec"))
+
+  test_vec <- c(tfn(1, 1, 1), tfn(1, 1, 1))
+  expect_true(check_tfn_vector(test_vec, var_name = "test_vec"))
 })
 
 

@@ -30,10 +30,7 @@ get_node_IDs_from_input(adj_matrix)
 }
 \seealso{
 Other utility: 
-\code{\link{check_if_local_machine_has_access_to_parallel_processing_functionalities}()},
-\code{\link{check_if_local_machine_has_access_to_show_progress_functionalities}()},
 \code{\link{fcm_view}()},
-\code{\link{get_adj_matrices_input_type}()},
 \code{\link{get_inferences}()},
 \code{\link{standardize_adj_matrices}()}
 }

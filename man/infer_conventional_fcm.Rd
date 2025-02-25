@@ -13,7 +13,8 @@ infer_conventional_fcm(
   lambda = 1,
   point_of_inference = c("peak", "final"),
   max_iter = 100,
-  min_error = 1e-05
+  min_error = 1e-05,
+  skip_checks = FALSE
 )
 }
 \arguments{
@@ -42,6 +43,9 @@ identified as the inference. Must be one of the following: 'peak' or 'final'}
 \item{min_error}{The lowest error (sum of the absolute value of the current state
 vector minus the previous state vector) at which no more iterations are necessary
 and the simulation will stop}
+
+\item{skip_checks}{FOR DEVELOPER USE ONLY. TRUE if function is called within
+another function and checks have already been performed}
 }
 \value{
 A list of (conventional) fcm inference results (including baseline

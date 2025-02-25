@@ -7,7 +7,7 @@
 \method{print}{infer_ivfn_or_tfn_fcm}(x, ...)
 }
 \arguments{
-\item{x}{an infer_ivfn_or_tfn_fcm object}
+\item{x}{an \link{infer_ivfn_or_tfn_fcm} object}
 
 \item{...}{additional inputs}
 }

@@ -6,6 +6,7 @@
 # mutation testing from autotest.
 #
 #   - check_fcmconfr_input
+#   - check_adj_matrix_list
 #   - check_square_adj_matrix
 #   - check_numeric_vector
 #   - check_choice_selection
@@ -60,8 +61,12 @@ NULL
 #'  \itemize{
 #'    \item{square_adj_matrix - checks that the input is a square adjacency matrix
 #'    that can be passed throughout the suite of fcmconfr functions}
-#'    \item{numeric_vector - checks that the input is a vector (length > 1) of
+#'    \item{numeric_vector - checks that the input is a vector of
 #'    numeric-type objects}
+#'    \item{ivfn_vector - checks that the input is a vector of
+#'    ivfn-type objects}
+#'    \item{tfn_vector - checks that the input is a vector of
+#'    tfn-type objects}
 #'    \item{choice_selection - checks that the input is one of a given set
 #'    of choices. Must include the additional 'choices' parameter (see example)}
 #'    \item{positive_number - checks that the input is a positive numeric-type
@@ -73,8 +78,11 @@ NULL
 #'  }
 #' @param var_name A [character] string of the variable name of (x)
 #' @param choice_selection_opts ONLY used if check = 'choice_selection'. A
-#' vector of character strings; choices to make sure the 'choice_selection'
+#' [vector of character strings]; choices to make sure the 'choice_selection'
 #' check ensures a match.
+#' @param zero_is_positive ONLY used if check = 'positive_number' or
+#' 'positive_integer'. A [logical] (TRUE/FALSE) object that dictates
+#' whether to count 0 as a positive number (TRUE) or not (FALSE)
 #'
 #' @returns TRUE if the input passes the selected check, or an error if not
 #'
@@ -83,13 +91,14 @@ NULL
 #'
 #' @example /man/examples/ex-check_fcmconfr_input.R
 check_fcmconfr_input <- function(x,
-                                 check = c("square_adj_matrix", "numeric_vector", "choice_selection", "positive_number", "positive_integer", "logical"),
+                                 check = c("adj_matrix_list", "square_adj_matrix", "numeric_vector", "ivfn_vector", "tfn_vector", "choice_selection", "positive_number", "positive_integer", "logical"),
                                  var_name = character(),
-                                 choice_selection_opts = c()) {
+                                 choice_selection_opts = c(),
+                                 zero_is_positive = FALSE) {
 
   var_name <- assert_var_name(var_name)
 
-  check_choices <-  c("square_adj_matrix", "numeric_vector", "choice_selection", "positive_number", "positive_integer", "logical")
+  check_choices <-  c("adj_matrix_list", "square_adj_matrix", "numeric_vector", "ivfn_vector", "tfn_vector", "choice_selection", "positive_number", "positive_integer", "logical")
   check_choices_text <- paste0("'", cli::ansi_collapse(check_choices, sep = "' '", sep2 = "' or '", last = "' or '"), "'")
 
   if (length(check) > 1) {
@@ -110,24 +119,89 @@ check_fcmconfr_input <- function(x,
   }
 
   if (identical(check, "choice_selection") && identical(choice_selection_opts, c())) {
-
     stop(cli::format_error(c(
       "x" = "Error: {.var choice_selection_opts} must be defined if check = 'choice_selection'"
     )))
   }
 
-  if (check == "square_adj_matrix") {
+  if (identical(check, "positive_number") || identical(check, "positive_integer")) {
+    check_logical(zero_is_positive, var_name = "zero_is_positive")
+  }
+
+  if (check == "adj_matrix_list") {
+    check_adj_matrix_list(x)
+  } else if (check == "square_adj_matrix") {
     check_square_adj_matrix(x)
   } else if (check == "choice_selection") {
     check_choice_selection(x, choices = choice_selection_opts, var_name = var_name)
   } else if (check == "numeric_vector") {
     check_numeric_vector(x, var_name = var_name)
   } else if (check == "positive_number") {
-    check_positive_number(x, var_name = var_name)
+    check_positive_number(x, var_name = var_name, zero_is_positive = zero_is_positive)
   } else if (check == "positive_integer") {
-    check_positive_integer(x, var_name = var_name)
+    check_positive_integer(x, var_name = var_name, zero_is_positive = zero_is_positive)
   } else if (check == "logical") {
     check_logical(x, var_name = var_name)
+  }
+
+  return(TRUE)
+}
+
+
+
+#' Check Adj. Matrix List
+#'
+#' @description
+#' This function checks whether an input (x) is a list of acceptable
+#' adjacency matrices (via check_square_adj_matrix) and that all are of the
+#' same FCM class (i.e. Conventional, IVFN, or TFN)
+#'
+#' @details
+#' INTENDED FOR DEVELOPER USE ONLY
+#'
+#' @param x a [matrix] or [data.frame]-like object
+#'
+#' @returns TRUE if x is a list of square adjacency matrices that are all of
+#' the same FCM class (either Conventional, IVFN, or TFN), FALSE if not
+#'
+#' @keywords internal
+#' @noRd
+#'
+#' @example /man/examples/ex-check_adj_matrix_list.R
+check_adj_matrix_list <- function(x = list()) {
+
+  if (!identical(methods::is(x)[1], "list")) {
+    stop(cli::format_error(c(
+      "x" = "Error: The adj. matrix list must be a 'list' type object of multiple adjacency matrices.",
+      "+++++> Input was of type: {methods::is(x)[1]}"
+    )))
+  }
+
+  for (i in seq_along(x)) {
+    tryCatch({
+      check_square_adj_matrix(x[[i]])
+    }, error = function(e) {
+      cli::cli_inform(c(
+        "x" = "Error: Found the following error with element {i} of adj. matrix list"
+      ))
+      check_square_adj_matrix(x[[i]])
+    })
+  }
+
+  fcm_classes <- lapply(x, get_fcm_class_from_adj_matrix)
+  if (length(unique(fcm_classes)) != 1) {
+    stop(cli::format_error(c(
+      "x" = "Error: Adj. matrices must all represent FCMs of the same class (i.e. Conventional, IVFN, or TFN)",
+      "+++++> Input adj. matrices represented FCMs of the following classes: {unlist(unique(fcm_classes))}"
+    )))
+  }
+
+  unique_dims_of_adj_matrices <- unique(lapply(x, dim))
+  if (length(unique_dims_of_adj_matrices) != 1) {
+    stop(cli::format_error(c(
+      "x" = "Error: All adj. matrices in list must have the same dimensions",
+      "+++++> Input adj. matrices represented FCMs of the following dimesnions: {unique_dims_of_adj_matrices}"
+    )))
   }
 
   return(TRUE)
@@ -169,7 +243,7 @@ check_square_adj_matrix = function(x = matrix()) {
     produced_warning <- TRUE
   }
 
-  class_options <-  c("matrix", "array", "data.frame", "data.table", "tibble", "tbl_df", "sparseMatrix", "ivfn", "tfn")
+  class_options <-  c("matrix", "array", "data.frame", "data.table", "tibble", "tbl_df", "sparseMatrix", "adj_matrix_w_ivfns", "adj_matrix_w_tfns")
   class_options_text <- paste0("'", cli::ansi_collapse(class_options, sep = "' '", sep2 = "' or '", last = "' or '"), "'")
 
   res <- checkmate::check_choice(methods::is(x)[1], choices = class_options)
@@ -197,11 +271,7 @@ check_square_adj_matrix = function(x = matrix()) {
     ))))
   }
 
-  if (produced_warning) {
-    return("warning")
-  } else {
-    return(TRUE)
-  }
+  return(TRUE)
 }
 
 
@@ -237,9 +307,20 @@ check_numeric_vector = function(x, var_name = "") {
 
   class_of_x <- methods::is(x)
   res <- checkmate::check_numeric(x)
-  non_numeric_input_can_be_numeric <- all(vapply(x, function(val) !grepl("\\D", val), logical(length(1))))
-  if  (non_numeric_input_can_be_numeric) {
-    x <- suppressWarnings(as.numeric(x))
+  # non_numeric_input_can_be_numeric <- all(vapply(x, function(val) !grepl("\\D", val), logical(length(1))))
+  # if  (non_numeric_input_can_be_numeric) {
+  #   x <- suppressWarnings(as.numeric(x))
+  # }
+
+  if (!isTRUE(res)) {
+    x <- tryCatch({
+      x <- suppressWarnings(as.numeric(x))
+    }, error = function(e) {
+      stop(cli::format_error(c(
+        "x" = "Error: {var_name} must be a numeric vector",
+        "+++++++> Input {var_name} vector had class: {class_of_x[1]}"
+      )))
+    })
   }
 
   res <- checkmate::check_numeric(x)
@@ -247,6 +328,94 @@ check_numeric_vector = function(x, var_name = "") {
     stop(cli::format_error(c(
       "x" = "Error: {var_name} must be a numeric vector",
       "+++++++> Input {var_name} vector had class: {class_of_x[1]}"
+    )))
+  }
+
+  return(TRUE)
+}
+
+
+#' Check IVFN Vector
+#'
+#' @description
+#' This function checks whether an input (x) is a numeric [vector] object that
+#' contains only IVFNs and can be passed throughout fcmconfr functions.
+#'
+#' @details
+#' INTENDED FOR DEVELOPER USE ONLY
+#'
+#' @param x a [vector] of [ivfn] values
+#' @param var_name a character object for the name of the input variable to
+#' be displayed in the error message
+#'
+#' @returns TRUE if the input object if x is an ivfn vector, or an error
+#' message if not
+#'
+#' @keywords internal
+#' @noRd
+#'
+#' @examples
+#' check_ivfn_vector(c(ivfn(1, 1), ivfn(1, 1)), var_name = "state_vector")
+check_ivfn_vector = function(x, var_name = "") {
+
+  var_name <- assert_var_name(var_name)
+
+  classes_in_x <- unique(lapply(x, function(x) methods::is(x)[1]))
+  if (length(classes_in_x) > 1) {
+    stop(cli::format_error(c(
+      "x" = "Error: All elements in {var_name} must be of type 'ivfn'",
+      "+++++++> Input {var_name} had classes: {classes_in_x}"
+    )))
+  }
+  class_in_x <- classes_in_x[[1]]
+  if (!identical(class_in_x, "ivfn")) {
+    stop(cli::format_error(c(
+      "x" = "Error: All elements in {var_name} must be of type 'ivfn'",
+      "+++++++> Input {var_name} had classes: {classes_in_x}"
+    )))
+  }
+
+  return(TRUE)
+}
+
+
+#' Check TFN Vector
+#'
+#' @description
+#' This function checks whether an input (x) is a numeric [vector] object that
+#' contains only TFNs and can be passed throughout fcmconfr functions.
+#'
+#' @details
+#' INTENDED FOR DEVELOPER USE ONLY
+#'
+#' @param x a [vector] of [tfn] values
+#' @param var_name a character object for the name of the input variable to
+#' be displayed in the error message
+#'
+#' @returns TRUE if the input object if x is an tfn vector, or an error
+#' message if not
+#'
+#' @keywords internal
+#' @noRd
+#'
+#' @examples
+#' check_tfn_vector(c(tfn(1, 1, 1), tfn(1, 1 1)), var_name = "state_vector")
+check_tfn_vector = function(x, var_name = "") {
+
+  var_name <- assert_var_name(var_name)
+
+  classes_in_x <- unique(lapply(x, function(x) methods::is(x)[1]))
+  if (length(classes_in_x) > 1) {
+    stop(cli::format_error(c(
+      "x" = "Error: All elements in {var_name} must be of type 'tfn'",
+      "+++++++> Input {var_name} had classes: {classes_in_x}"
+    )))
+  }
+  class_in_x <- classes_in_x[[1]]
+  if (!identical(class_in_x, "tfn")) {
+    stop(cli::format_error(c(
+      "x" = "Error: All elements in {var_name} must be of type 'tfn'",
+      "+++++++> Input {var_name} had classes: {classes_in_x}"
     )))
   }
 
@@ -301,7 +470,7 @@ check_choice_selection <- function(x, choices = c(), var_name = "") {
 }
 
 
-#' Check Numeric
+#' Check Positive Number
 #'
 #' @description
 #' This function checks whether an input (x) is a [numeric] object.
@@ -310,8 +479,10 @@ check_choice_selection <- function(x, choices = c(), var_name = "") {
 #' INTENDED FOR DEVELOPER USE ONLY
 #'
 #' @param x a positive [numeric] [> 0]
-#' @param var_name a character object for the name of the input variable to
+#' @param var_name a [character] object for the name of the input variable to
 #' be displayed in the error message
+#' @param zero_is_positive a [logical] (TRUE/FALSE) object that dictates
+#' whether to count 0 as a positive number (TRUE) or not (FALSE)
 #'
 #' @returns TRUE if the input object x is a positive number, or an error
 #' message if not
@@ -320,8 +491,10 @@ check_choice_selection <- function(x, choices = c(), var_name = "") {
 #' @noRd
 #'
 #' @example /man/examples/ex-check_positive_number.R
-check_positive_number <- function(x = numeric(), var_name = "") {
+check_positive_number <- function(x = numeric(), var_name = "", zero_is_positive = FALSE) {
   var_name <- assert_var_name(var_name)
+
+  check_logical(zero_is_positive, var_name = "zero_is_positive")
 
   if (length(x) > 1) {
     stop(cli::format_error(c(
@@ -343,7 +516,13 @@ check_positive_number <- function(x = numeric(), var_name = "") {
       "+++++++> Input {var_name} vector had class: {class_of_x[1]}"
     )))
   }
-  if (x <= 0) {
+  if (x == 0 && !zero_is_positive) {
+    stop(cli::format_error(c(
+      "x" = "Error: {var_name} must be a positive value",
+      "+++++++> Input {.var zero_is_positive} was FALSE, so 0 is not accepted as a positive value here"
+    )))
+  }
+  if (x < 0) {
     stop(cli::format_error(c(
       "x" = "Error: {var_name} must be a positive value",
       "+++++++> Input {var_name} was: {x}"
@@ -363,8 +542,10 @@ check_positive_number <- function(x = numeric(), var_name = "") {
 #' INTENDED FOR DEVELOPER USE ONLY
 #'
 #' @param x a single, positive [integer] [> 0]
-#' @param var_name a character object for the name of the input variable to
+#' @param var_name a [character] object for the name of the input variable to
 #' be displayed in the error message
+#' @param zero_is_positive a [logical] (TRUE/FALSE) object that dictates
+#' whether to count 0 as a positive number (TRUE) or not (FALSE)
 #'
 #' @returns TRUE if the input object x is a positive integer, or an error
 #' message if not
@@ -373,8 +554,10 @@ check_positive_number <- function(x = numeric(), var_name = "") {
 #' @noRd
 #'
 #' @example /man/examples/ex-check_positive_integer.R
-check_positive_integer <- function(x = 1L, var_name = "") {
+check_positive_integer <- function(x = 1L, var_name = "", zero_is_positive = FALSE) {
   var_name <- assert_var_name(var_name)
+
+  check_logical(zero_is_positive, var_name = "zero_is_positive")
 
   if (length(x) > 1) {
     stop(cli::format_error(c(
@@ -396,7 +579,13 @@ check_positive_integer <- function(x = 1L, var_name = "") {
       "+++++++> Input {var_name} vector had class: {class_of_x[1]}"
     )))
   }
-  if (x <= 0) {
+  if (x == 0 && !zero_is_positive) {
+    stop(cli::format_error(c(
+      "x" = "Error: {var_name} must be a positive value",
+      "+++++++> Input {.var zero_is_positive} was FALSE, so 0 is not accepted as a positive value here"
+    )))
+  }
+  if (x < 0) {
     stop(cli::format_error(c(
       "x" = "Error: {var_name} must be a positive value",
       "+++++++> Input {var_name} was: {x}"
@@ -590,8 +779,8 @@ check_access_to_parallel_processing_and_progress_display_functionalities <- func
 
   return(
     list(
-      use_parallel = use_parallel,
-      use_show_progress = use_show_progress
+      parallel = use_parallel,
+      show_progress = use_show_progress
     )
   )
 }

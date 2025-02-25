@@ -1,0 +1,6 @@
+
+check_adj_matrix_list(sample_fcms$simple_fcms$conventional_fcms)
+
+check_adj_matrix_list(sample_fcms$simple_fcms$ivfn_fcms)
+
+check_adj_matrix_list(sample_fcms$simple_fcms$tfn_fcms)

@@ -4,7 +4,12 @@
 \alias{squash}
 \title{Squash}
 \usage{
-squash(value = numeric(), squashing = c("sigmoid", "tanh"), lambda = 1)
+squash(
+  value = numeric(),
+  squashing = c("sigmoid", "tanh"),
+  lambda = 1,
+  skip_checks = FALSE
+)
 }
 \arguments{
 \item{value}{A numeric value to 'squash'}
@@ -12,6 +17,9 @@ squash(value = numeric(), squashing = c("sigmoid", "tanh"), lambda = 1)
 \item{squashing}{A squashing function to apply. Must be one of the following: 'tanh', or 'sigmoid'}
 
 \item{lambda}{A numeric value that defines the steepness of the slope of the squashing function when tanh or sigmoid are applied}
+
+\item{skip_checks}{FOR DEVELOPER USE ONLY. TRUE if function is called within
+another function and checks have already been performed}
 }
 \value{
 A "squashed" value, the output of the selected transfer ("squashing")
