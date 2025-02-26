@@ -15,6 +15,7 @@
 #
 ################################################################################
 
+requireNamespace("data.table")
 
 test_that("get_fcm_class_from_adj_matrix works", {
 

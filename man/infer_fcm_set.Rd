@@ -12,7 +12,7 @@ infer_fcm_set(
   squashing = c("sigmoid", "tanh"),
   lambda = 1,
   point_of_inference = c("peak", "final"),
-  max_iter = 100,
+  max_iter = 100L,
   min_error = 1e-05,
   parallel = TRUE,
   n_cores = 1L,
@@ -23,61 +23,81 @@ infer_fcm_set(
 )
 }
 \arguments{
-\item{adj_matrices}{a \link{list} of adjecency matrices}
+\item{adj_matrices}{[\code{list()}]\cr A single adjacency matrix or a list of
+adjacency matrices (n x n) representing FCMs. Matrices can have conventional
+edge weights, IVFN edge weights or TFN edge weights.}
 
-\item{initial_state_vector}{a \link{numeric vector} of state values at the start
-of an FCM simulation}
+\item{initial_state_vector}{[\code{vector("numeric")}]\cr A list of state values
+(one per node) at the start of an FCM simulation. In pulse simulations the
+\code{initial_state_vector}  controls the scenario (i.e., a non-zero value
+is a transient perturbation). In clamped simulations all values in the
+\code{initial_state_vector} are set to 1.}
 
-\item{clamping_vector}{a \link{numeric vector} of values representing specific actions taken to
-control the behavior of an FCM. Specifically, non-zero values defined in this vector
-will remain constant throughout the entire simulation as if they were "clamped" at those values.}
+\item{clamping_vector}{[\code{vector("numeric")}]\cr A list of values (one per node)
+that indicates whether clamped simulations will be performed. In clamped
+simulations the \code{clamping_vector} controls the scenario (nodes assigned
+non-zero values will remain at those values for the entire simulation).
+In pulse simulations all values in the \code{clamping_vector} are set to 0.}
 
-\item{activation}{a \link{character} string; the activation function to be applied. Must be one of the following:
-'kosko', 'modified-kosko', or 'rescale'.}
+\item{activation}{[\code{character()}]\cr The activation function used. Must be
+one of the following: kosko', 'modified-kosko', or 'rescale'.}
 
-\item{squashing}{a \link{character} string; the squashing function to apply. Must be one of the following:
-'tanh', or 'sigmoid'.}
+\item{squashing}{[\code{character()}]\cr string; The squashing function used. Must be
+one of the following: tanh', or 'sigmoid'.}
 
-\item{lambda}{a positive \link{numeric} (number \link{> 0}); Defines the steepness of the slope of the
-squashing function when tanh or sigmoid are applied}
+\item{lambda}{[\code{numeric(1)}]\cr A numeric value
+that defines the steepness of the squashing function. Should be a positive
+number.}
 
-\item{point_of_inference}{a \link{character} string; The point along the simulation time-series to be
-identified as the inference. Must be one of the following: 'peak' or 'final'}
+\item{point_of_inference}{[\code{character()}]\cr Definition of an inference.
+The metric used to calculate  the response of each node to a scenario of
+interest from simulation timeseries. Must be one of the following: 'peak'
+(the maximum value) or 'final' (the state at equilibrium).}
 
-\item{max_iter}{a positive \link{integer} (integer \link{> 0}); The maximum number of iterations to run if the minimum error value is not achieved}
+\item{max_iter}{[\code{integer(1)}]\cr The maximum
+number of iterations to run (increase if the minimum error value is not
+achieved). Should be a positive integer.}
 
-\item{min_error}{a positive\link{numeric} (number \link{> 0}); The lowest error (sum of the absolute value of the current state
-vector minus the previous state vector) at which no more iterations are necessary
-and the simulation will stop}
+\item{min_error}{['numeric(1)`]\cr The error past
+which a simulation has converged and no further iterations are necessary.
+\emph{Error equals the sum of the absolute value of the current state vector
+minus the previous state vector}. Should be a positive number.}
 
-\item{parallel}{a \link{logical} (TRUE/FALSE) value; Whether to utilize parallel processing}
+\item{parallel}{[\code{logical(1)}]\cr Whether to utilize parallel
+processing (TRUE) or not (FALSE).}
 
-\item{n_cores}{a positive \link{integer} (integer \link{> 0}); Number of cores to use in parallel processing. If no input given,
-will use all available cores in the machine.}
+\item{n_cores}{[\code{integer(1)}]\cr The number of
+cores to use in parallel processing. If no input given, all available cores
+will be used. Should be a positive integer.}
 
-\item{show_progress}{a \link{logical} (TRUE/FALSE) value; Show progress bar when creating fmcm. Uses pbmapply
-from the pbapply package as the underlying function.}
+\item{show_progress}{[\code{logical(1)}]\cr Whether to show progress
+bars and print runtime updates in the console when running FCM simulations
+(TRUE) or not (FALSE)}
 
-\item{include_sims_in_output}{a \link{logical} (TRUE/FALSE) value; whether to include simulations of monte-carlo-generated
-FCM. Will dramatically increase size of output if TRUE.
-#' @param silent a \link{logical} (TRUE/FALSE) value; whether to suppress warning
-and error messages (TRUE) or not (FALSE)}
+\item{include_sims_in_output}{[\code{logical(1)}]\cr If TRUE, include Monte Carlo
+FCMs in addition to Monte Carlo simulations (and inferences) in fcmconfr
+output. Switch to FALSE to reduce output size.}
 
-\item{skip_checks}{a \link{logical} (TRUE/FALSE) value; FOR DEVELOPER USE ONLY. TRUE if function is called within
-another function and checks have already been performed}
+\item{silent}{[\code{logical(1)}]\cr If TRUE, suppress warning
+and error messages.}
+
+\item{skip_checks}{[\code{logical(1)}]\cr FOR DEVELOPER USE ONLY. If TRUE, skip
+call to \code{\link{check_simulation_inputs}} because this function is called
+within another function that has already called
+\code{\link{check_simulation_inputs}}.}
 }
 \value{
-a \link{data.frame} of the inferences for each FCM in the set
+an \link{inference_of_fcm_set} object which is a data.frame of the inferences for each FCM in the set
 }
 \description{
-This function mass simulates a set of FCMs (Conventional, IVFN, and/or TFN)
+This function simulates a set of FCMs (Conventional, IVFN, and/or TFN)
 (whose edge weights were sampled using monte carlo methods) by repetitively
-calling the infer_fcm function for each empirical (monte carlo) adj. matrix.
+calling the infer_fcm function for each adj. matrix in the set.
 }
 \details{
-The show_progress and parallel inputs change the functions called, but do NOT
-change the output! These are allowed to be toggled on/off to increase user
-control at runtime.
+The show_progress and parallel inputs change how the function is run, but do
+NOT change the output! These are allowed to be toggled on/off to increase
+user control at runtime.
 }
 \examples{
 
@@ -92,7 +112,7 @@ conventional_fcm_set_inferences <- infer_fcm_set(adj_matrices = sample_fcms$simp
                                                  min_error = 1e-5,
                                                  parallel = FALSE,
                                                  show_progress = FALSE,
-                                                 silent = TRUE)
+                                                 silent = FALSE)
 
 ivfn_fcm_set_inferences <- infer_fcm_set(adj_matrices = sample_fcms$simple_fcms$ivfn_fcms,
                                          initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
@@ -105,7 +125,7 @@ ivfn_fcm_set_inferences <- infer_fcm_set(adj_matrices = sample_fcms$simple_fcms$
                                          min_error = 1e-5,
                                          parallel = FALSE,
                                          show_progress = FALSE,
-                                         silent = TRUE)
+                                         silent = FALSE)
 
 tfn_fcm_set_inferences <- infer_fcm_set(adj_matrices = sample_fcms$simple_fcms$tfn_fcms,
                                         initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
@@ -118,6 +138,6 @@ tfn_fcm_set_inferences <- infer_fcm_set(adj_matrices = sample_fcms$simple_fcms$t
                                         min_error = 1e-5,
                                         parallel = FALSE,
                                         show_progress = FALSE,
-                                        silent = TRUE)
+                                        silent = FALSE)
 }
 \concept{infer_and_simulate_fcm}

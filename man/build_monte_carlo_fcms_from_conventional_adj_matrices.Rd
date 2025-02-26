@@ -6,23 +6,27 @@
 \title{Build Monte Carlo (Conventional) FCMs}
 \usage{
 build_monte_carlo_fcms_from_conventional_adj_matrices(
-  adj_matrix_list = list(Matrix::sparseMatrix()),
-  N_samples = integer(),
+  adj_matrices = list(),
+  N_samples = 1L,
   include_zeroes = TRUE,
-  show_progress = TRUE
+  show_progress = TRUE,
+  skip_checks = FALSE
 )
 }
 \arguments{
-\item{adj_matrix_list}{A list of n x n adjacency matrices representing fcms}
-
-\item{N_samples}{The number of samples to draw with the selected sampling method. Also,
+\item{N_samples}{an \link{integer, double} The number of samples to draw with the selected sampling method. Also,
 the number of sampled models to generate}
 
-\item{include_zeroes}{TRUE/FALSE Whether to incorporate zeroes as intentionally-defined
+\item{include_zeroes}{a \link{logical} (TRUE/FALSE) value; Whether to incorporate zeroes as intentionally-defined
 edge weights or ignore them in aggregation}
 
-\item{show_progress}{TRUE/FALSE Show progress bar when creating fmcm. Uses pbmapply
+\item{show_progress}{a \link{logical} (TRUE/FALSE) value; Show progress bar when creating fmcm. Uses pbmapply
 from the pbapply package as the underlying function.}
+
+\item{skip_checks}{a \link{logical} (TRUE/FALSE) value; FOR DEVELOPER USE ONLY. TRUE if function is called within
+another function and checks have already been performed}
+
+\item{adj_matrix_list}{A \link{list} of n x n adjacency matrices representing fcms}
 }
 \value{
 A list of empirical (Conventional) FCM adj. matrices generated via monte carlo methods

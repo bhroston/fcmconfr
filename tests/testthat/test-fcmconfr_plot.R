@@ -1,3 +1,6 @@
+
+requireNamespace("vdiffr")
+
 test_that("fcmconfr_plot additional inputs work", {
 
   # Load fcmconfr object ----

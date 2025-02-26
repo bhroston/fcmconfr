@@ -124,6 +124,12 @@ standardize_adj_matrices <- function(adj_matrices = list(matrix())) {
 get_fcm_class_from_adj_matrix <- function(adj_matrix = data.frame()) {
   check_fcmconfr_input(adj_matrix, check = "square_adj_matrix", var_name = "adj_matrix")
 
+  if (is.null(dim(adj_matrix))) {
+    class(adj_matrix) <- NULL
+    adj_matrix <- data.frame(do.call(cbind, adj_matrix))
+    # adj_matrix <- data.frame(apply(adj_matrix, c(1, 2), function(element) element))
+  }
+
   element_types_in_adj_matrix <- unique(as.vector(as.matrix(apply(adj_matrix, c(1, 2), function(x) methods::is(x[[1]])))))
 
   if (identical(element_types_in_adj_matrix, methods::is(numeric()))) {

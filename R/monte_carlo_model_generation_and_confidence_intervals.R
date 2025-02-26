@@ -9,6 +9,8 @@
 #   - build_monte_carlo_fcms_from_conventional_adj_matrices
 #   - build_monte_carlo_fcms_from_fuzzy_set_adj_matrices
 #   - get_mc_simulations_inference_CIs_w_bootstrap
+#   - check_build_monte_carlo_fcms_inputs
+#   - check_monte_carlo_bootstrap_inputs
 #
 ################################################################################
 
@@ -57,12 +59,12 @@ build_monte_carlo_fcms <- function(adj_matrix_list = list(matrix()),
                                    show_progress = TRUE,
                                    skip_checks = FALSE) {
 
-  if (!is.logical(skip_checks)) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var skip_checks} must be a logical value (TRUE/FALSE)",
-      "+++++> Input {.var skip_checks} was: {skip_checks}"
-    )))
-  }
+  requireNamespace("Matrix")
+
+  check_fcmconfr_input(skip_checks, check = "logical", var_name = "skip_checks")
+  skip_checks <- as.logical(skip_checks)
+
+  # Check inputs ----
   if (!skip_checks) {
     checks <- check_build_monte_carlo_fcms_inputs(adj_matrix_list, N_samples, include_zeroes, show_progress)
     adj_matrix_list_class <- checks$adj_matrix_list_class
@@ -70,11 +72,12 @@ build_monte_carlo_fcms <- function(adj_matrix_list = list(matrix()),
   } else {
     adj_matrix_list_class <- get_adj_matrices_input_type(adj_matrix_list)$object_types_in_list[1]
   }
+  # ----
 
   if (adj_matrix_list_class == "conventional") {
-    sampled_adj_matrices <- build_monte_carlo_fcms_from_conventional_adj_matrices(adj_matrix_list, N_samples, include_zeroes, show_progress)
+    sampled_adj_matrices <- build_monte_carlo_fcms_from_conventional_adj_matrices(adj_matrix_list, N_samples, include_zeroes, show_progress, skip_checks)
   } else {
-    sampled_adj_matrices <- build_monte_carlo_fcms_from_fuzzy_set_adj_matrices(adj_matrix_list, adj_matrix_list_class, N_samples, include_zeroes, show_progress)
+    sampled_adj_matrices <- build_monte_carlo_fcms_from_fuzzy_set_adj_matrices(adj_matrix_list, adj_matrix_list_class, N_samples, include_zeroes, show_progress, skip_checks)
   }
 
   sampled_adj_matrices
@@ -96,27 +99,52 @@ build_monte_carlo_fcms <- function(adj_matrix_list = list(matrix()),
 #' change the output! These are allowed to be toggled on/off to increase user
 #' control at runtime.
 #'
-#' @param adj_matrix_list A list of n x n adjacency matrices representing fcms
-#' @param N_samples The number of samples to draw with the selected sampling method. Also,
+#' @param adj_matrix_list A [list] of n x n adjacency matrices representing fcms
+#' @param N_samples an [integer, double] The number of samples to draw with the selected sampling method. Also,
 #' the number of sampled models to generate
-#' @param include_zeroes TRUE/FALSE Whether to incorporate zeroes as intentionally-defined
+#' @param include_zeroes a [logical] (TRUE/FALSE) value; Whether to incorporate zeroes as intentionally-defined
 #' edge weights or ignore them in aggregation
-#' @param show_progress TRUE/FALSE Show progress bar when creating fmcm. Uses pbmapply
+#' @param show_progress a [logical] (TRUE/FALSE) value; Show progress bar when creating fmcm. Uses pbmapply
 #' from the pbapply package as the underlying function.
+#' @param skip_checks a [logical] (TRUE/FALSE) value; FOR DEVELOPER USE ONLY. TRUE if function is called within
+#' another function and checks have already been performed
 #'
 #' @returns A list of empirical (Conventional) FCM adj. matrices generated via monte carlo methods
 #'
-#' @importFrom Matrix sparseMatrix
 #' @importFrom methods is
 #' @importFrom pbapply pbapply
 #' @importFrom stats na.omit
 #'
 #' @export
 #' @example man/examples/ex-build_mc_models_from_conventional_adj_matrices.R
-build_monte_carlo_fcms_from_conventional_adj_matrices <- function(adj_matrix_list = list(Matrix::sparseMatrix()),
-                                                                  N_samples = integer(),
+build_monte_carlo_fcms_from_conventional_adj_matrices <- function(adj_matrices = list(),
+                                                                  N_samples = 1L,
                                                                   include_zeroes = TRUE,
-                                                                  show_progress = TRUE) {
+                                                                  show_progress = TRUE,
+                                                                  skip_checks = FALSE) {
+
+  # Check inputs ----
+  check_fcmconfr_input(skip_checks, check = "logical", var_name = "skip_checks")
+  skip_checks <- as.logical(skip_checks)
+
+  if (!skip_checks) {
+    checks <- check_build_monte_carlo_fcms_inputs(adj_matrices, N_samples, include_zeroes, show_progress)
+    fcm_class <- checks$fcm_class
+    adj_matrices <- checks$adj_matrices
+    N_samples <- checks$N_samples
+    include_zeroes <- checks$include_zeroes
+    show_progress <- checks$show_progress
+  } else {
+    fcm_class <- get_fcm_class_from_adj_matrix(adj_matrices[[1]])
+  }
+  # ----
+
+  if (!identical(fcm_class, "conventional")) {
+    stop(cli::format_error(c(
+      "x" = "{.var adj_matrix} must be an adjacency matrix with edges represented as discrete numeric values (Conventional) only",
+      "+++++> Edges in input {.var adj_matrix} are represented as {fcm_class}'s"
+    )))
+  }
 
   n_nodes <- unique(unlist(lapply(adj_matrix_list, dim)))
   flatten_conventional_adj_matrix <- function(adj_matrix) {
@@ -550,6 +578,201 @@ get_mc_simulations_inference_CIs_w_bootstrap <- function(mc_simulations_inferenc
       CIs_and_quantiles_by_node = mc_inference_distributions_df,
       bootstrap_expected_values = bootstrapped_expectations_of_inference_by_node
     )
+  )
+}
+
+
+
+#' Check inputs for building monte carlo fcm inputs
+#'
+#' @family monte-carlo-model-generation-and-simulation
+#'
+#' @param adj_matrix_list A list of n x n adjacency matrices representing fcms
+#' @param N_samples The number of samples to draw from the corresponding distribution
+#' @param include_zeroes TRUE/FALSE Whether to incorporate zeroes as intentionally-defined
+#' edge weights or ignore them in aggregation
+#' @param show_progress TRUE/FALSE Show progress bar when creating fmcm. Uses pbmapply
+#' from the pbapply package as the underlying function.
+#'
+#' @returns NULL; Errors if checks fail
+#'
+#' @keywords internal
+#'
+#' @importFrom cli format_error
+#'
+#' @export
+#' @examples
+#' NULL
+check_build_monte_carlo_fcms_inputs <- function(adj_matrices = list(),
+                                                N_samples = 1000L,
+                                                include_zeroes = TRUE,
+                                                show_progress = TRUE) {
+
+  # Check adj_matrices ----
+  adj_matrices_check <- check_fcmconfr_input(adj_matrices, check = "adj_matrix_list")
+  check_fcmconfr_input(adj_matrices, check = "adj_matrix_list")
+  if (!is.null(dim(adj_matrices))) {
+    adj_matrices <- list(adj_matrices)
+  }
+  fcm_class <- get_fcm_class_from_adj_matrix(adj_matrices[[1]])
+  # ----
+
+  # Generic type (autotest-passing) checkmate tests ----
+  N_samples_check <- check_fcmconfr_input(N_samples, check = "positive_integer", var_name = "N_samples")
+  include_zeroes_check <- check_fcmconfr_input(include_zeroes, check = "logical", var_name = "include_zeroes")
+  show_progress_check <- check_fcmconfr_input(show_progress, check = "logical", var_name = "show_progress")
+  # ----
+
+  # Additional parallel and show_progress checks
+  show_progress = check_access_to_parallel_processing_and_progress_display_functionalities(use_parallel = FALSE, show_progress)
+
+  list(
+    fcm_class = fcm_class,
+    adj_matrices = adj_matrices,
+    N_samples = N_samples,
+    include_zeroes = include_zeroes,
+    show_progress = show_progress
+  )
+}
+
+
+
+#' Check inputs for monte carlo bootstrap analysis
+#'
+#' @family monte-carlo-model-generation-and-simulation
+#'
+#' @param ci_centering_function Estimate confidence intervals about the "mean" or "median" of
+#' inferences from the monte carlo simulations
+#' @param confidence_interval What are of the distribution should be bounded by the
+#' confidence intervals? (e.g. 0.95)
+#' @param num_ci_bootstraps Repetitions for bootstrap process, if chosen
+#' @param parallel TRUE/FALSE Whether to perform the function using parallel processing
+#' @param n_cores Number of cores to use in parallel processing. If no input given,
+#' will use all available cores in the machine.
+#' @param show_progress TRUE/FALSE Show progress bar when creating fmcm. Uses pbmapply
+#' from the pbapply package as the underlying function.
+#'
+#' @returns NULL; Errors if checks fail
+#'
+#' @keywords internal
+#'
+#' @importFrom cli format_error format_warning
+#' @importFrom parallel detectCores
+#'
+#' @export
+#' @examples
+#' NULL
+check_monte_carlo_bootstrap_inputs <- function(ci_centering_function = c("mean", "median"),
+                                               confidence_interval = 0.95,
+                                               num_ci_bootstraps = 1000,
+                                               parallel = TRUE,
+                                               n_cores = integer(),
+                                               show_progress = TRUE) {
+
+  # Check ci_centering_function ----
+  if (identical(ci_centering_function, c("mean", "median"))) {
+    warning(cli::format_warning(c(
+      "!" = "Warning: No {.var ci_centering_function} given",
+      "~~~~~ Assuming {.var ci_centering_function} is 'mean'"
+    )))
+    ci_centering_function <- "mean"
+  }
+  if (!(ci_centering_function %in% c("mean", "median"))) {
+    stop(cli::format_error(c(
+      "x" = "Error: {.var ci_centering_function} must be one of the following: 'mean' or 'median'",
+      "+++++> Input {.var ci_centering_function} was '{ci_centering_function}'"
+    )))
+  }
+  # ----
+
+  # Check confidence_interval ----
+
+  if (!is.numeric(confidence_interval)) {
+    stop(cli::format_error(c(
+      "x" = "Error: {.var confidence_interval} must be a positive value between 0 and 1",
+      "+++++> Input {.var confidence_interval} was '{confidence_interval}'"
+    )))
+  }
+
+  if (confidence_interval < 0 | confidence_interval >= 1) {
+    stop(cli::format_error(c(
+      "x" = "Error: {.var confidence_interval} must be a positive value between 0 and 1",
+      "+++++> Input {.var confidence_interval} was {confidence_interval}"
+    )))
+  }
+  # ----
+
+  # Check num_ci_bootstraps
+  if (!is.numeric(num_ci_bootstraps)) {
+    stop(cli::format_error(c(
+      "x" = "Error: {.var num_ci_bootstraps} must be a positive integer, typically greater than 1000",
+      "+++++> Input {.var num_ci_bootstraps} was '{num_ci_bootstraps}'"
+    )))
+  }
+
+  if (!(num_ci_bootstraps == round(num_ci_bootstraps))) {
+    stop(cli::format_error(c(
+      "x" = "Error: {.var num_ci_bootstraps} must be a positive integer, typically greater than 1000",
+      "+++++> Input {.var num_ci_bootstraps} was {num_ci_bootstraps}"
+    )))
+  }
+  if (num_ci_bootstraps <= 0) {
+    stop(cli::format_error(c(
+      "x" = "Error: {.var num_ci_bootstraps} must be a positive value (typically > 1000)",
+      "+++++> Input {.var num_ci_bootstraps} was {num_ci_bootstraps}"
+    )))
+  }
+  # ----
+
+  # Check Runtime Options ----
+  show_progress <- check_if_local_machine_has_access_to_show_progress_functionalities(parallel, show_progress)
+  parallel <- check_if_local_machine_has_access_to_parallel_processing_functionalities(parallel, show_progress)
+  if (parallel) {
+    if (identical(n_cores, integer())) {
+      warning(cli::format_warning(c(
+        "!" = "Warning: No {.var n_cores} given.",
+        "~~~~~ Assuming {.var n_cores} is {parallel::detectCores() - 1} (i.e. the max available cores minus 1)"
+      )))
+      n_cores <- parallel::detectCores() - 1
+    }
+    if (!is.numeric(n_cores)) {
+      stop(cli::format_error(c(
+        "x" = "Error: {.var n_cores} must be a positive integer",
+        "+++++ Input {.var n_cores} was '{n_cores}'"
+      )))
+    }
+    if (!(n_cores == round(n_cores))) {
+      stop(cli::format_error(c(
+        "x" = "Error: {.var n_cores} must be a positive integer",
+        "+++++ Input {.var n_cores} was {n_cores}"
+      )))
+    }
+    if (n_cores <= 0) {
+      stop(cli::format_error(c(
+        "x" = "Error: {.var n_cores} must be a positive integer",
+        "+++++ Input {.var n_cores} was {n_cores}"
+      )))
+    }
+    if (n_cores > parallel::detectCores()) {
+      stop(cli::format_error(c(
+        "x" = "Error: {.var n_cores} must be a positive integer less than or equal to {parallel::detectCores()} (i.e. the max available cores on your machine)",
+        "+++++ Input {.var n_cores} was {n_cores}"
+      )))
+    }
+  }
+  if (!parallel & !identical(n_cores, integer())) {
+    warning(cli::format_warning(c(
+      "!" = "Warning: {.var n_cores} given but {.var parallel} = FALSE.",
+      "~~~~~ Ignoring {.var n_cores} input."
+    )))
+  }
+  # ----
+
+  list(
+    ci_centering_function = ci_centering_function,
+    parallel = parallel,
+    n_cores = n_cores,
+    show_progress = show_progress
   )
 }
 

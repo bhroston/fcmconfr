@@ -35,6 +35,8 @@
 # })
 
 
+requireNamespace("igraph")
+
 test_that("streamlined fcmconfr works", {
 
   test_adj_matrix_1 <- data.frame(

@@ -17,7 +17,8 @@ check_simulation_inputs(
   parallel = FALSE,
   n_cores = 1L,
   show_progress = FALSE,
-  include_sims_in_output = FALSE
+  include_sims_in_output = FALSE,
+  skip_checks = FALSE
 )
 }
 \arguments{
@@ -58,6 +59,11 @@ from the pbapply package as the underlying function.}
 
 \item{include_sims_in_output}{a \link{logical} (TRUE/FALSE) value; whether to include simulations of monte-carlo-generated
 FCM. Will dramatically increase size of output if TRUE.}
+
+\item{skip_checks}{[\code{logical(1)}]\cr FOR DEVELOPER USE ONLY. If TRUE, skip
+call to \code{\link{check_simulation_inputs}} because this function is called
+within another function that has already called
+\code{\link{check_simulation_inputs}}.}
 }
 \value{
 A formatted initial_state_vector and clamping_vector

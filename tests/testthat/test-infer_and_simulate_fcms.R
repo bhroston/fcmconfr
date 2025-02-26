@@ -4,6 +4,7 @@
 # res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)
 # beepr::beep()
 
+requireNamespace("Matrix")
 
 # All checks pass
 test_that("infer_fcm_set works", {
@@ -13,11 +14,39 @@ test_that("infer_fcm_set works", {
   # res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)
   # beepr::beep()
 
+  # lambda1 <- 1
+  # lambda2 <- lambda1 + 100*.Machine$double.eps
+  # lambda1_test <- infer_fcm_set(adj_matrices = sample_fcms$simple_fcms$conventional_fcms,
+  #                               initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
+  #                               clamping_vector = c(1, 0, 0, 0, 0, 0, 0),
+  #                               activation = "modified-kosko",
+  #                               squashing = "sigmoid",
+  #                               lambda = lambda1,
+  #                               point_of_inference = "final",
+  #                               max_iter = 100,
+  #                               min_error = 1e-5,
+  #                               parallel = FALSE,
+  #                               show_progress = FALSE,
+  #                               silent = FALSE)
+  # lambda2_test <- infer_fcm_set(adj_matrices = sample_fcms$simple_fcms$conventional_fcms,
+  #                               initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
+  #                               clamping_vector = c(1, 0, 0, 0, 0, 0, 0),
+  #                               activation = "modified-kosko",
+  #                               squashing = "sigmoid",
+  #                               lambda = lambda2,
+  #                               point_of_inference = "final",
+  #                               max_iter = 100,
+  #                               min_error = 1e-5,
+  #                               parallel = FALSE,
+  #                               show_progress = FALSE,
+  #                               silent = FALSE)
+
+
   # Confirm no warning messages when silent = TRUE
   test_fcm_set <- sample_fcms$simple_fcms$conventional_fcms
   test_fcm_set <- lapply(test_fcm_set, function(mat) structure(.Data = as.matrix(mat), class = "Different"))
   expect_no_error(
-    sink(file = file("messages_test.Rout"), type = "message"),
+    sink(file = file(nullfile()), type = "message"),
     infer_fcm_set(adj_matrices = test_fcm_set,
                   initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
                   clamping_vector = c(1, 0, 0, 0, 0, 0, 0),
@@ -30,7 +59,7 @@ test_that("infer_fcm_set works", {
                   parallel = FALSE,
                   show_progress = FALSE,
                   silent = TRUE),
-    sink(file = file("messages.Rout"))
+    sink()
   )
 
   # Confirm works if only a single adj matrix given
@@ -147,6 +176,10 @@ test_that("infer_fcm_set works", {
 test_that("infer_fcm works", {
   # See infer_conventional_fcm and infer_ivfn_or_tfn_fcm tests for additional info
   expect_true(TRUE) # Just so this isn't an empty test
+
+  # functions_to_check <- c("infer_fcm")
+  # yaml_list <- autotest::examples_to_yaml(package = ".", functions = functions_to_check)
+  # res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)
 })
 
 
@@ -184,6 +217,10 @@ test_that("infer_conventional_fcm works", {
 
 # All checks pass
 test_that("infer_ivfn_or_tfn_fcm works", {
+  # functions_to_check <- c("infer_ivfn_or_tfn_fcm")
+  # yaml_list <- autotest::examples_to_yaml(package = ".", functions = functions_to_check)
+  # res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)
+
   lower_adj_matrix <- data.frame(
     A = c(0, 0.2, 0.4),
     B = c(0.6, 0, -1),
@@ -332,6 +369,11 @@ test_that("simulate_fcm works", {
 
 # All checks pass
 test_that("simulate_conventional_fcm works", {
+  # functions_to_check <- c("simulate_conventional_fcm")
+  # yaml_list <- autotest::examples_to_yaml(package = ".", functions = functions_to_check)
+  # res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)
+  # beepr::beep()
+
   adj_matrix <- data.frame(
     A = c(0, 1, 1),
     B = c(1, 0, -1),
@@ -385,6 +427,11 @@ test_that("simulate_conventional_fcm works", {
 
 # All checks pass
 test_that("simulate_ivfn_or_tfn_fcm works", {
+  # functions_to_check <- c("simulate_ivfn_or_tfn_fcm works")
+  # yaml_list <- autotest::examples_to_yaml(package = ".", functions = functions_to_check)
+  # res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)
+  # beepr::beep()
+
   lower_adj_matrix <- data.frame(
     A = c(0, 0.2, 0.4),
     B = c(0.6, 0, -1),
@@ -463,8 +510,13 @@ test_that("simulate_ivfn_or_tfn_fcm works", {
 })
 
 
-# All checks pass
+# All checks pass (and autotest returns NULL)
 test_that("get_next_state_vector works", {
+
+  # functions_to_check <- c("get_next_state_vector")
+  # yaml_list <- autotest::examples_to_yaml(package = ".", functions = functions_to_check)
+  # res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)
+  # beepr::beep()
 
   # Tests for Conventional FCMs ----
   adj_matrix <- data.frame(
@@ -624,7 +676,7 @@ test_that("clean_simulation_output works", {
 })
 
 
-# All checks pass
+# All checks pass (and autotest returns NULL)
 test_that("check_simulation_inputs works", {
 
   # functions_to_check <- c("check_simulation_inputs")
@@ -636,6 +688,7 @@ test_that("check_simulation_inputs works", {
   test_initial_state_vector <- rep(1, unique(dim(sample_fcms$simple_fcms$ivfn_fcms[[1]])))
   test_clamping_vector <- rep(0, unique(dim(sample_fcms$simple_fcms$ivfn_fcms[[1]])))
   test_clamping_vector[3] <- 1
+
   # Check for individual adj_matrix ----
   expect_error(
     check_simulation_inputs(adj_matrix = sample_fcms$simple_fcms$conventional_fcms, initial_state_vector = test_initial_state_vector, clamping_vector = test_clamping_vector)
@@ -659,6 +712,19 @@ test_that("check_simulation_inputs works", {
   expect_no_error(
     check_simulation_inputs(adj_matrix = test_adj_matrix, initial_state_vector = test_initial_state_vector, clamping_vector = test_clamping_vector, activation = "kosko", squashing = "tanh", point_of_inference = "final")
   )
+
+  # Confirm no error if class of adj. matrix is unusual
+  test_adj_matrix <- sample_fcms$simple_fcms$conventional_fcms[[1]]
+  class(test_adj_matrix) <- NULL
+  test_adj_matrix <- do.call(cbind, test_adj_matrix)
+  test_adj_matrix <- structure(.Data = test_adj_matrix, class = "Different")
+  expect_no_error(
+    check_simulation_inputs(adj_matrix = test_adj_matrix, initial_state_vector = test_initial_state_vector, clamping_vector = test_clamping_vector, activation = "kosko", squashing = 'sigmoid', point_of_inference = 'final')
+  )
+
+  test_lambda <- 1.00000000000000002
+  lambda_test <- check_simulation_inputs(adj_matrix = test_adj_matrix, initial_state_vector = test_initial_state_vector, clamping_vector = test_clamping_vector, activation = "kosko", squashing = 'sigmoid', lambda = test_lambda, point_of_inference = 'final')
+  expect_equal(lambda_test$lambda, 1)
   # ----
 
   # Check initial_state_vector ----

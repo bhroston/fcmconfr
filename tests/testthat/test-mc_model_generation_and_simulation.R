@@ -9,6 +9,7 @@
 #   build_monte_carlo_fcms_from_fuzzy_adj_matrices(adj_matrix_list, adj_matrix_list_class, N_samples, include_zeroes = FALSE, show_progress)
 # )
 
+requireNamespace("igraph")
 
 test_that("get_mc_simulations_inference_CIs_w_bootstrap", {
   lower_adj_matrix <- data.frame(

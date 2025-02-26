@@ -10,7 +10,7 @@ conventional_fcm_set_inferences <- infer_fcm_set(adj_matrices = sample_fcms$simp
                                                  min_error = 1e-5,
                                                  parallel = FALSE,
                                                  show_progress = FALSE,
-                                                 silent = TRUE)
+                                                 silent = FALSE)
 
 ivfn_fcm_set_inferences <- infer_fcm_set(adj_matrices = sample_fcms$simple_fcms$ivfn_fcms,
                                          initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
@@ -23,7 +23,7 @@ ivfn_fcm_set_inferences <- infer_fcm_set(adj_matrices = sample_fcms$simple_fcms$
                                          min_error = 1e-5,
                                          parallel = FALSE,
                                          show_progress = FALSE,
-                                         silent = TRUE)
+                                         silent = FALSE)
 
 tfn_fcm_set_inferences <- infer_fcm_set(adj_matrices = sample_fcms$simple_fcms$tfn_fcms,
                                         initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
@@ -36,4 +36,4 @@ tfn_fcm_set_inferences <- infer_fcm_set(adj_matrices = sample_fcms$simple_fcms$t
                                         min_error = 1e-5,
                                         parallel = FALSE,
                                         show_progress = FALSE,
-                                        silent = TRUE)
+                                        silent = FALSE)

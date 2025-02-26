@@ -44,6 +44,8 @@ fcm_view <- function(fcm_adj_matrix = matrix(),
                      shiny = FALSE,
                      ...) {
 
+  requireNamespace(c("shiny", "shinyWidgets", "bslib", "igraph", "visNetwork"))
+
   # Checks ----
   if (identical(fcm_adj_matrix, matrix())) {
     fcm_adj_matrix_is_dummy <- TRUE

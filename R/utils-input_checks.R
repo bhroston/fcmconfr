@@ -234,6 +234,8 @@ check_adj_matrix_list <- function(x = list()) {
 check_square_adj_matrix = function(x = matrix()) {
   produced_warning <- FALSE
 
+  requireNamespace("Matrix")
+
   if (methods::is(x)[1] == "list" & length(x) > 1) {
     return(stop(cli::format_error(c(
       "x" = "Error: Adj. Matrix must be an individual adjacency matrix",
@@ -329,7 +331,7 @@ check_numeric_vector = function(x, var_name = "") {
     })
   }
 
-  res <- checkmate::check_numeric(x)
+  res <- checkmate::check_numeric(x, any.missing = FALSE)
   if (!isTRUE(res)) {
     stop(cli::format_error(c(
       "x" = "Error: {var_name} must be a numeric vector",
@@ -693,6 +695,46 @@ assert_var_name <- function(var_name_input = "") {
 
 
 
+#' Assert adj_matrix
+#'
+#' @description
+#' This function forces adjacency matrices for convention FCMs to be returned
+#' as data.frame objects
+#'
+#' @details
+#' INTENDED FOR DEVELOPER USE ONLY
+#'
+#' @param adj_matrix A single adjacency matrix or a list of
+#' adjacency matrices (n x n) representing FCMs. Matrices can have conventional
+#' edge weights, IVFN edge weights or TFN edge weights.
+#' @param fcm_class The class of the FCM represented by the adjacency matrix. Must
+#' be one of the following: 'conventional', 'ivfn', or 'tfn'
+#' @param var_name_input a character object for the name of the input variable
+#' to be displayed in the error message
+#'
+#' @returns the var_name input if acceptable, error messages if not
+#'
+#' @keywords internal
+#' @noRd
+#'
+#' @examples
+#' assert_adj_matrix(sample_fcms$simple_fcms$conventional_fcms[[1]])
+assert_matrix <- function(adj_matrix = list(),
+                          fcm_class = c("conventional", "ivfn", "tfn"),
+                          var_name_input = "") {
+  if (fcm_class == "conventional" && !is.null(dim(adj_matrix))) {
+    adj_matrix <- data.frame(apply(adj_matrix, c(1, 2), function(element) element))
+  } else if (fcm_class == "conventional" && is.null(dim(adj_matrix))) {
+    class(adj_matrix) <- NULL
+    adj_matrix <- data.frame(do.call(cbind, adj_matrix))
+  }
+
+  return(adj_matrix)
+}
+
+
+
+
 #' Check if the local machine can access internal parallel processing and progress display functionalities
 #'
 #' @family utility
@@ -741,7 +783,6 @@ check_access_to_parallel_processing_and_progress_display_functionalities <- func
   local_machine_has_access_to_parallel <- requireNamespace("parallel")
   local_machine_has_access_to_doSNOW <- requireNamespace("doSNOW")
   local_machine_has_access_to_foreach <- requireNamespace("foreach")
-
   local_machine_has_access_to_pbapply <- requireNamespace("pbapply")
 
   can_run_in_parallel_and_can_show_progress <- (local_machine_has_access_to_parallel && local_machine_has_access_to_doSNOW && local_machine_has_access_to_foreach)

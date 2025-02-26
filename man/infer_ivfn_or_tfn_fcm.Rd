@@ -92,13 +92,13 @@ upper_adj_matrix <- data.frame(
 )
 adj_matrix <- make_adj_matrix_w_ivfns(lower_adj_matrix, upper_adj_matrix)
 
-infer_fcm(adj_matrix,
-          initial_state_vector = c(1, 1, 1, 1, 1, 1),
-          clamping_vector = c(1, 0, 0, 0, 0, 0),
-          activation = "kosko",
-          squashing = "sigmoid",
-          lambda = 1,
-          point_of_inference = "final")
+ivfn_inference <- infer_ivfn_or_tfn_fcm(adj_matrix,
+                                        initial_state_vector = c(1, 1, 1, 1, 1, 1),
+                                        clamping_vector = c(1, 0, 0, 0, 0, 0),
+                                        activation = "kosko",
+                                        squashing = "sigmoid",
+                                        lambda = 1,
+                                        point_of_inference = "final")
 
 
 # Inference w/ Triangular Fuzzy Numbers (TFNs)
@@ -130,11 +130,11 @@ adj_matrix <- make_adj_matrix_w_tfns(
   lower_adj_matrix, mode_adj_matrix, upper_adj_matrix
 )
 
-infer_fcm(adj_matrix,
-          initial_state_vector = c(1, 1, 1, 1, 1, 1),
-          clamping_vector = c(1, 0, 0, 0, 0, 0),
-          activation = "kosko",
-          squashing = "sigmoid",
-          lambda = 1,
-          point_of_inference = "final")
+tfn_inference <- infer_ivfn_or_tfn_fcm(adj_matrix,
+                                       initial_state_vector = c(1, 1, 1, 1, 1, 1),
+                                       clamping_vector = c(1, 0, 0, 0, 0, 0),
+                                       activation = "kosko",
+                                       squashing = "sigmoid",
+                                       lambda = 1,
+                                       point_of_inference = "final")
 }

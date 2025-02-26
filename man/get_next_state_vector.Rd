@@ -20,6 +20,9 @@ get_next_state_vector(
 \item{activation}{The activation function to be applied. Must be one of the following:
 'kosko', 'modified-kosko', or 'rescale'.}
 
+\item{fcm_class}{The class of the FCM represented by the adjacency matrix. Must
+be one of the following: 'conventional', 'ivfn', or 'tfn'}
+
 \item{skip_checks}{FOR DEVELOPER USE ONLY. TRUE if function is called within
 another function and checks have already been performed}
 }
@@ -50,6 +53,20 @@ Use vignette("fcm-class") for more information.
 }
 \examples{
 
+get_next_state_vector(sample_fcms$simple_fcms$conventional_fcms[[1]],
+                      state_vector = c(1, 1, 1, 1, 1, 1, 1),
+                      activation = "modified-kosko",
+                      fcm_class = "conventional")
+
+get_next_state_vector(sample_fcms$simple_fcms$ivfn_fcms[[1]],
+                      state_vector = c(1, 1, 1, 1, 1, 1, 1),
+                      activation = "modified-kosko",
+                      fcm_class = "ivfn")
+
+get_next_state_vector(sample_fcms$simple_fcms$tfn_fcms[[1]],
+                      state_vector = c(1, 1, 1, 1, 1, 1, 1),
+                      activation = "modified-kosko",
+                      fcm_class = "tfn")
 }
 \references{
 Kosko, 1986

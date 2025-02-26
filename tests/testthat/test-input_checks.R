@@ -12,6 +12,9 @@
 #
 ################################################################################
 
+requireNamespace("data.table")
+requireNamespace("Matrix")
+
 
 test_that("check_fcmconfr_input works", {
   test_mat <- sample_fcms$simple_fcms$conventional_fcms[[1]]

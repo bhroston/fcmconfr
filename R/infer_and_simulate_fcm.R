@@ -34,51 +34,68 @@
 #' @family infer_and_simulate_fcm
 #'
 #' @description
-#' This function mass simulates a set of FCMs (Conventional, IVFN, and/or TFN)
+#' This function simulates a set of FCMs (Conventional, IVFN, and/or TFN)
 #' (whose edge weights were sampled using monte carlo methods) by repetitively
-#' calling the infer_fcm function for each empirical (monte carlo) adj. matrix.
+#' calling the infer_fcm function for each adj. matrix in the set.
 #'
 #' @details
-#' The show_progress and parallel inputs change the functions called, but do NOT
-#' change the output! These are allowed to be toggled on/off to increase user
-#' control at runtime.
+#' The show_progress and parallel inputs change how the function is run, but do
+#'  NOT change the output! These are allowed to be toggled on/off to increase
+#'  user control at runtime.
 #'
-#' @param adj_matrices a [list] of adjecency matrices
-#' @param initial_state_vector a [numeric vector] of state values at the start
-#' of an FCM simulation
-#' @param clamping_vector a [numeric vector] of values representing specific actions taken to
-#' control the behavior of an FCM. Specifically, non-zero values defined in this vector
-#' will remain constant throughout the entire simulation as if they were "clamped" at those values.
-#' @param activation a [character] string; the activation function to be applied. Must be one of the following:
-#' 'kosko', 'modified-kosko', or 'rescale'.
-#' @param squashing a [character] string; the squashing function to apply. Must be one of the following:
-#' 'tanh', or 'sigmoid'.
-#' @param lambda a positive [numeric] (number [> 0]); Defines the steepness of the slope of the
-#' squashing function when tanh or sigmoid are applied
-#' @param point_of_inference a [character] string; The point along the simulation time-series to be
-#' identified as the inference. Must be one of the following: 'peak' or 'final'
-#' @param max_iter a positive [integer] (integer [> 0]); The maximum number of iterations to run if the minimum error value is not achieved
-#' @param min_error a positive[numeric] (number [> 0]); The lowest error (sum of the absolute value of the current state
-#' vector minus the previous state vector) at which no more iterations are necessary
-#' and the simulation will stop
-#' @param parallel a [logical] (TRUE/FALSE) value; Whether to utilize parallel processing
-#' @param show_progress a [logical] (TRUE/FALSE) value; Show progress bar when creating fmcm. Uses pbmapply
-#' from the pbapply package as the underlying function.
-#' @param n_cores a positive [integer] (integer [> 0]); Number of cores to use in parallel processing. If no input given,
-#' will use all available cores in the machine.
-#' @param include_sims_in_output a [logical] (TRUE/FALSE) value; whether to include simulations of monte-carlo-generated
-#' FCM. Will dramatically increase size of output if TRUE.
-#' #' @param silent a [logical] (TRUE/FALSE) value; whether to suppress warning
-#' and error messages (TRUE) or not (FALSE)
-#' @param skip_checks a [logical] (TRUE/FALSE) value; FOR DEVELOPER USE ONLY. TRUE if function is called within
-#' another function and checks have already been performed
+#' @param adj_matrices \[`list()`]\cr A single adjacency matrix or a list of
+#' adjacency matrices (n x n) representing FCMs. Matrices can have conventional
+#' edge weights, IVFN edge weights or TFN edge weights.
+#' @param initial_state_vector \[`vector("numeric")`]\cr A list of state values
+#' (one per node) at the start of an FCM simulation. In pulse simulations the
+#' \code{initial_state_vector}  controls the scenario (i.e., a non-zero value
+#' is a transient perturbation). In clamped simulations all values in the
+#' \code{initial_state_vector} are set to 1.
+#' @param clamping_vector \[`vector("numeric")`]\cr A list of values (one per node)
+#' that indicates whether clamped simulations will be performed. In clamped
+#' simulations the \code{clamping_vector} controls the scenario (nodes assigned
+#'  non-zero values will remain at those values for the entire simulation).
+#'  In pulse simulations all values in the \code{clamping_vector} are set to 0.
+#' @param activation \[`character()`]\cr The activation function used. Must be
+#'  one of the following: kosko', 'modified-kosko', or 'rescale'.
+#' @param squashing \[`character()`]\cr string; The squashing function used. Must be
+#' one of the following: tanh', or 'sigmoid'.
+#' @param lambda \[`numeric(1)`]\cr A numeric value
+#' that defines the steepness of the squashing function. Should be a positive
+#' number.
+#' @param point_of_inference \[`character()`]\cr Definition of an inference.
+#' The metric used to calculate  the response of each node to a scenario of
+#' interest from simulation timeseries. Must be one of the following: 'peak'
+#' (the maximum value) or 'final' (the state at equilibrium).
+#' @param max_iter \[`integer(1)`]\cr The maximum
+#' number of iterations to run (increase if the minimum error value is not
+#' achieved). Should be a positive integer.
+#' @param min_error \['numeric(1)`]\cr The error past
+#' which a simulation has converged and no further iterations are necessary.
+#' \emph{Error equals the sum of the absolute value of the current state vector
+#' minus the previous state vector}. Should be a positive number.
+#' @param parallel \[`logical(1)`]\cr Whether to utilize parallel
+#' processing (TRUE) or not (FALSE).
+#' @param n_cores \[`integer(1)`]\cr The number of
+#' cores to use in parallel processing. If no input given, all available cores
+#' will be used. Should be a positive integer.
+#' @param show_progress \[`logical(1)`]\cr Whether to show progress
+#' bars and print runtime updates in the console when running FCM simulations
+#' (TRUE) or not (FALSE)
+#' @param include_sims_in_output \[`logical(1)`]\cr If TRUE, include Monte Carlo
+#' FCMs in addition to Monte Carlo simulations (and inferences) in fcmconfr
+#' output. Switch to FALSE to reduce output size.
+#' @param silent \[`logical(1)`]\cr If TRUE, suppress warning
+#' and error messages.
+#' @param skip_checks \[`logical(1)`]\cr FOR DEVELOPER USE ONLY. If TRUE, skip
+#' call to \code{\link{check_simulation_inputs}} because this function is called
+#' within another function that has already called
+#' \code{\link{check_simulation_inputs}}.
 #'
-#' @returns a [data.frame] of the inferences for each FCM in the set
+#' @returns an [inference_of_fcm_set] object which is a data.frame of the inferences for each FCM in the set
 #'
 #' @importFrom cli format_error
-#' @importFrom parallel makeCluster clusterExport stopCluster parLapply
 #' @importFrom rlang search_envs
-#' @importFrom pbapply pblapply
 #'
 #' @export
 #' @example man/examples/ex-infer_fcm_set.R
@@ -87,9 +104,9 @@ infer_fcm_set <- function(adj_matrices = list(matrix()),
                           clamping_vector = c(),
                           activation = c("kosko", "modified-kosko", "rescale"),
                           squashing = c("sigmoid", "tanh"),
-                          lambda = 1,
+                          lambda = 1.,
                           point_of_inference = c("peak", "final"),
-                          max_iter = 100,
+                          max_iter = 100L,
                           min_error = 1e-5,
                           parallel = TRUE,
                           n_cores = 1L,
@@ -104,9 +121,9 @@ infer_fcm_set <- function(adj_matrices = list(matrix()),
   # Check inputs ----
   check_fcmconfr_input(silent, check = "logical", var_name = "silent")
   silent <- as.logical(silent)
-  if (silent) {
-    sink(file = file("messages.Rout", open = "wt"), type = "message")
-  }
+  # if (silent) {
+  #   sink(file = file(nullfile(), open = "wt"), type = "message")
+  # }
 
   check_fcmconfr_input(skip_checks, check = "logical", var_name = "skip_checks")
   skip_checks <- as.logical(skip_checks)
@@ -123,16 +140,33 @@ infer_fcm_set <- function(adj_matrices = list(matrix()),
     clamping_vector <- checks$clamping_vector
     activation <- checks$activation
     squashing <- checks$squashing
+    lambda <- checks$lambda
     point_of_inference <- checks$point_of_inference
     parallel <- checks$parallel
     n_cores <- checks$n_cores
     show_progress <- checks$show_progress
     include_sims_in_output <- checks$include_sims_in_output
   } else {
-    fcm_class <- get_fcm_class_from_adj_matrix(adj_matrix)
+    fcm_class <- get_fcm_class_from_adj_matrix(adj_matrices[[1]])
+    lambda <- as.numeric(lambda)
     activation <- tolower(activation)
     squashing <- tolower(squashing)
     point_of_inference <- tolower(point_of_inference)
+    parallel <- as.logical(parallel)
+    n_cores <- as.integer(n_cores)
+    show_progress <- as.logical(show_progress)
+    include_sims_in_output <- as.logical(include_sims_in_output)
+  }
+
+  if (parallel && testthat::is_testing()) {
+    suppressMessages(requireNamespace("parallel"))
+  } else if (parallel && !testthat::is_testing()) {
+    requireNamespace("parallel")
+  }
+  if (show_progress && testthat::is_testing()) {
+    suppressMessages(requireNamespace("pbapply"))
+  }  else if(show_progress && !testthat::is_testing()) {
+    requireNamespace("pbapply")
   }
   # ----
 
@@ -251,9 +285,9 @@ infer_fcm_set <- function(adj_matrices = list(matrix()),
   inference_values_by_sim <- do.call(rbind, inference_values_by_sim)
   rownames(inference_values_by_sim) <- seq_along(rownames(inference_values_by_sim))
 
-  if (silent) {
-    sink()
-  }
+  # if (silent) {
+  #   sink()
+  # }
 
   if (include_sims_in_output) {
     structure(
@@ -777,27 +811,41 @@ simulate_fcm <- function(adj_matrix = matrix(),
 #'  - squashing = either "sigmoid" or "tanh"
 #'  - lambda = 1
 #'
-#' @param adj_matrix An n x n adjacency matrix that represents an FCM
-#' @param initial_state_vector A list state values at the start of an fcm simulation
-#' @param clamping_vector A list of values representing specific actions taken to
-#' control the behavior of an FCM. Specifically, non-zero values defined in this vector
-#' will remain constant throughout the entire simulation as if they were "clamped" at those values.
-#' @param activation The activation function to be applied. Must be one of the following:
-#' 'kosko', 'modified-kosko', or 'rescale'.
-#' @param squashing A squashing function to apply. Must be one of the following:
-#' 'tanh', or 'sigmoid'.
-#' @param lambda A numeric value that defines the steepness of the slope of the
-#' squashing function when tanh or sigmoid are applied
-#' @param point_of_inference The point along the simulation time-series to be
-#' identified as the inference. Must be one of the following: 'peak' or 'final'
-#' @param max_iter The maximum number of iterations to run if the minimum error value is not achieved
-#' @param min_error The lowest error (sum of the absolute value of the current state
-#' vector minus the previous state vector) at which no more iterations are necessary
-#' and the simulation will stop
-#' @param skip_checks FOR DEVELOPER USE ONLY. TRUE if function is called within
-#' another function and checks have already been performed
+#' @param adj_matrix \['list()`]\cr or data.frame-like object. An n x n adjacency matrix that represents an FCM
+#' @param initial_state_vector \[`vector("numeric")`]\cr A list of state values
+#' (one per node) at the start of an FCM simulation. In pulse simulations the
+#' \code{initial_state_vector}  controls the scenario (i.e., a non-zero value
+#' is a transient perturbation). In clamped simulations all values in the
+#' \code{initial_state_vector} are set to 1.
+#' @param clamping_vector \[`vector("numeric")`]\cr A list of values (one per node)
+#' that indicates whether clamped simulations will be performed. In clamped
+#' simulations the \code{clamping_vector} controls the scenario (nodes assigned
+#'  non-zero values will remain at those values for the entire simulation).
+#'  In pulse simulations all values in the \code{clamping_vector} are set to 0.
+#' @param activation \[`character()`]\cr The activation function used. Must be
+#'  one of the following: kosko', 'modified-kosko', or 'rescale'.
+#' @param squashing \[`character()`]\cr string; The squashing function used. Must be
+#' one of the following: tanh', or 'sigmoid'.
+#' @param lambda \[`numeric()`]\cr A numeric value
+#' that defines the steepness of the squashing function. Should be a positive
+#' number.
+#' @param point_of_inference \[`character()`]\cr Definition of an inference.
+#' The metric used to calculate  the response of each node to a scenario of
+#' interest from simulation timeseries. Must be one of the following: 'peak'
+#' (the maximum value) or 'final' (the state at equilibrium).
+#' @param max_iter \[`integer(1)`]\cr The maximum
+#' number of iterations to run (increase if the minimum error value is not
+#' achieved). Should be a positive integer.
+#' @param min_error \['numeric(1)`]\cr The error past
+#' which a simulation has converged and no further iterations are necessary.
+#' \emph{Error equals the sum of the absolute value of the current state vector
+#' minus the previous state vector}. Should be a positive number.
+#' @param skip_checks \[`logical(1)`]\cr FOR DEVELOPER USE ONLY. If TRUE, skip
+#' call to \code{\link{check_simulation_inputs}} because this function is called
+#' within another function that has already called
+#' \code{\link{check_simulation_inputs}}.
 #'
-#' @returns (Conventional) FCM simulation results
+#' @returns an \[`fcm_simulation`]\cr object
 #'
 #' @importFrom stats na.omit
 #' @importFrom cli format_error format_warning
@@ -815,23 +863,21 @@ simulate_conventional_fcm <- function(adj_matrix = matrix(),
                                       min_error = 1e-5,
                                       skip_checks = FALSE) {
 
-
   # Check inputs ----
   check_fcmconfr_input(skip_checks, check = "logical", var_name = "skip_checks")
   skip_checks <- as.logical(skip_checks)
 
-  if (!skip_checks) {
-    checks <- check_simulation_inputs(adj_matrix, initial_state_vector, clamping_vector, activation, squashing, lambda, point_of_inference, max_iter, min_error)
-    fcm_class <- checks$fcm_class
-    adj_matrix <- checks$adj_matrix
-    initial_state_vector <- checks$initial_state_vector
-    clamping_vector <- checks$clamping_vector
-    activation <- checks$activation
-    squashing <- checks$squashing
-    point_of_inference <- checks$point_of_inference
-  } else {
-    fcm_class <- get_fcm_class_from_adj_matrix(adj_matrix)
-  }
+  checks <- check_simulation_inputs(adj_matrix, initial_state_vector, clamping_vector, activation, squashing, lambda, point_of_inference, max_iter, min_error, skip_checks)
+  fcm_class <- checks$fcm_class
+  adj_matrix <- checks$adj_matrix
+  initial_state_vector <- checks$initial_state_vector
+  clamping_vector <- checks$clamping_vector
+  activation <- checks$activation
+  squashing <- checks$squashing
+  lambda <- checks$lambda
+  point_of_inference <- checks$point_of_inference
+  max_iter <- checks$max_iter
+  min_error <- checks$min_error
   # ----
 
   if (!identical(fcm_class, "conventional")) {
@@ -1180,6 +1226,10 @@ squash <- function(value = numeric(),
     value <- as.numeric(value)
     check_fcmconfr_input(squashing, check = "choice_selection", choice_selection_opts = c("sigmoid", "tanh"), var_name = "squashing")
     check_fcmconfr_input(lambda, check = "positive_number", var_name = "lambda", zero_is_positive = FALSE)
+  } else {
+    value <- as.numeric(value)
+    squashing <- tolower(as.character(squashing))
+    lambda <- as.numeric(lambda)
   }
   # ----
 
@@ -1229,6 +1279,8 @@ squash <- function(value = numeric(),
 #' @param state_vector A list state values at a particular iteration in an fcm simulation
 #' @param activation The activation function to be applied. Must be one of the following:
 #' 'kosko', 'modified-kosko', or 'rescale'.
+#' @param fcm_class The class of the FCM represented by the adjacency matrix. Must
+#' be one of the following: 'conventional', 'ivfn', or 'tfn'
 #' @param skip_checks FOR DEVELOPER USE ONLY. TRUE if function is called within
 #' another function and checks have already been performed
 #'
@@ -1252,6 +1304,10 @@ get_next_state_vector <- function(adj_matrix = matrix(),
     check_fcmconfr_input(activation, check = "choice_selection", choice_selection_opts = c("kosko", "modified-kosko", "rescale"), var_name = "activation")
     check_fcmconfr_input(fcm_class, check = "choice_selection", choice_selection_opts = c("conventional", "ivfn", "tfn"), var_name = "fcm_class")
   }
+
+  adj_matrix <- assert_matrix(adj_matrix, fcm_class = fcm_class, var_name_input = "adj_matrix")
+  activation <- as.character(tolower(activation))
+  fcm_class <- as.character(tolower(fcm_class))
   # ----
 
   if (fcm_class == "conventional") {
@@ -1552,6 +1608,10 @@ clean_simulation_output <- function(output_obj, concepts) {
 #' will use all available cores in the machine.
 #' @param include_sims_in_output a [logical] (TRUE/FALSE) value; whether to include simulations of monte-carlo-generated
 #' FCM. Will dramatically increase size of output if TRUE.
+#' @param skip_checks \[`logical(1)`]\cr FOR DEVELOPER USE ONLY. If TRUE, skip
+#' call to \code{\link{check_simulation_inputs}} because this function is called
+#' within another function that has already called
+#' \code{\link{check_simulation_inputs}}.
 #'
 #' @returns A formatted initial_state_vector and clamping_vector
 #'
@@ -1573,14 +1633,35 @@ check_simulation_inputs <- function(adj_matrix = matrix(),
                                     parallel = FALSE,
                                     n_cores = 1L,
                                     show_progress = FALSE,
-                                    include_sims_in_output = FALSE) {
+                                    include_sims_in_output = FALSE,
+                                    skip_checks = FALSE) {
 
   # Have to check adj_matrix input before continuing with other checks
-  adj_matrix_check <- check_fcmconfr_input(adj_matrix, check = "square_adj_matrix", var_name = "adj_matrix")
-  class(adj_matrix) <- NULL
-  adj_matrix <- data.frame(adj_matrix)
+  check_fcmconfr_input(skip_checks, check = "logical", var_name = "skip_checks")
+  skip_checks <- as.logical(skip_checks)
 
+  adj_matrix_check <- check_fcmconfr_input(adj_matrix, check = "square_adj_matrix", var_name = "adj_matrix")
   fcm_class <- get_fcm_class_from_adj_matrix(adj_matrix)
+  adj_matrix <- assert_matrix(adj_matrix, fcm_class = fcm_class, var_name_input = "adj_matrix")
+
+  if (skip_checks) {
+    return(list(
+      fcm_class = fcm_class,
+      adj_matrix = adj_matrix,
+      initial_state_vector = initial_state_vector,
+      clamping_vector = clamping_vector,
+      activation = tolower(as.character(activation)),
+      squashing = tolower(as.character(squashing)),
+      lambda = as.numeric(round(lambda, abs(log(.Machine$double.eps)))),
+      point_of_inference = tolower(as.character(point_of_inference)),
+      max_iter = as.integer(max_iter),
+      min_error = as.numeric(round(min_error, abs(log(.Machine$double.eps)))),
+      parallel = as.logical(parallel),
+      n_cores = as.integer(n_cores),
+      show_progress = as.logical(show_progress),
+      include_sims_in_output = as.logical(include_sims_in_output)
+    ))
+  }
 
   n_nodes <- unique(dim(adj_matrix))
 
@@ -1728,22 +1809,22 @@ check_simulation_inputs <- function(adj_matrix = matrix(),
     )))
   }
 
-  list(
+  return(list(
     fcm_class = fcm_class,
     adj_matrix = adj_matrix,
     initial_state_vector = initial_state_vector,
     clamping_vector = clamping_vector,
-    activation = activation,
-    squashing = squashing,
-    lambda = as.numeric(lambda),
-    point_of_inference = point_of_inference,
+    activation = tolower(as.character(activation)),
+    squashing = tolower(as.character(squashing)),
+    lambda =  as.numeric(round(lambda, abs(log(.Machine$double.eps)))),
+    point_of_inference = tolower(as.character(point_of_inference)),
     max_iter = as.integer(max_iter),
-    min_error = as.numeric(min_error),
+    min_error = as.numeric(round(min_error, abs(log(.Machine$double.eps)))),
     parallel = as.logical(parallel),
     n_cores = as.integer(n_cores),
     show_progress = as.logical(show_progress),
     include_sims_in_output = as.logical(include_sims_in_output)
-  )
+  ))
 }
 
 
