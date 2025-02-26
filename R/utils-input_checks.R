@@ -171,10 +171,16 @@ check_fcmconfr_input <- function(x,
 check_adj_matrix_list <- function(x = list()) {
 
   if (!identical(methods::is(x)[1], "list")) {
-    stop(cli::format_error(c(
-      "x" = "Error: The adj. matrix list must be a 'list' type object of multiple adjacency matrices.",
-      "+++++> Input was of type: {methods::is(x)[1]}"
-    )))
+    tryCatch({
+      check_square_adj_matrix(x)
+      return(TRUE)
+    }, error = function(e) {
+      stop(cli::format_error(c(
+        "x" = "Error: The adj. matrix list must be a 'list' type object of multiple adjacency matrices.",
+        "+++++> If input is a single adjacency matrix, it must be a square data.frame-like object.",
+        "+++++> Input was of type: {methods::is(x)[1]}"
+      )))
+    })
   }
 
   for (i in seq_along(x)) {
@@ -516,13 +522,14 @@ check_positive_number <- function(x = numeric(), var_name = "", zero_is_positive
       "+++++++> Input {var_name} vector had class: {class_of_x[1]}"
     )))
   }
-  if (x == 0 && !zero_is_positive) {
+  if (identical(as.numeric(x), numeric())) {
+    return(TRUE) # For empty input
+  } else if (x == 0 && !zero_is_positive) {
     stop(cli::format_error(c(
       "x" = "Error: {var_name} must be a positive value",
       "+++++++> Input {.var zero_is_positive} was FALSE, so 0 is not accepted as a positive value here"
     )))
-  }
-  if (x < 0) {
+  } else if (x < 0) {
     stop(cli::format_error(c(
       "x" = "Error: {var_name} must be a positive value",
       "+++++++> Input {var_name} was: {x}"
@@ -579,19 +586,20 @@ check_positive_integer <- function(x = 1L, var_name = "", zero_is_positive = FAL
       "+++++++> Input {var_name} vector had class: {class_of_x[1]}"
     )))
   }
-  if (x == 0 && !zero_is_positive) {
+  if (identical(x, 0) && !zero_is_positive) {
     stop(cli::format_error(c(
       "x" = "Error: {var_name} must be a positive value",
       "+++++++> Input {.var zero_is_positive} was FALSE, so 0 is not accepted as a positive value here"
     )))
   }
-  if (x < 0) {
+  if (identical(as.integer(x), integer())) {
+    return(TRUE) # If empty input
+  } else if (x < 0) {
     stop(cli::format_error(c(
       "x" = "Error: {var_name} must be a positive value",
       "+++++++> Input {var_name} was: {x}"
     )))
-  }
-  if (abs(as.integer(x) - x) > 1e-10) {
+  } else if (abs(as.integer(x) - x) > 1e-10) {
     stop(cli::format_error(c(
       "x" = "Error: {var_name} must be a positive integer value",
       "+++++++> Input {var_name} was: {x}"

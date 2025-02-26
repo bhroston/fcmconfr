@@ -64,6 +64,14 @@ test_that("check_adj_matrix_list works", {
   test_adj_mat_list <- c(test_adj_mat_list, sample_fcms$simple_fcms$conventional_fcms)
   expect_error(check_adj_matrix_list(test_adj_mat_list))
 
+  # Confirm true if only 1 adj. matrix given
+  test_adj_mat_list <- sample_fcms$simple_fcms$conventional_fcms[[1]]
+  expect_true(check_adj_matrix_list(test_adj_mat_list))
+
+  # Confirm true if only 1 adj. matrix given
+  test_adj_mat_list <- list(sample_fcms$simple_fcms$conventional_fcms[[1]])
+  expect_true(check_adj_matrix_list(test_adj_mat_list))
+
   expect_true(check_adj_matrix_list(sample_fcms$simple_fcms$conventional_fcms))
 
   expect_true(check_adj_matrix_list(sample_fcms$simple_fcms$ivfn_fcms))

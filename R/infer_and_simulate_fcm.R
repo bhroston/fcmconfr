@@ -43,37 +43,37 @@
 #' change the output! These are allowed to be toggled on/off to increase user
 #' control at runtime.
 #'
-#' @param adj_matrices A list of adjecency matrices generated from simulation using build_fmcm_models.
-#' @param initial_state_vector A list state values at the start of an fcm simulation
-#' @param clamping_vector A list of values representing specific actions taken to
+#' @param adj_matrices a [list] of adjecency matrices
+#' @param initial_state_vector a [numeric vector] of state values at the start
+#' of an FCM simulation
+#' @param clamping_vector a [numeric vector] of values representing specific actions taken to
 #' control the behavior of an FCM. Specifically, non-zero values defined in this vector
 #' will remain constant throughout the entire simulation as if they were "clamped" at those values.
-#' @param activation The activation function to be applied. Must be one of the following:
+#' @param activation a [character] string; the activation function to be applied. Must be one of the following:
 #' 'kosko', 'modified-kosko', or 'rescale'.
-#' @param squashing A squashing function to apply. Must be one of the following:
+#' @param squashing a [character] string; the squashing function to apply. Must be one of the following:
 #' 'tanh', or 'sigmoid'.
-#' @param lambda A numeric value that defines the steepness of the slope of the
+#' @param lambda a positive [numeric] (number [> 0]); Defines the steepness of the slope of the
 #' squashing function when tanh or sigmoid are applied
-#' @param point_of_inference The point along the simulation time-series to be
+#' @param point_of_inference a [character] string; The point along the simulation time-series to be
 #' identified as the inference. Must be one of the following: 'peak' or 'final'
-#' @param max_iter The maximum number of iterations to run if the minimum error value is not achieved
-#' @param min_error The lowest error (sum of the absolute value of the current state
+#' @param max_iter a positive [integer] (integer [> 0]); The maximum number of iterations to run if the minimum error value is not achieved
+#' @param min_error a positive[numeric] (number [> 0]); The lowest error (sum of the absolute value of the current state
 #' vector minus the previous state vector) at which no more iterations are necessary
 #' and the simulation will stop
-#' @param parallel TRUE/FALSE Whether to utilize parallel processing
-#' @param show_progress TRUE/FALSE Show progress bar when creating fmcm. Uses pbmapply
+#' @param parallel a [logical] (TRUE/FALSE) value; Whether to utilize parallel processing
+#' @param show_progress a [logical] (TRUE/FALSE) value; Show progress bar when creating fmcm. Uses pbmapply
 #' from the pbapply package as the underlying function.
-#' @param n_cores Number of cores to use in parallel processing. If no input given,
+#' @param n_cores a positive [integer] (integer [> 0]); Number of cores to use in parallel processing. If no input given,
 #' will use all available cores in the machine.
-#' @param include_sims_in_output TRUE/FALSE whether to include simulations of monte-carlo-generated
+#' @param include_sims_in_output a [logical] (TRUE/FALSE) value; whether to include simulations of monte-carlo-generated
 #' FCM. Will dramatically increase size of output if TRUE.
-#' @param skip_checks FOR DEVELOPER USE ONLY. TRUE if function is called within
+#' #' @param silent a [logical] (TRUE/FALSE) value; whether to suppress warning
+#' and error messages (TRUE) or not (FALSE)
+#' @param skip_checks a [logical] (TRUE/FALSE) value; FOR DEVELOPER USE ONLY. TRUE if function is called within
 #' another function and checks have already been performed
 #'
-#' @returns A list of two [data.frames]. The first contains all inference
-#' estimates across the empirical (monte carlo) FCM inferences, and the second
-#' is an elongated version of the first dataframe that organizes the data for
-#' plotting (particularly with ggplot2)
+#' @returns a [data.frame] of the inferences for each FCM in the set
 #'
 #' @importFrom cli format_error
 #' @importFrom parallel makeCluster clusterExport stopCluster parLapply
@@ -92,26 +92,33 @@ infer_fcm_set <- function(adj_matrices = list(matrix()),
                           max_iter = 100,
                           min_error = 1e-5,
                           parallel = TRUE,
-                          n_cores = integer(),
+                          n_cores = 1L,
                           show_progress = TRUE,
                           include_sims_in_output = FALSE,
+                          silent = FALSE,
                           skip_checks = FALSE) {
 
   # Adding for R CMD check. Does not impact logic.
   i <- NULL
 
   # Check inputs ----
+  check_fcmconfr_input(silent, check = "logical", var_name = "silent")
+  silent <- as.logical(silent)
+  if (silent) {
+    sink(file = file("messages.Rout", open = "wt"), type = "message")
+  }
+
   check_fcmconfr_input(skip_checks, check = "logical", var_name = "skip_checks")
   skip_checks <- as.logical(skip_checks)
 
-  check_fcmconfr_input(adj_matrices, check = "adj_matrix_list")
-  # adj_matrices <- lapply(adj_matrices, function(mat) mat)
-  # Figure out how to make adj_matrices checks work especially with only one adj matrix input
-
   if (!skip_checks) {
+    check_fcmconfr_input(adj_matrices, check = "adj_matrix_list")
+    if (!is.null(dim(adj_matrices))) {
+      adj_matrices <- list(adj_matrices)
+    }
+
     checks <- check_simulation_inputs(adj_matrices[[1]], initial_state_vector, clamping_vector, activation, squashing, lambda, point_of_inference, max_iter, min_error, parallel, n_cores, show_progress, include_sims_in_output)
     fcm_class <- checks$fcm_class
-    adj_matrices <- checks$adj_matrices
     initial_state_vector <- checks$initial_state_vector
     clamping_vector <- checks$clamping_vector
     activation <- checks$activation
@@ -123,6 +130,9 @@ infer_fcm_set <- function(adj_matrices = list(matrix()),
     include_sims_in_output <- checks$include_sims_in_output
   } else {
     fcm_class <- get_fcm_class_from_adj_matrix(adj_matrix)
+    activation <- tolower(activation)
+    squashing <- tolower(squashing)
+    point_of_inference <- tolower(point_of_inference)
   }
   # ----
 
@@ -146,7 +156,8 @@ infer_fcm_set <- function(adj_matrices = list(matrix()),
             lambda = lambda,
             point_of_inference = point_of_inference,
             max_iter = max_iter,
-            min_error = min_error
+            min_error = min_error,
+            skip_checks = TRUE
           )
         },
         cl = cl
@@ -157,12 +168,12 @@ infer_fcm_set <- function(adj_matrices = list(matrix()),
     # ----
   } else if (parallel && !show_progress) {
     # Parallel and NOT Show Progress ----
-    print("Initializing cluster", quote = FALSE)
+    # print("Initializing cluster", quote = FALSE)
     cl <- parallel::makeCluster(n_cores)
     fcmconfr_env <- rlang::search_envs()[[which(names(rlang::search_envs()) == "package:fcmconfr")]]
     parallel::clusterExport(cl, names(fcmconfr_env))
-    cat("\n")
-    print("Running simulations", quote = FALSE)
+    # cat("\n")
+    # print("Running simulations", quote = FALSE)
     suppressWarnings(
       inferences_for_adj_matrices <- parallel::parLapply(
         cl,
@@ -177,7 +188,8 @@ infer_fcm_set <- function(adj_matrices = list(matrix()),
             lambda = lambda,
             point_of_inference = point_of_inference,
             max_iter = max_iter,
-            min_error = min_error
+            min_error = min_error,
+            skip_checks = TRUE
           )
         }
       )
@@ -200,15 +212,16 @@ infer_fcm_set <- function(adj_matrices = list(matrix()),
           lambda = lambda,
           point_of_inference = point_of_inference,
           max_iter = max_iter,
-          min_error = min_error
+          min_error = min_error,
+          skip_checks = TRUE
         )
       }
     )
     # ----
   } else if (!parallel && !show_progress) {
     # NOT Parallel and NOT Show Progres ----
-    cat("\n")
-    print("Running simulations", quote = FALSE)
+    # cat("\n")
+    # print("Running simulations", quote = FALSE)
     inferences_for_adj_matrices <- lapply(
       adj_matrices,
       function(adj_matrix) {
@@ -221,7 +234,8 @@ infer_fcm_set <- function(adj_matrices = list(matrix()),
           lambda = lambda,
           point_of_inference = point_of_inference,
           max_iter = max_iter,
-          min_error = min_error
+          min_error = min_error,
+          skip_checks = TRUE
         )
       }
     )
@@ -235,7 +249,11 @@ infer_fcm_set <- function(adj_matrices = list(matrix()),
   }
 
   inference_values_by_sim <- do.call(rbind, inference_values_by_sim)
-  rownames(inference_values_by_sim) <- 1:nrow(inference_values_by_sim)
+  rownames(inference_values_by_sim) <- seq_along(rownames(inference_values_by_sim))
+
+  if (silent) {
+    sink()
+  }
 
   if (include_sims_in_output) {
     structure(
@@ -1510,35 +1528,34 @@ clean_simulation_output <- function(output_obj, concepts) {
 #' and IDs when appropriate.
 #'
 #' @param adj_matrix A [matrix] or [data.frame]-like object
-#' @param initial_state_vector A list state values at the start of an fcm simulation
-#' @param clamping_vector A list of values representing specific actions taken to
+#' @param initial_state_vector a [numeric vector] of state values at the start
+#' of an FCM simulation
+#' @param clamping_vector a [numeric vector] of values representing specific actions taken to
 #' control the behavior of an FCM. Specifically, non-zero values defined in this vector
 #' will remain constant throughout the entire simulation as if they were "clamped" at those values.
-#' @param activation The activation function to be applied. Must be one of the following:
+#' @param activation a [character] string; the activation function to be applied. Must be one of the following:
 #' 'kosko', 'modified-kosko', or 'rescale'.
-#' @param squashing A squashing function to apply. Must be one of the following:
+#' @param squashing a [character] string; the squashing function to apply. Must be one of the following:
 #' 'tanh', or 'sigmoid'.
-#' @param lambda A numeric value that defines the steepness of the slope of the
+#' @param lambda a positive [numeric] (number > 0); Defines the steepness of the slope of the
 #' squashing function when tanh or sigmoid are applied
-#' @param point_of_inference The point along the simulation time-series to be
+#' @param point_of_inference a [character] string; The point along the simulation time-series to be
 #' identified as the inference. Must be one of the following: 'peak' or 'final'
-#' @param max_iter The maximum number of iterations to run if the minimum error value is not achieved.
-#' Must be a positive integer.
-#' @param min_error The lowest error (sum of the absolute value of the current state
+#' @param max_iter a positive [integer] (integer [> 0]); The maximum number of iterations to run if the minimum error value is not achieved
+#' @param min_error a positive[numeric] (number > 0); The lowest error (sum of the absolute value of the current state
 #' vector minus the previous state vector) at which no more iterations are necessary
 #' and the simulation will stop
-#' @param parallel TRUE/FALSE Whether to utilize parallel processing
-#' @param show_progress TRUE/FALSE Show progress bar when creating fmcm. Uses pbmapply
+#' @param parallel a [logical] (TRUE/FALSE) value; Whether to utilize parallel processing
+#' @param show_progress a [logical] (TRUE/FALSE) value; Show progress bar when creating fmcm. Uses pbmapply
 #' from the pbapply package as the underlying function.
-#' @param n_cores Number of cores to use in parallel processing. If no input given,
+#' @param n_cores a positive [integer] (integer [> 0]); Number of cores to use in parallel processing. If no input given,
 #' will use all available cores in the machine.
-#' @param include_sims_in_output TRUE/FALSE whether to include simulations of monte-carlo-generated
+#' @param include_sims_in_output a [logical] (TRUE/FALSE) value; whether to include simulations of monte-carlo-generated
 #' FCM. Will dramatically increase size of output if TRUE.
 #'
 #' @returns A formatted initial_state_vector and clamping_vector
 #'
-#' @keywords internal
-#' @noRd
+#' @export
 #'
 #' @importFrom cli format_error format_warning
 #' @importFrom methods is
@@ -1560,14 +1577,10 @@ check_simulation_inputs <- function(adj_matrix = matrix(),
 
   # Have to check adj_matrix input before continuing with other checks
   adj_matrix_check <- check_fcmconfr_input(adj_matrix, check = "square_adj_matrix", var_name = "adj_matrix")
-  adj_matrix <- as.matrix(adj_matrix)
-  fcm_class <- get_fcm_class_from_adj_matrix(adj_matrix)
+  class(adj_matrix) <- NULL
+  adj_matrix <- data.frame(adj_matrix)
 
-  # adj_matrix_input_type <- get_adj_matrices_input_type(adj_matrix)
-  if (is.null(dim(adj_matrix))) {
-    class(adj_matrix) <- NULL
-    adj_matrix <- data.frame(adj_matrix)
-  }
+  fcm_class <- get_fcm_class_from_adj_matrix(adj_matrix)
 
   n_nodes <- unique(dim(adj_matrix))
 
@@ -1612,7 +1625,9 @@ check_simulation_inputs <- function(adj_matrix = matrix(),
       "!" = "Warning: No {.var n_cores} given for parallel processing",
       "~~~~~ Assuming n_cores = {parallel::detectCores() - 1} (i.e. cores in machine -1)"
     )))
-    point_of_inference <- "final"
+    n_cores <- 1
+  } else if (!isTRUE(parallel) && identical(n_cores, integer())) {
+    n_cores <- 1
   }
   # ----
 
@@ -1626,7 +1641,7 @@ check_simulation_inputs <- function(adj_matrix = matrix(),
   max_iter_check <- check_fcmconfr_input(max_iter, check = "positive_integer", var_name = "max_iter")
   min_error_check <- check_fcmconfr_input(min_error, check = "positive_number", var_name = "min_error")
   parallel_check <- check_fcmconfr_input(parallel, check = "logical", var_name = "parallel")
-  n_cores_check <- check_fcmconfr_input(n_cores, check = "positive_integer", var_name = "n_cores")
+  n_cores_check <- check_fcmconfr_input(n_cores, check = "positive_integer", var_name = "n_cores", zero_is_positive = FALSE)
   show_progress_check <- check_fcmconfr_input(show_progress, check = "logical", var_name = "show_progress")
   include_sims_in_output_check <- check_fcmconfr_input(include_sims_in_output, check = "logical", var_name = "include_sims_in_output")
 
@@ -1638,8 +1653,9 @@ check_simulation_inputs <- function(adj_matrix = matrix(),
   initial_state_vector_generic_check_passed <- isTRUE(initial_state_vector_check)
   if (initial_state_vector_generic_check_passed && (!setequal(length(initial_state_vector), n_nodes))) {
     stop(cli::format_error(c(
-      "x" = "Error: {.var initial_state_vector} must be the same length as the number of nodes in input {.var adj_matrix}",
-      "+++++ Length of {.var initial_state_vector} is {length(initial_state_vector)}, but should be {n_nodes}"
+      "{class(as.matrix(adj_matrix))}"
+      # "x" = "Error: {.var initial_state_vector} must be the same length as the number of nodes in input {.var adj_matrix}",
+      # "+++++ Length of {.var initial_state_vector} is {length(initial_state_vector)}, but should be {n_nodes}"
     )))
   }
 

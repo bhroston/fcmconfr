@@ -1,208 +1,145 @@
 
+# functions_to_check <- c("infer_fcm_set")
+# yaml_list <- autotest::examples_to_yaml(package = ".", functions = functions_to_check)
+# res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)
+# beepr::beep()
 
-test_that("infer_fcm_set works with ivfn fcms", {
-  lower_adj_matrix <- data.frame(
-    "A" = c(0, 0, 0, 0),
-    "B" = c(0.25, 0, 0, 0.25),
-    "C" = c(0, 0.25, 0, 0),
-    "D" = c(0, 0, 0.25, 0)
+
+# All checks pass
+test_that("infer_fcm_set works", {
+
+  # functions_to_check <- c("infer_fcm_set")
+  # yaml_list <- autotest::examples_to_yaml(package = ".", functions = functions_to_check)
+  # res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)
+  # beepr::beep()
+
+  # Confirm no warning messages when silent = TRUE
+  test_fcm_set <- sample_fcms$simple_fcms$conventional_fcms
+  test_fcm_set <- lapply(test_fcm_set, function(mat) structure(.Data = as.matrix(mat), class = "Different"))
+  expect_no_error(
+    sink(file = file("messages_test.Rout"), type = "message"),
+    infer_fcm_set(adj_matrices = test_fcm_set,
+                  initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
+                  clamping_vector = c(1, 0, 0, 0, 0, 0, 0),
+                  activation = "modified-kosko",
+                  squashing = "sigmoid",
+                  lambda = 1,
+                  point_of_inference = "final",
+                  max_iter = 100,
+                  min_error = 1e-5,
+                  parallel = FALSE,
+                  show_progress = FALSE,
+                  silent = TRUE),
+    sink(file = file("messages.Rout"))
   )
-  upper_adj_matrix <- data.frame(
-    "A" = c(0, 0, 0, 0),
-    "B" = c(0.75, 0, 0, 0.75),
-    "C" = c(0, 0.75, 0, 0),
-    "D" = c(0, 0, 0.75, 0)
+
+  # Confirm works if only a single adj matrix given
+  test_fcm <- sample_fcms$simple_fcms$conventional_fcms[[1]]
+  expect_no_error(infer_fcm_set(adj_matrices = test_fcm,
+                                initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
+                                clamping_vector = c(1, 0, 0, 0, 0, 0, 0),
+                                activation = "modified-kosko",
+                                squashing = "sigmoid",
+                                lambda = 1,
+                                point_of_inference = "final",
+                                max_iter = 100,
+                                min_error = 1e-5,
+                                parallel = FALSE,
+                                show_progress = FALSE,
+                                silent = FALSE))
+
+
+  # Confirm same results across different parallel/show_progress algorithms ----
+  test_fcm_set <- sample_fcms$simple_fcms$conventional_fcms
+  sink(file = file("output.Rout"), type = "output")
+  parallel_and_show_progress <- infer_fcm_set(
+    adj_matrices = test_fcm_set,
+    initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
+    clamping_vector = c(1, 0, 0, 0, 0, 0, 0),
+    activation = "modified-kosko",
+    squashing = "sigmoid",
+    lambda = 1,
+    point_of_inference = "final",
+    max_iter = 100,
+    min_error = 1e-5,
+    parallel = TRUE,
+    n_cores = 2,
+    show_progress = TRUE
   )
-  ivfn_mat_1 <- make_adj_matrix_w_ivfns(lower_adj_matrix, upper_adj_matrix)
-  ivfn_mat_2 <- make_adj_matrix_w_ivfns(lower_adj_matrix*1.2, upper_adj_matrix*1.2)
-  ivfn_mat_3 <- make_adj_matrix_w_ivfns(lower_adj_matrix*0.8, upper_adj_matrix*0.8)
-  adj_matrices <- list(ivfn_mat_1, ivfn_mat_2, ivfn_mat_3)
-  invisible(capture.output(
-    test_mc_fcms <- build_monte_carlo_fcms_from_fuzzy_set_adj_matrices(adj_matrices, "ivfn", 50, include_zeroes = FALSE)
-  ))
+  parallel_and_not_show_progress <- infer_fcm_set(
+    adj_matrices = test_fcm_set,
+    initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
+    clamping_vector = c(1, 0, 0, 0, 0, 0, 0),
+    activation = "modified-kosko",
+    squashing = "sigmoid",
+    lambda = 1,
+    point_of_inference = "final",
+    max_iter = 100,
+    min_error = 1e-5,
+    parallel = TRUE,
+    n_cores = 2,
+    show_progress = FALSE
+  )
+  not_parallel_and_show_progress <- infer_fcm_set(
+    adj_matrices = test_fcm_set,
+    initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
+    clamping_vector = c(1, 0, 0, 0, 0, 0, 0),
+    activation = "modified-kosko",
+    squashing = "sigmoid",
+    lambda = 1,
+    point_of_inference = "final",
+    max_iter = 100,
+    min_error = 1e-5,
+    parallel = FALSE,
+    show_progress = TRUE
+  )
+  not_parallel_and_not_show_progress <- infer_fcm_set(
+    adj_matrices = test_fcm_set,
+    initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
+    clamping_vector = c(1, 0, 0, 0, 0, 0, 0),
+    activation = "modified-kosko",
+    squashing = "sigmoid",
+    lambda = 1,
+    point_of_inference = "final",
+    max_iter = 100,
+    min_error = 1e-5,
+    parallel = FALSE,
+    show_progress = FALSE
+  )
+  expect_identical(parallel_and_show_progress, parallel_and_not_show_progress)
+  expect_identical(parallel_and_not_show_progress, not_parallel_and_show_progress)
+  expect_identical(not_parallel_and_show_progress, not_parallel_and_not_show_progress)
+  expect_identical(not_parallel_and_not_show_progress, parallel_and_show_progress)
+  sink(file = file("output.Rout"))
+  # ----
 
-  # Parallel NOT working; using wrong versions of functions for some reason
-  # # Check parallel and show_progress run
-  invisible(capture.output(
-    expect_no_error(
-      test_fmcm_inference_p_sp <- infer_fcm_set(
-        adj_matrices = test_mc_fcms,
-        initial_state_vector <- c(1, 1, 1, 1),
-        clamping_vector <- c(1, 0, 0, 0),
-        activation = "kosko",
-        squashing = "sigmoid",
-        lambda = 1,
-        point_of_inference = "final",
-        max_iter = 1000,
-        min_error = 1e-5,
-        parallel = TRUE,
-        show_progress = TRUE,
-        n_cores = 2
-      )
-    )
-  ))
+  # Confirm also works with IVFN and TFN fcm lists ----
+  expect_no_error(infer_fcm_set(adj_matrices = sample_fcms$simple_fcms$ivfn_fcms,
+                                  initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
+                                  clamping_vector = c(1, 0, 0, 0, 0, 0, 0),
+                                  activation = "modified-kosko",
+                                  squashing = "sigmoid",
+                                  lambda = 1,
+                                  point_of_inference = "final",
+                                  max_iter = 100,
+                                  min_error = 1e-5,
+                                  parallel = FALSE,
+                                  show_progress = FALSE,
+                                  silent = TRUE))
 
-  # # Check parallel and show_progress = FALSE run
-  invisible(capture.output(
-    expect_no_error(
-      test_fmcm_inference_p_and_no_sp <- infer_fcm_set(
-        adj_matrices = test_mc_fcms,
-        initial_state_vector <- c(1, 1, 1, 1),
-        clamping_vector <- c(1, 0, 0, 0),
-        activation = "kosko",
-        squashing = "sigmoid",
-        lambda = 1,
-        point_of_inference = "final",
-        max_iter = 1000,
-        min_error = 1e-5,
-        parallel = TRUE,
-        show_progress = FALSE,
-        n_cores = 2
-      )
-    )
-  ))
-
-  # Check parallel = FALSE and show_progress run
-  invisible(capture.output(
-    expect_warning(
-      test_fmcm_inference_no_p_and_sp <- infer_fcm_set(
-        adj_matrices = test_mc_fcms,
-        initial_state_vector <- c(1, 1, 1, 1),
-        clamping_vector <- c(1, 0, 0, 0),
-        activation = "kosko",
-        squashing = "sigmoid",
-        lambda = 1,
-        point_of_inference = "final",
-        max_iter = 1000,
-        min_error = 1e-5,
-        parallel = FALSE,
-        show_progress = TRUE,
-        n_cores = 2
-      )
-    )
-  ))
-
-  # Check parallel = FALSE and show_progress = FALSE run
-  invisible(capture.output(
-    expect_no_error(
-      test_fmcm_inference_no_p_and_no_sp <- infer_fcm_set(
-        adj_matrices = test_mc_fcms,
-        initial_state_vector <- c(1, 1, 1, 1),
-        clamping_vector <- c(1, 0, 0, 0),
-        activation = "kosko",
-        squashing = "sigmoid",
-        lambda = 1,
-        point_of_inference = "final",
-        max_iter = 1000,
-        min_error = 1e-5,
-        parallel = FALSE,
-        show_progress = FALSE
-      )
-    )
-  ))
-
-  # Confirm all methods produce same output
-  max_error <- 1e-5
-  expect_true(all(abs(test_fmcm_inference_p_sp$inference - test_fmcm_inference_no_p_and_sp$inference) <= max_error))
-  expect_true(all(abs(test_fmcm_inference_no_p_and_sp$inference - test_fmcm_inference_p_and_no_sp$inference) <= max_error))
-  expect_true(all(abs(test_fmcm_inference_p_and_no_sp$inference - test_fmcm_inference_no_p_and_no_sp$inference) <= max_error))
-  expect_true(all(abs(test_fmcm_inference_no_p_and_sp$inference - test_fmcm_inference_no_p_and_no_sp$inference) <= max_error))
-})
-
-
-test_that("infer_fcm_set catches invalid parallel processing inputs", {
-  # This test specifically messes with R CMD Check
-  # invisible(capture.output(
-  #   expect_warning( # When no n_cores input given but parallel processing is intended
-  #     infer_fcm_set(
-  #       sample_fcms$large_fcms$conventional_fcms,
-  #       initial_state_vector = c(1, 1, 1, 1, 1, 1, 1, 1, 1),
-  #       clamping_vector = c(0, 0, 1, 0, 0, 0, 0, 0, 0),
-  #       activation = "kosko",
-  #       squashing = "sigmoid",
-  #       lambda = 1,
-  #       max_iter = 100,
-  #       min_error = 1e-5,
-  #       parallel = TRUE
-  #     )
-  #   )
-  # ))
-
-  test_initial_state_vector <- rep(1, unique(dim(sample_fcms$large_fcms$conventional_fcms[[1]])))
-  test_clamping_vector <- rep(0, unique(dim(sample_fcms$large_fcms$conventional_fcms[[1]])))
-  test_clamping_vector[3] <- 1
-
-  invisible(capture.output(
-    expect_error( # When no n_cores input is not an integer
-      infer_fcm_set(
-        sample_fcms$large_fcms$conventional_fcms,
-        initial_state_vector = test_initial_state_vector,
-        clamping_vector = test_clamping_vector,
-        activation = "kosko",
-        squashing = "sigmoid",
-        lambda = 1,
-        point_of_inference = "final",
-        max_iter = 100,
-        min_error = 1e-5,
-        parallel = TRUE,
-        n_cores = 1.5
-      )
-    )
-  ))
-
-  invisible(capture.output(
-    expect_no_error( # When n_cores is a positive, odd integer
-      infer_fcm_set(
-        sample_fcms$large_fcms$conventional_fcms,
-        initial_state_vector = test_initial_state_vector,
-        clamping_vector = test_clamping_vector,
-        activation = "kosko",
-        squashing = "sigmoid",
-        lambda = 1,
-        point_of_inference = "final",
-        max_iter = 100,
-        min_error = 1e-5,
-        parallel = TRUE,
-        n_cores = 1
-      )
-    )
-  ))
-
-  # Messes w/ R CMD Check
-  # invisible(capture.output(
-  #   expect_warning( # When n_cores is larger than number of available cores
-  #     infer_fcm_set(
-  #       sample_fcms$large_fcms$conventional_fcms,
-  #       initial_state_vector = c(1, 1, 1, 1, 1, 1, 1, 1, 1),
-  #       clamping_vector = c(0, 0, 1, 0, 0, 0, 0, 0, 0),
-  #       activation = "kosko",
-  #       squashing = "sigmoid",
-  #       lambda = 1,
-  #       max_iter = 100,
-  #       min_error = 1e-5,
-  #       parallel = TRUE,
-  #       n_cores = parallel::detectCores() + 1
-  #     )
-  #   )
-  # ))
-
-  invisible(capture.output(
-    expect_warning( # When n_cores input given but parallel processing is not intended
-      infer_fcm_set(
-        sample_fcms$large_fcms$conventional_fcms,
-        initial_state_vector = test_initial_state_vector,
-        clamping_vector = test_clamping_vector,
-        activation = "kosko",
-        squashing = "sigmoid",
-        lambda = 1,
-        point_of_inference = "final",
-        max_iter = 100,
-        min_error = 1e-5,
-        parallel = FALSE,
-        n_cores = 2
-      )
-    )
-  ))
+  expect_no_error(infer_fcm_set(adj_matrices = sample_fcms$simple_fcms$tfn_fcms,
+                                initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
+                                clamping_vector = c(1, 0, 0, 0, 0, 0, 0),
+                                activation = "modified-kosko",
+                                squashing = "sigmoid",
+                                lambda = 1,
+                                point_of_inference = "final",
+                                max_iter = 100,
+                                min_error = 1e-5,
+                                parallel = FALSE,
+                                show_progress = FALSE,
+                                silent = TRUE))
+  # ----
 })
 
 
@@ -690,6 +627,11 @@ test_that("clean_simulation_output works", {
 # All checks pass
 test_that("check_simulation_inputs works", {
 
+  # functions_to_check <- c("check_simulation_inputs")
+  # yaml_list <- autotest::examples_to_yaml(package = ".", functions = functions_to_check)
+  # res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)
+  # beepr::beep()
+
   test_adj_matrix <- sample_fcms$simple_fcms$conventional_fcms[[1]]
   test_initial_state_vector <- rep(1, unique(dim(sample_fcms$simple_fcms$ivfn_fcms[[1]])))
   test_clamping_vector <- rep(0, unique(dim(sample_fcms$simple_fcms$ivfn_fcms[[1]])))
@@ -1068,6 +1010,212 @@ test_that("print.infer_ivfn_or_tfn_fcm works", {
 #                                                                activation = "rescale",
 #                                                                fcm_class = "tfn")
 #   expect_equal(test_next_state, c(tfn(1, 1, 1), tfn(0.75, 1.5, 1.75)), ignore_attr = TRUE)
+# })
+
+
+# test_that("infer_fcm_set works with ivfn fcms", {
+#   lower_adj_matrix <- data.frame(
+#     "A" = c(0, 0, 0, 0),
+#     "B" = c(0.25, 0, 0, 0.25),
+#     "C" = c(0, 0.25, 0, 0),
+#     "D" = c(0, 0, 0.25, 0)
+#   )
+#   upper_adj_matrix <- data.frame(
+#     "A" = c(0, 0, 0, 0),
+#     "B" = c(0.75, 0, 0, 0.75),
+#     "C" = c(0, 0.75, 0, 0),
+#     "D" = c(0, 0, 0.75, 0)
+#   )
+#   ivfn_mat_1 <- make_adj_matrix_w_ivfns(lower_adj_matrix, upper_adj_matrix)
+#   ivfn_mat_2 <- make_adj_matrix_w_ivfns(lower_adj_matrix*1.2, upper_adj_matrix*1.2)
+#   ivfn_mat_3 <- make_adj_matrix_w_ivfns(lower_adj_matrix*0.8, upper_adj_matrix*0.8)
+#   adj_matrices <- list(ivfn_mat_1, ivfn_mat_2, ivfn_mat_3)
+#   invisible(capture.output(
+#     test_mc_fcms <- build_monte_carlo_fcms_from_fuzzy_set_adj_matrices(adj_matrices, "ivfn", 50, include_zeroes = FALSE)
+#   ))
+#
+#   # Parallel NOT working; using wrong versions of functions for some reason
+#   # # Check parallel and show_progress run
+#   invisible(capture.output(
+#     expect_no_error(
+#       test_fmcm_inference_p_sp <- infer_fcm_set(
+#         adj_matrices = test_mc_fcms,
+#         initial_state_vector <- c(1, 1, 1, 1),
+#         clamping_vector <- c(1, 0, 0, 0),
+#         activation = "kosko",
+#         squashing = "sigmoid",
+#         lambda = 1,
+#         point_of_inference = "final",
+#         max_iter = 1000,
+#         min_error = 1e-5,
+#         parallel = TRUE,
+#         show_progress = TRUE,
+#         n_cores = 2
+#       )
+#     )
+#   ))
+#
+#   # # Check parallel and show_progress = FALSE run
+#   invisible(capture.output(
+#     expect_no_error(
+#       test_fmcm_inference_p_and_no_sp <- infer_fcm_set(
+#         adj_matrices = test_mc_fcms,
+#         initial_state_vector <- c(1, 1, 1, 1),
+#         clamping_vector <- c(1, 0, 0, 0),
+#         activation = "kosko",
+#         squashing = "sigmoid",
+#         lambda = 1,
+#         point_of_inference = "final",
+#         max_iter = 1000,
+#         min_error = 1e-5,
+#         parallel = TRUE,
+#         show_progress = FALSE,
+#         n_cores = 2
+#       )
+#     )
+#   ))
+#
+#   # Check parallel = FALSE and show_progress run
+#   invisible(capture.output(
+#     expect_warning(
+#       test_fmcm_inference_no_p_and_sp <- infer_fcm_set(
+#         adj_matrices = test_mc_fcms,
+#         initial_state_vector <- c(1, 1, 1, 1),
+#         clamping_vector <- c(1, 0, 0, 0),
+#         activation = "kosko",
+#         squashing = "sigmoid",
+#         lambda = 1,
+#         point_of_inference = "final",
+#         max_iter = 1000,
+#         min_error = 1e-5,
+#         parallel = FALSE,
+#         show_progress = TRUE,
+#         n_cores = 2
+#       )
+#     )
+#   ))
+#
+#   # Check parallel = FALSE and show_progress = FALSE run
+#   invisible(capture.output(
+#     expect_no_error(
+#       test_fmcm_inference_no_p_and_no_sp <- infer_fcm_set(
+#         adj_matrices = test_mc_fcms,
+#         initial_state_vector <- c(1, 1, 1, 1),
+#         clamping_vector <- c(1, 0, 0, 0),
+#         activation = "kosko",
+#         squashing = "sigmoid",
+#         lambda = 1,
+#         point_of_inference = "final",
+#         max_iter = 1000,
+#         min_error = 1e-5,
+#         parallel = FALSE,
+#         show_progress = FALSE
+#       )
+#     )
+#   ))
+#
+#   # Confirm all methods produce same output
+#   max_error <- 1e-5
+#   expect_true(all(abs(test_fmcm_inference_p_sp$inference - test_fmcm_inference_no_p_and_sp$inference) <= max_error))
+#   expect_true(all(abs(test_fmcm_inference_no_p_and_sp$inference - test_fmcm_inference_p_and_no_sp$inference) <= max_error))
+#   expect_true(all(abs(test_fmcm_inference_p_and_no_sp$inference - test_fmcm_inference_no_p_and_no_sp$inference) <= max_error))
+#   expect_true(all(abs(test_fmcm_inference_no_p_and_sp$inference - test_fmcm_inference_no_p_and_no_sp$inference) <= max_error))
+# })
+#
+#
+# test_that("infer_fcm_set catches invalid parallel processing inputs", {
+#   # This test specifically messes with R CMD Check
+#   # invisible(capture.output(
+#   #   expect_warning( # When no n_cores input given but parallel processing is intended
+#   #     infer_fcm_set(
+#   #       sample_fcms$large_fcms$conventional_fcms,
+#   #       initial_state_vector = c(1, 1, 1, 1, 1, 1, 1, 1, 1),
+#   #       clamping_vector = c(0, 0, 1, 0, 0, 0, 0, 0, 0),
+#   #       activation = "kosko",
+#   #       squashing = "sigmoid",
+#   #       lambda = 1,
+#   #       max_iter = 100,
+#   #       min_error = 1e-5,
+#   #       parallel = TRUE
+#   #     )
+#   #   )
+#   # ))
+#
+#   test_initial_state_vector <- rep(1, unique(dim(sample_fcms$large_fcms$conventional_fcms[[1]])))
+#   test_clamping_vector <- rep(0, unique(dim(sample_fcms$large_fcms$conventional_fcms[[1]])))
+#   test_clamping_vector[3] <- 1
+#
+#   invisible(capture.output(
+#     expect_error( # When no n_cores input is not an integer
+#       infer_fcm_set(
+#         sample_fcms$large_fcms$conventional_fcms,
+#         initial_state_vector = test_initial_state_vector,
+#         clamping_vector = test_clamping_vector,
+#         activation = "kosko",
+#         squashing = "sigmoid",
+#         lambda = 1,
+#         point_of_inference = "final",
+#         max_iter = 100,
+#         min_error = 1e-5,
+#         parallel = TRUE,
+#         n_cores = 1.5
+#       )
+#     )
+#   ))
+#
+#   invisible(capture.output(
+#     expect_no_error( # When n_cores is a positive, odd integer
+#       infer_fcm_set(
+#         sample_fcms$large_fcms$conventional_fcms,
+#         initial_state_vector = test_initial_state_vector,
+#         clamping_vector = test_clamping_vector,
+#         activation = "kosko",
+#         squashing = "sigmoid",
+#         lambda = 1,
+#         point_of_inference = "final",
+#         max_iter = 100,
+#         min_error = 1e-5,
+#         parallel = TRUE,
+#         n_cores = 1
+#       )
+#     )
+#   ))
+#
+#   # Messes w/ R CMD Check
+#   # invisible(capture.output(
+#   #   expect_warning( # When n_cores is larger than number of available cores
+#   #     infer_fcm_set(
+#   #       sample_fcms$large_fcms$conventional_fcms,
+#   #       initial_state_vector = c(1, 1, 1, 1, 1, 1, 1, 1, 1),
+#   #       clamping_vector = c(0, 0, 1, 0, 0, 0, 0, 0, 0),
+#   #       activation = "kosko",
+#   #       squashing = "sigmoid",
+#   #       lambda = 1,
+#   #       max_iter = 100,
+#   #       min_error = 1e-5,
+#   #       parallel = TRUE,
+#   #       n_cores = parallel::detectCores() + 1
+#   #     )
+#   #   )
+#   # ))
+#
+#   invisible(capture.output(
+#     expect_warning( # When n_cores input given but parallel processing is not intended
+#       infer_fcm_set(
+#         sample_fcms$large_fcms$conventional_fcms,
+#         initial_state_vector = test_initial_state_vector,
+#         clamping_vector = test_clamping_vector,
+#         activation = "kosko",
+#         squashing = "sigmoid",
+#         lambda = 1,
+#         point_of_inference = "final",
+#         max_iter = 100,
+#         min_error = 1e-5,
+#         parallel = FALSE,
+#         n_cores = 2
+#       )
+#     )
+#   ))
 # })
 
 

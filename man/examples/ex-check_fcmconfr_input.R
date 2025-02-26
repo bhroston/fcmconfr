@@ -1,4 +1,8 @@
 
+# Check input is an acceptable list of adjacency matrices
+check_fcmconfr_input(sample_fcms$simple_fcms$conventional_fcms,
+                     check = "adj_matrix_list")
+
 # Check input is a square adjacency matrix
 check_fcmconfr_input(sample_fcms$simple_fcms$conventional_fcms[[1]],
                      check = 'square_adj_matrix',
