@@ -1,39 +1,51 @@
 
-conventional_fcm_set_inferences <- infer_fcm_set(adj_matrices = sample_fcms$simple_fcms$conventional_fcms,
+# Set of Conventional FCMs
+conventional_fcm_set_inferences <- infer_fcm_set(adj_matrices = sample_fcms$simple_fcms$conventional_fcms[1:5],
                                                  initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
                                                  clamping_vector = c(1, 0, 0, 0, 0, 0, 0),
                                                  activation = "modified-kosko",
                                                  squashing = "sigmoid",
-                                                 lambda = 1,
+                                                 lambda = 1.0,
                                                  point_of_inference = "final",
-                                                 max_iter = 100,
+                                                 max_iter = 100L,
                                                  min_error = 1e-5,
                                                  parallel = FALSE,
+                                                 n_cores = 1,
                                                  show_progress = FALSE,
-                                                 silent = FALSE)
+                                                 include_sims_in_output = TRUE,
+                                                 silent = FALSE,
+                                                 skip_checks = FALSE)
 
-ivfn_fcm_set_inferences <- infer_fcm_set(adj_matrices = sample_fcms$simple_fcms$ivfn_fcms,
+# Set of IVFN FCMs
+ivfn_fcm_set_inferences <- infer_fcm_set(adj_matrices = sample_fcms$simple_fcms$ivfn_fcms[1:5],
                                          initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
                                          clamping_vector = c(1, 0, 0, 0, 0, 0, 0),
                                          activation = "modified-kosko",
                                          squashing = "sigmoid",
-                                         lambda = 1,
+                                         lambda = 1.0,
                                          point_of_inference = "final",
-                                         max_iter = 100,
+                                         max_iter = 100L,
                                          min_error = 1e-5,
                                          parallel = FALSE,
+                                         n_cores = 1,
                                          show_progress = FALSE,
-                                         silent = FALSE)
+                                         include_sims_in_output = TRUE,
+                                         silent = FALSE,
+                                         skip_checks = FALSE)
 
-tfn_fcm_set_inferences <- infer_fcm_set(adj_matrices = sample_fcms$simple_fcms$tfn_fcms,
+# Set of TFN FCMs
+tfn_fcm_set_inferences <- infer_fcm_set(adj_matrices = sample_fcms$simple_fcms$tfn_fcms[1:5],
                                         initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
                                         clamping_vector = c(1, 0, 0, 0, 0, 0, 0),
                                         activation = "modified-kosko",
                                         squashing = "sigmoid",
-                                        lambda = 1,
+                                        lambda = 1.0,
                                         point_of_inference = "final",
-                                        max_iter = 100,
+                                        max_iter = 100L,
                                         min_error = 1e-5,
                                         parallel = FALSE,
+                                        n_cores = 1,
                                         show_progress = FALSE,
-                                        silent = FALSE)
+                                        include_sims_in_output = TRUE,
+                                        silent = FALSE,
+                                        skip_checks = FALSE)

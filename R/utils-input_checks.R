@@ -732,9 +732,9 @@ assert_matrix <- function(adj_matrix = data.frame(),
   #   return(adj_matrix)
   # }
 
-  # browser()
-
-  if (!is.null(dim(adj_matrix))) {
+  if (!is.null(dim(adj_matrix)) && fcm_class == "conventional") {
+    adj_matrix <- data.frame(apply(adj_matrix, c(1, 2), function(element) element))
+  } else if (!is.null(dim(adj_matrix)) && (fcm_class %in% c("ivfn", "tfn"))) {
     adj_matrix <- as.data.frame(adj_matrix)
   } else {
     adj_matrix <- as.data.frame(do.call(cbind, adj_matrix))
