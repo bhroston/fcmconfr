@@ -255,11 +255,16 @@ check_square_adj_matrix = function(x = matrix()) {
   class_options_text <- paste0("'", cli::ansi_collapse(class_options, sep = "' '", sep2 = "' or '", last = "' or '"), "'")
 
   res <- checkmate::check_choice(methods::is(x)[1], choices = class_options)
+
   if (!isTRUE(res)) {
     x <- tryCatch({
       x_as_df <- x
       class(x_as_df) <- NULL
-      x_as_df <- as.data.frame(x_as_df)
+      if (!is.null(dim(x_as_df))) {
+        x_as_df <- as.data.frame(x_as_df)
+      } else {
+        x_as_df <- as.data.frame(do.call(cbind, x_as_df))
+      }
       warning(cli::format_warning(c(
         "!" = "Warning: Converting adj. matrix to data.frame"
       )))
@@ -719,15 +724,28 @@ assert_var_name <- function(var_name_input = "") {
 #'
 #' @examples
 #' assert_adj_matrix(sample_fcms$simple_fcms$conventional_fcms[[1]])
-assert_matrix <- function(adj_matrix = list(),
+assert_matrix <- function(adj_matrix = data.frame(),
                           fcm_class = c("conventional", "ivfn", "tfn"),
                           var_name_input = "") {
-  if (fcm_class == "conventional" && !is.null(dim(adj_matrix))) {
-    adj_matrix <- data.frame(apply(adj_matrix, c(1, 2), function(element) element))
-  } else if (fcm_class == "conventional" && is.null(dim(adj_matrix))) {
-    class(adj_matrix) <- NULL
-    adj_matrix <- data.frame(do.call(cbind, adj_matrix))
+
+  # if (fcm_class == "ivfn" || fcm_class == "tfn") {
+  #   return(adj_matrix)
+  # }
+
+  # browser()
+
+  if (!is.null(dim(adj_matrix))) {
+    adj_matrix <- as.data.frame(adj_matrix)
+  } else {
+    adj_matrix <- as.data.frame(do.call(cbind, adj_matrix))
   }
+
+  # if (fcm_class == "conventional" && !is.null(dim(adj_matrix))) {
+  #   adj_matrix <- data.frame(apply(adj_matrix, c(1, 2), function(element) element))
+  # } else if (fcm_class == "conventional" && is.null(dim(adj_matrix))) {
+  #   class(adj_matrix) <- NULL
+  #   adj_matrix <- data.frame(do.call(cbind, adj_matrix))
+  # }
 
   return(adj_matrix)
 }

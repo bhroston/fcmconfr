@@ -7,12 +7,14 @@
 \method{print}{infer_conventional_fcm}(x, ...)
 }
 \arguments{
-\item{x}{an \link{infer_conventional_fcm} object}
+\item{x}{[\code{infer_conventional_fcm}]\cr an object directly output from
+\code{\link{infer_conventional_fcm}}}
 
 \item{...}{additional inputs}
 }
 \value{
-A console printout of infer_conventional_fcm results
+[\code{NULL}]\cr A console printout of
+\code{\link{infer_conventional_fcm}} results
 }
 \description{
 Print method for infer_conventional_fcm objects

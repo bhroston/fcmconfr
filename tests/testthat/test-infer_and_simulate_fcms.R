@@ -362,17 +362,53 @@ test_that("infer_ivfn_or_tfn_fcm works", {
 
 # All checks pass
 test_that("simulate_fcm works", {
+  # functions_to_check <- c("simulate_fcm")
+  # yaml_list <- autotest::examples_to_yaml(package = ".", functions = functions_to_check)
+  # res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)
+  # beepr::beep()
+
   # See simulate_conventional_fcm and simulate_ivfn_or_tfn_fcm tests for additional info
   expect_true(TRUE) # Just so this isn't an empty test
 })
 
 
-# All checks pass
+# All checks pass (and autotest returns NULL)
 test_that("simulate_conventional_fcm works", {
   # functions_to_check <- c("simulate_conventional_fcm")
   # yaml_list <- autotest::examples_to_yaml(package = ".", functions = functions_to_check)
   # res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)
   # beepr::beep()
+
+  adj_matrix <- data.frame(
+    C1 = c(0, 0, 0, 0, 0, 0),
+    C2 = c(-0.85, 0, 0, 0.35, 0, 0),
+    C3 = c(0, 0, 0, 0, 0, 0),
+    C4 = c(-0.7, 0.6, -1, 0, -1, 0),
+    C5 = c(0.1, 0, 0, -0.8, 0, 0),
+    C6 = c(0, -0.95, 0, 0, -0.95, 0)
+  )
+
+
+  lambda1 <- 1
+  lambda2 <- lambda1 + 100 * .Machine$double.eps
+  test1 <- simulate_conventional_fcm(adj_matrix,
+                            initial_state_vector = c(1, 1, 1, 1, 1, 1),
+                            clamping_vector = c(1, 0, 0, 0, 0, 0),
+                            activation = "kosko",
+                            squashing = "sigmoid",
+                            lambda = lambda1,
+                            point_of_inference = "final",
+                            skip_checks = FALSE)
+  test2 <- simulate_conventional_fcm(adj_matrix,
+                                     initial_state_vector = c(1, 1, 1, 1, 1, 1),
+                                     clamping_vector = c(1, 0, 0, 0, 0, 0),
+                                     activation = "kosko",
+                                     squashing = "sigmoid",
+                                     lambda = lambda2,
+                                     point_of_inference = "final",
+                                     skip_checks = FALSE)
+
+
 
   adj_matrix <- data.frame(
     A = c(0, 1, 1),
@@ -425,12 +461,19 @@ test_that("simulate_conventional_fcm works", {
 })
 
 
-# All checks pass
+# All checks pass (and autotest returns NULL)
 test_that("simulate_ivfn_or_tfn_fcm works", {
-  # functions_to_check <- c("simulate_ivfn_or_tfn_fcm works")
+  # functions_to_check <- c("simulate_ivfn_or_tfn_fcm")
   # yaml_list <- autotest::examples_to_yaml(package = ".", functions = functions_to_check)
   # res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)
   # beepr::beep()
+
+  # test_adj_matrix <- sample_fcms$simple_fcms$conventional_fcms[[1]]
+  # class(test_adj_matrix) <- NULL
+  # test_adj_matrix <- do.call(cbind, test_adj_matrix)
+  # test_adj_matrix <- structure(.Data = test_adj_matrix, class = "Different")
+  # simulate_ivfn_or_tfn_fcm(test_adj_matrix, initial_state_vector = c(1, 1, 1, 1, 1, 1, 1), clamping_vector = c(1, 0, 0, 0, 0, 0, 0), activation = "kosko", squashing = "sigmoid", lambda = 1, point_of_inference = "final")
+
 
   lower_adj_matrix <- data.frame(
     A = c(0, 0.2, 0.4),
@@ -602,8 +645,13 @@ test_that("get_next_state_vector works", {
 })
 
 
-# All checks pass
+# All checks pass (abd autotest returns NULL)
 test_that("squash works", {
+  # functions_to_check <- c("squash")
+  # yaml_list <- autotest::examples_to_yaml(package = ".", functions = functions_to_check)
+  # res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)
+  # beepr::beep()
+
   expect_error(squash(1, "squasher"))
 
   expect_error(squash(1, "sigmoid", lambda = 0))
@@ -618,6 +666,10 @@ test_that("squash works", {
 
 # All checks pass
 test_that("convert_element_to_ivfn_or_tfn_if_numeric works", {
+  # functions_to_check <- c("convert_element_to_ivfn_or_tfn_if_numeric works")
+  # yaml_list <- autotest::examples_to_yaml(package = ".", functions = functions_to_check)
+  # res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)
+
   expect_equal(convert_element_to_ivfn_or_tfn_if_numeric(1, "ivfn"), ivfn(1, 1))
   expect_equal(convert_element_to_ivfn_or_tfn_if_numeric(1, "tfn"), tfn(1, 1, 1))
 })

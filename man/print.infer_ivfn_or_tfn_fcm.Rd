@@ -7,12 +7,14 @@
 \method{print}{infer_ivfn_or_tfn_fcm}(x, ...)
 }
 \arguments{
-\item{x}{an \link{infer_ivfn_or_tfn_fcm} object}
+\item{x}{[\code{infer_ivfn_or_tfn_fcm}]\cr an object directly output from
+\code{\link{infer_ivfn_or_tfn_fcm}}}
 
 \item{...}{additional inputs}
 }
 \value{
-A console printout of infer_ivfn_or_tfn_fcm results
+[\code{NULL}]\cr A console printout of
+\code{\link{infer_ivfn_or_tfn_fcm}} results
 }
 \description{
 Print method for infer_ivfn_or_tfn_fcm objects

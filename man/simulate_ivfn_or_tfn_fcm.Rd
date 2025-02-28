@@ -5,7 +5,7 @@
 \title{Simulate (IVFN or TFN) FCM}
 \usage{
 simulate_ivfn_or_tfn_fcm(
-  adj_matrix = matrix(),
+  adj_matrix = data.frame(),
   initial_state_vector = c(),
   clamping_vector = c(),
   activation = c("kosko", "modified-kosko", "rescale"),
@@ -18,37 +18,50 @@ simulate_ivfn_or_tfn_fcm(
 )
 }
 \arguments{
-\item{adj_matrix}{An n x n adjacency matrix that represents an FCM}
+\item{adj_matrix}{[\code{data.frame()}]\cr A single adjacency matrix
+(n x n) representing FCMs. An adjacency matrix can have conventional
+edge weights, IVFN edge weights or TFN edge weights.}
 
-\item{initial_state_vector}{A list state values at the start of an fcm simulation}
+\item{initial_state_vector}{[\code{vector("double")}]\cr A list of state values
+(one per node) at the start of an FCM simulation. In pulse simulations the
+\code{initial_state_vector}  controls the scenario (i.e., a non-zero value
+is a transient perturbation). In clamped simulations all values in the
+\code{initial_state_vector} are set to 1.}
 
-\item{clamping_vector}{A list of values representing specific actions taken to
-control the behavior of an FCM. Specifically, non-zero values defined in this vector
-will remain constant throughout the entire simulation as if they were "clamped" at those values.}
+\item{clamping_vector}{[\code{vector("double")}]\cr A list of values (one per
+node) that indicates whether clamped simulations will be performed. In
+clamped simulations the \code{clamping_vector} controls the scenario (nodes
+assigned non-zero values will remain at those values for the entire
+simulation). In pulse simulations all values in the \code{clamping_vector}
+are set to 0.}
 
-\item{activation}{The activation function to be applied. Must be one of the following:
-'kosko', 'modified-kosko', or 'rescale'.}
+\item{activation}{[\code{character(1)}]\cr The activation function used. Must be
+one of the following: 'kosko', 'modified-kosko', or 'rescale'.}
 
-\item{squashing}{A squashing function to apply. Must be one of the following:
-'tanh', or 'sigmoid'.}
+\item{squashing}{[\code{character(1)}]\cr The squashing function used. Must be
+one of the following: 'tanh' or 'sigmoid'.}
 
-\item{lambda}{A numeric value that defines the steepness of the slope of the
-squashing function when tanh or sigmoid are applied}
+\item{lambda}{[\code{double(1)}] Positive\cr A numeric value that defines the
+steepness of the squashing function's slope.}
 
-\item{point_of_inference}{The point along the simulation time-series to be
-identified as the inference. Must be one of the following: 'peak' or 'final'}
+\item{point_of_inference}{[\code{character(1)}]\cr Definition of an inference.
+The metric used to calculate  the response of each node to a scenario of
+interest from a simulation timeseries. Must be one of the following: 'peak'
+(the maximum value) or 'final' (the state at equilibrium).}
 
-\item{max_iter}{The maximum number of iterations to run if the minimum error value is not achieved}
+\item{max_iter}{[\code{integer(1)} - Positive]\cr The maximum number of
+iterations to run (increase if the minimum error value is not achieved).}
 
-\item{min_error}{The lowest error (sum of the absolute value of the current state
-vector minus the previous state vector) at which no more iterations are necessary
-and the simulation will stop}
+\item{min_error}{[\code{double(1)} - Positive]\cr The error past which a
+simulation has converged and no further iterations are necessary. \emph{Error
+equals the sum of the absolute value of the current state vector minus the
+previous state vector}.}
 
-\item{skip_checks}{FOR DEVELOPER USE ONLY. TRUE if function is called within
-another function and checks have already been performed}
+\item{skip_checks}{[\code{logical(1)}]\cr FOR DEVELOPER USE ONLY. If TRUE, skip
+call to \code{\link{check_simulation_inputs}} (internal function)}
 }
 \value{
-(IVFN or TFN) FCM simulation results
+[\code{fcm_simulation}]\cr A list of FCM simulation results
 }
 \description{
 This simulates a (IVFN or TFN) fcm based on its adjacency matrix.
@@ -68,4 +81,34 @@ This function produces the same output as mental modeler for the following input
 \item squashing = either "sigmoid" or "tanh"
 \item lambda = 1
 }
+}
+\examples{
+
+# Inference w/ Interval-Valued Fuzzy Numbers (IVFNs)
+simulate_ivfn_or_tfn_fcm(adj_matrix = sample_fcms$simple_fcms$ivfn_fcms[[1]],
+                         initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
+                         clamping_vector = c(1, 0, 0, 0, 0, 0, 0),
+                         activation = "kosko",
+                         squashing = "sigmoid",
+                         lambda = 1.0,
+                         point_of_inference = "final",
+                         max_iter = 100,
+                         min_error = 1e-5,
+                         skip_checks = FALSE)
+
+
+# Inference w/ Triangular Fuzzy Numbers (TFNs)
+simulate_ivfn_or_tfn_fcm(adj_matrix = sample_fcms$simple_fcms$tfn_fcms[[1]],
+                         initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
+                         clamping_vector = c(1, 0, 0, 0, 0, 0, 0),
+                         activation = "kosko",
+                         squashing = "sigmoid",
+                         lambda = 1,
+                         point_of_inference = "final",
+                         max_iter = 100,
+                         min_error = 1e-5,
+                         skip_checks = FALSE)
+}
+\references{
+\insertRef{yesil_triangular_2014}{fcmconfr}
 }

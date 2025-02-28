@@ -1,4 +1,0 @@
-Error in rawConnection(raw(1000), open = "wb") : 
-  all connections are in use
-Error in file(con, "r") : all connections are in use
-Error in file(f, "wt") : all connections are in use

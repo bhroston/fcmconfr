@@ -18,51 +18,50 @@ simulate_conventional_fcm(
 )
 }
 \arguments{
-\item{adj_matrix}{['list()`]\cr or data.frame-like object. An n x n adjacency matrix that represents an FCM}
+\item{adj_matrix}{[\code{data.frame()}]\cr A single adjacency matrix
+(n x n) representing FCMs. An adjacency matrix can have conventional
+edge weights, IVFN edge weights or TFN edge weights.}
 
-\item{initial_state_vector}{[\code{vector("numeric")}]\cr A list of state values
+\item{initial_state_vector}{[\code{vector("double")}]\cr A list of state values
 (one per node) at the start of an FCM simulation. In pulse simulations the
 \code{initial_state_vector}  controls the scenario (i.e., a non-zero value
 is a transient perturbation). In clamped simulations all values in the
 \code{initial_state_vector} are set to 1.}
 
-\item{clamping_vector}{[\code{vector("numeric")}]\cr A list of values (one per node)
-that indicates whether clamped simulations will be performed. In clamped
-simulations the \code{clamping_vector} controls the scenario (nodes assigned
-non-zero values will remain at those values for the entire simulation).
-In pulse simulations all values in the \code{clamping_vector} are set to 0.}
+\item{clamping_vector}{[\code{vector("double")}]\cr A list of values (one per
+node) that indicates whether clamped simulations will be performed. In
+clamped simulations the \code{clamping_vector} controls the scenario (nodes
+assigned non-zero values will remain at those values for the entire
+simulation). In pulse simulations all values in the \code{clamping_vector}
+are set to 0.}
 
-\item{activation}{[\code{character()}]\cr The activation function used. Must be
-one of the following: kosko', 'modified-kosko', or 'rescale'.}
+\item{activation}{[\code{character(1)}]\cr The activation function used. Must be
+one of the following: 'kosko', 'modified-kosko', or 'rescale'.}
 
-\item{squashing}{[\code{character()}]\cr string; The squashing function used. Must be
-one of the following: tanh', or 'sigmoid'.}
+\item{squashing}{[\code{character(1)}]\cr The squashing function used. Must be
+one of the following: 'tanh' or 'sigmoid'.}
 
-\item{lambda}{[\code{numeric()}]\cr A numeric value
-that defines the steepness of the squashing function. Should be a positive
-number.}
+\item{lambda}{[\code{double(1)}] Positive\cr A numeric value that defines the
+steepness of the squashing function's slope.}
 
-\item{point_of_inference}{[\code{character()}]\cr Definition of an inference.
+\item{point_of_inference}{[\code{character(1)}]\cr Definition of an inference.
 The metric used to calculate  the response of each node to a scenario of
-interest from simulation timeseries. Must be one of the following: 'peak'
+interest from a simulation timeseries. Must be one of the following: 'peak'
 (the maximum value) or 'final' (the state at equilibrium).}
 
-\item{max_iter}{[\code{integer(1)}]\cr The maximum
-number of iterations to run (increase if the minimum error value is not
-achieved). Should be a positive integer.}
+\item{max_iter}{[\code{integer(1)} - Positive]\cr The maximum number of
+iterations to run (increase if the minimum error value is not achieved).}
 
-\item{min_error}{['numeric(1)`]\cr The error past
-which a simulation has converged and no further iterations are necessary.
-\emph{Error equals the sum of the absolute value of the current state vector
-minus the previous state vector}. Should be a positive number.}
+\item{min_error}{[\code{double(1)} - Positive]\cr The error past which a
+simulation has converged and no further iterations are necessary. \emph{Error
+equals the sum of the absolute value of the current state vector minus the
+previous state vector}.}
 
 \item{skip_checks}{[\code{logical(1)}]\cr FOR DEVELOPER USE ONLY. If TRUE, skip
-call to \code{\link{check_simulation_inputs}} because this function is called
-within another function that has already called
-\code{\link{check_simulation_inputs}}.}
+call to \code{\link{check_simulation_inputs}} (internal function)}
 }
 \value{
-an [\code{fcm_simulation}]\cr object
+[\code{fcm_simulation}]\cr A list of FCM simulation results
 }
 \description{
 This simulates a conventional fcm based on its adjacency matrix.
@@ -84,33 +83,15 @@ This function produces the same output as mental modeler for the following input
 }
 }
 \examples{
-adj_matrix <- data.frame(
-  C1 = c(0, 0, 0, 0, 0, 0),
-  C2 = c(-0.85, 0, 0, 0.35, 0, 0),
-  C3 = c(0, 0, 0, 0, 0, 0),
-  C4 = c(-0.7, 0.6, -1, 0, -1, 0),
-  C5 = c(0.1, 0, 0, -0.8, 0, 0),
-  C6 = c(0, -0.95, 0, 0, -0.95, 0)
-)
-
-simulate_conventional_fcm(adj_matrix,
-                          initial_state_vector = c(1, 1, 1, 1, 1, 1),
-                          clamping_vector = c(1, 0, 0, 0, 0, 0),
+simulate_conventional_fcm(sample_fcms$simple_fcms$conventional_fcms[[1]],
+                          initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
+                          clamping_vector = c(1, 0, 0, 0, 0, 0, 0),
                           activation = "kosko",
                           squashing = "sigmoid",
-                          lambda = 1,
+                          lambda = 1.0,
                           point_of_inference = "final",
+                          max_iter = 100,
+                          min_error = 1e-5,
                           skip_checks = FALSE)
 
-# To simulate an fcm without clamping (i.e. don't calculate the difference
-# from steady-state), change the values in the initial_state_vector while
-# leaving all values in the clamping_vector at 0
-simulate_conventional_fcm(adj_matrix,
-                          initial_state_vector = c(1, 0, 0, 0, 0, 0),
-                          clamping_vector = c(0, 0, 0, 0, 0, 0),
-                          activation = "kosko",
-                          squashing = "sigmoid",
-                          lambda = 1,
-                          point_of_inference = "final",
-                          skip_checks = FALSE)
 }
