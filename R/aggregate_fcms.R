@@ -2,7 +2,8 @@
 ################################################################################
 # aggregate_fcms.R
 #
-# These functions are involved with FCM aggregation (conventional, ivfn, and tfn)
+# These functions are involved with FCM aggregation (conventional, ivfn, and
+# tfn)
 #
 #   Exported
 #   - aggregate_fcms
@@ -165,13 +166,11 @@ aggregate_fcms <- function(adj_matrices = list(),
     check_fcmconfr_input(agg_function, check = "choice_selection", var_name = "agg_function", choice_selection_opts = c("mean", "median"))
     check_fcmconfr_input(include_zeroes_in_sampling, check = "logical", var_name = include_zeroes_in_sampling)
   }
-
   if (!is.null(dim(adj_matrices))) {
     adj_matrices <- list(adj_matrices)
   }
   fcm_class <- get_fcm_class_from_adj_matrix(adj_matrices[[1]])
   adj_matrices <- lapply(adj_matrices, function(x) assert_matrix(x, fcm_class, var_name_input = "adj_matrices"))
-
   agg_function <- tolower(as.character(agg_function))
   include_zeroes_in_sampling <- as.logical(include_zeroes_in_sampling)
 

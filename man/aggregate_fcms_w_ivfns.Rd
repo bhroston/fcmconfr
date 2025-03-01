@@ -120,7 +120,6 @@ aggregate_fcms_w_ivfns(fcms_w_ivfns, "mean", include_zeroes_in_sampling = TRUE)
 \seealso{
 Other aggregate_fcms: 
 \code{\link{aggregate_fcms}()},
-\code{\link{aggregate_fcms_w_tfns}()},
 \code{\link{print.aggregate}()}
 }
 \concept{aggregate_fcms}
