@@ -140,6 +140,10 @@ check_fcmconfr_input <- function(x,
     check_choice_selection(x, choices = choice_selection_opts, var_name = var_name)
   } else if (check == "numeric_vector") {
     check_numeric_vector(x, var_name = var_name)
+  } else if (check == "ivfn_vector") {
+    check_ivfn_vector(x, var_name = var_name)
+  } else if (check == "tfn_vector") {
+    check_tfn_vector(x, var_name = var_name)
   } else if (check == "positive_number") {
     check_positive_number(x, var_name = var_name, zero_is_positive = zero_is_positive)
   } else if (check == "positive_integer") {

@@ -7,16 +7,19 @@
 tfn(lower = double(), mode = double(), upper = double())
 }
 \arguments{
-\item{lower}{lower limit of a Triangular Number set (the lower value must be
-less than or equal to the upper value)}
+\item{lower}{[\code{double(1)} - Unrestriced (positive or negative)]\cr The lower
+limit of a Triangular Number set (the lower value must be less than or equal
+to the upper value)}
 
-\item{mode}{the most likely value of a Triangular Number set}
+\item{mode}{[\code{double(1)} - Unrestriced (positive or negative)]\cr The most
+likely value of a Triangular Number set}
 
-\item{upper}{upper limit of a Triangular Number set (the upper value must be
-greater or equal to the lower value)}
+\item{upper}{[\code{double(1)} - Unrestriced (positive or negative)]\cr The
+upper limit of a Triangular Number set (the upper value must be greater or
+equal to the lower value)}
 }
 \value{
-A triangular fuzzy number (TFN)
+[\code{tfn}]\cr A triangular fuzzy number (TFN)
 }
 \description{
 This constructs an triangular fuzzy number (ivfn) that represents a

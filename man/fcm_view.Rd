@@ -57,8 +57,6 @@ fcm_view(fcm_adj_matrix = adj_matrix)
 }
 \seealso{
 Other utility: 
-\code{\link{get_inferences}()},
-\code{\link{get_node_IDs_from_input}()},
-\code{\link{standardize_adj_matrices}()}
+\code{\link{get_inferences}()}
 }
 \concept{utility}

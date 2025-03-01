@@ -7,7 +7,7 @@
 \method{plot}{rtriangular_dist}(x, ...)
 }
 \arguments{
-\item{x}{an rtriangular_dist object}
+\item{x}{[\code{rtriangular_dis}]\cr An rtriangular_dist object}
 
 \item{...}{additional inputs (leave empty)}
 }

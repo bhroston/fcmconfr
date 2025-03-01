@@ -15,6 +15,11 @@ test_that("defuzz_ivfn_or_tfn works", {
 
 # IVFN Tests ----
 test_that("make_adj_matrix_w_ivfns works", {
+  expect_no_error(make_adj_matrix_w_ivfns(
+    lower = matrix(data = c(0, 0.2, 0, 0.5), nrow = 2, ncol = 2),
+    upper = matrix(data = c(0, 0.4, 0, 0.7), nrow = 2, ncol = 2)
+  ))
+
   test_lower_adj_matrix <- data.frame(
     "C1" = c(0, 0, 0.51, -0.9, 0, 0, 0, 0),
     "C2" = c(0, 0, 0, 0.7, -0.52, 0, 0, 0),

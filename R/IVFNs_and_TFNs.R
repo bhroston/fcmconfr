@@ -4,14 +4,13 @@
 #
 # These functions manage and interact with IVFN and TFN objects
 #
+#   Exported (All)
 #   - defuzz_ivfn_or_tfn
-#
 #   Interval-Valued Fuzzy Numbers (IVFNs)
 #   - make_adj_matrix_w_ivfns
 #   - ivfn
 #   - print.ivfn
 #   - c.ivfn
-#
 #   Triangular Fuzzy Numbers (TFNs)
 #   - make_adj_matrix_w_tfns
 #   - tfn
@@ -44,11 +43,10 @@
 #' where \eqn{x^{L}, x^{M}, and x^{U}} are the lower bound, mode, and upper bound
 #' of the TFN.
 #'
-#' @param fuzzy_number A fuzzy number object. Either an ivfn or tfn
+#' @param fuzzy_number \[`ivfn` or `tfn`] An IVFN or TFN object
 #'
-#' @returns A crisp value representative of the input IVFN or TFN
-#'
-#' @importFrom methods is
+#' @returns \[`numeric(1)`]\cr A crisp number representative of the input fuzzy
+#' number.
 #'
 #' @export
 #' @examples
@@ -63,9 +61,13 @@ defuzz_ivfn_or_tfn <- function(fuzzy_number) {
   } else if (fuzzy_class == "tfn") {
     crisp_value <- (fuzzy_number$lower + fuzzy_number$mode + fuzzy_number$upper)/3
   } else {
-    stop("Cannot defuzz input fuzzy_number. Must be either an ivfn or tfn. (Accepts numerics but does nothing with them.)")
+    stop(cli::format_warning(c(
+      "x" = "Error: Cannot defuzz input. Must be either an ivfn or tfn",
+      "+++++++> Input {.var fuzzy_number} was of type: {methods::is(fuzzy_number)[1]}"
+    )))
   }
-  crisp_value
+
+  return(crisp_value)
 }
 
 
@@ -90,20 +92,27 @@ defuzz_ivfn_or_tfn <- function(fuzzy_number) {
 #' in the grey adjacency matrix. Otherwise, generic node IDs will be used
 #' (C1, C2, ... Cn).
 #'
-#' @param lower An n x n adjacency matrix that represents the lower limits of
-#'              edges in an FCM
-#' @param upper An n x n adjacency matrix that represents the upper limits of
-#'              edges in an FCM
+#' @param lower \[`list() or data.frame()`]\cr An n x n adjacency matrix that
+#' represents the lower limits of edges in an FCM
+#' @param upper \[`list() or data.frame()`]\cr An n x n adjacency matrix that represents
+#' the upper limits of edges in an FCM
 #'
-#' @returns An adj. matrix (of class 'ivfn') with edges represented as IVFNs
-#'
-#' @importFrom cli format_error
-#' @importFrom methods is
+#' @returns \[`adj_matrix_w_ivfns`]\cr An adjacency matrix (of class 'ivfn')
+#' with edges represented as IVFNs
 #'
 #' @export
 #' @example  man/examples/ex-make_adj_matrix_w_ivfns.R
-make_adj_matrix_w_ivfns <- function(lower = matrix(), upper = matrix()) {
-  # browser()
+make_adj_matrix_w_ivfns <- function(lower = data.frame(), upper = data.frame()) {
+
+  #test_lower <- class(lower)
+  #test_upper <- class(upper)
+
+  #browser()
+
+  #check_fcmconfr_input(lower, check = "square_adj_matrix", var_name = "lower")
+  lower <- assert_matrix(lower, fcm_class = "conventional", var_name_input = "lower")
+  #check_fcmconfr_input(upper, check = "square_adj_matrix", var_name = "upper")
+  upper <- assert_matrix(upper, fcm_class = "conventional", var_name_input = "upper")
 
   if (!identical(dim(lower), dim(upper))) {
     stop(cli::format_error(c(
@@ -166,7 +175,7 @@ make_adj_matrix_w_ivfns <- function(lower = matrix(), upper = matrix()) {
 
   class(adj_matrix_w_ivfns) <- c("adj_matrix_w_ivfns", methods::is(adj_matrix_w_ivfns))
 
-  adj_matrix_w_ivfns
+  return(adj_matrix_w_ivfns)
 }
 
 
@@ -192,14 +201,12 @@ make_adj_matrix_w_ivfns <- function(lower = matrix(), upper = matrix()) {
 #' }
 #' where \eqn{x^{L}} and \eqn{x^{U}} are the lower and upper bounds of the IVFN.
 #'
-#' @param lower An n x n adjacency matrix that represents the lower limits of
-#'              edges in an FCM
-#' @param upper An n x n adjacency matrix that represents the upper limits of
-#'              edges in an FCM
+#' @param lower \[`double()` - Unrestriced (positive or negative)]\cr The lower
+#' bound of an IVFN
+#' @param upper \[`double()` - Unrestriced (positive or negative)]\cr The upper
+#' bound of an IVFN
 #'
-#' @returns An interval-valued fuzzy number (IVFN)
-#'
-#' @importFrom cli format_error
+#' @returns \[`ivfn`]\cr An interval-valued fuzzy number (IVFN)
 #'
 #' @references \insertRef{mooreIntervalAnalysisFuzzy2003}{fcmconfr}
 #' @references \insertRef{dimuroIntervalFuzzyNumbers2011}{fcmconfr}
@@ -209,6 +216,12 @@ make_adj_matrix_w_ivfns <- function(lower = matrix(), upper = matrix()) {
 ivfn <- function(lower = double(), upper = double()) {
   lower <- unlist(lower)
   upper <- unlist(upper)
+
+  check_fcmconfr_input(lower, check = "numeric_vector", var_name = "lower")
+  check_fcmconfr_input(upper, check = "numeric_vector", var_name = "upper")
+
+  lower <- as.numeric(lower)
+  upper <- as.numeric(upper)
 
   if (identical(lower, double())) {
     lower <- -Inf
@@ -234,10 +247,10 @@ ivfn <- function(lower = double(), upper = double()) {
     )))
   }
 
-  structure(
+  return(structure(
     .Data = data.frame(lower = lower, upper = upper),
     class = "ivfn"
-  )
+  ))
 }
 
 
@@ -270,10 +283,11 @@ ivfn <- function(lower = double(), upper = double()) {
 #' @references \insertRef{dimuroIntervalFuzzyNumbers2011}{fcmconfr}
 #' @references \insertRef{mooreIntervalAnalysis1966}{fcmconfr}
 #'
-#' @param ivfn_1 An interval-value fuzzy number (ivfn) object
-#' @param ivfn_2 An interval-value fuzzy number (ivfn) object
+#' @param ivfn_1 \[`ivfn`]\cr  An interval-value fuzzy number (ivfn) object
+#' @param ivfn_2 \[`ivfn`]\cr  An interval-value fuzzy number (ivfn) object
 #'
-#' @returns An IVFN object representing the subtraction of ivfn_2 from ivfn_1
+#' @returns \[`ivfn`]\cr An IVFN object representing the subtraction of
+#' ivfn_2 from ivfn_1
 #'
 #' @importFrom Rdpack reprompt
 #' @importFrom methods is
@@ -284,9 +298,9 @@ ivfn <- function(lower = double(), upper = double()) {
 #' subtract_ivfn(ivfn(-0.5, 0.3), ivfn(0.4, 0.6))
 #' subtract_ivfn(ivfn(-1, 1), ivfn(-0.5, 0.5))
 subtract_ivfn <- function(ivfn_1 = ivfn(), ivfn_2 = ivfn()) {
-  if ((!identical(methods::is(ivfn_1), "ivfn")) | (!identical(methods::is(ivfn_2), "ivfn"))) {
-    stop("Input Error: Both inputs must be valid ivfn objects")
-  }
+
+  check_fcmconfr_input(c(ivfn_1), check = "ivfn_vector", var_name = "ivfn_1")
+  check_fcmconfr_input(c(ivfn_2), check = "ivfn_vector", var_name = "ivfn_2")
 
   new_lower <- ivfn_1$lower - ivfn_2$upper
 
@@ -300,7 +314,7 @@ subtract_ivfn <- function(ivfn_1 = ivfn(), ivfn_2 = ivfn()) {
   # both referenced throughout the literature. However, after testing, Moore
   # & Lodwick (2003) was found to produce more reliable results.
 
-  ivfn(new_lower, new_upper)
+  return(ivfn(new_lower, new_upper))
 }
 
 
@@ -312,16 +326,18 @@ subtract_ivfn <- function(ivfn_1 = ivfn(), ivfn_2 = ivfn()) {
 #' @description
 #' This prints an ivfn object
 #'
-#' @param x a ivfn object
+#' @param x \[`ivfn`]\cr a ivfn object
 #' @param ... additional inputs
 #'
-#' @returns A console printout of an IVFN object
+#' @returns \[`NULL`]\cr A console printout of an IVFN object
 #'
 #' @export
 #' @examples
 #' print(ivfn(-1, 1))
 print.ivfn <- function(x, ...) {
-  cat(class(x), ": [", x$lower, ", ", x$upper, "]", sep = "")
+  return(
+    cat(class(x), ": [", x$lower, ", ", x$upper, "]", sep = "")
+  )
 }
 
 
@@ -340,13 +356,13 @@ print.ivfn <- function(x, ...) {
 #'
 #' @param ... a set of ivfn objects
 #'
-#' @returns A list of ivfn objects
+#' @returns \[`list()`]\cr A list of ivfn objects
 #'
 #' @export
 #' @examples
 #' c(ivfn(0, 1), ivfn(0.2, 0.5))
 c.ivfn <- function(...) {
-  list(...)
+  return(list(...))
 }
 
 
@@ -373,27 +389,36 @@ c.ivfn <- function(...) {
 #' in the triangular adjacency matrix. Otherwise, generic node IDs will be used
 #' (C1, C2, ... Cn).
 #'
-#' @param lower An n x n adjacency matrix that represents the lower limits of
-#'              edges in an FCM
-#' @param mode An n x n adjacency matrix that represents the modes of edges in an FCM
-#' @param upper An n x n adjacency matrix that represents the upper limits of
-#'              edges in an FCM
+#' @param lower \[`data.frame()`]\cr An n x n adjacency matrix that represents
+#' the lower limits of edges in an FCM
+#' @param mode \[`data.frame()`]\cr An n x n adjacency matrix that represents
+#' the modes (most likely values) of edges in an FCM
+#' @param upper \[`data.frame()`]\cr An n x n adjacency matrix that represents
+#' the upper limits of edges in an FCM
 #'
-#' @returns An adj. matrix (of class 'tfn') with edges represented as TFNs
-#'
-#' @importFrom cli format_error
-#' @importFrom methods is
+#' @returns \[`adj_matrix_w_tfns`]\cr An adjacency matrix (of class 'tfn') with
+#' edges represented as TFNs
 #'
 #' @export
 #' @example  man/examples/ex-make_adj_matrix_w_tfns.R
-make_adj_matrix_w_tfns <- function(lower = matrix(),
-                                   mode = matrix(),
-                                   upper = matrix()) {
+make_adj_matrix_w_tfns <- function(lower = data.frame(),
+                                   mode = data.frame(),
+                                   upper = data.frame()) {
+
+  check_fcmconfr_input(lower, check = "square_adj_matrix", var_name = "lower")
+
+  check_fcmconfr_input(lower, check = "square_adj_matrix", var_name = "lower")
+  lower <- assert_matrix(lower, fcm_class = "conventional", var_name_input = "lower")
+  check_fcmconfr_input(mode, check = "square_adj_matrix", var_name = "mode")
+  mode <- assert_matrix(mode, fcm_class = "conventional", var_name_input = "mode")
+  check_fcmconfr_input(upper, check = "square_adj_matrix", var_name = "upper")
+  upper <- assert_matrix(upper, fcm_class = "conventional", var_name_input = "upper")
+
   if (!(identical(dim(lower), dim(mode)) & identical(dim(mode), dim(upper)))) {
     stop(cli::format_error(c(
       "x" = "Error: {.var lower}, {.var mode}, and {.var upper} must have the same dimensions (i.e. be the same size) and must be square (n x n) matrices",
       "+++++> Input {.var lower} had dimensions: {dim(lower)}",
-      "+++++> Input {.var lower} had dimensions: {dim(mode)}",
+      "+++++> Input {.var mode} had dimensions: {dim(mode)}",
       "+++++> Input {.var upper} had dimensions: {dim(upper)}"
     )))
   }
@@ -402,7 +427,7 @@ make_adj_matrix_w_tfns <- function(lower = matrix(),
     stop(cli::format_error(c(
       "x" = "Error: {.var lower}, {.var mode}, and {.var upper} must have the same dimensions (i.e. be the same size) and must be square (n x n) matrices",
       "+++++> Input {.var lower} had dimensions: {dim(lower)}",
-      "+++++> Input {.var lower} had dimensions: {dim(mode)}",
+      "+++++> Input {.var mode} had dimensions: {dim(mode)}",
       "+++++> Input {.var upper} had dimensions: {dim(upper)}"
     )))
   } else {
@@ -453,7 +478,7 @@ make_adj_matrix_w_tfns <- function(lower = matrix(),
 
   class(adj_matrix_w_tfns) <- c("adj_matrix_w_tfns", methods::is(adj_matrix_w_tfns))
 
-  adj_matrix_w_tfns
+  return(adj_matrix_w_tfns)
 }
 
 
@@ -481,15 +506,16 @@ make_adj_matrix_w_tfns <- function(lower = matrix(),
 #' where \eqn{x^{L}}, \eqn{x^{M}}, and \eqn{x^{U}} are the lower bound, mode,
 #' and upper bound of the TFN.
 #'
-#' @param lower lower limit of a Triangular Number set (the lower value must be
-#' less than or equal to the upper value)
-#' @param mode the most likely value of a Triangular Number set
-#' @param upper upper limit of a Triangular Number set (the upper value must be
-#' greater or equal to the lower value)
+#' @param lower \[`double(1)` - Unrestriced (positive or negative)]\cr The lower
+#' limit of a Triangular Number set (the lower value must be less than or equal
+#' to the upper value)
+#' @param mode \[`double(1)` - Unrestriced (positive or negative)]\cr The most
+#' likely value of a Triangular Number set
+#' @param upper  \[`double(1)` - Unrestriced (positive or negative)]\cr The
+#' upper limit of a Triangular Number set (the upper value must be greater or
+#' equal to the lower value)
 #'
-#' @returns A triangular fuzzy number (TFN)
-#'
-#' @importFrom cli format_error
+#' @returns \[`tfn`]\cr A triangular fuzzy number (TFN)
 #'
 #' @references \insertRef{chakravertyFuzzyNumbers2019}{fcmconfr}
 #' @references \insertRef{hanssAppliedFuzzyArithmetic2005}{fcmconfr}
@@ -501,6 +527,14 @@ tfn <- function(lower = double(), mode = double(), upper = double()) {
   lower <- unlist(lower)
   mode <- unlist(mode)
   upper <- unlist(upper)
+
+  check_fcmconfr_input(lower, check = "numeric_vector", var_name = "lower")
+  check_fcmconfr_input(mode, check = "numeric_vector", var_name = "mode")
+  check_fcmconfr_input(upper, check = "numeric_vector", var_name = "upper")
+
+  lower <- as.numeric(lower)
+  mode <- as.numeric(mode)
+  upper <- as.numeric(upper)
 
   if (identical(lower, double())) {
     lower <- -Inf
@@ -541,10 +575,10 @@ tfn <- function(lower = double(), mode = double(), upper = double()) {
     )))
   }
 
-  structure(
+  return(structure(
     .Data = data.frame(lower = lower, mode = mode, upper = upper),
     class = "tfn"
-  )
+  ))
 }
 
 
@@ -585,13 +619,11 @@ tfn <- function(lower = double(), mode = double(), upper = double()) {
 #' @references \insertRef{hanssAppliedFuzzyArithmetic2005}{fcmconfr}
 #' @references \insertRef{trillasFuzzyArithmetic2015}{fcmconfr}
 #'
-#' @param tfn_1 A triangular fuzzy number (tfn) object
-#' @param tfn_2 A triangular fuzzy number (tfn) object
+#' @param tfn_1 \[`tfn`]\cr A triangular fuzzy number (tfn) object
+#' @param tfn_2 \[`tfn`]\cr A triangular fuzzy number (tfn) object
 #'
-#' @returns An TFN object representing the subtraction of tfn_2 from tfn_1
-#'
-#' @importFrom Rdpack reprompt
-#' @importFrom methods is
+#' @returns \[`tfn`]\cr An TFN object representing the subtraction of tfn_2
+#' from tfn_1
 #'
 #' @export
 #' @examples
@@ -599,14 +631,15 @@ tfn <- function(lower = double(), mode = double(), upper = double()) {
 #' subtract_tfn(tfn(-0.5, -0.2, 0.3), tfn(0.4, 0.5, 0.6))
 #' subtract_tfn(tfn(-1, 0, 1), tfn(-0.5, 0, 0.5))
 subtract_tfn <- function(tfn_1 = tfn(), tfn_2 = tfn()) {
-  if ((!identical(methods::is(tfn_1), "tfn")) | (!identical(methods::is(tfn_2), "tfn"))) {
-    stop("Input Error: Both inputs must be valid tfn objects")
-  }
+
+  check_fcmconfr_input(c(tfn_1), check = "tfn_vector", var_name = "tfn_1")
+  check_fcmconfr_input(c(tfn_2), check = "tfn_vector", var_name = "tfn_2")
 
   new_lower <- tfn_1$lower - tfn_2$upper
   new_mode <- tfn_1$mode - tfn_2$mode
   new_upper <- tfn_1$upper - tfn_2$lower
-  tfn(new_lower, new_mode, new_upper)
+
+  return(tfn(new_lower, new_mode, new_upper))
 }
 
 
@@ -630,7 +663,9 @@ subtract_tfn <- function(tfn_1 = tfn(), tfn_2 = tfn()) {
 #' @examples
 #' tfn(-1, 0, 1)
 print.tfn <- function(x, ...) {
-  cat(class(x), ": [", x$lower, ", ", x$mode, ", ", x$upper, "]", sep = "")
+  return(
+    cat(class(x), ": [", x$lower, ", ", x$mode, ", ", x$upper, "]", sep = "")
+  )
 }
 
 
@@ -655,7 +690,7 @@ print.tfn <- function(x, ...) {
 #' @examples
 #' c(tfn(0, 1), tfn(0.2, 0.5))
 c.tfn <- function(...) {
-  list(...)
+  return(list(...))
 }
 
 
@@ -666,26 +701,25 @@ c.tfn <- function(...) {
 #' This function generates a triangular distribution on the interval from lower
 #' to upper bounds with a a given mode,
 #'
-#' @param n number of samples to draw from the triangular distribution
-#' @param lower lower limit or minimum of the sample space
-#' @param upper upper limit or maximum of the sample space
-#' @param mode peak of the sample space
+#' @param n \[`integer(1)`]\cr The number of samples to draw from the triangular
+#' distribution
+#' @param lower \[`double(1)` - Unrestriced (positive or negative)]\cr The lower
+#' limit or minimum of the sample space
+#' @param mode \[`double(1)` - Unrestriced (positive or negative)]\cr  The peak
+#' of the sample space
+#' @param upper \[`double(1)` - Unrestriced (positive or negative)]\cr The upper
+#' limit or maximum of the sample space
 #'
-#' @details
-#' Additional details...
-#'
-#' @returns a set c() of values representing a triangular distribution
+#' @returns \[`vector("numeric")`]\cr a vector of values representing a
+#' triangular distribution
 #'
 #' @export
 #' @example  man/examples/ex-rtriangular_dist.R
 rtriangular_dist <- function(n = integer(), lower = double(), mode = double(), upper = double()) {
-  # Confirm n is an integer
-  if (!is.numeric(n)) {
-    stop("Input Error: n must be an integer")
-  }
-  if (is.numeric(n) & (n %% 2 != 0)) {
-    stop("Input Error: n must be an integer")
-  }
+  check_fcmconfr_input(n, check = "positive_integer", var_name = "n")
+  check_fcmconfr_input(c(lower), check = "numeric_vector", var_name = "lower")
+  check_fcmconfr_input(c(mode), check = "numeric_vector", var_name = "mode")
+  check_fcmconfr_input(c(upper), check = "numeric_vector", var_name = "upper")
 
   # Confirm lower <= mode <= upper
   tfn(lower, mode, upper)
@@ -693,8 +727,6 @@ rtriangular_dist <- function(n = integer(), lower = double(), mode = double(), u
   if (identical(mode, double())) {
     mode <- (lower + upper)/2
   }
-
-  # browser()
 
   if (lower == upper) {
     midpoint_domain <- 0
@@ -713,11 +745,11 @@ rtriangular_dist <- function(n = integer(), lower = double(), mode = double(), u
   }
   values_distribution <- inv_cdf
 
-  structure(
+  return(structure(
     .Data = values_distribution,
     .label = paste0("rtriangular_dist(", n, ", ", lower, ", ", mode, ", ", upper, ")"),
     class = "rtriangular_dist"
-  )
+  ))
 }
 
 
@@ -726,7 +758,7 @@ rtriangular_dist <- function(n = integer(), lower = double(), mode = double(), u
 #' @description
 #' Plot rtriangular_dist distribution similar to how runif is plotted with the base plot function
 #'
-#' @param x an rtriangular_dist object
+#' @param x \[`rtriangular_dis`]\cr An rtriangular_dist object
 #' @param ... additional inputs (leave empty)
 #'
 #' @returns A plot of the triangular distribution generated by rtriangular_dist
@@ -737,5 +769,5 @@ rtriangular_dist <- function(n = integer(), lower = double(), mode = double(), u
 #' plot(rtriangular_dist(1000, -1, 0, 1))
 plot.rtriangular_dist <- function(x, ...) {
   index <- sample(1:length(x), length(x), replace = FALSE)
-  plot(x = index, y = x, xlab = "Index", ylab = attr(x, ".label"))
+  return(plot(x = index, y = x, xlab = "Index", ylab = attr(x, ".label")))
 }

@@ -132,8 +132,6 @@ get_inferences(ex_tfn_fcmconfr)
 }
 \seealso{
 Other utility: 
-\code{\link{fcm_view}()},
-\code{\link{get_node_IDs_from_input}()},
-\code{\link{standardize_adj_matrices}()}
+\code{\link{fcm_view}()}
 }
 \concept{utility}

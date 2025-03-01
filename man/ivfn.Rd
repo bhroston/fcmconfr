@@ -7,14 +7,14 @@
 ivfn(lower = double(), upper = double())
 }
 \arguments{
-\item{lower}{An n x n adjacency matrix that represents the lower limits of
-edges in an FCM}
+\item{lower}{[\code{double()} - Unrestriced (positive or negative)]\cr The lower
+bound of an IVFN}
 
-\item{upper}{An n x n adjacency matrix that represents the upper limits of
-edges in an FCM}
+\item{upper}{[\code{double()} - Unrestriced (positive or negative)]\cr The upper
+bound of an IVFN}
 }
 \value{
-An interval-valued fuzzy number (IVFN)
+[\code{ivfn}]\cr An interval-valued fuzzy number (IVFN)
 }
 \description{
 This constructs an interval-valued fuzzy number (ivfn) that represents a

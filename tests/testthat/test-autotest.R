@@ -1,40 +1,23 @@
-#
-# test_that("aggregate_fcms functions pass autotest", {
-#   functions_to_test <- c(
-#     "aggregate_fcms",
-#     "aggregate_conventional_fcms", "aggregate_fcms_w_ivfns", "aggregate_fcms_w_tfns",
-#     "print.aggregate"
-#   )
-#
-#   test_data <- autotest::autotest_types()
-#   test_data$notes <- ""
-#
-#   x <- autotest::autotest_package(
-#     functions = functions_to_test,
-#     test = TRUE,
-#     test_data = test_data
-#   )
-#
-#   autotest::expect_autotest_no_err(x)
-#   autotest::expect_autotest_no_warn(x)
-# })
-#
-#
-# test_that("estimate_fcm_lambda passes autotest", {
-#   test_data <- autotest::autotest_types()
-#   test_data$notes <- ""
-#
-#   x <- autotest::autotest_package(
-#     functions = "estimate_fcm_lambda",
-#     test = TRUE,
-#     test_data = test_data
-#   )
-#
-#   autotest::expect_autotest_no_err(x)
-#   autotest::expect_autotest_no_warn(x)
-# })
-#
-#
+
+# aggregate_fcms.R - Checks pass
+test_that("aggregate_fcms functions pass autotest", {
+  functions_to_check <- c("aggregate_fcms", "print.aggregate")
+  yaml_list <- autotest::examples_to_yaml(package = ".", functions = functions_to_check)
+  res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)
+
+  autotest::expect_autotest_no_err(x)
+  autotest::expect_autotest_no_warn(x)
+})
+
+
+# estimate_fcm_lambda - Checks pass
+test_that("estimate_fcm_lambda passes autotest", {
+  functions_to_check <- c("estimate_fcm_lambda")
+  yaml_list <- autotest::examples_to_yaml(package = ".", functions = functions_to_check)
+  res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)
+})
+
+
 # test_that("fcm_view passes autotest", {
 #   test_data <- autotest::autotest_types(notest = "negate_logical")
 #   test_data$notes <- ""
@@ -51,34 +34,47 @@
 #   autotest::expect_autotest_no_err(x)
 #   autotest::expect_autotest_no_warn(x)
 # })
-#
-#
-# test_that("utils-general functions pass autotest", {
-#   functions_to_test <- c(
-#     "standardize_adj_matrices",
-#     "check_if_local_machine_has_access_to_parallel_processing_functionalities",
-#     "check_if_local_machine_has_access_to_show_progress_functionalities",
-#     "get_adj_matrices_input_type",
-#     "get_node_IDs_from_input"
-#   )
-#
-#   test_data <- autotest::autotest_types()
-#   test_data$notes <- ""
-#
-#   x <- autotest::autotest_package(
-#     functions = functions_to_test,
-#     test = TRUE,
-#     test_data = test_data
-#   )
-#
-#   autotest::expect_autotest_no_err(x)
-#   autotest::expect_autotest_no_warn(x)
-# })
-#
-#
+
+
+# IVFNs_and_TFNs.R
+test_that("IVFNs_and_TFNs functions pass autotest", {
+  functions_to_check <- c("defuzz_ivfn_or_tfn",
+                          "make_adj_matrix_w_ivfns")#, "ivfn", "print.ivfn", "c.ivfn",
+                          #"make_adj_matrix_w_tfns", "tfn", "print.tfn", "c.tfn", "rtriangular_dist", "plot.rtriangular_dist")
+
+  #   Exported (All)
+  #   - defuzz_ivfn_or_tfn
+  #   Interval-Valued Fuzzy Numbers (IVFNs)
+  #   - make_adj_matrix_w_ivfns
+  #   - ivfn
+  #   - print.ivfn
+  #   - c.ivfn
+  #   Triangular Fuzzy Numbers (TFNs)
+  #   - make_adj_matrix_w_tfns
+  #   - tfn
+  #   - print.tfn
+  #   - c.tfn
+  #   - rtriangular_dist
+  #   - plot.rtriangular_dist
+
+  # functions_to_check <- c("infer_fcm")
+  yaml_list <- autotest::examples_to_yaml(package = ".", functions = functions_to_check)
+  res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)
+})
+
+
+# infer_and_simulate_fcm - Checks pass
 test_that("infer_and_simulate_fcm functions pass autotest", {
  functions_to_check <- c("infer_fcm_set", "infer_fcm")
  # functions_to_check <- c("infer_fcm")
  yaml_list <- autotest::examples_to_yaml(package = ".", functions = functions_to_check)
  res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)
+})
+
+
+# utils-general.R - Checks pass
+test_that("utils-general.R functions pass autotest", {
+  functions_to_check <- c("standardize_adj_matrices")
+  yaml_list <- autotest::examples_to_yaml(package = ".", functions = functions_to_check)
+  res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)
 })

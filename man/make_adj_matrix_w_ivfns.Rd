@@ -4,17 +4,18 @@
 \alias{make_adj_matrix_w_ivfns}
 \title{Create Adj. Matrix w/ Edges Represented as IVFNs}
 \usage{
-make_adj_matrix_w_ivfns(lower = matrix(), upper = matrix())
+make_adj_matrix_w_ivfns(lower = data.frame(), upper = data.frame())
 }
 \arguments{
-\item{lower}{An n x n adjacency matrix that represents the lower limits of
-edges in an FCM}
+\item{lower}{[\verb{list() or data.frame()}]\cr An n x n adjacency matrix that
+represents the lower limits of edges in an FCM}
 
-\item{upper}{An n x n adjacency matrix that represents the upper limits of
-edges in an FCM}
+\item{upper}{[\verb{list() or data.frame()}]\cr An n x n adjacency matrix that represents
+the upper limits of edges in an FCM}
 }
 \value{
-An adj. matrix (of class 'ivfn') with edges represented as IVFNs
+[\code{adj_matrix_w_ivfns}]\cr An adjacency matrix (of class 'ivfn')
+with edges represented as IVFNs
 }
 \description{
 This constructs an adjacency matrix with edges represented by interval-value
@@ -33,10 +34,6 @@ in the grey adjacency matrix. Otherwise, generic node IDs will be used
 (C1, C2, ... Cn).
 }
 \examples{
-make_adj_matrix_w_ivfns(
-  lower = matrix(data = c(0, 0.2, 0, 0.5), nrow = 2, ncol = 2),
-  upper = matrix(data = c(0, 0.4, 0, 0.7), nrow = 2, ncol = 2)
-)
 
 lower_adj_matrix <- data.frame(
   "A" = c(0, 0),

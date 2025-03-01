@@ -38,13 +38,16 @@
 #' @export
 #'
 #' @example man/examples/ex-standardize_adj_matrices.R
-standardize_adj_matrices <- function(adj_matrices = list(matrix())) {
-  adj_matrices_dims <- lapply(adj_matrices, function(x) unique(dim(x)))
-  all_adj_matrices_are_square <- all(unlist(lapply(adj_matrices_dims, function(x) length(x) == 1)))
-  if (!all_adj_matrices_are_square) {
-    stop("Failed in standardize_size_of_adj_matrices
-       All matrices must be square (n x n)")
+standardize_adj_matrices <- function(adj_matrices = list()) {
+
+  if (!is.null(dim(adj_matrices))) {
+    adj_matrices <- list(adj_matrices)
   }
+  # check_fcmconfr_input("adj_matrices", check = "adj_matrix_list", var_name = "adj_matrices")
+  lapply(adj_matrices, function(x) check_fcmconfr_input(x, "square_adj_matrix", var_name = "adj_matrices"))
+
+  fcm_class <- get_fcm_class_from_adj_matrix(adj_matrices[[1]])
+  adj_matrices <- lapply(adj_matrices, function(x) assert_matrix(x, fcm_class, var_name_input = "adj_matrices"))
 
   nodes_by_adj_matrix <- lapply(adj_matrices, colnames)
   nodes_in_adj_matrices <- unique(unlist(nodes_by_adj_matrix))
@@ -53,10 +56,6 @@ standardize_adj_matrices <- function(adj_matrices = list(matrix())) {
   if (adj_matrices_already_standardized) {
     return(adj_matrices)
   }
-
-  adj_matrices_input_type <- get_adj_matrices_input_type(adj_matrices)
-  fcm_class <- adj_matrices_input_type$object_types_in_list[1]
-
 
   standardized_adj_matrices <- vector(mode = "list", length = length(adj_matrices))
 
@@ -69,7 +68,7 @@ standardize_adj_matrices <- function(adj_matrices = list(matrix())) {
       weight_locs_df <- cbind(expand.grid(c(1:n_nodes_in_input_matrix), c(1:n_nodes_in_input_matrix)), expand.grid(standardized_weight_locs, standardized_weight_locs))
       colnames(weight_locs_df) <- c("input_row", "input_col", "output_row", "output_col")
       weight_locs_df$weight <- apply(weight_locs_df, 1, function(row_vec) adj_matrices[[i]][row_vec[1], row_vec[2]])
-      for (row_index in 1:nrow(weight_locs_df)) {
+      for (row_index in seq_along(rownames(weight_locs_df))) {
         standardized_adj_matrix[weight_locs_df$output_row[row_index], weight_locs_df$output_col[row_index]] <- weight_locs_df$weight[row_index]
       }
       standardized_adj_matrices[[i]] <- standardized_adj_matrix
@@ -88,14 +87,14 @@ standardize_adj_matrices <- function(adj_matrices = list(matrix())) {
       weight_locs_df <- cbind(expand.grid(c(1:n_nodes_in_input_matrix), c(1:n_nodes_in_input_matrix)), expand.grid(standardized_weight_locs, standardized_weight_locs))
       colnames(weight_locs_df) <- c("input_row", "input_col", "output_row", "output_col")
       weight_locs_df$weight <- apply(weight_locs_df, 1, function(row_vec) adj_matrices[[i]][row_vec[1], row_vec[2]][[1]])
-      for (row_index in 1:nrow(weight_locs_df)) {
+      for (row_index in seq_along(rownames(weight_locs_df))) {
         standardized_adj_matrix[weight_locs_df$output_row[row_index], weight_locs_df$output_col[row_index]][[1]] <- weight_locs_df$weight[row_index]
       }
       standardized_adj_matrices[[i]] <- standardized_adj_matrix
     }
   }
 
-  standardized_adj_matrices
+  return(standardized_adj_matrices)
 }
 
 
@@ -124,13 +123,7 @@ standardize_adj_matrices <- function(adj_matrices = list(matrix())) {
 #' @export
 #' @example man/examples/ex-get_fcm_class_from_adj_matrix.R
 get_fcm_class_from_adj_matrix <- function(adj_matrix = data.frame()) {
-  # check_fcmconfr_input(adj_matrix, check = "square_adj_matrix", var_name = "adj_matrix")
-
-  if (is.null(dim(adj_matrix))) {
-    class(adj_matrix) <- NULL
-    adj_matrix <- data.frame(do.call(cbind, adj_matrix))
-    # adj_matrix <- data.frame(apply(adj_matrix, c(1, 2), function(element) element))
-  }
+  check_fcmconfr_input(adj_matrix, check = "square_adj_matrix", var_name = "adj_matrix")
 
   element_types_in_adj_matrix <- unique(as.vector(as.matrix(apply(adj_matrix, c(1, 2), function(x) methods::is(x[[1]])))))
 

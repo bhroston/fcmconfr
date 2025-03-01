@@ -7,12 +7,13 @@
 subtract_tfn(tfn_1 = tfn(), tfn_2 = tfn())
 }
 \arguments{
-\item{tfn_1}{A triangular fuzzy number (tfn) object}
+\item{tfn_1}{[\code{tfn}]\cr A triangular fuzzy number (tfn) object}
 
-\item{tfn_2}{A triangular fuzzy number (tfn) object}
+\item{tfn_2}{[\code{tfn}]\cr A triangular fuzzy number (tfn) object}
 }
 \value{
-An TFN object representing the subtraction of tfn_2 from tfn_1
+[\code{tfn}]\cr An TFN object representing the subtraction of tfn_2
+from tfn_1
 }
 \description{
 This subtracts one Triangular Fuzzy Number (TFN) from another via

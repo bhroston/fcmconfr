@@ -113,39 +113,17 @@ estimate_fcm_lambda <- function(adj_matrix = data.frame(),
                                 squashing = c("sigmoid", "tanh")) {
 
   adj_matrix_check <- check_fcmconfr_input(adj_matrix, check = "square_adj_matrix", var_name = "adj_matrix")
-  adj_matrix <- assert_matrx(adj_matrix)
+  adj_matrix <- assert_matrix(adj_matrix)
+  check_fcmconfr_input(squashing, check = "choice_selection", var_name = "squashing", choice_selection_opts = c("sigmoid", "tanh"))
+  squashing <- tolower(as.character(squashing))
 
-
-  if (is.null(dim(adj_matrix))) {
-    warning(cli::format_error(c(
-      "x" = "Error: {.var adj_matrix} must be an (n x n) adj. matrix",
-      "+++++> Input The operation dim(adj_matrix) returned NULL"
-    )))
-    return(invisible(NULL))
-  }
-
-  fcm_class <- get_adj_matrices_input_type(adj_matrix)$object_types_in_list[1]
+  fcm_class <- get_fcm_class_from_adj_matrix(adj_matrix)
   if (fcm_class == "conventional") {
     as_conventional_adj_matrix <- adj_matrix
   } else if (fcm_class == "ivfn") {
     as_conventional_adj_matrix <- apply(adj_matrix, c(1, 2), function(element) (element[[1]]$lower + element[[1]]$upper)/2)
   } else if (fcm_class == "tfn") {
     as_conventional_adj_matrix <- apply(adj_matrix, c(1, 2), function(element) (element[[1]]$lower + element[[1]]$mode + element[[1]]$upper)/3)
-  }
-
-  squashing <- tolower(squashing)
-
-  if (identical(squashing, c("sigmoid", "tanh"))) {
-    stop(cli::format_error(c(
-      "x" = "Error: Please include an input for {.var squashing}",
-      "+++++> Input {.var squashing} amust be either 'sigmoid' or 'tanh'"
-    )))
-  }
-  if (!(squashing %in% c("sigmoid", "tanh"))) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var squashing} amust be either 'sigmoid' or 'tanh'",
-      "+++++> Input {.var squashing} was: {squashing}"
-    )))
   }
 
   source_only_nodes <- which(rowSums(as_conventional_adj_matrix) == 0)
@@ -185,5 +163,5 @@ estimate_fcm_lambda <- function(adj_matrix = data.frame(),
 
   lambda_estimate <- min(lambda_prime, lambda_star)
 
-  lambda_estimate
+  return(lambda_estimate)
 }
