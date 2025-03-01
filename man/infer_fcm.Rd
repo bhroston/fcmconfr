@@ -12,7 +12,7 @@ infer_fcm(
   squashing = c("sigmoid", "tanh"),
   lambda = 1,
   point_of_inference = c("peak", "final"),
-  max_iter = 100,
+  max_iter = 100L,
   min_error = 1e-05,
   skip_checks = FALSE
 )
@@ -89,7 +89,7 @@ inputs:
 }
 }
 \examples{
-# Inference w/ Conventional FCMs
+# # Inference w/ Conventional FCMs
 conventional_inference <- infer_fcm(sample_fcms$simple_fcms$conventional_fcms[[4]],
                                     initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
                                     clamping_vector = c(1, 0, 0, 0, 0, 0, 0),
@@ -102,7 +102,7 @@ conventional_inference <- infer_fcm(sample_fcms$simple_fcms$conventional_fcms[[4
                                     skip_checks = FALSE)
 
 
-# Inference w/ Interval-Valued Fuzzy Numbers (IVFNs)
+# # Inference w/ Interval-Valued Fuzzy Numbers (IVFNs)
 ivfn_inference <- infer_fcm(sample_fcms$simple_fcms$ivfn_fcms[[4]],
                             initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
                             clamping_vector = c(1, 0, 0, 0, 0, 0, 0),
@@ -113,9 +113,9 @@ ivfn_inference <- infer_fcm(sample_fcms$simple_fcms$ivfn_fcms[[4]],
                             max_iter = 100L,
                             min_error = 1e-5,
                             skip_checks = FALSE)
+#
 
-
-# Inference w/ Triangular Fuzzy Numbers (TFNs)
+# # Inference w/ Triangular Fuzzy Numbers (TFNs)
 tfn_inference <- infer_fcm(sample_fcms$simple_fcms$tfn_fcms[[4]],
                            initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
                            clamping_vector = c(1, 0, 0, 0, 0, 0, 0),

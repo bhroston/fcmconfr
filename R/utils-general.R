@@ -5,12 +5,11 @@
 # These functions do not facilitate a specific analysis, but are rather genral
 # tools used throughout the package.
 #
+#   Exported
 #   - standardize_adj_matrices
-#   - check_if_local_machine_has_access_to_parallel_processing_functionalities
-#   - check_if_local_machine_has_access_to_show_progress_functionalities
-#   - get_adj_matrices_input_type
-#   - get_adj_matrix_from_edgelist
-#   - get_edgelist_from_adj_matrix
+#
+#   Internal
+#   - get_fcm_class_from_adj_matrix
 #   - get_node_IDs_from_input
 #
 ################################################################################
@@ -18,7 +17,7 @@
 
 #' Standardize a List of Adjacency Matrices
 #'
-#' @family utility
+#' @family utils-general
 #'
 #' @description
 #' Given a list of adj. matrices of different sizes, transforms the inputs into
@@ -28,13 +27,16 @@
 #' Solves the problem where Map 1 has nodes A and B but Map 2 has nodes B and C
 #' and need to analyse them both together.
 #'
-#' @param adj_matrices A list of adj. matrix objects
+#' @param adj_matrices  \[`list()`]\cr A single adjacency matrix or a list of
+#' adjacency matrices (n x n) representing FCMs. Matrices can have conventional
+#' edge weights, IVFN edge weights or TFN edge weights.
 #'
-#' @returns A list of adj. matrices constructed from the input adj. matrices,
-#' that contain the same concepts (and dimensions). Rows/Columns of added
-#' concepts are all 0's.
+#' @returns \[`list()`]\cr A list of adjacency matrices constructed from the
+#' input adj. matrices, that contain the same concepts (and dimensions).
+#' Rows/Columns of added concepts are all 0's.
 #'
 #' @export
+#'
 #' @example man/examples/ex-standardize_adj_matrices.R
 standardize_adj_matrices <- function(adj_matrices = list(matrix())) {
   adj_matrices_dims <- lapply(adj_matrices, function(x) unique(dim(x)))
@@ -99,7 +101,7 @@ standardize_adj_matrices <- function(adj_matrices = list(matrix())) {
 
 #' Get FCM Class from Individual Adjacency Matrix
 #'
-#' @family utility
+#' @family utils-general
 #'
 #' @description
 #' Get the FCM class of an adjacency matrix. May be one of the following:
@@ -109,11 +111,11 @@ standardize_adj_matrices <- function(adj_matrices = list(matrix())) {
 #'  \item{'tfn' if all elements are Triangular Fuzzy Numbers}
 #' }
 #'
-#' @param adj_matrix  A [data.frame]-like object of single adjacency matrix
-#' (n x n) representing an FCMs. Matrices can have conventional edge weights,
-#' IVFN edge weights or TFN edge weights
+#' @param adj_matrix  \[`list() or data.frame()`]\cr A single adjacency matrix
+#' (n x n) representing FCMs. An adjacency matrix can have conventional
+#' edge weights, IVFN edge weights or TFN edge weights.
 #'
-#' @returns A [character] string of the fcm class. Either 'conventional',
+#' @returns \[`character(1)`]\cr The fcm class. Either 'conventional',
 #' 'ivfn', or 'tfn' (or will throw an error if none are identified)
 #'
 #' @keywords internal
@@ -160,7 +162,7 @@ get_fcm_class_from_adj_matrix <- function(adj_matrix = data.frame()) {
 
 #' Get Node IDs (Concepts) from Adj. Matrix
 #'
-#' @family utility
+#' @family utils-general
 #'
 #' @description
 #' Get the column names of an adjacency matrix as the names of concepts. If no
@@ -168,13 +170,15 @@ get_fcm_class_from_adj_matrix <- function(adj_matrix = data.frame()) {
 #'
 #' Intended for developer use only to improve package readability.
 #'
-#' @param adj_matrix An [data.frame] n x n adjacency matrix that represents
-#' an FCM
+#' @param adj_matrix \[`list() or data.frame()`]\cr A single adjacency matrix
+#' (n x n) representing FCMs. An adjacency matrix can have conventional
+#' edge weights, IVFN edge weights or TFN edge weights.
 #'
-#' @returns A vector of concept names
+#' @returns \[`vector("character")`]\cr A vector of concept names
 #'
-#' @export
 #' @example man/examples/ex-get_node_IDs_from_input.R
+#' @keywords internal
+#' @noRd
 get_node_IDs_from_input <- function(adj_matrix = data.frame()) {
   empty_colnames <- identical(colnames(adj_matrix), NULL)
   if (empty_colnames) {

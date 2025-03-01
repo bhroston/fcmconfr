@@ -38,7 +38,7 @@ Suggests:
     pbapply (>= 1.7.2),
     igraph (>= 1.5.1),
     visNetwork (>= 2.1.2),
-    shiny (>= 1.7.5)
+    shiny (>= 1.7.5),
     shinyWidgets (>= 0.8.7),
     bslib (>= 0.8.0)
 Config/testthat/edition: 3

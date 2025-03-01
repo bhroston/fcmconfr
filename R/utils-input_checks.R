@@ -5,7 +5,10 @@
 # This contains internal input validation functions to ensure inputs pass
 # mutation testing from autotest.
 #
+#   Exported
 #   - check_fcmconfr_input
+#
+#   Internal
 #   - check_adj_matrix_list
 #   - check_square_adj_matrix
 #   - check_numeric_vector
@@ -14,6 +17,7 @@
 #   - check_positive_integer
 #   - check_logical
 #   - assert_var_name
+#   - assert_matrix
 #   - check_access_to_parallel_processing_and_progress_display_functionalities
 #
 ################################################################################
@@ -232,8 +236,6 @@ check_adj_matrix_list <- function(x = list()) {
 #'
 #' @example /man/examples/ex-check_square_matrix.R
 check_square_adj_matrix = function(x = matrix()) {
-  produced_warning <- FALSE
-
   requireNamespace("Matrix")
 
   if (methods::is(x)[1] == "list" & length(x) > 1) {
@@ -248,7 +250,6 @@ check_square_adj_matrix = function(x = matrix()) {
       "!" = "Warning: Converting sparseMatrix input to matrix"
     )))
     x <- as.matrix(x)
-    produced_warning <- TRUE
   }
 
   class_options <-  c("matrix", "array", "data.frame", "data.table", "tibble", "tbl_df", "sparseMatrix", "adj_matrix_w_ivfns", "adj_matrix_w_tfns")
@@ -511,7 +512,7 @@ check_positive_number <- function(x = numeric(), var_name = "", zero_is_positive
 
   if (length(x) > 1) {
     stop(cli::format_error(c(
-      "x" = "Error: '{var_name}' must be a single, positive integer value",
+      "x" = "Error: '{var_name}' must be a single, positive numeric value",
       "+++++++> Input {var_name} was: {x}"
     )))
   }
@@ -723,7 +724,7 @@ assert_var_name <- function(var_name_input = "") {
 #' @noRd
 #'
 #' @examples
-#' assert_adj_matrix(sample_fcms$simple_fcms$conventional_fcms[[1]])
+#' assert_matrix(sample_fcms$simple_fcms$conventional_fcms[[1]])
 assert_matrix <- function(adj_matrix = data.frame(),
                           fcm_class = c("conventional", "ivfn", "tfn"),
                           var_name_input = "") {
@@ -732,9 +733,15 @@ assert_matrix <- function(adj_matrix = data.frame(),
   #   return(adj_matrix)
   # }
 
+  res <- check_square_adj_matrix(adj_matrix)
+  if (isTRUE(res)) {
+    return(adj_matrix)
+  }
+
   if (!is.null(dim(adj_matrix)) && fcm_class == "conventional") {
     adj_matrix <- data.frame(apply(adj_matrix, c(1, 2), function(element) element))
   } else if (!is.null(dim(adj_matrix)) && (fcm_class %in% c("ivfn", "tfn"))) {
+    class(adj_matrix) <- NULL
     adj_matrix <- as.data.frame(adj_matrix)
   } else {
     adj_matrix <- as.data.frame(do.call(cbind, adj_matrix))

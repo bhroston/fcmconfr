@@ -22,7 +22,6 @@ NULL
 }
 \seealso{
 Other aggregate_fcms: 
-\code{\link{aggregate_conventional_fcms}()},
 \code{\link{aggregate_fcms}()},
 \code{\link{aggregate_fcms_w_ivfns}()},
 \code{\link{aggregate_fcms_w_tfns}()}

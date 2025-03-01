@@ -5,18 +5,21 @@
 \title{Estimate lambda}
 \usage{
 estimate_fcm_lambda(
-  fcm_adj_matrix = matrix(),
+  adj_matrix = data.frame(),
   squashing = c("sigmoid", "tanh")
 )
 }
 \arguments{
-\item{fcm_adj_matrix}{An n x n adjacency matrix that represents an FCM}
+\item{adj_matrix}{[\verb{list() or data.frame()}]\cr A single adjacency matrix
+(n x n) representing FCMs. An adjacency matrix can have conventional
+edge weights, IVFN edge weights or TFN edge weights.}
 
-\item{squashing}{The squashing function used. Must be one of the following: 'tanh', or 'sigmoid'.}
+\item{squashing}{[\code{character(1)}]\cr The squashing function used. Must be
+one of the following: 'tanh' or 'sigmoid'.}
 }
 \value{
-The maximum lambda that ensures simulation convergence for the
-input FCM.
+[\code{double(1)}]\cr The maximum lambda that ensures simulation
+convergence for the input FCM.
 }
 \description{
 This function calculates the largest possible lambda for sigmoid and

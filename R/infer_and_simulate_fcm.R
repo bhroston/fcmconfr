@@ -143,7 +143,6 @@ infer_fcm_set <- function(adj_matrices = list(matrix()),
     show_progress <- checks$show_progress
     include_sims_in_output <- checks$include_sims_in_output
   }
-
   fcm_class <- get_fcm_class_from_adj_matrix(adj_matrices[[1]])
   activation <- tolower(as.character(activation))
   squashing <- tolower(as.character(squashing))
@@ -388,7 +387,7 @@ infer_fcm <- function(adj_matrix = data.frame(),
                       squashing = c("sigmoid", "tanh"),
                       lambda = 1.0,
                       point_of_inference = c("peak", "final"),
-                      max_iter = 100,
+                      max_iter = 100L,
                       min_error = 1e-5,
                       skip_checks = FALSE) {
 
@@ -498,7 +497,7 @@ infer_conventional_fcm <- function(adj_matrix = data.frame(),
                                    squashing = c("sigmoid", "tanh"),
                                    lambda = 1.0,
                                    point_of_inference = c("peak", "final"),
-                                   max_iter = 100,
+                                   max_iter = 100L,
                                    min_error = 1e-5,
                                    skip_checks = FALSE) {
 
@@ -650,7 +649,7 @@ infer_ivfn_or_tfn_fcm <- function(adj_matrix = data.frame(),
                                   squashing = c("sigmoid", "tanh"),
                                   lambda = 1.0,
                                   point_of_inference = c("peak", "final"),
-                                  max_iter = 100,
+                                  max_iter = 100L,
                                   min_error = 1e-5,
                                   skip_checks = FALSE) {
 

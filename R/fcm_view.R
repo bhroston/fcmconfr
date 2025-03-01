@@ -1,4 +1,15 @@
 
+################################################################################
+# fcm_view.R
+#
+# This function plots an FCM network in visNetwork
+#
+#   Exported
+#   - fcm_view
+#
+################################################################################
+
+
 #' View FCM Network
 #'
 #' @family utility

@@ -4,7 +4,10 @@
 #
 # This function plots fcmconfr output objects
 #
+#   Exported
 #   - plot.fcmconfr
+#
+#   Internal
 #   - check_plot_fcmconfr_inputs
 #   - get_concepts_to_plot
 #   - get_plot_data
@@ -28,57 +31,57 @@
 #' as needed.
 #'
 #' @param x A direct output of the \code{\link{fcmconfr}} function
-#' @param interactive TRUE/FALSE Launch plot in a Shiny app to toggle on/off
-#' results from different analyses
-#' @param filter_limit Only nodes with inferences above the filter_limit
-#' across any analysis will be plotted. This removes nodes with mostly 0-valued
-#' inferences indicating they were not impacted in the simulation.
-#' @param xlim The x-axis plot limits. xlim = NA lets ggplot determine the
-#' x-axis limits. xlim = c(lower_limit, upper_limit) for manual input limits.
-#' See ?ggplot2::xlim for additional info.
-#' @param coord_flip Swap x- and y-axes (i.e. rotate plot). See
-#' ?ggplot2::coord_flip for additional info.
-#' @param text_font_size The font size of axis labels. text_font_size = NA lets
-#' ggplot determine the axis label font size.
-#' @param mc_avg_and_CIs_color Color of the crossbar (lines) indicating the
-#' avg inferences of empirical FCMs generated via Monte Carlo sampling and the
-#' confidence intervals about those averages.
-#' @param mc_inferences_color Color of the points representing inferences of
-#' empirical FCMs generated via Monte Carlo sampling
-#' @param mc_inferences_alpha Transparency of the points representing inferences
-#' of empirical FCMs generated via Monte Carlo sampling. Range from 0 to 1
-#' (0: Transparent to 1: Opaque).
-#' @param mc_inferences_shape Point shapes of the points representing inferences
-#' of empirical FCMs generated via Monte Carlo sampling. Accepts PCH point
-#' values and character strings.
-#' @param ind_inferences_color Color of the points representing inferences of
-#' individual FCMs
-#' @param ind_inferences_alpha Transparency of the points representing
-#' inferences of individual FCMs. Range from 0 to 1 (0: Transparent to
+#' @param interactive \[`logical(1)`]\cr If TRUE, launch plot in a Shiny app to
+#' toggle on/off results from different analyses.
+#' @param filter_limit \[`double(1)`]\cr Only nodes with inferences above the
+#' filter_limit across any analysis will be plotted. This removes nodes with
+#' mostly 0-valued inferences indicating they were not impacted in the
+#' simulation.
+#' @param xlim \[`double(1)`]\cr The x-axis plot limits. xlim = NA lets ggplot
+#' determine the x-axis limits. xlim = c(lower_limit, upper_limit) for manual
+#' input limits. See ?ggplot2::xlim for additional info.
+#' @param coord_flip \[`logical(1)`]\cr  Swap x- and y-axes (i.e. rotate plot).
+#' See ?ggplot2::coord_flip for additional info.
+#' @param text_font_size \[`double(1)`]\cr  The font size of axis labels.
+#' text_font_size = NA lets ggplot determine the axis label font size.
+#' @param mc_avg_and_CIs_color \[`character(1)`]\cr Color of the crossbar
+#' (lines) indicating the avg inferences of empirical FCMs generated via Monte
+#' Carlo sampling and the confidence intervals about those averages.
+#' @param mc_inferences_color \[`character(1)`]\cr Color of the points
+#' representing inferences of empirical FCMs generated via Monte Carlo sampling.
+#' @param mc_inferences_alpha \[`double(1)` - Positive (between 0 and 1)]\cr
+#' Transparency of the points representing inferences of empirical FCMs
+#' generated via Monte Carlo sampling. Range from 0 to 1 (0: Transparent to
 #' 1: Opaque).
-#' @param ind_inferences_shape Point shapes of the points representing
-#' inferences of individual FCMs. Accepts PCH point values and character
-#' strings. Ignored for IVFN FCMs.
-#' @param agg_inferences_color Color of the points representing inferences of
-#' the aggregate FCM
-#' @param agg_inferences_alpha Transparency of the points representing
-#' inferences of the aggregate FCM. Range from 0 to 1 (0: Transparent to
-#' 1: Opaque).
-#' @param agg_inferences_shape Point shapes of the points representing
-#' inferences of the aggregate FCM. Accepts PCH point values and character
-#' strings. Ignored for IVFN FCMs.
-#' @param ind_ivfn_and_tfn_linewidth Linewidth of lines representing
-#' inferences for analyses of individual IVFN- and TFN- FCMs.
-#' @param agg_ivfn_and_tfn_linewidth Linewidth of lines representing inferences
-#' for analyses of aggregate IVFN- and TFN- FCMs
+#' @param mc_inferences_shape \[`integer(1)` or `character(1)`]\cr Point shapes
+#' of the points representing inferences of empirical FCMs generated via Monte
+#' Carlo sampling. Accepts PCH point values and character strings.
+#' @param ind_inferences_color \[`character(1)`]\cr Color of the points
+#' representing inferences of individual FCMs.
+#' @param ind_inferences_alpha \[`double(1)` - Positive (between 0 and 1)]\cr
+#' Transparency of the points representing inferences of individual FCMs. Range
+#' from 0 to 1 (0: Transparent to 1: Opaque).
+#' @param ind_inferences_shape \[`integer(1)` or `character(1)`]\cr Point shapes
+#' of the points representing inferences of individual FCMs. Accepts PCH point
+#' values and character strings. Ignored for IVFN FCMs.
+#' @param agg_inferences_color \[`character(1)`]\cr Color of the points
+#' representing inferences of the aggregate FCM
+#' @param agg_inferences_alpha \[`double(1)` - Positive (between 0 and 1)]\cr
+#' Transparency of the points representing inferences of the aggregate FCM.
+#' Range from 0 to 1 (0: Transparent to 1: Opaque).
+#' @param agg_inferences_shape \[`integer(1)` or `character(1)`]\cr Point shapes
+#' of the points representing inferences of the aggregate FCM. Accepts PCH point
+#' values and character strings. Ignored for IVFN FCMs.
+#' @param ind_ivfn_and_tfn_linewidth \[`double(1)` - Positive]\cr  Linewidth of
+#' lines representing inferences for analyses of individual IVFN- and TFN- FCMs.
+#' @param agg_ivfn_and_tfn_linewidth \[`double(1)` - Positive]\cr Linewidth of
+#' lines representing inferences for analyses of aggregate IVFN- and TFN- FCMs
 #' @param ... Additional inputs
-#'
-#' @importFrom graphics plot
-#' @importFrom cli format_warning
 #'
 #' @returns A plot of an fcmconfr object's results
 #'
 #' @export
+#'
 #' @example man/examples/ex-plot_fcmconfr.R
 plot.fcmconfr <- function(x,
                           interactive = FALSE,
@@ -158,13 +161,57 @@ plot.fcmconfr <- function(x,
 #' This checks the inputs to plot.fcmconfr to and throws warnings/errors if
 #' necessary
 #'
-#'
-#'
-#' @keywords internal
+#' @param interactive \[`logical(1)`]\cr If TRUE, launch plot in a Shiny app to
+#' toggle on/off results from different analyses.
+#' @param filter_limit \[`double(1)`]\cr Only nodes with inferences above the
+#' filter_limit across any analysis will be plotted. This removes nodes with
+#' mostly 0-valued inferences indicating they were not impacted in the
+#' simulation.
+#' @param xlim \[`double(1)`]\cr The x-axis plot limits. xlim = NA lets ggplot
+#' determine the x-axis limits. xlim = c(lower_limit, upper_limit) for manual
+#' input limits. See ?ggplot2::xlim for additional info.
+#' @param coord_flip \[`logical(1)`]\cr  Swap x- and y-axes (i.e. rotate plot).
+#' See ?ggplot2::coord_flip for additional info.
+#' @param text_font_size \[`double(1)`]\cr  The font size of axis labels.
+#' text_font_size = NA lets ggplot determine the axis label font size.
+#' @param mc_avg_and_CIs_color \[`character(1)`]\cr Color of the crossbar
+#' (lines) indicating the avg inferences of empirical FCMs generated via Monte
+#' Carlo sampling and the confidence intervals about those averages.
+#' @param mc_inferences_color \[`character(1)`]\cr Color of the points
+#' representing inferences of empirical FCMs generated via Monte Carlo sampling.
+#' @param mc_inferences_alpha \[`double(1)` - Positive (between 0 and 1)]\cr
+#' Transparency of the points representing inferences of empirical FCMs
+#' generated via Monte Carlo sampling. Range from 0 to 1 (0: Transparent to
+#' 1: Opaque).
+#' @param mc_inferences_shape \[`integer(1)` or `character(1)`]\cr Point shapes
+#' of the points representing inferences of empirical FCMs generated via Monte
+#' Carlo sampling. Accepts PCH point values and character strings.
+#' @param ind_inferences_color \[`character(1)`]\cr Color of the points
+#' representing inferences of individual FCMs.
+#' @param ind_inferences_alpha \[`double(1)` - Positive (between 0 and 1)]\cr
+#' Transparency of the points representing inferences of individual FCMs. Range
+#' from 0 to 1 (0: Transparent to 1: Opaque).
+#' @param ind_inferences_shape \[`integer(1)` or `character(1)`]\cr Point shapes
+#' of the points representing inferences of individual FCMs. Accepts PCH point
+#' values and character strings. Ignored for IVFN FCMs.
+#' @param agg_inferences_color \[`character(1)`]\cr Color of the points
+#' representing inferences of the aggregate FCM
+#' @param agg_inferences_alpha \[`double(1)` - Positive (between 0 and 1)]\cr
+#' Transparency of the points representing inferences of the aggregate FCM.
+#' Range from 0 to 1 (0: Transparent to 1: Opaque).
+#' @param agg_inferences_shape \[`integer(1)` or `character(1)`]\cr Point shapes
+#' of the points representing inferences of the aggregate FCM. Accepts PCH point
+#' values and character strings. Ignored for IVFN FCMs.
+#' @param ind_ivfn_and_tfn_linewidth \[`double(1)` - Positive]\cr  Linewidth of
+#' lines representing inferences for analyses of individual IVFN- and TFN- FCMs.
+#' @param agg_ivfn_and_tfn_linewidth \[`double(1)` - Positive]\cr Linewidth of
+#' lines representing inferences for analyses of aggregate IVFN- and TFN- FCMs
 #'
 #' @export
 #' @examples
 #' NULL
+#' @keywords internal
+#' @noRd
 check_plot_fcmconfr_inputs <- function(interactive,
                                        # Plot Format Parameters
                                        filter_limit,
@@ -518,17 +565,21 @@ check_plot_fcmconfr_inputs <- function(interactive,
 #'     - Inactivated Nodes because they do not display on the plot and would
 #'     add unnecessary whitespace to the plot.
 #'
-#' @param fcmconfr_object A direct output of the \code{\link{fcmconfr}} function
-#' @param filter_limit Remove concepts whose inferences do not exceed this value
+#' @param fcmconfr_object \[`fcmconfr`]\cr A direct output of the
+#' \code{\link{fcmconfr}} function
+#' @param filter_limit \[`double(1)`]\cr Only nodes with inferences above the
+#' filter_limit across any analysis will be plotted. This removes nodes with
+#' mostly 0-valued inferences indicating they were not impacted in the
+#' simulation.
 #'
 #' @returns An array of concepts that should be included in the fcmconfr plot
 #' output because they have simulation inferences greater than the filter_limit
 #'
-#' @keywords internal
-#'
 #' @export
 #' @examples
 #' NULL
+#' @keywords internal
+#' @noRd
 get_concepts_to_plot <- function(fcmconfr_object, filter_limit = 10e-10) {
   fcm_clamping_vector <- fcmconfr_object$params$simulation_opts$clamping_vector
   fcm_nodes <- unique(lapply(fcmconfr_object$params$adj_matrices, colnames))[[1]]
@@ -637,17 +688,21 @@ get_concepts_to_plot <- function(fcmconfr_object, filter_limit = 10e-10) {
 #' This function produces slightly different outputs for \code{\link{fcmconfr}}
 #' outputs generated from conventional, ivfn, and tfn FCMs
 #'
-#' @param fcmconfr_object A direct output of the \code{\link{fcmconfr}} function
-#' @param filter_limit Remove concepts whose inferences do not exceed this value
+#' @param fcmconfr_object \[`fcmconfr`]\cr A direct output of the
+#' \code{\link{fcmconfr}} function
+#' @param filter_limit \[`double(1)`]\cr Only nodes with inferences above the
+#' filter_limit across any analysis will be plotted. This removes nodes with
+#' mostly 0-valued inferences indicating they were not impacted in the
+#' simulation.
 #'
 #' @returns A list of fcmconfr output dataframes organized to streamline
 #' functionality with ggplot
 #'
-#' @keywords internal
-#'
 #' @export
 #' @examples
 #' NULL
+#' @keywords internal
+#' @noRd
 get_plot_data <- function(fcmconfr_object, filter_limit = 10e-3) {
   nodes_to_plot <- get_concepts_to_plot(fcmconfr_object, filter_limit)
 
@@ -848,60 +903,61 @@ get_plot_data <- function(fcmconfr_object, filter_limit = 10e-3) {
 #' to see the exact code to generate the plots, then copy-and-paste and edit
 #' as needed.
 #'
-#' @param object A direct output of the \code{\link{fcmconfr}} function
-#' @param filter_limit Only nodes with inferences above the filter_limit
-#' across any analysis will be plotted. This removes nodes with mostly 0-valued
-#' inferences indicating they were not impacted in the simulation.
-#' @param xlim The x-axis plot limits. xlim = NA lets ggplot determine the
-#' x-axis limits. xlim = c(lower_limit, upper_limit) for manual individual limits.
-#' See ?ggplot2::xlim for additional info.
-#' @param coord_flip Swap x- and y-axes (i.e. rotate plot). See
-#' ?ggplot2::coord_flip for additional info.
-#' @param text_font_size The font size of axis labels. text_font_size = NA lets
-#' ggplot determine the axis label font size.
-#' @param mc_avg_and_CIs_color Color of the crossbar (lines) indicating the
-#' avg inferences of empirical FCMs generated via Monte Carlo sampling and the
-#' confidence intervals about those averages.
-#' @param mc_inferences_color Color of the points representing inferences of
-#' empirical FCMs generated via Monte Carlo sampling
-#' @param mc_inferences_alpha Transparency of the points representing inferences
-#' of empirical FCMs generated via Monte Carlo sampling. Range from 0 to 1
-#' (0: Transparent to 1: Opaque).
-#' @param mc_inferences_shape Point shapes of the points representing inferences
-#' of empirical FCMs generated via Monte Carlo sampling. Accepts PCH point
-#' values and character strings.
-#' @param ind_inferences_color Color of the points representing inferences of
-#' individual FCMs
-#' @param ind_inferences_alpha Transparency of the points representing
-#' inferences of individual FCMs. Range from 0 to 1 (0: Transparent to
+#' @param object \[`fcmconfr`]\cr A direct output of the
+#' \code{\link{fcmconfr}} function
+#' @param interactive \[`logical(1)`]\cr If TRUE, launch plot in a Shiny app to
+#' toggle on/off results from different analyses.
+#' @param filter_limit \[`double(1)`]\cr Only nodes with inferences above the
+#' filter_limit across any analysis will be plotted. This removes nodes with
+#' mostly 0-valued inferences indicating they were not impacted in the
+#' simulation.
+#' @param xlim \[`double(1)`]\cr The x-axis plot limits. xlim = NA lets ggplot
+#' determine the x-axis limits. xlim = c(lower_limit, upper_limit) for manual
+#' input limits. See ?ggplot2::xlim for additional info.
+#' @param coord_flip \[`logical(1)`]\cr  Swap x- and y-axes (i.e. rotate plot).
+#' See ?ggplot2::coord_flip for additional info.
+#' @param text_font_size \[`double(1)`]\cr  The font size of axis labels.
+#' text_font_size = NA lets ggplot determine the axis label font size.
+#' @param mc_avg_and_CIs_color \[`character(1)`]\cr Color of the crossbar
+#' (lines) indicating the avg inferences of empirical FCMs generated via Monte
+#' Carlo sampling and the confidence intervals about those averages.
+#' @param mc_inferences_color \[`character(1)`]\cr Color of the points
+#' representing inferences of empirical FCMs generated via Monte Carlo sampling.
+#' @param mc_inferences_alpha \[`double(1)` - Positive (between 0 and 1)]\cr
+#' Transparency of the points representing inferences of empirical FCMs
+#' generated via Monte Carlo sampling. Range from 0 to 1 (0: Transparent to
 #' 1: Opaque).
-#' @param ind_inferences_shape Point shapes of the points representing
-#' inferences of individual FCMs. Accepts PCH point values and character
-#' strings.
-#' @param agg_inferences_color Color of the points representing inferences of
-#' the aggregate FCM
-#' @param agg_inferences_alpha Transparency of the points representing
-#' inferences of the aggregate FCM. Range from 0 to 1 (0: Transparent to
-#' 1: Opaque).
-#' @param agg_inferences_shape Point shapes of the points representing
-#' inferences of the aggregate FCM. Accepts PCH point values and character
-#' strings.
-#' @param ind_ivfn_and_tfn_linewidth Linewidth of lines representing
-#' inferences for analyses of individual IVFN- and TFN- FCMs.
-#' @param agg_ivfn_and_tfn_linewidth Linewidth of lines representing inferences
-#' for analyses of aggregate IVFN- and TFN- FCMs
-#' @param ... Additional inputs
-#'
-#' @importFrom ggplot2 autoplot ggplot aes
-#' @importFrom rlang .data
+#' @param mc_inferences_shape \[`integer(1)` or `character(1)`]\cr Point shapes
+#' of the points representing inferences of empirical FCMs generated via Monte
+#' Carlo sampling. Accepts PCH point values and character strings.
+#' @param ind_inferences_color \[`character(1)`]\cr Color of the points
+#' representing inferences of individual FCMs.
+#' @param ind_inferences_alpha \[`double(1)` - Positive (between 0 and 1)]\cr
+#' Transparency of the points representing inferences of individual FCMs. Range
+#' from 0 to 1 (0: Transparent to 1: Opaque).
+#' @param ind_inferences_shape \[`integer(1)` or `character(1)`]\cr Point shapes
+#' of the points representing inferences of individual FCMs. Accepts PCH point
+#' values and character strings. Ignored for IVFN FCMs.
+#' @param agg_inferences_color \[`character(1)`]\cr Color of the points
+#' representing inferences of the aggregate FCM
+#' @param agg_inferences_alpha \[`double(1)` - Positive (between 0 and 1)]\cr
+#' Transparency of the points representing inferences of the aggregate FCM.
+#' Range from 0 to 1 (0: Transparent to 1: Opaque).
+#' @param agg_inferences_shape \[`integer(1)` or `character(1)`]\cr Point shapes
+#' of the points representing inferences of the aggregate FCM. Accepts PCH point
+#' values and character strings. Ignored for IVFN FCMs.
+#' @param ind_ivfn_and_tfn_linewidth \[`double(1)` - Positive]\cr  Linewidth of
+#' lines representing inferences for analyses of individual IVFN- and TFN- FCMs.
+#' @param agg_ivfn_and_tfn_linewidth \[`double(1)` - Positive]\cr Linewidth of
+#' lines representing inferences for analyses of aggregate IVFN- and TFN- FCMs
 #'
 #' @returns An autoplot plot of an fcmconfr object's results
-#'
-#' @keywords internal
 #'
 #' @export
 #' @examples
 #' NULL
+#' @keywords internal
+#' @noRd
 autoplot.fcmconfr <- function(object,
                               interactive = FALSE,
                               # Plot Format Parameters

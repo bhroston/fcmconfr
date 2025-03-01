@@ -5,24 +5,26 @@
 \title{Aggregate (IVFN) FCMs}
 \usage{
 aggregate_fcms_w_ivfns(
-  adj_matrices = list(matrix()),
+  adj_matrices = list(),
   agg_function = c("mean", "median"),
   include_zeroes_in_sampling = TRUE
 )
 }
 \arguments{
-\item{adj_matrices}{A list of IVFN FCM adj. matrix objects}
+\item{adj_matrices}{[\code{list()}]\cr A single adjacency matrix or a list of
+adjacency matrices (n x n) representing FCMs. Matrices can have conventional
+edge weights, IVFN edge weights or TFN edge weights.}
 
-\item{agg_function}{Calculate aggregate edge weights as either the
-"mean" or "median" of the input edge weights across inputs}
+\item{agg_function}{[\code{character(1)}]\cr Choice of aggregation method
+(mean, median) for producing a single "collective" FCM from a group of
+individual FCMs. Omit this argument when analyzing a single FCM.}
 
-\item{include_zeroes_in_sampling}{TRUE/FALSE Whether to include zeroes in the mean/median
-calculations. (i.e. if edges not included in a map should count as a zero-weighted
-edge or not at all)}
+\item{include_zeroes_in_sampling}{[\code{logical(1)}]\cr  If TRUE, incorporate
+zero-weighted edges during FCM aggregation.}
 }
 \value{
-An 'aggregate_of_fcms_w_ivfns' object which is an aggregate adj.
-matrix with edges represented as IVFN data types
+[\code{aggregate_of_fcms_w_ivfns}]\cr An aggregate adjacency matrix with
+edges represented as IVFN data types.
 }
 \description{
 Generate an aggregate adj. matrix from a list of (IVFN) adj. matrices.
@@ -117,7 +119,6 @@ aggregate_fcms_w_ivfns(fcms_w_ivfns, "mean", include_zeroes_in_sampling = TRUE)
 }
 \seealso{
 Other aggregate_fcms: 
-\code{\link{aggregate_conventional_fcms}()},
 \code{\link{aggregate_fcms}()},
 \code{\link{aggregate_fcms_w_tfns}()},
 \code{\link{print.aggregate}()}
