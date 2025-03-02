@@ -218,8 +218,7 @@ build_monte_carlo_fcms <- function(adj_matrices = list(),
 #' @param num_ci_bootstraps \[`integer(1)` - Positive] Number of bootstrap draws
 #' @param parallel \[`logical(1)`]\cr If TRUE, utilize parallel processing.
 #' @param n_cores \[`integer(1)` - Positive]\cr The number of cores to use in parallel
-#' processing. If no input given, all available cores will be used. Should be a
-#' positive integer.
+#' processing. If no input given, all available cores will be used.
 #' @param show_progress \[`logical(1)`]\cr If TRUE, show progress bars and print
 #' runtime updates in the console when performing FCM simulations.
 #' @param skip_checks  \[`logical(1)`]\cr FOR DEVELOPER USE ONLY. If TRUE, skip
@@ -272,103 +271,10 @@ get_quantiles_and_bootstrapped_CIs_of_inferences <- function(infer_fcm_set_infer
   bootstrap_draws_per_rep <- nrow(infer_fcm_set_inference_df)
   node_names <- colnames(infer_fcm_set_inference_df)
 
-  if (parallel & show_progress) {
-    # Parallel and Show Progress ----
+
+  if (show_progress) {
+    # Show Progress ----
     print("Performing bootstrap simulations", quote = FALSE)
-    print("Initializing cluster", quote = FALSE)
-    cl <- parallel::makeCluster(n_cores)
-    # Have to store variables in new env that can be accessed by parLapply. There
-    # is surely a better way to do this, but this way works
-    # start <- Sys.time()
-    vars <- list("infer_fcm_set_inference_df",
-                 "bootstrap_reps",
-                 "bootstrap_draws_per_rep"
-    )
-    parallel::clusterExport(cl, varlist = vars, envir = environment())
-    print("Sampling means", quote = FALSE)
-    doSNOW::registerDoSNOW(cl)
-    invisible(utils::capture.output(pb <- utils::txtProgressBar(min = 0, max = ceiling(bootstrap_reps/n_cores), width = 50, style = 3)))
-    progress <- function(n) utils::setTxtProgressBar(pb, n)
-    opts <- list(progress = progress)
-    if (ci_centering_function == "mean") {
-      bootstrapped_means_of_inference_by_node <- foreach::foreach(
-        i = 1:bootstrap_reps, .options.snow = opts) %dopar% {
-          #data.frame(apply(
-          apply(
-            infer_fcm_set_inference_df, 2,
-            function(inference) {
-              random_draws <- sample(inference, bootstrap_draws_per_rep, replace = TRUE)
-              mean(random_draws)
-            },
-            simplify = TRUE
-          )
-        }
-    } else if (ci_centering_function == "median") {
-      bootstrapped_medians_of_inference_by_node <- foreach::foreach(
-        i = 1:bootstrap_reps, .options.snow = opts) %dopar% {
-          #data.frame(apply(
-          apply(
-            infer_fcm_set_inference_df, 2,
-            function(inference) {
-              random_draws <- sample(inference, bootstrap_draws_per_rep, replace = TRUE)
-              stats::median(random_draws)
-            },
-            simplify = TRUE
-          )
-        }
-    }
-    close(pb)
-    parallel::stopCluster(cl)
-    # ----
-  } else if (parallel & !show_progress) {
-    # Parallel and Don't Show Progress ----
-    print("Performing bootstrap simulations", quote = FALSE)
-    print("Initializing cluster", quote = FALSE)
-    cl <- parallel::makeCluster(n_cores)
-    # Have to store variables in new env that can be accessed by parLapply. There
-    # is surely a better way to do this, but this way works
-    # start <- Sys.time()
-    vars <- list("infer_fcm_set_inference_df",
-                 "bootstrap_reps",
-                 "bootstrap_draws_per_rep"
-    )
-    parallel::clusterExport(cl, varlist = vars, envir = environment())
-    print("Sampling means", quote = FALSE)
-    rep_inference_by_node <- vector(mode = "list", length = bootstrap_reps)
-    rep_inference_by_node <- lapply(rep_inference_by_node, function(duplicate) duplicate <- infer_fcm_set_inference_df)
-    if (ci_centering_function == "mean") {
-      bootstrapped_means_of_inference_by_node <- parallel::parLapply(
-        cl,
-        rep_inference_by_node,
-        function(inference_by_node_duplicate) {
-          apply(
-            inference_by_node_duplicate, 2,
-            function(inference) {
-              random_draws <- sample(inference, bootstrap_draws_per_rep, replace = TRUE)
-              mean(random_draws)
-            }
-          )
-        }
-      )
-    } else if (ci_centering_function == "median") {
-      bootstrapped_medians_of_inference_by_node <- parallel::parLapply(
-        cl,
-        rep_inference_by_node,
-        function(inference_by_node_duplicate) {
-          apply(
-            inference_by_node_duplicate, 2,
-            function(inference) {
-              random_draws <- sample(inference, bootstrap_draws_per_rep, replace = TRUE)
-              stats::median(random_draws)
-            }
-          )
-        }
-      )
-    }
-    parallel::stopCluster(cl)
-    # ----
-  } else if (!parallel & show_progress) {
-    # Not Parallel and Show Progress ----
     bootstrapped_means_of_inference_by_node <- vector(mode = "list", length = bootstrap_reps)
     rep_inference_by_node <- vector(mode = "list", length = bootstrap_reps)
     rep_inference_by_node <- lapply(rep_inference_by_node, function(duplicate) duplicate <- infer_fcm_set_inference_df)
@@ -400,8 +306,8 @@ get_quantiles_and_bootstrapped_CIs_of_inferences <- function(infer_fcm_set_infer
       )
     }
     # ----
-  } else if (!parallel & !show_progress) {
-    # Not Parallel and Don't Show Progress ----
+  } else if (!show_progress) {
+    # Don't Show Progress ----
     rep_inference_by_node <- vector(mode = "list", length = bootstrap_reps)
     rep_inference_by_node <- lapply(rep_inference_by_node, function(duplicate) duplicate <- infer_fcm_set_inference_df)
     if (ci_centering_function == "mean") {

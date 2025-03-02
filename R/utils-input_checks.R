@@ -214,7 +214,15 @@ check_adj_matrix_list <- function(x = list()) {
   if (length(unique_dims_of_adj_matrices) != 1) {
     stop(cli::format_error(c(
       "x" = "Error: All adj. matrices in list must have the same dimensions",
-      "+++++> Input adj. matrices represented FCMs of the following dimesnions: {unique_dims_of_adj_matrices}"
+      "+++++> Input adj. matrices represented FCMs of the following dimensions: {unique_dims_of_adj_matrices}"
+    )))
+  }
+
+  unique_colnames_of_adj_matrices <- unique(lapply(x, colnames))
+  if (length(unique_colnames_of_adj_matrices) != 1) {
+    stop(cli::format_error(c(
+      "x" = "Error: All adj. matrices in list must have the same column names (i.e. concepts)",
+      "+++++> Input adj. matrices had column names: {unique_column_names_of_adj_matrices}"
     )))
   }
 
@@ -256,7 +264,7 @@ check_square_adj_matrix = function(x = matrix()) {
   #   x <- as.matrix(x)
   # }
 
-  class_options <-  c("matrix", "array", "data.frame", "data.table", "tibble", "tbl_df", "sparseMatrix", "adj_matrix_w_ivfns", "adj_matrix_w_tfns")
+  class_options <-  c("matrix", "array", "data.frame", "dgCMatrix", "data.table", "tibble", "tbl_df", "sparseMatrix", "adj_matrix_w_ivfns", "adj_matrix_w_tfns")
   class_options_text <- paste0("'", cli::ansi_collapse(class_options, sep = "' '", sep2 = "' or '", last = "' or '"), "'")
 
   res <- checkmate::check_choice(methods::is(x)[1], choices = class_options)

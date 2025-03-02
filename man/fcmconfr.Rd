@@ -5,28 +5,29 @@
 \title{fcmconfr}
 \usage{
 fcmconfr(
-  adj_matrices = list(matrix()),
+  adj_matrices = list(),
   agg_function = c("mean", "median"),
-  num_mc_fcms = 1000,
+  num_mc_fcms = 1000L,
   initial_state_vector = c(),
   clamping_vector = c(),
   activation = c("kosko", "modified-kosko", "rescale"),
   squashing = c("sigmoid", "tanh"),
   lambda = 1,
   point_of_inference = c("peak", "final"),
-  max_iter = 100,
+  max_iter = 100L,
   min_error = 1e-05,
   ci_centering_function = c("mean", "median"),
   confidence_interval = 0.95,
-  num_ci_bootstraps = 5000,
+  num_ci_bootstraps = 5000L,
   show_progress = TRUE,
   parallel = FALSE,
-  n_cores = integer(),
+  n_cores = 1L,
   run_agg_calcs = TRUE,
   run_mc_calcs = TRUE,
   run_ci_calcs = TRUE,
   include_zeroes_in_sampling = FALSE,
-  include_sims_in_output = TRUE
+  include_sims_in_output = TRUE,
+  silent = FALSE
 )
 }
 \arguments{
@@ -104,6 +105,9 @@ during FCM aggregation and Monte Carlo sampling.}
 \item{include_sims_in_output}{TRUE/FALSE Include Monte Carlo FCMs in addition
 to Monte Carlo simulations (and inferences) in fcmconfr output. Switch to
 FALSE to reduce output size.}
+
+\item{silent}{[\code{logical(1)}]\cr If TRUE, suppress warning and error
+messages.}
 }
 \value{
 A list of outputs generated from the individual_fcms simulations,

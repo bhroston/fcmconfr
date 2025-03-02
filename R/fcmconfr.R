@@ -253,8 +253,8 @@ NULL
 #' @param include_sims_in_output TRUE/FALSE Include Monte Carlo FCMs in addition
 #' to Monte Carlo simulations (and inferences) in fcmconfr output. Switch to
 #' FALSE to reduce output size.
-#'
-#' @importFrom Rdpack reprompt
+#' @param silent \[`logical(1)`]\cr If TRUE, suppress warning and error
+#' messages.
 #'
 #' @returns A list of outputs generated from the individual_fcms simulations,
 #'          aggregate_fcm analysis, and monte_carlo_fcms analysis. Bootstrap
@@ -263,36 +263,43 @@ NULL
 #'
 #' @export
 #' @example man/examples/ex-fcmconfr.R
-fcmconfr <- function(adj_matrices = list(matrix()),
+fcmconfr <- function(adj_matrices = list(),
                      # Aggregation and Monte Carlo Sampling
                      agg_function = c("mean", "median"),
-                     num_mc_fcms = 1000,
+                     num_mc_fcms = 1000L,
                      # Simulation
                      initial_state_vector = c(),
                      clamping_vector = c(),
                      activation = c("kosko", "modified-kosko", "rescale"),
                      squashing = c("sigmoid", "tanh"),
-                     lambda = 1,
+                     lambda = 1.0,
                      point_of_inference = c("peak", "final"),
-                     max_iter = 100,
+                     max_iter = 100L,
                      min_error = 1e-5,
                      # Inference Estimation (bootstrap)
                      ci_centering_function = c("mean", "median"),
                      confidence_interval = 0.95,
-                     num_ci_bootstraps = 5000,
+                     num_ci_bootstraps = 5000L,
                      # Runtime Options
                      show_progress = TRUE,
                      parallel = FALSE,
-                     n_cores = integer(),
+                     n_cores = 1L,
                      # Additional Options
                      run_agg_calcs = TRUE,
                      run_mc_calcs = TRUE,
                      run_ci_calcs = TRUE,
                      include_zeroes_in_sampling = FALSE,
-                     include_sims_in_output = TRUE) {
+                     include_sims_in_output = TRUE,
+                     silent = FALSE) {
 
   # Perform input checks ----
-  checks <- check_fcmconfr_inputs(
+  check_fcmconfr_input(silent, check = "logical", var_name = "silent")
+  silent <- as.logical(silent)
+  if (silent) {
+    sink(file = file(nullfile(), open = "wt"), type = "message")
+  }
+
+  checks <- check_fcmconfr_function_inputs(
     adj_matrices,
     # Aggregation and Monte Carlo Sampling
     agg_function, num_mc_fcms,
@@ -305,26 +312,40 @@ fcmconfr <- function(adj_matrices = list(matrix()),
     # Additional Options
     run_mc_calcs, run_ci_calcs, include_zeroes_in_sampling, include_sims_in_output
   )
-  fcm_class <- checks$fcm_class
   adj_matrices <- checks$adj_matrices
-  concepts <- checks$concept_names
+  fcm_class <- checks$fcm_class
+  concept_names <- checks$concept_names
+  # Aggregation and Monte Carlo Sampling
   agg_function <- checks$agg_function
+  num_mc_fcms <- checks$ num_mc_fcms
+  # Simulation
   initial_state_vector <- checks$initial_state_vector
   clamping_vector <- checks$clamping_vector
   activation <- checks$activation
   squashing <- checks$squashing
+  lambda <- checks$lambda
   point_of_inference <- checks$point_of_inference
+  max_iter <- checks$max_iter
+  min_error <- checks$min_error
+  # Inference Estimation (bootstrap)
   ci_centering_function <- checks$ci_centering_function
+  confidence_interval <- checks$confidence_interval
+  num_ci_bootstraps <- checks$num_ci_bootstraps
+  # Runtime Options
   show_progress <- checks$show_progress
   parallel <- checks$parallel
+  n_cores <- checks$n_cores
+  # Additional Options
   run_agg_calcs <- checks$run_agg_calcs
   run_mc_calcs <- checks$run_mc_calcs
   run_ci_calcs <- checks$run_ci_calcs
+  include_zeroes_in_sampling <- checks$include_zeroes_in_sampling
+  include_sims_in_output <- checks$include_sims_in_output
   # ----
 
   # Individual Adj. Matrices Simulations ----
   print("Simulating Input FCMs", quote = FALSE)
-  individual_adj_matrices_inferences <- infer_fcm_set(adj_matrices, initial_state_vector, clamping_vector, activation, squashing, lambda, point_of_inference, max_iter, min_error, parallel, n_cores, show_progress, include_sims_in_output = TRUE, skip_checks = TRUE)
+  individual_adj_matrices_inferences <- infer_fcm_set(adj_matrices, initial_state_vector, clamping_vector, activation, squashing, lambda, point_of_inference, max_iter, min_error, parallel, n_cores, show_progress, include_sims_in_output = TRUE, silent = silent, skip_checks = TRUE)
 
   if (fcm_class == "conventional") {
     # individual_adj_matrices_inferences_df <- do.call(rbind, lapply(individual_adj_matrices_inferences$inferences, function(inference) inference$inferences))
@@ -341,41 +362,27 @@ fcmconfr <- function(adj_matrices = list(matrix()),
   # Aggregation Analysis ----
   if (run_agg_calcs) {
     # Build aggregate adj_matrix
-    aggregate_adj_matrix <- aggregate_fcms(adj_matrices, agg_function, include_zeroes_in_sampling)
+    aggregate_adj_matrix <- aggregate_fcms(adj_matrices, agg_function, include_zeroes_in_sampling, skip_checks = TRUE)
     # Infer aggregate adj_matrix
     aggregate_fcm_inference <- infer_fcm(aggregate_adj_matrix$adj_matrix, initial_state_vector, clamping_vector, activation, squashing, lambda, point_of_inference, max_iter, min_error, skip_checks = TRUE)
   }
+  # ----
 
-  # Monte Carlo Analysis
+  # Monte Carlo Analysis ----
   if (run_mc_calcs) {
     # Build monte carlo models
-    mc_adj_matrices <- build_monte_carlo_fcms(adj_matrices, num_mc_fcms, include_zeroes_in_sampling, show_progress, skip_checks = TRUE)
+    mc_adj_matrices <- build_monte_carlo_fcms(adj_matrices, num_mc_fcms, include_zeroes_in_sampling, show_progress, silent = silent, skip_checks = TRUE)
     mc_adj_matrices <- lapply(
       mc_adj_matrices,
       function(sampled_adj_matrix) {
-        colnames(sampled_adj_matrix) <- concepts
-        rownames(sampled_adj_matrix) <- concepts
+        colnames(sampled_adj_matrix) <- concept_names
+        rownames(sampled_adj_matrix) <- concept_names
         sampled_adj_matrix
       })
-
-    mc_inferences <- infer_fcm_set(
-      adj_matrices = mc_adj_matrices,
-      initial_state_vector = initial_state_vector,
-      clamping_vector = clamping_vector,
-      activation = activation,
-      squashing = squashing,
-      lambda = lambda,
-      point_of_inference = point_of_inference,
-      max_iter = max_iter,
-      min_error = min_error,
-      parallel = parallel,
-      show_progress = show_progress,
-      n_cores = n_cores,
-      include_sims_in_output = include_sims_in_output
-    )
+    mc_inferences <- infer_fcm_set(mc_adj_matrices, initial_state_vector, clamping_vector, activation, squashing, lambda, point_of_inference, max_iter, min_error, parallel, n_cores, show_progress, include_sims_in_output, silent = silent, skip_checks = TRUE)
 
     if (run_ci_calcs) {
-      CIs_of_expected_values_of_mc_simulation_inferences <- get_mc_simulations_inference_CIs_w_bootstrap(mc_inferences$inference, ci_centering_function, confidence_interval, num_ci_bootstraps, parallel, n_cores, show_progress, skip_checks = TRUE)
+      CIs_of_expected_values_of_mc_simulation_inferences <- get_quantiles_and_bootstrapped_CIs_of_inferences(mc_inferences, ci_centering_function, confidence_interval, num_ci_bootstraps, parallel, n_cores, show_progress, skip_checks = TRUE)
     }
   }
   # ----
@@ -526,133 +533,147 @@ get_inferences <- function(fcmconfr_obj = list(),
 #' format, and also fills in missing inputs for initial_state_vector, clamping_vector,
 #' and IDs when appropriate.
 #'
-#' @param adj_matrices A list of adjacency matrices (n x n) representing FCMs. This
-#' can also be an individual adjacency matrix.Adj. Matrices can be conventional FCMs,
-#' FCMs with edge weights as Interval Value Fuzzy Numbers (IVFNs) or FCMs with edge
-#' weights as Triangular Fuzzy Numbers (TFNs)
+#'
+#' @param adj_matrices \[`list()`]\cr A single adjacency matrix or a list of
+#' adjacency matrices (n x n) representing FCMs. Matrices can have conventional
+#' edge weights, IVFN edge weights or TFN edge weights.
 #' @param agg_function Aggregate the adj. matrices into a single FCM by taking
 #' either the mean or median of the edge weights for edges included in multiple maps
-#' @param num_mc_fcms The number of FCMs to generate via monte carlo
-#' sampling from the individual adj. matrices
-#' @param initial_state_vector A list state values at the start of an fcm simulation
-#' @param clamping_vector A list of values representing specific actions taken to
-#' control the behavior of an FCM. Specifically, non-zero values defined in this vector
-#' will remain constant throughout the entire simulation as if they were "clamped" at those values.
-#' @param activation The activation function to be applied. Must be one of the following:
-#' 'kosko', 'modified-kosko', or 'rescale'.
-#' @param squashing A squashing function to apply. Must be one of the following:
-#' 'tanh', or 'sigmoid'.
-#' @param lambda A numeric value that defines the steepness of the slope of the
-#' squashing function when tanh or sigmoid are applied
-#' @param point_of_inference The point along the simulation time-series to be
-#' identified as the inference. Must be one of the following: 'peak' or 'final'
-#' @param max_iter The maximum number of iterations to run if the minimum error value is not achieved
-#' @param min_error The lowest error (sum of the absolute value of the current state
-#' vector minus the previous state vector) at which no more iterations are necessary
-#' and the simulation will stop
-#' @param ci_centering_function Estimate confidence intervals about the "mean" or "median" of
-#' inferences from the monte carlo simulations
-#' @param confidence_interval The confidence interval to estimate for the inferences
-#' of each concept across all monte carlo FCMs (via bootstrap)
-#' @param num_ci_bootstraps The number of bootstraps to perform in
-#' estimating the confidence interval for the inferences of each concept across all monte
-#' carlo FCMs
-#' @param show_progress TRUE/FALSE Show progress bar when creating fmcm. Uses pbmapply
-#' from the pbapply package as the underlying function.
-#' @param parallel TRUE/FALSE Whether to utilize parallel processing
-#' @param n_cores Number of cores to use in parallel processing. If no input given,
-#' will use all available cores in the machine.
-#' @param run_agg_calcs TRUE/FALSE Run the code to generate and simulate an aggregate FCM generated from the input adj_matrices
-#' @param run_mc_calcs TRUE/FALSE Run the code to generate and simulate monte carlo-generated FCM sampled from the input adj_matrices
-#' @param run_ci_calcs TRUE/FALSE Run the code to estimate the 95 percent CI bounds about the means of the inferences of the monte carlo adj matrices
-#' @param include_zeroes_in_sampling TRUE/FALSE Whether to incorporate zeroes as intentionally-defined edge weights or ignore
-#' them when aggregating adj. matrices and sampling for monte carlo FCMs
-#' @param include_sims_in_output TRUE/FALSE Whether to include simulations of monte carlo FCMs. Switch to FALSE if concerned
-#' about the size of the output of fcmconfr (simulations are necessary and will run regardless)
+#' @param num_mc_fcms \[`integer(1)` - Positive] The number of inferences to
+#' generate via Monte Carlo sampling. Omit this argument when analyzing a
+#' single, conventional FCM.
+#' @param initial_state_vector \[`vector("double")`]\cr A list of state values
+#' (one per node) at the start of an FCM simulation. In pulse simulations the
+#' \code{initial_state_vector}  controls the scenario (i.e., a non-zero value
+#' is a transient perturbation). In clamped simulations all values in the
+#' \code{initial_state_vector} are set to 1.
+#' @param clamping_vector \[`vector("double")`]\cr A list of values (one per
+#' node) that indicates whether clamped simulations will be performed. In
+#' clamped simulations the \code{clamping_vector} controls the scenario (nodes
+#' assigned non-zero values will remain at those values for the entire
+#' simulation). In pulse simulations all values in the \code{clamping_vector}
+#' are set to 0.
+#' @param activation \[`character(1)`]\cr The activation function used. Must be
+#'  one of the following: 'kosko', 'modified-kosko', or 'rescale'.
+#' @param squashing  \[`character(1)`]\cr The squashing function used. Must be
+#' one of the following: 'tanh' or 'sigmoid'.
+#' @param lambda \[`double(1)`] Positive\cr A numeric value that defines the
+#' steepness of the squashing function's slope.
+#' @param point_of_inference \[`character(1)`]\cr Definition of an inference.
+#' The metric used to calculate  the response of each node to a scenario of
+#' interest from a simulation timeseries. Must be one of the following: 'peak'
+#' (the maximum value) or 'final' (the state at equilibrium).
+#' @param max_iter \[`integer(1)` - Positive]\cr The maximum number of
+#' iterations to run (increase if the minimum error value is not achieved).
+#' @param min_error \[`double(1)` - Positive]\cr The error past which a
+#' simulation has converged and no further iterations are necessary. \emph{Error
+#' equals the sum of the absolute value of the current state vector minus the
+#' previous state vector}.
+#' @param ci_centering_function \[`character(1)`]\cr Estimate confidence
+#' intervals about the "mean" or "median" of inferences from Monte Carlo
+#' simulations
+#' @param confidence_interval \[`double(1)` - Positive (between 0 and 1)]\cr
+#' Bootstrapped confidence level
+#' @param num_ci_bootstraps  \[`integer(1)` - Positive] Number of bootstrap
+#' draws
+#' @param parallel \[`logical(1)`]\cr If TRUE, utilize parallel processing.
+#' @param n_cores \[`integer(1)` - Positive]\cr The number of cores to use in
+#' parallel processing. If no input given, all available cores will be used.
+#' @param show_progress \[`logical(1)`]\cr If TRUE, show progress bars and print
+#' runtime updates in the console when performing FCM simulations.
+#' @param run_agg_calcs \[`logical(1)`]\cr If TRUE, run the code to generate and
+#' simulate an aggregate FCM generated from the input adj_matrices.
+#' @param run_mc_calcs \[`logical(1)`]\cr If TRUE, run the code to generate and
+#' simulate monte carlo-generated FCM sampled from the input adj_matrices
+#' @param run_ci_calcs TRUE/FALSE Run the code to estimate the 95 percent CI
+#' bounds about the means of the inferences of the monte carlo adj matrices
+#' @param include_zeroes_in_sampling \[`logical(1)`]\cr If TRUE, incorporate
+#' zeroes as intentionally-defined edge weights or ignore them when aggregating
+#' adjacency matrices and sampling for Monte Carlo FCMs.
+#' @param include_sims_in_output \[`logical(1)`]\cr If TRUE, include simulations
+#' and inferences in output. Set to FALSE to reduce output size.
+#' @param silent \[`logical(1)`]\cr If TRUE, suppress warning and error
+#' messages.
 #'
-#' @returns A list of resolved inputs to pass to \code{\link{fcmconfr}}
+#' @returns \[`list()`]\cr A list of resolved inputs to pass to
+#' \code{\link{fcmconfr}}
 #'
+#' @example man/examples/ex-check_fcmconfr_function_inputs.R
 #' @keywords internal
-#'
-#' @importFrom cli format_error format_warning
-#'
-#' @export
-#' @examples
-#' NULL
-check_fcmconfr_inputs <- function(adj_matrices = list(matrix()),
-                                  # Aggregation and Monte Carlo Sampling
-                                  agg_function = c("mean", "median"),
-                                  num_mc_fcms = 1000,
-                                  # Simulation
-                                  initial_state_vector = c(),
-                                  clamping_vector = c(),
-                                  activation = c("kosko", "modified-kosko", "rescale"),
-                                  squashing = c("sigmoid", "tanh"),
-                                  lambda = 1,
-                                  point_of_inference = c("peak", "final"),
-                                  max_iter = 100,
-                                  min_error = 1e-5,
-                                  # Inference Estimation (bootstrap)
-                                  ci_centering_function = c("mean", "median"),
-                                  confidence_interval = 0.95,
-                                  num_ci_bootstraps = 5000,
-                                  # Runtime Options
-                                  show_progress = TRUE,
-                                  parallel = TRUE,
-                                  n_cores = integer(),
-                                  # Additional Options
-                                  run_agg_calcs = TRUE,
-                                  run_mc_calcs = TRUE,
-                                  run_ci_calcs = TRUE,
-                                  include_zeroes_in_sampling = FALSE,
-                                  include_sims_in_output = TRUE) {
+#' @noRd
+check_fcmconfr_function_inputs <- function(adj_matrices = list(),
+                                           # Aggregation and Monte Carlo Sampling
+                                           agg_function = c("mean", "median"),
+                                           num_mc_fcms = 1000L,
+                                           # Simulation
+                                           initial_state_vector = c(),
+                                           clamping_vector = c(),
+                                           activation = c("kosko", "modified-kosko", "rescale"),
+                                           squashing = c("sigmoid", "tanh"),
+                                           lambda = 1.0,
+                                           point_of_inference = c("peak", "final"),
+                                           max_iter = 100L,
+                                           min_error = 1e-5,
+                                           # Inference Estimation (bootstrap)
+                                           ci_centering_function = c("mean", "median"),
+                                           confidence_interval = 0.95,
+                                           num_ci_bootstraps = 5000L,
+                                           # Runtime Options
+                                           show_progress = TRUE,
+                                           parallel = TRUE,
+                                           n_cores = 1L,
+                                           # Additional Options
+                                           run_agg_calcs = TRUE,
+                                           run_mc_calcs = TRUE,
+                                           run_ci_calcs = TRUE,
+                                           include_zeroes_in_sampling = FALSE,
+                                           include_sims_in_output = TRUE) {
 
-  requireNamespace("Matrix")
-
-  options(warn = 1) # Print warnings to console as they occur
-
-  # Perform Checks ----
-  adj_matrices_input_type <- get_adj_matrices_input_type(adj_matrices)
-  fcm_class <- adj_matrices_input_type$fcm_class
-  if (!adj_matrices_input_type$adj_matrices_input_is_list) {
+  # Perform General Input Checks ----
+  # Have to check adj_matrix input before continuing with other checks
+  check_fcmconfr_input(adj_matrices, check = "adj_matrix_list")
+  if (!is.null(dim(adj_matrices))) {
     adj_matrices <- list(adj_matrices)
   }
+  fcm_class <- get_fcm_class_from_adj_matrix(adj_matrices[[1]])
+  adj_matrices <- lapply(adj_matrices, function(x) assert_matrix(x, fcm_class, var_name_input = "adj_matrix"))
+  concept_names <- unique(lapply(adj_matrices, colnames))[[1]]
 
-  # Check Additional Options ----
-  if (!is.logical(run_agg_calcs)) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var run_agg_calcs} must be logical (TRUE/FALSE)",
-      "+++++> Input {.var run_agg_calcs} was {run_agg_calcs}"
+  if (run_agg_calcs && identical(agg_function, c("mean", "median"))) {
+    warning(cli::format_warning(c(
+      "!" = "Warning: No {.var agg_function} given",
+      "~~~~~ Assuming {.var agg_function} is 'mean'"
     )))
+    agg_function <- "mean"
+  } else if (!run_agg_calcs) {
+    agg_function <- "mean"
   }
-  if (!is.logical(run_mc_calcs)) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var run_mc_calcs} must be logical (TRUE/FALSE)",
-      "+++++> Input {.var run_mc_calcs} was {run_mc_calcs}"
+
+  if (run_ci_calcs && identical(ci_centering_function, c("mean", "median"))) {
+    warning(cli::format_warning(c(
+      "!" = "Warning: No {.var ci_centering_function} given",
+      "~~~~~ Assuming {.var ci_centering_function} is 'mean'"
     )))
+    ci_centering_function <- "mean"
+  } else if (!run_ci_calcs) {
+    ci_centering_function <- "mean"
   }
-  if (!is.logical(run_ci_calcs)) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var run_ci_calcs} must be logical (TRUE/FALSE)",
-      "+++++> Input {.var run_ci_calcs} was {run_ci_calcs}"
-    )))
-  }
-  if (!is.logical(include_zeroes_in_sampling)) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var include_zeroes_in_sampling} must be logical (TRUE/FALSE)",
-      "+++++> Input {.var include_zeroes_in_sampling} was {include_zeroes_in_sampling}"
-    )))
-  }
-  if (!is.logical(include_sims_in_output)) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var include_sims_in_output} must be logical (TRUE/FALSE)",
-      "+++++> Input {.var include_sims_in_output} was {include_sims_in_output}"
-    )))
-  }
+
+  sim_input_checks <- check_simulation_inputs(adj_matrices[[1]], initial_state_vector, clamping_vector, activation, squashing, lambda, point_of_inference, max_iter, min_error, parallel, n_cores, show_progress, include_sims_in_output, skip_checks = FALSE)
+  check_fcmconfr_input(agg_function, check = "choice_selection", var_name = "agg_function", choice_selection_opts = c("mean", "median"))
+  check_fcmconfr_input(num_mc_fcms, check = "positive_integer", var_name = "num_ci_fcms")
+  check_fcmconfr_input(ci_centering_function, check = "choice_selection", var_name = "ci_centering_function", choice_selection_opts = c("mean", "median"))
+  check_fcmconfr_input(confidence_interval, check = "positive_number", var_name = "confidence_interval")
+  check_fcmconfr_input(num_ci_bootstraps, check = "positive_integer", var_name = "num_ci_bootstraps")
+  check_fcmconfr_input(run_agg_calcs, check = "logical", var_name = "run_agg_calcs")
+  check_fcmconfr_input(run_mc_calcs, check = "logical", var_name = "run_mc_calcs")
+  check_fcmconfr_input(run_ci_calcs, check = "logical", var_name = "run_ci_calcs")
+  check_fcmconfr_input(include_zeroes_in_sampling, check = "logical", var_name = "include_zeroes_in_sampling")
   # ----
 
-  # Confirm Monte Carlo and Bootstrap Function Calls are Viable ----
-  if (fcm_class == "conventional" & length(adj_matrices) == 1 & (run_mc_calcs | run_agg_calcs)) {
+
+  # Confirm Agg, Monte Carlo and Bootstrap Function Calls are Viable ----
+  if (fcm_class == "conventional" && length(adj_matrices) == 1 && (run_mc_calcs | run_agg_calcs)) {
     warning(cli::format_warning(c(
       "!" = "Warning: Cannot aggregate or generate monte carlo samples from a single (conventional) adj. matrix",
       "~~~~~ Skipping aggregate analysis; i.e. setting {.var run_agg_calcs} to FALSE",
@@ -661,7 +682,7 @@ check_fcmconfr_inputs <- function(adj_matrices = list(matrix()),
     run_mc_calcs <- FALSE
     run_agg_calcs <- FALSE
   }
-  else if ((fcm_class %in% c("ivfn", "tfn")) & length(adj_matrices) == 1 & (run_agg_calcs)) {
+  else if ((fcm_class %in% c("ivfn", "tfn")) && length(adj_matrices) == 1 && (run_agg_calcs)) {
     warning(cli::format_warning(c(
       "!" = "Warning: Cannot generate aggregate fcm from a single adj. matrix",
       "~~~~~ Skipping aggregate analysis; i.e. setting {.var run_agg_calcs} to FALSE"
@@ -669,7 +690,7 @@ check_fcmconfr_inputs <- function(adj_matrices = list(matrix()),
     run_agg_calcs = FALSE
   }
 
-  if (!run_mc_calcs & run_ci_calcs) {
+  if (!run_mc_calcs && run_ci_calcs) {
     warning(cli::format_warning(c(
       "!" = "Warning: Cannot estimate CIs of monte carlo inferences if monte carlo analysis is not being performed",
       "~~~~~ Skipping CI bound estimation; i.e. setting {.var run_ci_calcs} to FALSE"
@@ -677,7 +698,7 @@ check_fcmconfr_inputs <- function(adj_matrices = list(matrix()),
     run_ci_calcs <- FALSE
   }
 
-  if (run_mc_calcs & run_ci_calcs) {
+  if (run_mc_calcs && run_ci_calcs) {
     if (identical(ci_centering_function, c("mean", "median"))) {
       warning(cli::format_warning(c(
         "!" = "Warning: No {.var ci_centering_function} given",
@@ -688,133 +709,39 @@ check_fcmconfr_inputs <- function(adj_matrices = list(matrix()),
   }
   # ----
 
-  # Check adj_matrices ----
-  adj_matrices_dims <- lapply(adj_matrices, dim)
-  if (length(unique(unlist(adj_matrices_dims))) > 1) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var adj_matrices} are either different sizes or contain non-square matrices",
-      "+++++> Call standardize_adj_matrices() to standardize the sizes of {.var adj. matrices}"
-    )))
-  }
-  n_nodes <- unique(unlist(adj_matrices_dims))
-  dummy_adj_matrix <- matrix(0, n_nodes, n_nodes)
-
-  identified_concepts <- unique(lapply(adj_matrices, colnames))
-  if (length(identified_concepts) != 1) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var adj_matrices} must have the same concepts",
-      "+++++> Call standardize_adj_matrices() to standardize concepts across {.var adj. matrices}"
-    )))
-  } else {
-    concept_names <- unlist(identified_concepts)
-  }
-
-  if (identical(adj_matrices_input_type$object_types_in_list, c("conventional", "sparseMatrix"))) {
-    adj_matrices <- lapply(adj_matrices, as.matrix)
-    warning(cli::format_warning(c(
-      "!" = "Warning: Changed {.var adj_matrices} from sparseMatrix to an ordinary matrix (i.e. using as.matrix)"
-    )))
-  }
-  # ----
-
-  # Check Simulation Inputs ----
-  sim_checks <- check_simulation_inputs(dummy_adj_matrix, initial_state_vector, clamping_vector, activation, squashing, lambda, point_of_inference, max_iter, min_error)
-  initial_state_vector <- sim_checks$initial_state_vector
-  clamping_vector <- sim_checks$clamping_vector
-  activation <- sim_checks$activation
-  squashing <- sim_checks$squashing
-  point_of_inference <- sim_checks$point_of_inference
-  # ----
-
-  # Aggregation ----
-  if (run_agg_calcs) {
-    if (identical(agg_function, c("mean", "median"))) {
-      warning(cli::format_warning(c(
-        "!" = "Warning: No {.var agg_function} given",
-        "~~~~~ Assuming {.var agg_function} is 'mean'"
-      )))
-      agg_function <- "mean"
-    }
-    if (!(agg_function %in% c("mean", "median"))) {
-      stop(cli::format_error(c(
-        "x" = "Error: {.var agg_function} must be one of the following: 'mean' or 'median'",
-        "+++++> Input {.var agg_function} was {agg_function}"
-      )))
-    }
-  }
-  # ----
-
-  # Monte Carlo ----
-  if (run_mc_calcs) {
-    if (!is.numeric(num_mc_fcms)) {
-      stop(cli::format_error(c(
-        "x" = "Error: {.var num_mc_fcms} must be a positive integer",
-        "+++++ Input {.var num_mc_fcms} was {num_mc_fcms}"
-      )))
-    }
-    if (!(num_mc_fcms == round(num_mc_fcms))) {
-      stop(cli::format_error(c(
-        "x" = "Error: {.var num_mc_fcms} must be a positive integer",
-        "+++++ Input {.var num_mc_fcms} was {num_mc_fcms}"
-      )))
-    }
-    if (num_mc_fcms <= 0) {
-      stop(cli::format_error(c(
-        "x" = "Error: {.var num_mc_fcms} must be a positive integer",
-        "+++++ Input {.var num_mc_fcms} was {num_mc_fcms}"
-      )))
-    }
-  }
-  # ----
-
-  # Check Monte Carlo and Bootstrap Inputs ----
-  if (run_ci_calcs) {
-    mcbs_checks <- check_monte_carlo_bootstrap_inputs(ci_centering_function, confidence_interval, num_ci_bootstraps, parallel, n_cores, show_progress)
-    ci_centering_function <- mcbs_checks$ci_centering_function
-  }
-  # ----
-
-  # Confirm necessary packages are available. If not, warn user and change run options; Also Check n_cores ----
-  show_progress <- check_if_local_machine_has_access_to_show_progress_functionalities(parallel, show_progress)
-  parallel <- check_if_local_machine_has_access_to_parallel_processing_functionalities(parallel, show_progress)
-  if (!is.numeric(n_nodes)) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var n_nodes} must be a positive integer",
-      "+++++ Input {.var n_nodes} was {n_nodes}"
-    )))
-  }
-  if (!(n_nodes == round(n_nodes))) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var n_nodes} must be a positive integer",
-      "+++++ Input {.var n_nodes} was {n_nodes}"
-    )))
-  }
-  if (n_nodes <= 0) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var n_nodes} must be a positive integer",
-      "+++++ Input {.var n_nodes} was {n_nodes}"
-    )))
-  }
-  # ----
-
-  list(
-    fcm_class = fcm_class,
+  return(list(
     adj_matrices = adj_matrices,
     concept_names = concept_names,
-    agg_function = agg_function,
-    initial_state_vector = initial_state_vector,
-    clamping_vector = clamping_vector,
-    activation = activation,
-    squashing = squashing,
-    point_of_inference = point_of_inference,
-    ci_centering_function = ci_centering_function,
-    show_progress = show_progress,
-    parallel = parallel,
-    run_agg_calcs = run_agg_calcs,
-    run_mc_calcs = run_mc_calcs,
-    run_ci_calcs = run_ci_calcs
-  )
+    fcm_class = fcm_class,
+    # Aggregation and Monte Carlo Sampling
+    agg_function = tolower(as.character(agg_function)),
+    num_mc_fcms = as.integer(num_mc_fcms),
+    # Simulation
+    initial_state_vector = sim_input_checks$initial_state_vector,
+    clamping_vector = sim_input_checks$clamping_vector,
+    activation = sim_input_checks$activation,
+    squashing = sim_input_checks$squashing,
+    lambda = sim_input_checks$lambda,
+    point_of_inference = sim_input_checks$point_of_inference,
+    max_iter = sim_input_checks$max_iter,
+    min_error = sim_input_checks$min_error,
+    # Inference Estimation (bootstrap)
+    ci_centering_function = tolower(as.character(ci_centering_function)),
+    confidence_interval = as.numeric(confidence_interval),
+    num_ci_bootstraps = as.integer(num_ci_bootstraps),
+    # Runtime Options
+    show_progress = sim_input_checks$show_progress,
+    parallel = sim_input_checks$parallel,
+    n_cores = sim_input_checks$n_cores,
+    # Additional Options
+    run_agg_calcs = as.logical(run_agg_calcs),
+    run_mc_calcs = as.logical(run_mc_calcs),
+    run_ci_calcs = as.logical(run_ci_calcs),
+    include_zeroes_in_sampling = as.logical(include_zeroes_in_sampling),
+    include_sims_in_output = sim_input_checks$include_sims_in_output
+  ))
 }
+
 
 
 #' Organize fcmconfr Output
@@ -831,11 +758,9 @@ check_fcmconfr_inputs <- function(adj_matrices = list(matrix()),
 #'
 #' @returns An organzed list output of fcmconfr
 #'
-#' @keywords internal
-#'
-#' @export
 #' @examples
-#' NULL
+#' @keywords internal
+#' @noRd
 organize_fcmconfr_output <- function(...) {
   variables <- as.list(...)
 
@@ -933,8 +858,6 @@ organize_fcmconfr_output <- function(...) {
 #' @param ... additional inputs
 #'
 #' @returns A console printout of fcmconfr results
-#'
-#' @keywords internal
 #'
 #' @export
 #' @examples

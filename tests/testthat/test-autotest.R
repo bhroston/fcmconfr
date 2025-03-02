@@ -44,6 +44,14 @@ test_that("infer_and_simulate_fcm functions pass autotest", {
 })
 
 
+# fcmconfr
+test_that("fcmconfr functions pass autotest", {
+  functions_to_check = c("check_fcmconfr_function_inputs")
+  yaml_list <- autotest::examples_to_yaml(package = ".", functions = functions_to_check)
+  res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)
+})
+
+
 # IVFNs_and_TFNs - Checks pass
 test_that("IVFNs_and_TFNs functions pass autotest", {
   functions_to_check <- c("defuzz_ivfn_or_tfn",
@@ -54,7 +62,7 @@ test_that("IVFNs_and_TFNs functions pass autotest", {
 })
 
 
-# monte_carlo_model_generation_and_confidence_intervals
+# monte_carlo_model_generation_and_confidence_intervals - Checks pass
 test_that("monte_carlo and CI functions pass", {
   functions_to_check <- c("build_monte_carlo_fcms")
   yaml_list <- autotest::examples_to_yaml(package = ".", functions = functions_to_check)

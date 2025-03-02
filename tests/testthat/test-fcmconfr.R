@@ -1,39 +1,3 @@
-#
-# test_that("fcmconfr works with sample data", {
-#
-#   ivfn_fcms <- sample_fcms$simple_fcms$ivfn_fcms
-#
-#   ivfn_fcmconfr <- fcmconfr(
-#     adj_matrices = ivfn_fcms,
-#     # Aggregation and Monte Carlo Sampling
-#     agg_function = 'mean',
-#     num_mc_fcms = 1000,
-#     # Simulation
-#     initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
-#     clamping_vector = c(1, 0, 0, 0, 0, 0, 0),
-#     activation = 'modified-kosko',
-#     squashing = 'sigmoid',
-#     lambda = 1,
-#     point_of_inference = 'final',
-#     max_iter = 100,
-#     min_error = 1e-05,
-#     # Inference Estimation (bootstrap)
-#     ci_centering_function = 'mean',
-#     confidence_interval = 0.95,
-#     num_ci_bootstraps = 1000,
-#     # Runtime Options
-#     show_progress = TRUE,
-#     parallel = TRUE,
-#     n_cores = 10,
-#     # Additional Options
-#     run_agg_calcs = TRUE,
-#     run_mc_calcs = TRUE,
-#     run_ci_calcs = TRUE,
-#     include_zeroes_in_sampling = FALSE,
-#     include_sims_in_output = FALSE
-#   )
-# })
-
 
 requireNamespace("igraph")
 
@@ -101,9 +65,9 @@ test_that("streamlined fcmconfr works", {
     ))
   )
 
-  expect_snapshot(test)
+  expect_snapshot(print(test))
 
-  expect_no_error(
+  expect_warning(
     invisible(capture.output(
       test <- fcmconfr(
         adj_matrices = test_fcms,
@@ -135,11 +99,6 @@ test_that("streamlined fcmconfr works", {
       )
     ))
   )
-
-
-  # ggplot() +
-  #   geom_jitter(data = test$inferences$individual_fcms$inferences, aes(x = node, y = value)) +
-  #   geom_crossbar(data = bootstrapped_means, aes(x = node, y = lower_0.025, ymin = lower_0.025, ymax = upper_0.975), fill = "red", color = "red", size = 0.1)
 
 
   lower_adj_matrix_1 <- data.frame(
@@ -195,7 +154,7 @@ test_that("streamlined fcmconfr works", {
     ))
   )
 
-  expect_snapshot(test)
+  expect_snapshot(print(test))
 
 
   lower_adj_matrix_1 <- data.frame(
@@ -262,39 +221,7 @@ test_that("streamlined fcmconfr works", {
     ))
   )
 
-  expect_snapshot(test)
-
-
-
-
-  # adj_matrices = test_fcms
-  # # Aggregation and Monte Carlo Sampling
-  # agg_function = 'mean'
-  # num_mc_fcms = 1000
-  # # Simulation
-  # initial_state_vector = c(1, 1, 1, 1)
-  # clamping_vector = c(0, 0, 0, 0)
-  # activation = 'kosko'
-  # squashing = 'sigmoid'
-  # lambda = 1
-  # max_iter = 100
-  # min_error = 1e-05
-  # fuzzy_set_samples = 1000
-  # # Inference Estimation (bootstrap)
-  # confidence_interval = 0.95
-  # num_ci_bootstraps = 1000
-  # # Runtime Options
-  # show_progress = TRUE
-  # parallel = FALSE
-  # n_cores = 10
-  # # Additional Options
-  # include_zeroes_in_sampling = FALSE
-  # include_sims_in_output = TRUE
-  # estimate_inference_CI_w_bootstrap = TRUE
-
-  # ggplot() +
-  #   geom_jitter(data = test$inference_for_plotting, aes(x = node, y = value)) +
-  #   geom_crossbar(data = bootstrapped_means, aes(x = node, y = lower_0.025, ymin = lower_0.025, ymax = upper_0.975), fill = "red", color = "red", size = 0.1)
+  expect_snapshot(print(test))
 })
 
 

@@ -275,8 +275,8 @@ aggregate_conventional_fcms <- function(adj_matrices = list(),
   n_nodes <- length(node_names)
   n_maps <- length(adj_matrices)
 
-  if (!include_zeroes_in_sampling & identical(false_zero_locs_by_adj_matrix, list())) {
-    adj_matrices <- lapply(adj_matrices, function(x) replace(x, x == 0, NA))
+  if (!include_zeroes_in_sampling && identical(false_zero_locs_by_adj_matrix, list())) {
+    adj_matrices <- lapply(adj_matrices, function(x) {data.frame(as.matrix(replace(x, x == 0, NA)))})
   } else if (!include_zeroes_in_sampling & !identical(false_zero_locs_by_adj_matrix, list())) {
     adj_matrices <- lapply(adj_matrices, function(x) replace(x, x == 0, NA))
     adj_matrices <- mapply(
