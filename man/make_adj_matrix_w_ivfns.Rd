@@ -7,11 +7,11 @@
 make_adj_matrix_w_ivfns(lower = data.frame(), upper = data.frame())
 }
 \arguments{
-\item{lower}{[\verb{list() or data.frame()}]\cr An n x n adjacency matrix that
+\item{lower}{[\code{list()} or \code{data.frame()}]\cr An n x n adjacency matrix that
 represents the lower limits of edges in an FCM}
 
-\item{upper}{[\verb{list() or data.frame()}]\cr An n x n adjacency matrix that represents
-the upper limits of edges in an FCM}
+\item{upper}{[\code{list()} or \code{data.frame()}]\cr An n x n adjacency matrix that
+represents the upper limits of edges in an FCM}
 }
 \value{
 [\code{adj_matrix_w_ivfns}]\cr An adjacency matrix (of class 'ivfn')
@@ -43,7 +43,7 @@ upper_adj_matrix <- data.frame(
   "A" = c(0, 0),
   "B" = c(0.6, 0)
 )
-make_adj_matrix_w_ivfns(lower_adj_matrix, upper_adj_matrix)
+make_adj_matrix_w_ivfns(lower = lower_adj_matrix, upper = upper_adj_matrix)
 }
 \seealso{
 Other interval-valued-fuzzy-numbers: 

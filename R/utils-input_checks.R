@@ -249,12 +249,12 @@ check_square_adj_matrix = function(x = matrix()) {
     ))))
   }
 
-  if ("sparseMatrix" %in% methods::is(x)) {
-    warning(cli::format_warning(c(
-      "!" = "Warning: Converting sparseMatrix input to matrix"
-    )))
-    x <- as.matrix(x)
-  }
+  # if ("sparseMatrix" %in% methods::is(x)) {
+  #   warning(cli::format_warning(c(
+  #     "!" = "Warning: Converting sparseMatrix input to matrix"
+  #   )))
+  #   x <- as.matrix(x)
+  # }
 
   class_options <-  c("matrix", "array", "data.frame", "data.table", "tibble", "tbl_df", "sparseMatrix", "adj_matrix_w_ivfns", "adj_matrix_w_tfns")
   class_options_text <- paste0("'", cli::ansi_collapse(class_options, sep = "' '", sep2 = "' or '", last = "' or '"), "'")
@@ -270,10 +270,10 @@ check_square_adj_matrix = function(x = matrix()) {
       } else {
         x_as_df <- as.data.frame(do.call(cbind, x_as_df))
       }
-      warning(cli::format_warning(c(
-        "!" = "Warning: Converting adj. matrix to data.frame"
-      )))
-      return(x_as_df)
+      # warning(cli::format_warning(c(
+      #   "!" = "Warning: Converting adj. matrix to data.frame"
+      # )))
+      x_as_df
     }, error = function(e) {
       return(stop(cli::format_error(c(
         "x" = "Error: Adj. Matrix must one of the following classes: ", "{class_options_text}",
@@ -737,18 +737,20 @@ assert_matrix <- function(adj_matrix = data.frame(),
   #   return(adj_matrix)
   # }
 
+  input_adj_matrix <- adj_matrix
+
   res <- check_square_adj_matrix(adj_matrix)
   if (isTRUE(res)) {
     return(adj_matrix)
   }
 
   if (!is.null(dim(adj_matrix)) && fcm_class == "conventional") {
-    adj_matrix <- data.frame(apply(adj_matrix, c(1, 2), function(element) element))
-  } else if (!is.null(dim(adj_matrix)) && (fcm_class %in% c("ivfn", "tfn"))) {
-    class(adj_matrix) <- NULL
-    adj_matrix <- as.data.frame(adj_matrix)
+    output_adj_matrix <- data.frame(apply(input_adj_matrix, c(1, 2), function(element) element))
+  } else if (!is.null(dim(input_adj_matrix)) && (fcm_class %in% c("ivfn", "tfn"))) {
+    class(input_adj_matrix) <- NULL
+    output_adj_matrix <- as.data.frame(input_adj_matrix)
   } else {
-    adj_matrix <- as.data.frame(do.call(cbind, adj_matrix))
+    output_adj_matrix <- as.data.frame(do.call(cbind, input_adj_matrix))
   }
 
   # if (fcm_class == "conventional" && !is.null(dim(adj_matrix))) {
@@ -757,6 +759,12 @@ assert_matrix <- function(adj_matrix = data.frame(),
   #   class(adj_matrix) <- NULL
   #   adj_matrix <- data.frame(do.call(cbind, adj_matrix))
   # }
+
+  if (!identical(methods::is(input_adj_matrix)[1], methods::is(output_adj_matrix)[1])) {
+    warning(cli::format_warning(c(
+      "!" = "Converting adjacency matrix to data.frame"
+    )))
+  }
 
   return(adj_matrix)
 }
@@ -857,8 +865,8 @@ check_access_to_parallel_processing_and_progress_display_functionalities <- func
 
   return(
     list(
-      parallel = use_parallel,
-      show_progress = use_show_progress
+      parallel = as.logical(use_parallel),
+      show_progress = as.logical(use_show_progress)
     )
   )
 }

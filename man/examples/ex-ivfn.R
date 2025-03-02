@@ -1,2 +1,2 @@
-ivfn(lower = 0, upper = 1)
-ivfn(-1, 1)
+ivfn(lower = 0.0, upper = 1.0)
+ivfn(-1.0, 1.0)

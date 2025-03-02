@@ -1,5 +1,5 @@
 
-# All checks pass
+
 test_that("defuzz_ivfn_or_tfn works", {
   expect_equal(defuzz_ivfn_or_tfn(1), 1)
   expect_equal(defuzz_ivfn_or_tfn(ivfn(0.2, 0.6)), 0.4)
@@ -10,7 +10,6 @@ test_that("defuzz_ivfn_or_tfn works", {
   expect_error(defuzz_ivfn_or_tfn(test_val))
 
 })
-
 
 
 # IVFN Tests ----
@@ -86,6 +85,30 @@ test_that("make_adj_matrix_w_ivfns works", {
     "C6" = c(0, 0, 0, 0, 0, 0, 0, 0.85, 0),
     "C7" = c(0, 0, 0, 0.34, 0, 0, 0, 0, 0),
     "C8" = c(0, 0, 0, 0, 0, 0.63, 0, 0, 0)
+  )
+  expect_error(make_adj_matrix_w_ivfns(test_lower_adj_matrix, test_upper_adj_matrix))
+
+
+  # Confirm error if any IVFN edges are invalid
+  test_lower_adj_matrix <- data.frame(
+    "C1" = c(0, 0, 0.51, 1, 0, 0, 0, 0),
+    "C2" = c(0, 0, 0, 0.7, -0.52, 0, 0, 0),
+    "C3" = c(0.13, 0, 0, 0, 0, 0.3, 0, 0),
+    "C4" = c(0.28, 0.6, 0, 0, 0, 0, 0.2, 0),
+    "C5" = c(0, 0.5, 0, 0, 0, 0, 0, 0),
+    "C6" = c(0, 0, 0, 0, 0, 0, 0, 0.35),
+    "C7" = c(0, 0, 0, -0.16, 0, 0, 0, 0),
+    "C8" = c(0, 0, 0, 0, 0, 0.43, 0, 0)
+  )
+  test_upper_adj_matrix <- data.frame(
+    "C1" = c(0, 0, 1.00, -0.7, 0, 0, 0, 0),
+    "C2" = c(0, 0, 0, 0.9, -0.32, 0, 0, 0),
+    "C3" = c(0.43, 0, 0, 0, 0, 0.5, 0, 0),
+    "C4" = c(0.48, 0.8, 0, 0, 0, 0, 0.4, 0),
+    "C5" = c(0, 0.7, 0, 0, 0, 0, 0, 0),
+    "C6" = c(0, 0, 0, 0, 0, 0, 0, 0.85),
+    "C7" = c(0, 0, 0, 0.34, 0, 0, 0, 0),
+    "C8" = c(0, 0, 0, 0, 0, 0.63, 0, 0)
   )
   expect_error(make_adj_matrix_w_ivfns(test_lower_adj_matrix, test_upper_adj_matrix))
 
@@ -175,6 +198,13 @@ test_that("make_adj_matrix_w_tfns works", {
   testthat::expect_equal(ncol(test_tfn_adj_matrix), 6)
   testthat::expect_equal(test_tfn_adj_matrix[[2]][[4]], tfn(0.35, 0.8, 1))
 
+  colnames(lower_adj_matrix) <- NULL
+  colnames(mode_adj_matrix) <- NULL
+  colnames(upper_adj_matrix) <- NULL
+  expect_no_error(make_adj_matrix_w_tfns(lower_adj_matrix, mode_adj_matrix, upper_adj_matrix))
+
+
+
   # Check catches different sized matrices
   lower_adj_matrix <- data.frame(
     C1 = c(0, 0),
@@ -219,10 +249,10 @@ test_that("make_adj_matrix_w_tfns works", {
     C1 = c(0, 0),
     C2 = c(-0.1, 0)
   )
+  expect_error(make_adj_matrix_w_tfns(lower_adj_matrix, mode_adj_matrix, upper_adj_matrix))
 
-  invisible(capture.output(
-    expect_error(make_adj_matrix_w_tfns(lower_adj_matrix, mode_adj_matrix, upper_adj_matrix))
-  ))
+
+
 })
 
 
@@ -301,6 +331,8 @@ test_that("rtriangular_dist works", {
 
   expect_error(rtriangular_dist(n = "a", 0, 0.5, 1))
   expect_error(rtriangular_dist(n = 50.5, 0, 0.5, 1))
+
+  expect_no_error(rtriangular_dist(100, 1, 1, 1))
 })
 
 

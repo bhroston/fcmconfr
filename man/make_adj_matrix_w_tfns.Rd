@@ -11,14 +11,14 @@ make_adj_matrix_w_tfns(
 )
 }
 \arguments{
-\item{lower}{[\code{data.frame()}]\cr An n x n adjacency matrix that represents
-the lower limits of edges in an FCM}
+\item{lower}{[\code{list()} or \code{data.frame()}]\cr An n x n adjacency matrix that
+represents the lower limits of edges in an FCM}
 
-\item{mode}{[\code{data.frame()}]\cr An n x n adjacency matrix that represents
-the modes (most likely values) of edges in an FCM}
+\item{mode}{[\code{list()} or \code{data.frame()}]\cr An n x n adjacency matrix that
+represents the modes (most likely values) of edges in an FCM}
 
-\item{upper}{[\code{data.frame()}]\cr An n x n adjacency matrix that represents
-the upper limits of edges in an FCM}
+\item{upper}{[\code{list()} or \code{data.frame()}]\cr An n x n adjacency matrix that
+represents the upper limits of edges in an FCM}
 }
 \value{
 [\code{adj_matrix_w_tfns}]\cr An adjacency matrix (of class 'tfn') with

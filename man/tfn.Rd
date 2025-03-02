@@ -41,9 +41,9 @@ where \eqn{x^{L}}, \eqn{x^{M}}, and \eqn{x^{U}} are the lower bound, mode,
 and upper bound of the TFN.
 }
 \examples{
-tfn(-1, 0, 1)
-tfn(0, 0, 1)
-tfn(1, 1, 1)
+tfn(lower = -1.0, mode = 0.0, upper = 1.0)
+tfn(0, 0.5, 0.8)
+tfn(-0.3, 0.1, 0.4)
 }
 \references{
 \insertRef{chakravertyFuzzyNumbers2019}{fcmconfr}

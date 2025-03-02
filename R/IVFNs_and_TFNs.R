@@ -9,11 +9,13 @@
 #   Interval-Valued Fuzzy Numbers (IVFNs)
 #   - make_adj_matrix_w_ivfns
 #   - ivfn
+#   - subtract_ivfn
 #   - print.ivfn
 #   - c.ivfn
 #   Triangular Fuzzy Numbers (TFNs)
 #   - make_adj_matrix_w_tfns
 #   - tfn
+#   - subtract_tfn
 #   - print.tfn
 #   - c.tfn
 #   - rtriangular_dist
@@ -92,10 +94,10 @@ defuzz_ivfn_or_tfn <- function(fuzzy_number) {
 #' in the grey adjacency matrix. Otherwise, generic node IDs will be used
 #' (C1, C2, ... Cn).
 #'
-#' @param lower \[`list() or data.frame()`]\cr An n x n adjacency matrix that
+#' @param lower \[`list()` or `data.frame()`]\cr An n x n adjacency matrix that
 #' represents the lower limits of edges in an FCM
-#' @param upper \[`list() or data.frame()`]\cr An n x n adjacency matrix that represents
-#' the upper limits of edges in an FCM
+#' @param upper \[`list()` or `data.frame()`]\cr An n x n adjacency matrix that
+#' represents the upper limits of edges in an FCM
 #'
 #' @returns \[`adj_matrix_w_ivfns`]\cr An adjacency matrix (of class 'ivfn')
 #' with edges represented as IVFNs
@@ -104,33 +106,15 @@ defuzz_ivfn_or_tfn <- function(fuzzy_number) {
 #' @example  man/examples/ex-make_adj_matrix_w_ivfns.R
 make_adj_matrix_w_ivfns <- function(lower = data.frame(), upper = data.frame()) {
 
-  #test_lower <- class(lower)
-  #test_upper <- class(upper)
+  check_fcmconfr_input(lower, check = "square_adj_matrix", var_name = "lower")
+  check_fcmconfr_input(upper, check = "square_adj_matrix", var_name = "upper")
 
-  #browser()
+  lower <- as.data.frame(assert_matrix(lower, fcm_class = "conventional", var_name_input = "lower"))
+  upper <- as.data.frame(assert_matrix(upper, fcm_class = "conventional", var_name_input = "upper"))
 
-  #check_fcmconfr_input(lower, check = "square_adj_matrix", var_name = "lower")
-  lower <- assert_matrix(lower, fcm_class = "conventional", var_name_input = "lower")
-  #check_fcmconfr_input(upper, check = "square_adj_matrix", var_name = "upper")
-  upper <- assert_matrix(upper, fcm_class = "conventional", var_name_input = "upper")
+  check_fcmconfr_input(list(lower, upper), check = "adj_matrix_list", var_name = "lower/upper adj. matrices")
 
-  if (!identical(dim(lower), dim(upper))) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var lower} and {.var upper} must have the same dimensions (i.e. be the same size) and must be square (n x n) matrices",
-      "+++++> Input {.var lower} had dimensions: {dim(lower)}",
-      "+++++> Input {.var upper} had dimensions: {dim(upper)}"
-    )))
-  }
-
-  if (nrow(lower) != ncol(lower) | nrow(upper) != ncol(upper)) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var lower} and {.var upper} must have the same dimensions (i.e. be the same size) and must be square (n x n) matrices",
-      "+++++> Input {.var lower} had dimensions: {dim(lower)}",
-      "+++++> Input {.var upper} had dimensions: {dim(upper)}"
-    )))
-  } else {
-    size <- nrow(lower)
-  }
+  size <- unique(dim(lower))
 
   if (identical(colnames(lower), colnames(upper)) & !identical(colnames(lower), NULL)) {
     IDs <- colnames(lower)
@@ -141,7 +125,7 @@ make_adj_matrix_w_ivfns <- function(lower = data.frame(), upper = data.frame()) 
   }
 
   if ((!all(lower <= upper))) {
-    offense_locs <- unique(rbind(which(!lower <= mode, arr.ind = TRUE), which(!mode <= upper, arr.ind = TRUE)))
+    offense_locs <- unique(rbind(which(!lower <= upper, arr.ind = TRUE)))
     offenses_df <- data.frame(
       row = offense_locs[, 1],
       col = offense_locs[, 2],
@@ -153,7 +137,7 @@ make_adj_matrix_w_ivfns <- function(lower = data.frame(), upper = data.frame()) 
     stop(cli::format_error(c(
       "x" = "Error: Failed to create adj. matrix from input",
       "+++++>  All lower values must be less than or equal to upper values.",
-      "+++++>  Check offenses printed above."
+      "+++++>  Check violations printed above."
     )))
   }
 
@@ -212,7 +196,9 @@ make_adj_matrix_w_ivfns <- function(lower = data.frame(), upper = data.frame()) 
 #' @references \insertRef{dimuroIntervalFuzzyNumbers2011}{fcmconfr}
 #'
 #' @export
-#' @example  man/examples/ex-ivfn.R
+#' @examples
+#' ivfn(lower = 0.0, upper = 1.0)
+#' ivfn(-1.0, 1.0)
 ivfn <- function(lower = double(), upper = double()) {
   lower <- unlist(lower)
   upper <- unlist(upper)
@@ -229,14 +215,6 @@ ivfn <- function(lower = double(), upper = double()) {
 
   if (identical(upper, double())) {
     upper <- Inf
-  }
-
-  if ((!is.numeric(lower)) | (!is.numeric(upper))) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var lower} and {.var upper} must be single, numeric values",
-      "+++++> Input {.var lower} was: {lower}",
-      "+++++> Input {.var upper} was: {upper}"
-    )))
   }
 
   if (lower > upper) {
@@ -389,12 +367,12 @@ c.ivfn <- function(...) {
 #' in the triangular adjacency matrix. Otherwise, generic node IDs will be used
 #' (C1, C2, ... Cn).
 #'
-#' @param lower \[`data.frame()`]\cr An n x n adjacency matrix that represents
-#' the lower limits of edges in an FCM
-#' @param mode \[`data.frame()`]\cr An n x n adjacency matrix that represents
-#' the modes (most likely values) of edges in an FCM
-#' @param upper \[`data.frame()`]\cr An n x n adjacency matrix that represents
-#' the upper limits of edges in an FCM
+#' @param lower \[`list()` or `data.frame()`]\cr An n x n adjacency matrix that
+#' represents the lower limits of edges in an FCM
+#' @param mode \[`list()` or `data.frame()`]\cr An n x n adjacency matrix that
+#' represents the modes (most likely values) of edges in an FCM
+#' @param upper \[`list()` or `data.frame()`]\cr An n x n adjacency matrix that
+#' represents the upper limits of edges in an FCM
 #'
 #' @returns \[`adj_matrix_w_tfns`]\cr An adjacency matrix (of class 'tfn') with
 #' edges represented as TFNs
@@ -406,33 +384,16 @@ make_adj_matrix_w_tfns <- function(lower = data.frame(),
                                    upper = data.frame()) {
 
   check_fcmconfr_input(lower, check = "square_adj_matrix", var_name = "lower")
-
-  check_fcmconfr_input(lower, check = "square_adj_matrix", var_name = "lower")
-  lower <- assert_matrix(lower, fcm_class = "conventional", var_name_input = "lower")
   check_fcmconfr_input(mode, check = "square_adj_matrix", var_name = "mode")
-  mode <- assert_matrix(mode, fcm_class = "conventional", var_name_input = "mode")
   check_fcmconfr_input(upper, check = "square_adj_matrix", var_name = "upper")
-  upper <- assert_matrix(upper, fcm_class = "conventional", var_name_input = "upper")
 
-  if (!(identical(dim(lower), dim(mode)) & identical(dim(mode), dim(upper)))) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var lower}, {.var mode}, and {.var upper} must have the same dimensions (i.e. be the same size) and must be square (n x n) matrices",
-      "+++++> Input {.var lower} had dimensions: {dim(lower)}",
-      "+++++> Input {.var mode} had dimensions: {dim(mode)}",
-      "+++++> Input {.var upper} had dimensions: {dim(upper)}"
-    )))
-  }
+  lower <- as.data.frame(assert_matrix(lower, fcm_class = "conventional", var_name_input = "lower"))
+  mode <- as.data.frame(assert_matrix(mode, fcm_class = "conventional", var_name_input = "mode"))
+  upper <- as.data.frame(assert_matrix(upper, fcm_class = "conventional", var_name_input = "upper"))
 
-  if (nrow(lower) != ncol(lower) | nrow(mode) != ncol(mode) | nrow(upper) != ncol(upper)) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var lower}, {.var mode}, and {.var upper} must have the same dimensions (i.e. be the same size) and must be square (n x n) matrices",
-      "+++++> Input {.var lower} had dimensions: {dim(lower)}",
-      "+++++> Input {.var mode} had dimensions: {dim(mode)}",
-      "+++++> Input {.var upper} had dimensions: {dim(upper)}"
-    )))
-  } else {
-    size <- nrow(lower)
-  }
+  check_fcmconfr_input(list(lower, mode, upper), check = "adj_matrix_list", var_name = "lower/upper adj. matrices")
+
+  size <- unique(dim(lower))
 
   all_input_matrices_have_same_colnames <- length(unique(list(colnames(lower), colnames(mode), colnames(upper)))) == 1
   if (all_input_matrices_have_same_colnames & !identical(colnames(lower), NULL)) {
@@ -441,7 +402,7 @@ make_adj_matrix_w_tfns <- function(lower = data.frame(),
     IDs <- paste0("C", 1:nrow(lower))
   }
 
-  if ((!all(lower <= mode) | !all(mode <= upper))) {
+  if ((!all(lower <= mode) || !all(mode <= upper))) {
     offense_locs <- unique(rbind(which(!lower <= mode, arr.ind = TRUE), which(!mode <= upper, arr.ind = TRUE)))
     offenses_df <- data.frame(
       row = offense_locs[, 1],
@@ -522,7 +483,10 @@ make_adj_matrix_w_tfns <- function(lower = data.frame(),
 #' @references \insertRef{trillasFuzzyArithmetic2015}{fcmconfr}
 #'
 #' @export
-#' @example  man/examples/ex-tfn.R
+#' @examples
+#' tfn(lower = -1.0, mode = 0.0, upper = 1.0)
+#' tfn(0, 0.5, 0.8)
+#' tfn(-0.3, 0.1, 0.4)
 tfn <- function(lower = double(), mode = double(), upper = double()) {
   lower <- unlist(lower)
   mode <- unlist(mode)
@@ -548,16 +512,7 @@ tfn <- function(lower = double(), mode = double(), upper = double()) {
     upper <- Inf
   }
 
-  if ((!is.numeric(lower)) | (!is.numeric(mode)) | (!is.numeric(upper))) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var lower} and {.var upper} must be single, numeric values",
-      "+++++> Input {.var lower} was: {lower}",
-      "+++++> Input {.var mode} was: {mode}",
-      "+++++> Input {.var upper} was: {upper}"
-    )))
-  }
-
-  if (lower > upper | lower > mode) {
+  if (lower > upper || lower > mode) {
     stop(cli::format_error(c(
       "x" = "Error: {.var lower} must be less than or equal to {.var mode}, which in turn must be less than or equal to {.var upper}",
       "+++++> Input {.var lower} was: {lower}",
@@ -627,7 +582,7 @@ tfn <- function(lower = double(), mode = double(), upper = double()) {
 #'
 #' @export
 #' @examples
-#' subtract_tfn(tfn(0.5, 0.6, 0.8), tfn(0.2, 0.3, 0.5))
+#' subtract_tfn(tfn(lower = 0.5, mode = 0.6, upper = 0.8), tfn(lower = 0.2, mode = 0.3, upper = 0.5))
 #' subtract_tfn(tfn(-0.5, -0.2, 0.3), tfn(0.4, 0.5, 0.6))
 #' subtract_tfn(tfn(-1, 0, 1), tfn(-0.5, 0, 0.5))
 subtract_tfn <- function(tfn_1 = tfn(), tfn_2 = tfn()) {
@@ -701,7 +656,7 @@ c.tfn <- function(...) {
 #' This function generates a triangular distribution on the interval from lower
 #' to upper bounds with a a given mode,
 #'
-#' @param n \[`integer(1)`]\cr The number of samples to draw from the triangular
+#' @param n \[`integer(1)` - Positive]\cr The number of samples to draw from the triangular
 #' distribution
 #' @param lower \[`double(1)` - Unrestriced (positive or negative)]\cr The lower
 #' limit or minimum of the sample space
@@ -710,7 +665,7 @@ c.tfn <- function(...) {
 #' @param upper \[`double(1)` - Unrestriced (positive or negative)]\cr The upper
 #' limit or maximum of the sample space
 #'
-#' @returns \[`vector("numeric")`]\cr a vector of values representing a
+#' @returns \[`rtriangular_dist`]\cr a vector of values representing a
 #' triangular distribution
 #'
 #' @export
@@ -720,6 +675,11 @@ rtriangular_dist <- function(n = integer(), lower = double(), mode = double(), u
   check_fcmconfr_input(c(lower), check = "numeric_vector", var_name = "lower")
   check_fcmconfr_input(c(mode), check = "numeric_vector", var_name = "mode")
   check_fcmconfr_input(c(upper), check = "numeric_vector", var_name = "upper")
+
+  n <- as.integer(n)
+  lower <- as.numeric(lower)
+  mode <- as.numeric(mode)
+  upper <- as.numeric(upper)
 
   # Confirm lower <= mode <= upper
   tfn(lower, mode, upper)
@@ -766,8 +726,10 @@ rtriangular_dist <- function(n = integer(), lower = double(), mode = double(), u
 #'
 #' @export
 #' @examples
-#' plot(rtriangular_dist(1000, -1, 0, 1))
+#' plot(rtriangular_dist(n = 1000L, lower = -1.0, mode = 0.0, upper = 1.0))
 plot.rtriangular_dist <- function(x, ...) {
   index <- sample(1:length(x), length(x), replace = FALSE)
-  return(plot(x = index, y = x, xlab = "Index", ylab = attr(x, ".label")))
+  return(
+    plot(x = index, y = x, xlab = "Index", ylab = attr(x, ".label"))
+  )
 }

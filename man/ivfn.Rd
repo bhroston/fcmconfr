@@ -34,8 +34,8 @@ numeric value.
 where \eqn{x^{L}} and \eqn{x^{U}} are the lower and upper bounds of the IVFN.
 }
 \examples{
-ivfn(lower = 0, upper = 1)
-ivfn(-1, 1)
+ivfn(lower = 0.0, upper = 1.0)
+ivfn(-1.0, 1.0)
 }
 \references{
 \insertRef{mooreIntervalAnalysisFuzzy2003}{fcmconfr}

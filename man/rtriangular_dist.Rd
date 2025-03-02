@@ -12,7 +12,7 @@ rtriangular_dist(
 )
 }
 \arguments{
-\item{n}{[\code{integer(1)}]\cr The number of samples to draw from the triangular
+\item{n}{[\code{integer(1)} - Positive]\cr The number of samples to draw from the triangular
 distribution}
 
 \item{lower}{[\code{double(1)} - Unrestriced (positive or negative)]\cr The lower
@@ -25,7 +25,7 @@ of the sample space}
 limit or maximum of the sample space}
 }
 \value{
-[\code{vector("numeric")}]\cr a vector of values representing a
+[\code{rtriangular_dist}]\cr a vector of values representing a
 triangular distribution
 }
 \description{
@@ -33,11 +33,11 @@ This function generates a triangular distribution on the interval from lower
 to upper bounds with a a given mode,
 }
 \examples{
-rtriangular_dist(100, -1, 0, 1)
+rtriangular_dist(n = 100L, lower = -1.0, mode = 0.0, upper = 1.0)
 
-x <- rtriangular_dist(n = 1000, lower = -0.5, mode = 0, upper = 0.5)
-hist(x)
+x <- rtriangular_dist(n = 1000L, lower = -0.5, mode = 0.0, upper = 0.5)
+# hist(x)
 
-x <- rtriangular_dist(100, 0, 0, 0.5)
-hist(x)
+x <- rtriangular_dist(100L, 0.0, 0.0, 0.5)
+# hist(x)
 }

@@ -35,41 +35,34 @@ test_that("estimate_fcm_lambda passes autotest", {
 #   autotest::expect_autotest_no_warn(x)
 # })
 
-
-# IVFNs_and_TFNs.R
-test_that("IVFNs_and_TFNs functions pass autotest", {
-  functions_to_check <- c("defuzz_ivfn_or_tfn",
-                          "make_adj_matrix_w_ivfns")#, "ivfn", "print.ivfn", "c.ivfn",
-                          #"make_adj_matrix_w_tfns", "tfn", "print.tfn", "c.tfn", "rtriangular_dist", "plot.rtriangular_dist")
-
-  #   Exported (All)
-  #   - defuzz_ivfn_or_tfn
-  #   Interval-Valued Fuzzy Numbers (IVFNs)
-  #   - make_adj_matrix_w_ivfns
-  #   - ivfn
-  #   - print.ivfn
-  #   - c.ivfn
-  #   Triangular Fuzzy Numbers (TFNs)
-  #   - make_adj_matrix_w_tfns
-  #   - tfn
-  #   - print.tfn
-  #   - c.tfn
-  #   - rtriangular_dist
-  #   - plot.rtriangular_dist
-
+# infer_and_simulate_fcm - Checks pass
+test_that("infer_and_simulate_fcm functions pass autotest", {
+  functions_to_check <- c("infer_fcm_set", "infer_fcm")
   # functions_to_check <- c("infer_fcm")
   yaml_list <- autotest::examples_to_yaml(package = ".", functions = functions_to_check)
   res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)
 })
 
 
-# infer_and_simulate_fcm - Checks pass
-test_that("infer_and_simulate_fcm functions pass autotest", {
- functions_to_check <- c("infer_fcm_set", "infer_fcm")
- # functions_to_check <- c("infer_fcm")
- yaml_list <- autotest::examples_to_yaml(package = ".", functions = functions_to_check)
- res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)
+# IVFNs_and_TFNs - Checks pass
+test_that("IVFNs_and_TFNs functions pass autotest", {
+  functions_to_check <- c("defuzz_ivfn_or_tfn",
+                          "make_adj_matrix_w_ivfns", "ivfn", "subtract_ivfn", "print.ivfn", "c.ivfn",
+                          "make_adj_matrix_w_tfns", "tfn", "subtract_tfn", "print.tfn", "c.tfn", "rtriangular_dist", "plot.rtriangular_dist")
+  yaml_list <- autotest::examples_to_yaml(package = ".", functions = functions_to_check)
+  res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)
 })
+
+
+# monte_carlo_model_generation_and_confidence_intervals
+test_that("monte_carlo and CI functions pass", {
+  functions_to_check <- c("build_monte_carlo_fcms")
+  yaml_list <- autotest::examples_to_yaml(package = ".", functions = functions_to_check)
+  res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)
+})
+
+
+
 
 
 # utils-general.R - Checks pass

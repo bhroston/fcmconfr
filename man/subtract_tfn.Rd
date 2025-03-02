@@ -44,7 +44,7 @@ subtracting one distribution from the other, and estimating the minimum,
 mode, and maximum values of the difference distribution.
 }
 \examples{
-subtract_tfn(tfn(0.5, 0.6, 0.8), tfn(0.2, 0.3, 0.5))
+subtract_tfn(tfn(lower = 0.5, mode = 0.6, upper = 0.8), tfn(lower = 0.2, mode = 0.3, upper = 0.5))
 subtract_tfn(tfn(-0.5, -0.2, 0.3), tfn(0.4, 0.5, 0.6))
 subtract_tfn(tfn(-1, 0, 1), tfn(-0.5, 0, 0.5))
 }
