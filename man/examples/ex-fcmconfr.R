@@ -3,7 +3,7 @@ ex_conventional_fcmconfr <- fcmconfr(
   adj_matrices = sample_fcms$simple_fcms$conventional_fcms[1:10],
   # Aggregation and Monte Carlo Sampling
   agg_function = 'mean',
-  num_mc_fcms = 1000L,
+  num_mc_fcms = 100L,
   # Simulation
   initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
   clamping_vector = c(1, 0, 0, 0, 0, 0, 0),
@@ -16,11 +16,11 @@ ex_conventional_fcmconfr <- fcmconfr(
   # Inference Estimation (bootstrap)
   ci_centering_function = "mean",
   confidence_interval = 0.95,
-  num_ci_bootstraps = 1000L,
+  num_ci_bootstraps = 100L,
   # Runtime Options
   show_progress = TRUE,
-  parallel = TRUE,
-  n_cores = 2L,
+  parallel = FALSE,
+  n_cores = 1L,
   # Additional Options
   run_agg_calcs = TRUE,
   run_mc_calcs = TRUE,
@@ -35,7 +35,7 @@ ex_ivfn_fcmconfr <- fcmconfr(
   adj_matrices = sample_fcms$simple_fcms$ivfn_fcms[1:10],
   # Aggregation and Monte Carlo Sampling
   agg_function = 'mean',
-  num_mc_fcms = 1000L,
+  num_mc_fcms = 100L,
   # Simulation
   initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
   clamping_vector = c(1, 0, 0, 0, 0, 0, 0),
@@ -48,11 +48,11 @@ ex_ivfn_fcmconfr <- fcmconfr(
   # Inference Estimation (bootstrap)
   ci_centering_function = "mean",
   confidence_interval = 0.95,
-  num_ci_bootstraps = 1000L,
+  num_ci_bootstraps = 100L,
   # Runtime Options
   show_progress = TRUE,
-  parallel = TRUE,
-  n_cores = 2L,
+  parallel = FALSE,
+  n_cores = 1L,
   # Additional Options
   run_agg_calcs = TRUE,
   run_mc_calcs = TRUE,
@@ -66,7 +66,7 @@ ex_tfn_fcmconfr <- fcmconfr(
   adj_matrices = sample_fcms$simple_fcms$tfn_fcms[1:10],
   # Aggregation and Monte Carlo Sampling
   agg_function = 'mean',
-  num_mc_fcms = 1000L,
+  num_mc_fcms = 100L,
   # Simulation
   initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
   clamping_vector = c(1, 0, 0, 0, 0, 0, 0),
@@ -79,11 +79,11 @@ ex_tfn_fcmconfr <- fcmconfr(
   # Inference Estimation (bootstrap)
   ci_centering_function = "mean",
   confidence_interval = 0.95,
-  num_ci_bootstraps = 1000L,
+  num_ci_bootstraps = 100L,
   # Runtime Options
   show_progress = TRUE,
-  parallel = TRUE,
-  n_cores = 2L,
+  parallel = FALSE,
+  n_cores = 1L,
   # Additional Options
   run_agg_calcs = TRUE,
   run_mc_calcs = TRUE,

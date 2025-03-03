@@ -30,7 +30,7 @@
 #' For IVFN and TFN FCMs, edge weights are sampled from the combined
 #' distributions representative of the IVFN/TFN edge weights. For example,
 #' if an edge is given the following weights across two maps: IVFN(0.4, 0.8) and
-#' IVFN[0.5, 0.7], the samples will be drawn from the combined distribution:
+#' IVFN \[0.5, 0.7]\, the samples will be drawn from the combined distribution:
 #' sample(N, c(runif(N, 0.4, 0.8), runif(N, 0.5, 0.7)), replace = TRUE).
 #'
 #' @param adj_matrices  \[`list()`]\cr A single adjacency matrix or a list of
@@ -46,12 +46,15 @@
 #' @param silent \[`logical(1)`]\cr If TRUE, suppress warning and error
 #' messages.
 #' @param skip_checks \[`logical(1)`]\cr FOR DEVELOPER USE ONLY. If TRUE, skip
-#' call to \code{\link{check_simulation_inputs}} (internal function)
+#' call to \code{check_simulation_inputs} (internal function)
 #'
 #' @returns \[`list()`]\cr A list of empirical (Conventional) FCM adj. matrices
 #' generated via monte carlo methods
 #'
 #' @export
+#'
+#' @srrstats {BS4.0} Using Base R sampling algorithms.
+#'
 #'
 #' @example man/examples/ex-build_monte_carlo_fcms.R
 build_monte_carlo_fcms <- function(adj_matrices = list(),
@@ -222,7 +225,7 @@ build_monte_carlo_fcms <- function(adj_matrices = list(),
 #' @param show_progress \[`logical(1)`]\cr If TRUE, show progress bars and print
 #' runtime updates in the console when performing FCM simulations.
 #' @param skip_checks  \[`logical(1)`]\cr FOR DEVELOPER USE ONLY. If TRUE, skip
-#' call to \code{\link{check_simulation_inputs}} (internal function)
+#' call to \code{check_simulation_inputs} (internal function)
 #'
 #' @returns \[`quantiles_and_bootstrapped_CIs_of_inferences`]\cr A list
 #' containing a dataframe of quantiles and bootstrapped CIs of inferences, and
@@ -386,7 +389,7 @@ get_quantiles_and_bootstrapped_CIs_of_inferences <- function(infer_fcm_set_infer
     fcm_set_inference_distributions_df[, col] <- as.numeric(fcm_set_inference_distributions_df[, col])
   }
 
-  print("Done", quote = FALSE)
+  if (show_progress) print("Done", quote = FALSE)
   # ----
 
   return(structure(

@@ -23,26 +23,9 @@
 ################################################################################
 
 # rOpenSci Statistical Software Standards ----
-#' @srrstats {G1.4} *Software should use [`roxygen2`](https://roxygen2.r-lib.org/) to document all functions.*
-#' @srrstats {G1.4a} *All internal (non-exported) functions should also be documented in standard [`roxygen2`](https://roxygen2.r-lib.org/) format, along with a final `@noRd` tag to suppress automatic generation of `.Rd` files.*
-#' @srrstats {G2.0} *Implement assertions on lengths of inputs, particularly through asserting that inputs expected to be single- or multi-valued are indeed so.*
-#' @srrstats {G2.0a} *Provide explicit secondary documentation of any expectations on lengths of inputs*
-#' @srrstats {G2.1} *Implement assertions on types of inputs (see the initial point on nomenclature above).*
-#' @srrstats {G2.1a} *Provide explicit secondary documentation of expectations on data types of all vector inputs.*
-#' @srrstats {G2.2} *Appropriately prohibit or restrict submission of multivariate input to parameters expected to be univariate.*
-#' @srrstats {G2.3} *For univariate character input:*
-#' @srrstats {G2.3a} *Use `match.arg()` or equivalent where applicable to only permit expected values.*
-#' @srrstats {G2.3b} *Either: use `tolower()` or equivalent to ensure input of character parameters is not case dependent; or explicitly document that parameters are strictly case-sensitive.*
-#' @srrstats {G2.4} *Provide appropriate mechanisms to convert between different data types, potentially including:*
-#' @srrstats {G2.4a} *explicit conversion to `integer` via `as.integer()`*
-#' @srrstats {G2.4b} *explicit conversion to continuous via `as.numeric()`*
-#' @srrstats {G2.4c} *explicit conversion to character via `as.character()` (and not `paste` or `paste0`)*
-#' @srrstats {G2.6} *Software which accepts one-dimensional input should ensure values are appropriately pre-processed regardless of class structures.*
-#' @srrstats {G2.7} *Software should accept as input as many of the above standard tabular forms as possible, including extension to domain-specific forms.*
-#' @srrstats {G2.9} *Software should issue diagnostic messages for type conversion in which information is lost (such as conversion of variables from factor to character; standardisation of variable names; or removal of meta-data such as those associated with [`sf`-format](https://r-spatial.github.io/sf/) data) or added (such as insertion of variable or column names where none were provided).*
-#' @srrstats {G2.12} *Software should ensure that `data.frame`-like tabular objects which have list columns should ensure that those columns are appropriately pre-processed either through being removed, converted to equivalent vector columns where appropriate, or some other appropriate treatment such as an informative error. This behaviour should be tested.*
-
-#' @srrstats {BS1.2c} *Function-level documentation, preferably with code included in examples*
+#' @srrstats {G2.0, G2.0a, 2.1, 2.1a, 2.2, 2.3, 2.3a, 2.3b, 2.4, 2.4a, 2.4b,
+#' 2.4c, 2.6, 2.7, 2.8, 2.9, 2.12} Thorough input validation methods are applied.
+#' @srrstats {BS2.1} Proper dimensionality is ensured for inputs
 NULL
 # ----
 
@@ -477,8 +460,8 @@ check_choice_selection <- function(x, choices = c(), var_name = "") {
 
   if (length(x) > 1) {
     stop(cli::format_error(c(
-      "x" = "Error: {.var var_name} must be ONLY one of the following: {choices_text}",
-      "+++++++> Input {.var var_name} was: '{x}'"
+      "x" = "Error: {var_name} must be ONLY one of the following: {choices_text}",
+      "+++++++> Input {var_name} was: '{x}'"
     )))
   }
 
@@ -488,8 +471,8 @@ check_choice_selection <- function(x, choices = c(), var_name = "") {
   res <- checkmate::check_choice(x, choices = choices)
   if (!isTRUE(res)) {
     stop(cli::format_error(c(
-      "x" = "Error: {.var var_name} must be one of the following: {choices_text}",
-      "+++++++> Input {.var var_name} was: '{x}'"
+      "x" = "Error: {var_name} must be one of the following: {choices_text}",
+      "+++++++> Input {var_name} was: '{x}'"
     )))
   }
   return(TRUE)
@@ -787,7 +770,7 @@ assert_matrix <- function(adj_matrix = data.frame(),
 #' @description
 #' Check whether the local machine has access to the necessary packages to
 #' run code in parallel and/or using a progress bar. Specifically, checks for
-#' the parallel, doSNOW, foreach, and pbapply packages.
+#' the parallel and pbapply packages.
 #'
 #' @details
 #' Confirms that a local machine can access the required packages for parallel
@@ -826,45 +809,43 @@ check_access_to_parallel_processing_and_progress_display_functionalities <- func
   check_fcmconfr_input(testing_use_show_progress, "logical", var_name = "testing_use_show_progress")
 
   local_machine_has_access_to_parallel <- requireNamespace("parallel")
-  local_machine_has_access_to_doSNOW <- requireNamespace("doSNOW")
-  local_machine_has_access_to_foreach <- requireNamespace("foreach")
   local_machine_has_access_to_pbapply <- requireNamespace("pbapply")
 
-  can_run_in_parallel_and_can_show_progress <- (local_machine_has_access_to_parallel && local_machine_has_access_to_doSNOW && local_machine_has_access_to_foreach)
+  can_run_in_parallel_and_can_show_progress <- (local_machine_has_access_to_parallel && local_machine_has_access_to_pbapply)
   can_run_in_parallel_and_cannot_show_progress <- (local_machine_has_access_to_parallel)
   can_show_progress <- local_machine_has_access_to_pbapply
 
   if ((use_parallel && use_show_progress) && (!can_run_in_parallel_and_can_show_progress || testing_use_parallel) && (can_show_progress && !testing_use_show_progress)) {
     warning(cli::format_warning(c(
-      "!" = "Parallel processing with progress pisplay requires the 'parallel', 'doSNOW' and 'foreach' packages which are not currently installed.",
+      "!" = "Parallel processing with progress pisplay requires the 'parallel' package which is not currently installed.",
       "~~~~~> Running without parallel processing, but with progress display"
     )))
     use_parallel <- FALSE
     use_show_progress <- TRUE
   } else if ((use_parallel && use_show_progress) && (!can_run_in_parallel_and_can_show_progress || testing_use_parallel) && (!can_show_progress || testing_use_show_progress)) {
     warning(cli::format_warning(c(
-      "!" = "Parallel processing with progress pisplay requires the 'parallel', 'doSNOW' and 'foreach' packages which are not currently installed.",
+      "!" = "Parallel processing with progress pisplay requires the 'parallel' packages which is not currently installed.",
       "~~~~~> Running without parallel processing or progress display"
     )))
     use_parallel <- FALSE
     use_show_progress <- FALSE
   } else if ((use_parallel && !use_show_progress) && (!local_machine_has_access_to_parallel || testing_use_parallel) && (can_show_progress && !testing_use_show_progress)) {
     warning(cli::format_warning(c(
-      "!" = "Parallel processing requires the 'parallel', 'doSNOW' and 'foreach' packages which are not currently installed.",
+      "!" = "Parallel processing requires the 'parallel' package which is not currently installed.",
       "~~~~~> Running without parallel processing, but with progress display"
     )))
     use_parallel <- FALSE
     use_show_progress <- TRUE
   } else if ((use_parallel && !use_show_progress) && (!local_machine_has_access_to_parallel || testing_use_parallel) && (!can_show_progress || testing_use_show_progress)) {
     warning(cli::format_warning(c(
-      "!" = "Parallel processing with progress pisplay requires the 'parallel', 'doSNOW' and 'foreach' packages which are not currently installed.",
+      "!" = "Parallel processing with progress pisplay requires the 'parallel' packages which is not currently installed.",
       "~~~~~> Running without parallel processing or progress display"
     )))
     use_parallel <- FALSE
     use_show_progress <- FALSE
   } else if ((!use_parallel && use_show_progress) && (!can_show_progress || testing_use_show_progress)) {
     warning(cli::format_warning(c(
-      "!" = "Progress display (even without parallel processing) requires the 'pbabpply package which is not currently installed.",
+      "!" = "Progress display (even without parallel processing) requires the 'pbabpply' package which is not currently installed.",
       "~~~~~> Running without progress display"
     )))
     use_parallel <- FALSE

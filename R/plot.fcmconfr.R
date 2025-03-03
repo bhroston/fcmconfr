@@ -25,10 +25,7 @@
 #' load plot in a Shiny app and toggle on/off results from different analyses.
 #'
 #' @details
-#' Generates a generic plot visualizing \code{\link{fcmconfr}} results. Call the
-#' function name directly (\code{\link{autoplot.fcmconfr}})) without parentheses
-#' to see the exact code to generate the plots, then copy-and-paste and edit
-#' as needed.
+#' Generates a generic plot visualizing \code{\link{fcmconfr}} results.
 #'
 #' @param x A direct output of the \code{\link{fcmconfr}} function
 #' @param interactive \[`logical(1)`]\cr If TRUE, launch plot in a Shiny app to
@@ -81,6 +78,10 @@
 #' @returns A plot of an fcmconfr object's results
 #'
 #' @export
+#'
+#' @srrstats {BS6.1} Plot method included for fcmconfr output
+#' @srrstats {EA5.0, EA5.0a, EA5.0b} Emphasis on accessibility in graphical outputs
+#' @srrstats {EA5.5} All visualizations include units no all axes.
 #'
 #' @example man/examples/ex-plot_fcmconfr.R
 plot.fcmconfr <- function(x,
@@ -207,7 +208,6 @@ plot.fcmconfr <- function(x,
 #' @param agg_ivfn_and_tfn_linewidth \[`double(1)` - Positive]\cr Linewidth of
 #' lines representing inferences for analyses of aggregate IVFN- and TFN- FCMs
 #'
-#' @export
 #' @examples
 #' NULL
 #' @keywords internal
@@ -575,7 +575,6 @@ check_plot_fcmconfr_inputs <- function(interactive,
 #' @returns An array of concepts that should be included in the fcmconfr plot
 #' output because they have simulation inferences greater than the filter_limit
 #'
-#' @export
 #' @examples
 #' NULL
 #' @keywords internal
@@ -698,7 +697,6 @@ get_concepts_to_plot <- function(fcmconfr_object, filter_limit = 10e-10) {
 #' @returns A list of fcmconfr output dataframes organized to streamline
 #' functionality with ggplot
 #'
-#' @export
 #' @examples
 #' NULL
 #' @keywords internal
@@ -953,7 +951,10 @@ get_plot_data <- function(fcmconfr_object, filter_limit = 10e-3) {
 #'
 #' @returns An autoplot plot of an fcmconfr object's results
 #'
+#' @importFrom ggplot2 ggplot aes .data
+#'
 #' @export
+#'
 #' @examples
 #' NULL
 #' @keywords internal

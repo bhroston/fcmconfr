@@ -78,7 +78,7 @@ and inferences in output. Set to FALSE to reduce output size.}
 messages.}
 
 \item{skip_checks}{[\code{logical(1)}]\cr FOR DEVELOPER USE ONLY. If TRUE, skip
-call to \code{\link{check_simulation_inputs}} (internal function)}
+call to \code{check_simulation_inputs} (internal function)}
 }
 \value{
 [\code{inference_of_fcm_set}]\cr A list/data.frame of the inferences
@@ -97,54 +97,60 @@ user control at runtime.
 \examples{
 
 # Set of Conventional FCMs
-conventional_fcm_set_inferences <- infer_fcm_set(adj_matrices = sample_fcms$simple_fcms$conventional_fcms[1:5],
-                                                 initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
-                                                 clamping_vector = c(1, 0, 0, 0, 0, 0, 0),
-                                                 activation = "modified-kosko",
-                                                 squashing = "sigmoid",
-                                                 lambda = 1.0,
-                                                 point_of_inference = "final",
-                                                 max_iter = 100L,
-                                                 min_error = 1e-5,
-                                                 parallel = FALSE,
-                                                 n_cores = 1L,
-                                                 show_progress = FALSE,
-                                                 include_sims_in_output = TRUE,
-                                                 silent = FALSE,
-                                                 skip_checks = FALSE)
+conventional_fcm_set_inferences <- infer_fcm_set(
+  adj_matrices = sample_fcms$simple_fcms$conventional_fcms[1:5],
+  initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
+  clamping_vector = c(1, 0, 0, 0, 0, 0, 0),
+  activation = "modified-kosko",
+  squashing = "sigmoid",
+  lambda = 1.0,
+  point_of_inference = "final",
+  max_iter = 100L,
+  min_error = 1e-5,
+  parallel = FALSE,
+  n_cores = 1L,
+  show_progress = FALSE,
+  include_sims_in_output = TRUE,
+  silent = FALSE,
+  skip_checks = FALSE
+)
 
 # Set of IVFN FCMs
-ivfn_fcm_set_inferences <- infer_fcm_set(adj_matrices = sample_fcms$simple_fcms$ivfn_fcms[1:5],
-                                         initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
-                                         clamping_vector = c(1, 0, 0, 0, 0, 0, 0),
-                                         activation = "modified-kosko",
-                                         squashing = "sigmoid",
-                                         lambda = 1.0,
-                                         point_of_inference = "final",
-                                         max_iter = 100L,
-                                         min_error = 1e-5,
-                                         parallel = FALSE,
-                                         n_cores = 1L,
-                                         show_progress = FALSE,
-                                         include_sims_in_output = TRUE,
-                                         silent = FALSE,
-                                         skip_checks = FALSE)
+ivfn_fcm_set_inferences <- infer_fcm_set(
+  adj_matrices = sample_fcms$simple_fcms$ivfn_fcms[1:5],
+  initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
+  clamping_vector = c(1, 0, 0, 0, 0, 0, 0),
+  activation = "modified-kosko",
+  squashing = "sigmoid",
+  lambda = 1.0,
+  point_of_inference = "final",
+  max_iter = 100L,
+  min_error = 1e-5,
+  parallel = FALSE,
+  n_cores = 1L,
+  show_progress = FALSE,
+  include_sims_in_output = TRUE,
+  silent = FALSE,
+  skip_checks = FALSE
+)
 
 # Set of TFN FCMs
-tfn_fcm_set_inferences <- infer_fcm_set(adj_matrices = sample_fcms$simple_fcms$tfn_fcms[1:5],
-                                        initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
-                                        clamping_vector = c(1, 0, 0, 0, 0, 0, 0),
-                                        activation = "modified-kosko",
-                                        squashing = "sigmoid",
-                                        lambda = 1.0,
-                                        point_of_inference = "final",
-                                        max_iter = 100L,
-                                        min_error = 1e-5,
-                                        parallel = FALSE,
-                                        n_cores = 1L,
-                                        show_progress = FALSE,
-                                        include_sims_in_output = TRUE,
-                                        silent = FALSE,
-                                        skip_checks = FALSE)
+tfn_fcm_set_inferences <- infer_fcm_set(
+  adj_matrices = sample_fcms$simple_fcms$tfn_fcms[1:5],
+  initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
+  clamping_vector = c(1, 0, 0, 0, 0, 0, 0),
+  activation = "modified-kosko",
+  squashing = "sigmoid",
+  lambda = 1.0,
+  point_of_inference = "final",
+  max_iter = 100L,
+  min_error = 1e-5,
+  parallel = FALSE,
+  n_cores = 1L,
+  show_progress = FALSE,
+  include_sims_in_output = TRUE,
+  silent = FALSE,
+  skip_checks = FALSE
+)
 }
 \concept{infer_and_simulate_fcm}

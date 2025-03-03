@@ -24,7 +24,7 @@ individual FCMs. Omit this argument when analyzing a single FCM.}
 zero-weighted edges during FCM aggregation.}
 
 \item{skip_checks}{[\code{logical(1)}]\cr FOR DEVELOPER USE ONLY. If TRUE, skip
-call to \code{\link{check_simulation_inputs}} (internal function)}
+call to \code{check_simulation_inputs} (internal function)}
 }
 \value{
 [\code{aggregate}]\cr An an aggregate adj. matrix with edges

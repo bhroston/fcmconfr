@@ -141,7 +141,7 @@
 #' @param include_zeroes_in_sampling \[`logical(1)`]\cr  If TRUE, incorporate
 #' zero-weighted edges during FCM aggregation.
 #' @param skip_checks \[`logical(1)`]\cr FOR DEVELOPER USE ONLY. If TRUE, skip
-#' call to \code{\link{check_simulation_inputs}} (internal function)
+#' call to \code{check_simulation_inputs} (internal function)
 #'
 #' @references \insertRef{aminpourWisdomStakeholderCrowds2020}{fcmconfr}
 #'

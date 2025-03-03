@@ -7,7 +7,8 @@
 \method{print}{fcmconfr}(x, ...)
 }
 \arguments{
-\item{x}{an fcmconfr object}
+\item{x}{[\code{fcmconfr}]\cr A direct output from the \code{\link{fcmconfr}}
+function}
 
 \item{...}{additional inputs}
 }
@@ -26,4 +27,3 @@ bootstrap_input_opts, etc.
 \examples{
 NULL
 }
-\keyword{internal}

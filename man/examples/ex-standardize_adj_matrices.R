@@ -32,7 +32,9 @@ adj_matrix_1_upper <- data.frame(
   "A" = c(0, 0),
   "B" = c(1, 0)
 )
-ivfn_adj_matrix_1 <- make_adj_matrix_w_ivfns(adj_matrix_1_lower, adj_matrix_1_upper)
+ivfn_adj_matrix_1 <- make_adj_matrix_w_ivfns(
+  adj_matrix_1_lower, adj_matrix_1_upper
+)
 
 adj_matrix_2_lower <- data.frame(
   "A" = c(0, 0, 0),
@@ -44,7 +46,9 @@ adj_matrix_2_upper <- data.frame(
   "B" = c(0.3, 0, 1),
   "C" = c(0, 0.8, 0)
 )
-ivfn_adj_matrix_2 <- make_adj_matrix_w_ivfns(adj_matrix_2_lower, adj_matrix_2_upper)
+ivfn_adj_matrix_2 <- make_adj_matrix_w_ivfns(
+  adj_matrix_2_lower, adj_matrix_2_upper
+)
 
 adj_matrices_w_different_concepts <- list(
   ivfn_adj_matrix_1, ivfn_adj_matrix_2
@@ -65,7 +69,9 @@ adj_matrix_1_upper <- data.frame(
   "A" = c(0, 0),
   "B" = c(1, 0)
 )
-tfn_adj_matrix_1 <- make_adj_matrix_w_tfns(adj_matrix_1_lower, adj_matrix_1_mode, adj_matrix_1_upper)
+tfn_adj_matrix_1 <- make_adj_matrix_w_tfns(
+  adj_matrix_1_lower, adj_matrix_1_mode, adj_matrix_1_upper
+)
 
 adj_matrix_2_lower <- data.frame(
   "A" = c(0, 0, 0),
@@ -82,7 +88,9 @@ adj_matrix_2_upper <- data.frame(
   "B" = c(0.3, 0, 1),
   "C" = c(0, 0.8, 0)
 )
-tfn_adj_matrix_2 <- make_adj_matrix_w_tfns(adj_matrix_2_lower, adj_matrix_2_mode, adj_matrix_2_upper)
+tfn_adj_matrix_2 <- make_adj_matrix_w_tfns(
+  adj_matrix_2_lower, adj_matrix_2_mode, adj_matrix_2_upper
+)
 
 adj_matrices_w_different_concepts <- list(
   ivfn_adj_matrix_1, ivfn_adj_matrix_2

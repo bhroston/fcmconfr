@@ -33,7 +33,7 @@ runtime updates in the console when performing FCM simulations.}
 messages.}
 
 \item{skip_checks}{[\code{logical(1)}]\cr FOR DEVELOPER USE ONLY. If TRUE, skip
-call to \code{\link{check_simulation_inputs}} (internal function)}
+call to \code{check_simulation_inputs} (internal function)}
 }
 \value{
 [\code{list()}]\cr A list of empirical (Conventional) FCM adj. matrices
@@ -55,34 +55,40 @@ defined in the input FCMs.
 For IVFN and TFN FCMs, edge weights are sampled from the combined
 distributions representative of the IVFN/TFN edge weights. For example,
 if an edge is given the following weights across two maps: IVFN(0.4, 0.8) and
-IVFN\link{0.5, 0.7}, the samples will be drawn from the combined distribution:
+IVFN [0.5, 0.7]\, the samples will be drawn from the combined distribution:
 sample(N, c(runif(N, 0.4, 0.8), runif(N, 0.5, 0.7)), replace = TRUE).
 }
 \examples{
 
 # Conventional FCMs
-conventional_mc_fcms <- build_monte_carlo_fcms(adj_matrices = sample_fcms$simple_fcms$conventional_fcms[1:10],
-                                               n_samples = 1000,
-                                               include_zeroes_in_sampling = TRUE,
-                                               show_progress = FALSE,
-                                               silent = FALSE,
-                                               skip_checks = FALSE)
+conventional_mc_fcms <- build_monte_carlo_fcms(
+  adj_matrices = sample_fcms$simple_fcms$conventional_fcms[1:10],
+  n_samples = 1000,
+  include_zeroes_in_sampling = TRUE,
+  show_progress = FALSE,
+  silent = FALSE,
+  skip_checks = FALSE
+)
 
 # IVFN FCMs
-ivfn_mc_fcms <- build_monte_carlo_fcms(adj_matrices = sample_fcms$simple_fcms$ivfn_fcms[1:10],
-                                       n_samples = 1000,
-                                       include_zeroes_in_sampling = TRUE,
-                                       show_progress = FALSE,
-                                       silent = FALSE,
-                                       skip_checks = FALSE)
+ivfn_mc_fcms <- build_monte_carlo_fcms(
+  adj_matrices = sample_fcms$simple_fcms$ivfn_fcms[1:10],
+  n_samples = 1000,
+  include_zeroes_in_sampling = TRUE,
+  show_progress = FALSE,
+  silent = FALSE,
+  skip_checks = FALSE
+)
 
 # TFN FCMs
-tfn_mc_fcms <- build_monte_carlo_fcms(adj_matrices = sample_fcms$simple_fcms$Tfn_fcms[1:10],
-                                      n_samples = 1000,
-                                      include_zeroes_in_sampling = TRUE,
-                                      show_progress = FALSE,
-                                      silent = FALSE,
-                                      skip_checks = FALSE)
+tfn_mc_fcms <- build_monte_carlo_fcms(
+  adj_matrices = sample_fcms$simple_fcms$tfn_fcms[1:10],
+  n_samples = 1000,
+  include_zeroes_in_sampling = TRUE,
+  show_progress = FALSE,
+  silent = FALSE,
+  skip_checks = FALSE
+)
 
 
 }

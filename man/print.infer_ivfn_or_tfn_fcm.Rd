@@ -8,13 +8,13 @@
 }
 \arguments{
 \item{x}{[\code{infer_ivfn_or_tfn_fcm}]\cr an object directly output from
-\code{\link{infer_ivfn_or_tfn_fcm}}}
+\code{infer_ivfn_or_tfn_fcm}}
 
 \item{...}{additional inputs}
 }
 \value{
 [\code{NULL}]\cr A console printout of
-\code{\link{infer_ivfn_or_tfn_fcm}} results
+\code{infer_ivfn_or_tfn_fcm} results
 }
 \description{
 Print method for infer_ivfn_or_tfn_fcm objects

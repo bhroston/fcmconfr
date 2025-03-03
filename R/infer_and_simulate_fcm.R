@@ -84,7 +84,7 @@
 #' @param silent \[`logical(1)`]\cr If TRUE, suppress warning and error
 #' messages.
 #' @param skip_checks \[`logical(1)`]\cr FOR DEVELOPER USE ONLY. If TRUE, skip
-#' call to \code{\link{check_simulation_inputs}} (internal function)
+#' call to \code{check_simulation_inputs} (internal function)
 #'
 #' @returns \[`inference_of_fcm_set`]\cr A list/data.frame of the inferences
 #' (and simulations if included) for each FCM in the set
@@ -372,7 +372,7 @@ infer_fcm_set <- function(adj_matrices = list(matrix()),
 #' equals the sum of the absolute value of the current state vector minus the
 #' previous state vector}.
 #' @param skip_checks \[`logical(1)`]\cr FOR DEVELOPER USE ONLY. If TRUE, skip
-#' call to \code{\link{check_simulation_inputs}} (internal function)
+#' call to \code{check_simulation_inputs} (internal function)
 #'
 #' @returns \[`infer_conventional_fcm` or `infer_ivfn_or_tfn_fcm`]\cr A list of
 #' FCM inference results (including baseline and simulation outputs)
@@ -482,7 +482,7 @@ infer_fcm <- function(adj_matrix = data.frame(),
 #' equals the sum of the absolute value of the current state vector minus the
 #' previous state vector}.
 #' @param skip_checks \[`logical(1)`]\cr FOR DEVELOPER USE ONLY. If TRUE, skip
-#' call to \code{\link{check_simulation_inputs}} (internal function)
+#' call to \code{check_simulation_inputs} (internal function)
 #'
 #' @returns \[`infer_conventional_fcm`]\cr A list of (conventional) FCM
 #' inference results (including baseline and simulation outputs)
@@ -634,7 +634,7 @@ infer_conventional_fcm <- function(adj_matrix = data.frame(),
 #' equals the sum of the absolute value of the current state vector minus the
 #' previous state vector}.
 #' @param skip_checks \[`logical(1)`]\cr FOR DEVELOPER USE ONLY. If TRUE, skip
-#' call to \code{\link{check_simulation_inputs}} (internal function)
+#' call to \code{check_simulation_inputs} (internal function)
 #'
 #' @returns \[`infer_ivfn_or_tfn_fcm`]\cr A list of (ivfn or tfn) FCM
 #' inference results (including baseline and simulation outputs)
@@ -832,7 +832,7 @@ infer_ivfn_or_tfn_fcm <- function(adj_matrix = data.frame(),
 #' equals the sum of the absolute value of the current state vector minus the
 #' previous state vector}.
 #' @param skip_checks \[`logical(1)`]\cr FOR DEVELOPER USE ONLY. If TRUE, skip
-#' call to \code{\link{check_simulation_inputs}} (internal function)
+#' call to \code{check_simulation_inputs} (internal function)
 #'
 #' @returns \[`fcm_simulation`]\cr A list of FCM simulation results
 #'
@@ -938,7 +938,7 @@ simulate_fcm <- function(adj_matrix = data.frame(),
 #' equals the sum of the absolute value of the current state vector minus the
 #' previous state vector}.
 #' @param skip_checks \[`logical(1)`]\cr FOR DEVELOPER USE ONLY. If TRUE, skip
-#' call to \code{\link{check_simulation_inputs}} (internal function)
+#' call to \code{check_simulation_inputs} (internal function)
 #'
 #' @returns \[`fcm_simulation`]\cr A list of FCM simulation results
 #'
@@ -1111,7 +1111,7 @@ simulate_conventional_fcm <- function(adj_matrix = matrix(),
 #' equals the sum of the absolute value of the current state vector minus the
 #' previous state vector}.
 #' @param skip_checks \[`logical(1)`]\cr FOR DEVELOPER USE ONLY. If TRUE, skip
-#' call to \code{\link{check_simulation_inputs}} (internal function)
+#' call to \code{check_simulation_inputs} (internal function)
 #'
 #' @returns \[`fcm_simulation`]\cr A list of FCM simulation results
 #'
@@ -1330,7 +1330,7 @@ simulate_ivfn_or_tfn_fcm <- function(adj_matrix = data.frame(),
 #' @param lambda \[`double(1)` - Positive]\cr A numeric value that defines the
 #' steepness of the squashing function's slope.
 #' @param skip_checks \[`logical(1)`]\cr FOR DEVELOPER USE ONLY. If TRUE, skip
-#' call to \code{\link{check_simulation_inputs}} (internal function)
+#' call to \code{check_simulation_inputs} (internal function)
 #'
 #' @returns \[`double(1)`]\cr A "squashed" value, the output of the selected
 #' transfer ("squashing") function
@@ -1434,7 +1434,7 @@ squash <- function(value = double(),
 #' adjacency matrix. Must be one of the following: 'conventional', 'ivfn', or
 #' 'tfn'
 #' @param skip_checks \[`logical(1)`]\cr FOR DEVELOPER USE ONLY. If TRUE, skip
-#' call to \code{\link{check_simulation_inputs}} (internal function)
+#' call to \code{check_simulation_inputs} (internal function)
 #'
 #' @returns \[`matrix or list`]\cr The (i + 1) iteration of the input
 #' state_vector based on the adj_matrix and activation function
@@ -1692,7 +1692,7 @@ convert_fuzzy_set_elements_in_matrix_to_distributions <- function(adj_matrix = d
 #' such as adding column names and an iter column
 #'
 #' @param simulation_output \[`ivfn_or_tfn_simulation`]\cr A direct output
-#' object from \link{\code{simulate_ivfn_or_tfn_fcm}}
+#' object from \code{simulate_ivfn_or_tfn_fcm}
 #' @param concepts \[`vector("character")`]\cr A vector of names for each node.
 #' If not defined, will use column names of adjacency matrix in
 #' simulation_output object.
@@ -1773,7 +1773,7 @@ clean_simulation_output <- function(simulation_output, concepts) {
 #' @param include_sims_in_output \[`logical(1)`]\cr If TRUE, incorporate
 #' zero-weighted edges during FCM aggregation and Monte Carlo sampling.
 #' @param skip_checks \[`logical(1)`]\cr FOR DEVELOPER USE ONLY. If TRUE, skip
-#' call to \code{\link{check_simulation_inputs}} (internal function)
+#' call to \code{check_simulation_inputs} (internal function)
 #'
 #' @returns \[`list()`]\cr A list of all inputs asserted to their defined
 #' object type (i.e. via as.character, as.numeric, as.integer). Errors/Warnings
@@ -1994,11 +1994,11 @@ check_simulation_inputs <- function(adj_matrix = data.frame(),
 #' Print method for infer_conventional_fcm objects
 #'
 #' @param x \[`infer_conventional_fcm`]\cr an object directly output from
-#' \code{\link{infer_conventional_fcm}}
+#' \code{infer_conventional_fcm}
 #' @param ... additional inputs
 #'
 #' @returns \[`NULL`]\cr A console printout of
-#' \code{\link{infer_conventional_fcm}} results
+#' \code{infer_conventional_fcm} results
 #'
 #' @keywords internal
 #'
@@ -2022,11 +2022,11 @@ print.infer_conventional_fcm <- function(x, ...) {
 #' Print method for infer_ivfn_or_tfn_fcm objects
 #'
 #' @param x \[`infer_ivfn_or_tfn_fcm`]\cr an object directly output from
-#' \code{\link{infer_ivfn_or_tfn_fcm}}
+#' \code{infer_ivfn_or_tfn_fcm}
 #' @param ... additional inputs
 #'
 #' @returns \[`NULL`]\cr A console printout of
-#' \code{\link{infer_ivfn_or_tfn_fcm}} results
+#' \code{infer_ivfn_or_tfn_fcm} results
 #'
 #' @keywords internal
 #'

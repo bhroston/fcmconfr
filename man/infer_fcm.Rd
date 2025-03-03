@@ -58,7 +58,7 @@ equals the sum of the absolute value of the current state vector minus the
 previous state vector}.}
 
 \item{skip_checks}{[\code{logical(1)}]\cr FOR DEVELOPER USE ONLY. If TRUE, skip
-call to \code{\link{check_simulation_inputs}} (internal function)}
+call to \code{check_simulation_inputs} (internal function)}
 }
 \value{
 [\code{infer_conventional_fcm} or \code{infer_ivfn_or_tfn_fcm}]\cr A list of

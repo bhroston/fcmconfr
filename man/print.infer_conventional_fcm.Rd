@@ -8,13 +8,13 @@
 }
 \arguments{
 \item{x}{[\code{infer_conventional_fcm}]\cr an object directly output from
-\code{\link{infer_conventional_fcm}}}
+\code{infer_conventional_fcm}}
 
 \item{...}{additional inputs}
 }
 \value{
 [\code{NULL}]\cr A console printout of
-\code{\link{infer_conventional_fcm}} results
+\code{infer_conventional_fcm} results
 }
 \description{
 Print method for infer_conventional_fcm objects

@@ -101,10 +101,7 @@ This plots the output of fcmconfr() using ggplot. Set interactive = TRUE to
 load plot in a Shiny app and toggle on/off results from different analyses.
 }
 \details{
-Generates a generic plot visualizing \code{\link{fcmconfr}} results. Call the
-function name directly (\code{\link{autoplot.fcmconfr}})) without parentheses
-to see the exact code to generate the plots, then copy-and-paste and edit
-as needed.
+Generates a generic plot visualizing \code{\link{fcmconfr}} results.
 }
 \examples{
 
