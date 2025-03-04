@@ -29,65 +29,67 @@
 \arguments{
 \item{x}{A direct output of the \code{\link{fcmconfr}} function}
 
-\item{interactive}{TRUE/FALSE Launch plot in a Shiny app to toggle on/off
-results from different analyses}
+\item{interactive}{[\code{logical(1)}]\cr If TRUE, launch plot in a Shiny app to
+toggle on/off results from different analyses.}
 
-\item{filter_limit}{Only nodes with inferences above the filter_limit
-across any analysis will be plotted. This removes nodes with mostly 0-valued
-inferences indicating they were not impacted in the simulation.}
+\item{filter_limit}{[\code{double(1)}]\cr Only nodes with inferences above the
+filter_limit across any analysis will be plotted. This removes nodes with
+mostly 0-valued inferences indicating they were not impacted in the
+simulation.}
 
-\item{xlim}{The x-axis plot limits. xlim = NA lets ggplot determine the
-x-axis limits. xlim = c(lower_limit, upper_limit) for manual input limits.
-See ?ggplot2::xlim for additional info.}
+\item{xlim}{[\code{double(1)}]\cr The x-axis plot limits. xlim = NA lets ggplot
+determine the x-axis limits. xlim = c(lower_limit, upper_limit) for manual
+input limits. See ?ggplot2::xlim for additional info.}
 
-\item{coord_flip}{Swap x- and y-axes (i.e. rotate plot). See
-?ggplot2::coord_flip for additional info.}
+\item{coord_flip}{[\code{logical(1)}]\cr  Swap x- and y-axes (i.e. rotate plot).
+See ?ggplot2::coord_flip for additional info.}
 
-\item{text_font_size}{The font size of axis labels. text_font_size = NA lets
-ggplot determine the axis label font size.}
+\item{text_font_size}{[\code{double(1)}]\cr  The font size of axis labels.
+text_font_size = NA lets ggplot determine the axis label font size.}
 
-\item{mc_avg_and_CIs_color}{Color of the crossbar (lines) indicating the
-avg inferences of empirical FCMs generated via Monte Carlo sampling and the
-confidence intervals about those averages.}
+\item{mc_avg_and_CIs_color}{[\code{character(1)}]\cr Color of the crossbar
+(lines) indicating the avg inferences of empirical FCMs generated via Monte
+Carlo sampling and the confidence intervals about those averages.}
 
-\item{mc_inferences_color}{Color of the points representing inferences of
-empirical FCMs generated via Monte Carlo sampling}
+\item{mc_inferences_color}{[\code{character(1)}]\cr Color of the points
+representing inferences of empirical FCMs generated via Monte Carlo sampling.}
 
-\item{mc_inferences_alpha}{Transparency of the points representing inferences
-of empirical FCMs generated via Monte Carlo sampling. Range from 0 to 1
-(0: Transparent to 1: Opaque).}
-
-\item{mc_inferences_shape}{Point shapes of the points representing inferences
-of empirical FCMs generated via Monte Carlo sampling. Accepts PCH point
-values and character strings.}
-
-\item{ind_inferences_color}{Color of the points representing inferences of
-individual FCMs}
-
-\item{ind_inferences_alpha}{Transparency of the points representing
-inferences of individual FCMs. Range from 0 to 1 (0: Transparent to
+\item{mc_inferences_alpha}{[\code{double(1)} - Positive (between 0 and 1)]\cr
+Transparency of the points representing inferences of empirical FCMs
+generated via Monte Carlo sampling. Range from 0 to 1 (0: Transparent to
 1: Opaque).}
 
-\item{ind_inferences_shape}{Point shapes of the points representing
-inferences of individual FCMs. Accepts PCH point values and character
-strings. Ignored for IVFN FCMs.}
+\item{mc_inferences_shape}{[\code{integer(1)} or \code{character(1)}]\cr Point shapes
+of the points representing inferences of empirical FCMs generated via Monte
+Carlo sampling. Accepts PCH point values and character strings.}
 
-\item{agg_inferences_color}{Color of the points representing inferences of
-the aggregate FCM}
+\item{ind_inferences_color}{[\code{character(1)}]\cr Color of the points
+representing inferences of individual FCMs.}
 
-\item{agg_inferences_alpha}{Transparency of the points representing
-inferences of the aggregate FCM. Range from 0 to 1 (0: Transparent to
-1: Opaque).}
+\item{ind_inferences_alpha}{[\code{double(1)} - Positive (between 0 and 1)]\cr
+Transparency of the points representing inferences of individual FCMs. Range
+from 0 to 1 (0: Transparent to 1: Opaque).}
 
-\item{agg_inferences_shape}{Point shapes of the points representing
-inferences of the aggregate FCM. Accepts PCH point values and character
-strings. Ignored for IVFN FCMs.}
+\item{ind_inferences_shape}{[\code{integer(1)} or \code{character(1)}]\cr Point shapes
+of the points representing inferences of individual FCMs. Accepts PCH point
+values and character strings. Ignored for IVFN FCMs.}
 
-\item{ind_ivfn_and_tfn_linewidth}{Linewidth of lines representing
-inferences for analyses of individual IVFN- and TFN- FCMs.}
+\item{agg_inferences_color}{[\code{character(1)}]\cr Color of the points
+representing inferences of the aggregate FCM}
 
-\item{agg_ivfn_and_tfn_linewidth}{Linewidth of lines representing inferences
-for analyses of aggregate IVFN- and TFN- FCMs}
+\item{agg_inferences_alpha}{[\code{double(1)} - Positive (between 0 and 1)]\cr
+Transparency of the points representing inferences of the aggregate FCM.
+Range from 0 to 1 (0: Transparent to 1: Opaque).}
+
+\item{agg_inferences_shape}{[\code{integer(1)} or \code{character(1)}]\cr Point shapes
+of the points representing inferences of the aggregate FCM. Accepts PCH point
+values and character strings. Ignored for IVFN FCMs.}
+
+\item{ind_ivfn_and_tfn_linewidth}{[\code{double(1)} - Positive]\cr  Linewidth of
+lines representing inferences for analyses of individual IVFN- and TFN- FCMs.}
+
+\item{agg_ivfn_and_tfn_linewidth}{[\code{double(1)} - Positive]\cr Linewidth of
+lines representing inferences for analyses of aggregate IVFN- and TFN- FCMs}
 
 \item{...}{Additional inputs}
 }
@@ -99,10 +101,7 @@ This plots the output of fcmconfr() using ggplot. Set interactive = TRUE to
 load plot in a Shiny app and toggle on/off results from different analyses.
 }
 \details{
-Generates a generic plot visualizing \code{\link{fcmconfr}} results. Call the
-function name directly (\code{\link{autoplot.fcmconfr}})) without parentheses
-to see the exact code to generate the plots, then copy-and-paste and edit
-as needed.
+Generates a generic plot visualizing \code{\link{fcmconfr}} results.
 }
 \examples{
 
@@ -123,7 +122,7 @@ tfn_example_fcmconfr <- fcmconfr(
   max_iter = 1000,
   min_error = 1e-05,
   # Inference Estimation (bootstrap)
-  ci_centering_function = mean,
+  ci_centering_function = "mean",
   confidence_interval = 0.95,
   num_ci_bootstraps = 1000,
   # Runtime Options
@@ -169,12 +168,12 @@ plot(tfn_example_fcmconfr,
      xlim = c(-0.6, 0.6),
      coord_flip = FALSE,
      # Plot Aesthetic Parameters
-     mc_avg_and_CIs_color = "blue",
-     mc_inferences_color = "blue",
+     mc_avg_and_CIs_color = "darkblue",
+     mc_inferences_color = "darkblue",
      mc_inferences_shape = 3,
-     ind_inferences_color = "black",
+     ind_inferences_color = "maroon",
      ind_inferences_shape = 16,
-     agg_inferences_color = "red",
+     agg_inferences_color = "grey",
      agg_inferences_shape = 17,
      ind_ivfn_and_tfn_linewidth = 0.1,
      agg_ivfn_and_tfn_linewidth = 0.6

@@ -1,4 +1,15 @@
 
+################################################################################
+# fcm_view.R
+#
+# This function plots an FCM network in visNetwork
+#
+#   Exported
+#   - fcm_view
+#
+################################################################################
+
+
 #' View FCM Network
 #'
 #' @family utility
@@ -15,12 +26,11 @@
 #' edges, and (6) the ability to change the curvature of edges and the smoothing
 #' method used.
 #'
-#' @param fcm_adj_matrix An n x n adjacency matrix that represents an FCM.
-#' fcm_view accepts either an fcm_adj_matrix or fcm_visNetwork input
-#' but NOT both. Accepts [data.frame, tbl_df, tbl] objects representing
-#' conventional, IVFN-, or TFN- adj. matrices.
+#' @param adj_matrix \[`list() or data.frame()`]\cr A single adjacency matrix
+#' (n x n) representing FCMs. An adjacency matrix can have conventional
+#' edge weights, IVFN edge weights or TFN edge weights.
 #' @param fcm_visNetwork An fcm_view visNetwork object output. fcm_view accepts
-#' either an fcm_adj_matrix or fcm_visNetwork input but NOT both.
+#' either an adj_matrix or fcm_visNetwork input but NOT both.
 #' @param shiny View visNetwork output in an interactive shiny app. Allows the
 #' user to manipulate and save node locations and other plot characteristics.
 #' Outputs are saved as fcm_visNetwork objects.
@@ -39,50 +49,37 @@
 #'
 #' @export
 #' @example man/examples/ex-fcm_view.R
-fcm_view <- function(fcm_adj_matrix = matrix(),
+fcm_view <- function(adj_matrix = data.frame(),
                      fcm_visNetwork = list(), # A visNetwork Object
                      shiny = FALSE,
                      ...) {
 
-  # Checks ----
-  if (identical(fcm_adj_matrix, matrix())) {
-    fcm_adj_matrix_is_dummy <- TRUE
-    fcm_adj_matrix <- matrix(0)
+  requireNamespace(c("shiny", "shinyWidgets", "bslib", "igraph", "visNetwork"))
+
+  if (identical(adj_matrix, data.frame())) {
+    adj_matrix_is_dummy <- TRUE
+    adj_matrix <- matrix(0)
   } else {
-    fcm_adj_matrix_is_dummy <- FALSE
+    adj_matrix_is_dummy <- FALSE
   }
 
-  if (is.null(dim(fcm_adj_matrix))) {
-    warning(cli::format_error(c(
-      "x" = "Error: {.var fcm_adj_matrix} must be an (n x n) adj. matrix",
-      "+++++> Input The operation dim(fcm_adj_matrix) returned NULL"
-    )))
-    return(invisible(NULL))
+  # Checks ----
+  check_fcmconfr_input(adj_matrix, "square_adj_matrix", var_name = "adj_matrix")
+  check_fcmconfr_input(shiny, "logical", var_name = "shiny")
+
+  if (is.null(dim(adj_matrix)) && methods::is(adj_matrix)[1] == "list") {
+    adj_matrix <- adj_matrix[[1]]
   }
 
-  if (!identical(fcm_adj_matrix, matrix()) & (length(unique(dim(fcm_adj_matrix))) > 1)) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var fcm_adj_matrix} must be a single (n x n) adj. matrix.",
-      "+++++> Input {.var fcm_adj_matrix} had dimensions: {dim(fcm_adj_matrix)}"
-    )))
-  }
+  fcm_class <- get_fcm_class_from_adj_matrix(adj_matrix)
+  adj_matrix <- assert_matrix(adj_matrix, fcm_class = fcm_class, var_name_input = "adj_matrix")
 
-  fcm_adj_matrix_input_type <- get_adj_matrices_input_type(fcm_adj_matrix)
-  # if ((fcm_adj_matrix_input_type$adj_matrices_input_is_list) & (length(fcm_adj_matrix) > 1)) {
-  #   stop(cli::format_error(c(
-  #     "x" = "Error: {.var fcm_adj_matrix} must be a single adj. matrix.",
-  #     "+++++> Input {.var fcm_adj_matrix} was a list of {length(fcm_adj_matrix)} adj. matrices."
-  #   )))
-  # } else if (fcm_adj_matrix_input_type$adj_matrices_input_is_list & (length(fcm_adj_matrix) == 1)) {
-  #   fcm_adj_matrix <- fcm_adj_matrix[[1]]
-  # }
-  fcm_adj_matrix_class <- fcm_adj_matrix_input_type$fcm_class
-  if (fcm_adj_matrix_class == "conventional") {
-    fcm_adj_matrix <- fcm_adj_matrix
-  } else if (fcm_adj_matrix_class == "ivfn") {
-    fcm_adj_matrix <- apply(fcm_adj_matrix, c(1, 2), function(x) mean(x[[1]]$lower, x[[1]]$upper))
-  } else if (fcm_adj_matrix_class == "tfn") {
-    fcm_adj_matrix <- apply(fcm_adj_matrix, c(1, 2), function(x) mean(x[[1]]$lower, x[[1]]$mode,  x[[1]]$upper))
+  if (fcm_class == "conventional") {
+    adj_matrix <- adj_matrix
+  } else if (fcm_class == "ivfn") {
+    adj_matrix <- apply(adj_matrix, c(1, 2), function(x) mean(x[[1]]$lower, x[[1]]$upper))
+  } else if (fcm_class == "tfn") {
+    adj_matrix <- apply(adj_matrix, c(1, 2), function(x) mean(x[[1]]$lower, x[[1]]$mode,  x[[1]]$upper))
   }
 
   if (identical(fcm_visNetwork, list())) {
@@ -94,7 +91,7 @@ fcm_view <- function(fcm_adj_matrix = matrix(),
   }
 
   if (!identical(methods::is(fcm_visNetwork), "visNetwork")) {
-    warning(cli::format_error(c(
+    stop(cli::format_error(c(
       "x" = "Error: {.var fcm_visNetwork} must a visNetwork object.",
       "+++++> Input {.var fcm_visNetwork} was of type: {methods::is(fcm_visNetwork)[1]}"
     )))
@@ -108,10 +105,10 @@ fcm_view <- function(fcm_adj_matrix = matrix(),
     )))
   }
 
-  if (!identical(fcm_adj_matrix, matrix()) & !fcm_visNetwork_is_dummy) {
+  if (!identical(adj_matrix, data.frame()) & !fcm_visNetwork_is_dummy) {
     stop(cli::format_error(c(
-        "x" = "Error: fcm_view accepts either {.var fcm_adj_matrix} OR {.var fcm_visNetwork} as inputs",
-        "+++++> Either input only a {.var fcm_adj_matrix} OR {.var fcm_visNetwork} (a visNetwork object)"
+        "x" = "Error: fcm_view accepts either {.var adj_matrix} OR {.var fcm_visNetwork} as inputs",
+        "+++++> Either input only a {.var adj_matrix} OR {.var fcm_visNetwork} (a visNetwork object)"
     )))
   }
 
@@ -144,21 +141,21 @@ fcm_view <- function(fcm_adj_matrix = matrix(),
     )))
   }
 
-  if (identical(methods::is(fcm_adj_matrix), "visNetwork")) {
+  if (identical(methods::is(adj_matrix), "visNetwork")) {
     options(warn = 1) # Make sure warning shows before launching shiny app
     warning(cli::format_warning(c(
-      "!" = "Warning: {.var fcm_adj_matrix} is a 'visNetwork' object",
-      "~~~~~ Replacing {.var fcm_adj_matrix} with {.var fcm_visNetwork} in function call"
+      "!" = "Warning: {.var adj_matrix} is a 'visNetwork' object",
+      "~~~~~ Replacing {.var adj_matrix} with {.var fcm_visNetwork} in function call"
     )))
     options(warn = 0)
-    fcm_visNetwork <- fcm_adj_matrix
-    fcm_adj_matrix <- matrix()
+    fcm_visNetwork <- adj_matrix
+    adj_matrix <- matrix()
   }
   # ----
 
-  if (!fcm_adj_matrix_is_dummy) {
+  if (!adj_matrix_is_dummy) {
     # Translate fcm into an igraph object and then convert to visNetwork
-    fcm_as_igraph_obj <- igraph::graph_from_adjacency_matrix(as.matrix(fcm_adj_matrix), weighted = TRUE, mode = "directed")
+    fcm_as_igraph_obj <- igraph::graph_from_adjacency_matrix(as.matrix(adj_matrix), weighted = TRUE, mode = "directed")
     fcm_visNetwork <- visNetwork::visIgraph(fcm_as_igraph_obj) %>%
       visNetwork::visIgraphLayout()
 

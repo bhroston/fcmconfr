@@ -7,10 +7,11 @@
 defuzz_ivfn_or_tfn(fuzzy_number)
 }
 \arguments{
-\item{fuzzy_number}{A fuzzy number object. Either an ivfn or tfn}
+\item{fuzzy_number}{[\code{ivfn} or \code{tfn}] An IVFN or TFN object}
 }
 \value{
-A crisp value representative of the input IVFN or TFN
+[\code{numeric(1)}]\cr A crisp number representative of the input fuzzy
+number.
 }
 \description{
 Convert a fuzzy number to a crisp value. For IVFNs, return the average of the

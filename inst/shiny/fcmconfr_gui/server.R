@@ -100,12 +100,12 @@ shiny_server <- function(input, output, session) {
       note <- NULL
       adj_matrices_input <- as.list(.GlobalEnv)[names(as.list(.GlobalEnv)) == input$adj_matrices][[1]]
 
-      adj_matrices_input_type <- get_adj_matrices_input_type(adj_matrices_input)
-      adj_matrices_input_is_list <- adj_matrices_input_type$adj_matrices_input_is_list
-      if (!adj_matrices_input_is_list) {
+      check_fcmconfr_input(adj_matrices_input, check = "adj_matrix_list")
+      if (!is.null(dim(adj_matrices_input))) {
         adj_matrices_input <- list(adj_matrices_input)
       }
-      fcm_class <- adj_matrices_input_type$object_types_in_list[1]
+      fcm_class <- get_fcm_class_from_adj_matrix(adj_matrices_input[[1]])
+      adj_matrices_input <- lapply(adj_matrices_input, function(x) assert_matrix(x, fcm_class, var_name_input = "adj_matrix"))
 
       concepts_in_adj_matrices <- unique(lapply(adj_matrices_input, colnames))
       dims_of_adj_matrices <- unique(unlist(lapply(adj_matrices_input, function(x) unique(dim(x)))))
@@ -169,7 +169,7 @@ shiny_server <- function(input, output, session) {
 
   fcm_class <- shiny::reactive({
     if (accepted_adj_matrices_input()) {
-      get_adj_matrices_input_type(adj_matrices())$object_types_in_list[1]
+      get_fcm_class_from_adj_matrix(adj_matrices()[[1]])
     } else {
       "unavailable"
     }

@@ -5,27 +5,31 @@
 \title{Aggregate FCMs}
 \usage{
 aggregate_fcms(
-  adj_matrices = list(matrix()),
+  adj_matrices = list(),
   agg_function = c("mean", "median"),
-  include_zeroes_in_sampling = FALSE
+  include_zeroes_in_sampling = FALSE,
+  skip_checks = FALSE
 )
 }
 \arguments{
-\item{adj_matrices}{A list of adj. matrix objects; these can represent
-conventional FCM, IVFN FCM, and TFN FCM, but all adj. matrices must be of
-the same type between the three options.}
+\item{adj_matrices}{[\code{list()}]\cr A single adjacency matrix or a list of
+adjacency matrices (n x n) representing FCMs. Matrices can have conventional
+edge weights, IVFN edge weights or TFN edge weights.}
 
-\item{agg_function}{Calculate aggregate edge weights as either the
-"mean" or "median" of the input edge weights across inputs}
+\item{agg_function}{[\code{character(1)}]\cr Choice of aggregation method
+(mean, median) for producing a single "collective" FCM from a group of
+individual FCMs. Omit this argument when analyzing a single FCM.}
 
-\item{include_zeroes_in_sampling}{TRUE/FALSE Whether to include zeroes in the mean/median
-calculations. (i.e. if edges not included in a map should count as a zero-weighted
-edge or not at all)}
+\item{include_zeroes_in_sampling}{[\code{logical(1)}]\cr  If TRUE, incorporate
+zero-weighted edges during FCM aggregation.}
+
+\item{skip_checks}{[\code{logical(1)}]\cr FOR DEVELOPER USE ONLY. If TRUE, skip
+call to \code{check_simulation_inputs} (internal function)}
 }
 \value{
-An 'aggregate' object which is an aggregate adj. matrix with edges
-represented as the same data types as the inputs (i.e. Numerics for
-conventional, IVFNs, or TFNs)
+[\code{aggregate}]\cr An an aggregate adj. matrix with edges
+represented as the same data types as the inputs (i.e. Numerics for, IVFNs,
+or TFNs)
 }
 \description{
 Generate an aggregate adj. matrix from a list of adj. matrices. FCM
@@ -140,80 +144,34 @@ A_{ij}^{aggregate} =\ \newline
 }
 \examples{
 # Aggregate Conventional FCMs
-adj_matrix_1 <- data.frame(
-  "A" = c(0, 0.8),
-  "B" = c(1, 0)
-)
-adj_matrix_2 <- data.frame(
-  "A" = c(0, 0.4),
-  "B" = c(0.25, 0)
-)
-adj_matrix_3 <- data.frame(
-  "A" = c(0, 0),
-  "B" = c(0.75, 0)
-)
-adj_matrix_4 <- data.frame(
-  "A" = c(0, 0),
-  "B" = c(0.5, 0)
-)
-fcms <- list(adj_matrix_1, adj_matrix_2, adj_matrix_3, adj_matrix_4)
-aggregate_fcms(fcms, "mean", include_zeroes_in_sampling = TRUE)
-
+aggregate_fcms(sample_fcms$simple_fcms$conventional_fcms,
+               agg_function = "mean",
+               include_zeroes_in_sampling = TRUE,
+               skip_checks = FALSE)
 
 # Aggregate IVFN FCMs
-lower_adj_matrix_1 <- data.frame(
-  "A" = c(0, 0),
-  "B" = c(0.4, 0)
-)
-upper_adj_matrix_1 <- data.frame(
-  "A" = c(0, 0.2),
-  "B" = c(0.6, 0)
-)
-adj_matrix_1 <- make_adj_matrix_w_ivfns(lower_adj_matrix_1, upper_adj_matrix_1)
-lower_adj_matrix_2 <- data.frame(
-  "A" = c(0, 0.3),
-  "B" = c(0.6, 0)
-)
-upper_adj_matrix_2 <- data.frame(
-  "A" = c(0, 0.4),
-  "B" = c(1, 0)
-)
-adj_matrix_2 <- make_adj_matrix_w_ivfns(lower_adj_matrix_2, upper_adj_matrix_2)
-lower_adj_matrix_3 <- data.frame(
-  "A" = c(0, 0),
-  "B" = c(0.2, 0)
-)
-upper_adj_matrix_3 <- data.frame(
-  "A" = c(0, 0),
-  "B" = c(0.6, 0)
-)
-adj_matrix_3 <- make_adj_matrix_w_ivfns(lower_adj_matrix_3, upper_adj_matrix_3)
-lower_adj_matrix_4 <- data.frame(
-  "A" = c(0, 0),
-  "B" = c(0.0, 0)
-)
-upper_adj_matrix_4 <- data.frame(
-  "A" = c(0, 0),
-  "B" = c(0.4, 0)
-)
-adj_matrix_4 <- make_adj_matrix_w_ivfns(lower_adj_matrix_4, upper_adj_matrix_4)
+aggregate_fcms(sample_fcms$simple_fcms$ivfn_fcms,
+               agg_function = "mean",
+               include_zeroes_in_sampling = TRUE,
+               skip_checks = FALSE)
 
-fcms_w_ivfns <- list(adj_matrix_1, adj_matrix_2, adj_matrix_3, adj_matrix_4)
+# Aggregate TFN FCMs
+aggregate_fcms(sample_fcms$simple_fcms$tfn_fcms,
+               agg_function = "mean",
+               include_zeroes_in_sampling = TRUE,
+               skip_checks = FALSE)
 
 # NOTE: If the lower bound of an edge weight is 0, but the upper bound is > 0,
 # the assumption that a stakeholder simply did not include the edge is invalid.
 # Thus, since the 0-lower bound is meaningful, it is included in mean/median
 # calculations even if include_zeroes = FALSE
-aggregate_fcms(fcms_w_ivfns, "mean", include_zeroes_in_sampling = FALSE)
+aggregate_fcms(sample_fcms$simple_fcms$ivfn_fcms, "mean", include_zeroes_in_sampling = FALSE)
 }
 \references{
 \insertRef{aminpourWisdomStakeholderCrowds2020}{fcmconfr}
 }
 \seealso{
 Other aggregate_fcms: 
-\code{\link{aggregate_conventional_fcms}()},
-\code{\link{aggregate_fcms_w_ivfns}()},
-\code{\link{aggregate_fcms_w_tfns}()},
 \code{\link{print.aggregate}()}
 }
 \concept{aggregate_fcms}

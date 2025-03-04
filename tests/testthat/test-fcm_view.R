@@ -6,11 +6,11 @@ test_that("fcm_view catches errors works", {
   test <- sample_fcms$simple_fcms$conventional_fcms
 
   expect_error(
-    fcm_view(fcm_adj_matrix = test)
+    fcm_view(adj_matrix = test)
   )
 
   expect_error(
-    fcm_view(fcm_adj_matrix = test[[1]], fcm_visNetwork = "nope")
+    fcm_view(adj_matrix = test[[1]], fcm_visNetwork = "nope")
   )
 
   expect_error(
@@ -18,39 +18,43 @@ test_that("fcm_view catches errors works", {
   )
 
   expect_error(
-    fcm_view(fcm_adj_matrix = test[[1]], shiny = "wrong")
+    fcm_view(adj_matrix = test[[1]], shiny = "wrong")
   )
 
   expect_error(
-    fcm_view(fcm_adj_matrix = unlist(test[[1]][1, ]))
+    fcm_view(adj_matrix = unlist(test[[1]][1, ]))
   )
 
   expect_error(
-    fcm_view(fcm_adj_matrix = test[[1]][1, ])
+    fcm_view(adj_matrix = test[[1]][1, ])
   )
 
   expect_error(
-    fcm_view(fcm_adj_matrix = test[[1]], shiny = TRUE, wrong_param = TRUE)
+    fcm_view(adj_matrix = test[[1]], shiny = TRUE, wrong_param = TRUE)
   )
 
   expect_warning(
-    fcm_view(fcm_adj_matrix = test[[1]], shiny = FALSE, alert_on_open = TRUE)
+    fcm_view(adj_matrix = test[[1]], shiny = FALSE, alert_on_open = TRUE)
   )
 
   expect_error(
-    fcm_view(fcm_adj_matrix = test[[1]], shiny = TRUE, alert_on_open = "wrong")
+    fcm_view(adj_matrix = test[[1]], shiny = TRUE, alert_on_open = "wrong")
   )
 
   # expect_no_error (Will need to run outside testing)
-  # fcm_view(fcm_adj_matrix = test[[1]], shiny = TRUE, alert_on_open = TRUE)
-  # fcm_view(fcm_adj_matrix = test[[1]], shiny = TRUE, alert_on_open = FALSE)
+  # fcm_view(adj_matrix = test[[1]], shiny = TRUE, alert_on_open = TRUE)
+  # fcm_view(adj_matrix = test[[1]], shiny = TRUE, alert_on_open = FALSE)
 
   expect_no_error(
-    fcm_view(fcm_adj_matrix = list(test[[1]]))
+    fcm_view(adj_matrix = list(test[[1]]))
   )
 
   expect_no_error(
-    fcm_view(fcm_adj_matrix = test[[1]])
+    fcm_view(adj_matrix = test[[1]])
+  )
+
+  expect_no_error(
+    fcm_view()
   )
 
   # works with conventional fcms

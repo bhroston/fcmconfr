@@ -4,15 +4,17 @@
 \alias{standardize_adj_matrices}
 \title{Standardize a List of Adjacency Matrices}
 \usage{
-standardize_adj_matrices(adj_matrices = list(matrix()))
+standardize_adj_matrices(adj_matrices = list())
 }
 \arguments{
-\item{adj_matrices}{A list of adj. matrix objects}
+\item{adj_matrices}{[\code{list()}]\cr A single adjacency matrix or a list of
+adjacency matrices (n x n) representing FCMs. Matrices can have conventional
+edge weights, IVFN edge weights or TFN edge weights.}
 }
 \value{
-A list of adj. matrices constructed from the input adj. matrices,
-that contain the same concepts (and dimensions). Rows/Columns of added
-concepts are all 0's.
+[\code{list()}]\cr A list of adjacency matrices constructed from the
+input adj. matrices, that contain the same concepts (and dimensions).
+Rows/Columns of added concepts are all 0's.
 }
 \description{
 Given a list of adj. matrices of different sizes, transforms the inputs into
@@ -23,6 +25,7 @@ Solves the problem where Map 1 has nodes A and B but Map 2 has nodes B and C
 and need to analyse them both together.
 }
 \examples{
+# Standardize Conventional FCMs
 adj_matrix_1 <- data.frame(
   "A" = c(0, 0),
   "B" = c(1, 0)
@@ -47,15 +50,78 @@ adj_matrices_w_different_concepts <- list(
 )
 standardize_adj_matrices(adj_matrices_w_different_concepts)
 
+# Standardize IVFN FCMs
+adj_matrix_1_lower <- data.frame(
+  "A" = c(0, 0),
+  "B" = c(0.8, 0)
+)
+adj_matrix_1_upper <- data.frame(
+  "A" = c(0, 0),
+  "B" = c(1, 0)
+)
+ivfn_adj_matrix_1 <- make_adj_matrix_w_ivfns(
+  adj_matrix_1_lower, adj_matrix_1_upper
+)
+
+adj_matrix_2_lower <- data.frame(
+  "A" = c(0, 0, 0),
+  "B" = c(0.1, 0, 0.8),
+  "C" = c(0, 0.6, 0)
+)
+adj_matrix_2_upper <- data.frame(
+  "A" = c(0, 0, 0),
+  "B" = c(0.3, 0, 1),
+  "C" = c(0, 0.8, 0)
+)
+ivfn_adj_matrix_2 <- make_adj_matrix_w_ivfns(
+  adj_matrix_2_lower, adj_matrix_2_upper
+)
+
+adj_matrices_w_different_concepts <- list(
+  ivfn_adj_matrix_1, ivfn_adj_matrix_2
+)
+standardize_adj_matrices(adj_matrices_w_different_concepts)
+
+
+# Standardize TFN FCMs
+adj_matrix_1_lower <- data.frame(
+  "A" = c(0, 0),
+  "B" = c(0.8, 0)
+)
+adj_matrix_1_mode <- data.frame(
+  "A" = c(0, 0),
+  "B" = c(0.9, 0)
+)
+adj_matrix_1_upper <- data.frame(
+  "A" = c(0, 0),
+  "B" = c(1, 0)
+)
+tfn_adj_matrix_1 <- make_adj_matrix_w_tfns(
+  adj_matrix_1_lower, adj_matrix_1_mode, adj_matrix_1_upper
+)
+
+adj_matrix_2_lower <- data.frame(
+  "A" = c(0, 0, 0),
+  "B" = c(0.1, 0, 0.8),
+  "C" = c(0, 0.6, 0)
+)
+adj_matrix_2_mode <- data.frame(
+  "A" = c(0, 0, 0),
+  "B" = c(0.2, 0, 0.9),
+  "C" = c(0, 0.7, 0)
+)
+adj_matrix_2_upper <- data.frame(
+  "A" = c(0, 0, 0),
+  "B" = c(0.3, 0, 1),
+  "C" = c(0, 0.8, 0)
+)
+tfn_adj_matrix_2 <- make_adj_matrix_w_tfns(
+  adj_matrix_2_lower, adj_matrix_2_mode, adj_matrix_2_upper
+)
+
+adj_matrices_w_different_concepts <- list(
+  ivfn_adj_matrix_1, ivfn_adj_matrix_2
+)
+standardize_adj_matrices(adj_matrices_w_different_concepts)
 }
-\seealso{
-Other utility: 
-\code{\link{check_if_local_machine_has_access_to_parallel_processing_functionalities}()},
-\code{\link{check_if_local_machine_has_access_to_show_progress_functionalities}()},
-\code{\link{fcm_view}()},
-\code{\link{get_adj_matrices_input_type}()},
-\code{\link{get_edgelist_from_adj_matrix}()},
-\code{\link{get_inferences}()},
-\code{\link{get_node_IDs_from_input}()}
-}
-\concept{utility}
+\concept{utils-general}

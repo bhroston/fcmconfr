@@ -374,5 +374,5 @@ test_that("print.aggregate works", {
   output <- capture.output(test_aggregate)
   expect_identical(output[length(output)], "Aggregate (mean) of 4 adj. matrices")
 
-  expect_snapshot(test_aggregate)
+  expect_snapshot(print(test_aggregate))
 })

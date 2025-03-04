@@ -1,4 +1,14 @@
 
+################################################################################
+# estimate_fcm_lambda.R
+#
+# This function estimates the maximum lambda for an FCM that ensures convergence
+#
+#   Exported
+#   - estimate_fcm_lambda
+#
+################################################################################
+
 #' Estimate lambda
 #'
 #' @description
@@ -84,13 +94,14 @@
 #' \code{estimate_fcm_lambda} is organized to streamline the addition of
 #' new algorithms in the future.
 #'
-#' @param fcm_adj_matrix An n x n adjacency matrix that represents an FCM
-#' @param squashing The squashing function used. Must be one of the following: 'tanh', or 'sigmoid'.
+#' @param adj_matrix \[`list() or data.frame()`]\cr A single adjacency matrix
+#' (n x n) representing FCMs. An adjacency matrix can have conventional
+#' edge weights, IVFN edge weights or TFN edge weights.
+#' @param squashing \[`character(1)`]\cr The squashing function used. Must be
+#' one of the following: 'tanh' or 'sigmoid'.
 #'
-#' @returns The maximum lambda that ensures simulation convergence for the
-#' input FCM.
-#'
-#' @importFrom cli format_error
+#' @returns \[`double(1)`]\cr The maximum lambda that ensures simulation
+#' convergence for the input FCM.
 #'
 #' @references \insertRef{kacprzyk_fuzzy_2010}{fcmconfr}
 #' @references \insertRef{harmati_existence_2018}{fcmconfr}
@@ -98,39 +109,21 @@
 #'
 #' @export
 #' @example man/examples/ex-estimate_fcm_lambda.R
-estimate_fcm_lambda <- function(fcm_adj_matrix = matrix(),
+estimate_fcm_lambda <- function(adj_matrix = data.frame(),
                                 squashing = c("sigmoid", "tanh")) {
 
-  if (is.null(dim(fcm_adj_matrix))) {
-    warning(cli::format_error(c(
-      "x" = "Error: {.var fcm_adj_matrix} must be an (n x n) adj. matrix",
-      "+++++> Input The operation dim(fcm_adj_matrix) returned NULL"
-    )))
-    return(invisible(NULL))
-  }
+  adj_matrix_check <- check_fcmconfr_input(adj_matrix, check = "square_adj_matrix", var_name = "adj_matrix")
+  adj_matrix <- assert_matrix(adj_matrix)
+  check_fcmconfr_input(squashing, check = "choice_selection", var_name = "squashing", choice_selection_opts = c("sigmoid", "tanh"))
+  squashing <- tolower(as.character(squashing))
 
-  fcm_class <- get_adj_matrices_input_type(fcm_adj_matrix)$object_types_in_list[1]
+  fcm_class <- get_fcm_class_from_adj_matrix(adj_matrix)
   if (fcm_class == "conventional") {
-    as_conventional_adj_matrix <- fcm_adj_matrix
+    as_conventional_adj_matrix <- adj_matrix
   } else if (fcm_class == "ivfn") {
-    as_conventional_adj_matrix <- apply(fcm_adj_matrix, c(1, 2), function(element) (element[[1]]$lower + element[[1]]$upper)/2)
+    as_conventional_adj_matrix <- apply(adj_matrix, c(1, 2), function(element) (element[[1]]$lower + element[[1]]$upper)/2)
   } else if (fcm_class == "tfn") {
-    as_conventional_adj_matrix <- apply(fcm_adj_matrix, c(1, 2), function(element) (element[[1]]$lower + element[[1]]$mode + element[[1]]$upper)/3)
-  }
-
-  squashing <- tolower(squashing)
-
-  if (identical(squashing, c("sigmoid", "tanh"))) {
-    stop(cli::format_error(c(
-      "x" = "Error: Please include an input for {.var squashing}",
-      "+++++> Input {.var squashing} amust be either 'sigmoid' or 'tanh'"
-    )))
-  }
-  if (!(squashing %in% c("sigmoid", "tanh"))) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var squashing} amust be either 'sigmoid' or 'tanh'",
-      "+++++> Input {.var squashing} was: {squashing}"
-    )))
+    as_conventional_adj_matrix <- apply(adj_matrix, c(1, 2), function(element) (element[[1]]$lower + element[[1]]$mode + element[[1]]$upper)/3)
   }
 
   source_only_nodes <- which(rowSums(as_conventional_adj_matrix) == 0)
@@ -146,7 +139,7 @@ estimate_fcm_lambda <- function(fcm_adj_matrix = matrix(),
     lambda_prime <- 4/frobenius_norm
 
     # Calculate lambda_star
-    row_wise_max_norms <- vector(mode = "numeric", length = nrow(fcm_adj_matrix))
+    row_wise_max_norms <- vector(mode = "numeric", length = nrow(adj_matrix))
     for (i in seq_along(1:nrow(weight_matrix_of_nonsteady_nodes))) {
       row_edge_weights <- weight_matrix_of_nonsteady_nodes[i, ]
       positive_row_edge_weights <- row_edge_weights[row_edge_weights > 0]
@@ -170,5 +163,5 @@ estimate_fcm_lambda <- function(fcm_adj_matrix = matrix(),
 
   lambda_estimate <- min(lambda_prime, lambda_star)
 
-  lambda_estimate
+  return(lambda_estimate)
 }

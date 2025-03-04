@@ -5,20 +5,19 @@
 \title{View FCM Network}
 \usage{
 fcm_view(
-  fcm_adj_matrix = matrix(),
+  adj_matrix = data.frame(),
   fcm_visNetwork = list(),
   shiny = FALSE,
   ...
 )
 }
 \arguments{
-\item{fcm_adj_matrix}{An n x n adjacency matrix that represents an FCM.
-fcm_view accepts either an fcm_adj_matrix or fcm_visNetwork input
-but NOT both. Accepts \link{data.frame, tbl_df, tbl} objects representing
-conventional, IVFN-, or TFN- adj. matrices.}
+\item{adj_matrix}{[\verb{list() or data.frame()}]\cr A single adjacency matrix
+(n x n) representing FCMs. An adjacency matrix can have conventional
+edge weights, IVFN edge weights or TFN edge weights.}
 
 \item{fcm_visNetwork}{An fcm_view visNetwork object output. fcm_view accepts
-either an fcm_adj_matrix or fcm_visNetwork input but NOT both.}
+either an adj_matrix or fcm_visNetwork input but NOT both.}
 
 \item{shiny}{View visNetwork output in an interactive shiny app. Allows the
 user to manipulate and save node locations and other plot characteristics.
@@ -46,23 +45,17 @@ method used.
 \examples{
 
 adj_matrix <- sample_fcms$simple_fcms$conventional_fcms[[1]]
-fcm_view(fcm_adj_matrix = adj_matrix)
+fcm_view(adj_matrix = adj_matrix, shiny = FALSE)
 
 adj_matrix <- sample_fcms$simple_fcms$ivfn_fcms[[1]]
-fcm_view(fcm_adj_matrix = adj_matrix)
+fcm_view(adj_matrix = adj_matrix, shiny = FALSE)
 
 adj_matrix <- sample_fcms$simple_fcms$tfn_fcms[[1]]
-fcm_view(fcm_adj_matrix = adj_matrix)
+fcm_view(adj_matrix = adj_matrix, shiny = FALSE)
 
 }
 \seealso{
 Other utility: 
-\code{\link{check_if_local_machine_has_access_to_parallel_processing_functionalities}()},
-\code{\link{check_if_local_machine_has_access_to_show_progress_functionalities}()},
-\code{\link{get_adj_matrices_input_type}()},
-\code{\link{get_edgelist_from_adj_matrix}()},
-\code{\link{get_inferences}()},
-\code{\link{get_node_IDs_from_input}()},
-\code{\link{standardize_adj_matrices}()}
+\code{\link{get_fcmconfr_inferences}()}
 }
 \concept{utility}

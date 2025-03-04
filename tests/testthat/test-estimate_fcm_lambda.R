@@ -27,4 +27,11 @@ test_that("estimate_fcm_lambda works", {
     round(estimate_fcm_lambda(sample_fcms$simple_fcms$tfn_fcms[[1]], "tanh"), 2),
     0.91
   )
+
+  # Confirm works when no nodes are source only
+  test_adj_matrix <- data.frame(
+    "A" = c(0, 1),
+    "B" = c(1, 0)
+  )
+  expect_no_error(estimate_fcm_lambda(test_adj_matrix, "sigmoid"))
 })

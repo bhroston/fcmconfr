@@ -7,12 +7,13 @@
 subtract_ivfn(ivfn_1 = ivfn(), ivfn_2 = ivfn())
 }
 \arguments{
-\item{ivfn_1}{An interval-value fuzzy number (ivfn) object}
+\item{ivfn_1}{[\code{ivfn}]\cr  An interval-value fuzzy number (ivfn) object}
 
-\item{ivfn_2}{An interval-value fuzzy number (ivfn) object}
+\item{ivfn_2}{[\code{ivfn}]\cr  An interval-value fuzzy number (ivfn) object}
 }
 \value{
-An IVFN object representing the subtraction of ivfn_2 from ivfn_1
+[\code{ivfn}]\cr An IVFN object representing the subtraction of
+ivfn_2 from ivfn_1
 }
 \description{
 This subtracts one Interval-Value Fuzzy Number (IVFN) from another via

@@ -1,3 +1,6 @@
+
+requireNamespace("vdiffr")
+
 test_that("fcmconfr_plot additional inputs work", {
 
   # Load fcmconfr object ----
@@ -25,7 +28,7 @@ test_that("fcmconfr_plot additional inputs work", {
       max_iter = 1000,
       min_error = 1e-05,
       # Inference Estimation (bootstrap)
-      ci_centering_function = mean,
+      ci_centering_function = "mean",
       confidence_interval = 0.95,
       num_ci_bootstraps = 1000,
       # Runtime Options
@@ -96,7 +99,7 @@ test_that("fcmconfr_plot additional inputs work", {
   # Plot Aesthetic Parameters
 
   # mc_avg_and_CIs_color ----
-  expect_error(
+  expect_no_error(
     plot(tfn_clamping_inputs_agg_and_mc_w_bs, mc_avg_and_CIs_color = 12345)
   )
   expect_error(
@@ -108,7 +111,7 @@ test_that("fcmconfr_plot additional inputs work", {
   # ----
 
   # mc_inferences_color ----
-  expect_error(
+  expect_no_error(
     plot(tfn_clamping_inputs_agg_and_mc_w_bs, mc_inferences_color = 12345)
   )
   expect_error(
@@ -135,7 +138,7 @@ test_that("fcmconfr_plot additional inputs work", {
   # ----
 
   # ind_inferences_color ----
-  expect_error(
+  expect_no_error(
     plot(tfn_clamping_inputs_agg_and_mc_w_bs, ind_inferences_color = 12345)
   )
   expect_error(
@@ -162,7 +165,7 @@ test_that("fcmconfr_plot additional inputs work", {
   # ----
 
   # agg_inferences_color ----
-  expect_error(
+  expect_no_error(
     plot(tfn_clamping_inputs_agg_and_mc_w_bs, agg_inferences_color = 12345)
   )
   expect_error(
@@ -509,7 +512,7 @@ test_that("fcmconfr_plot works with Conventional FCMs", {
       max_iter = 1000,
       min_error = 1e-05,
       # Inference Estimation (bootstrap)
-      ci_centering_function = mean,
+      ci_centering_function = "mean",
       confidence_interval = 0.95,
       num_ci_bootstraps = 1000,
       # Runtime Options
@@ -759,7 +762,7 @@ test_that("fcmconfr_plot works with IVFN FCMs", {
       max_iter = 1000,
       min_error = 1e-05,
       # Inference Estimation (bootstrap)
-      ci_centering_function = mean,
+      ci_centering_function = "mean",
       confidence_interval = 0.95,
       num_ci_bootstraps = 1000,
       # Runtime Options
@@ -801,7 +804,7 @@ test_that("fcmconfr_plot works with IVFN FCMs", {
       max_iter = 1000,
       min_error = 1e-05,
       # Inference Estimation (bootstrap)
-      ci_centering_function = mean,
+      ci_centering_function = "mean",
       confidence_interval = 0.95,
       num_ci_bootstraps = 1000,
       # Runtime Options
@@ -1047,7 +1050,7 @@ test_that("fcmconfr_plot works with TFN FCMs", {
       max_iter = 1000,
       min_error = 1e-05,
       # Inference Estimation (bootstrap)
-      ci_centering_function = mean,
+      ci_centering_function = "mean",
       confidence_interval = 0.95,
       num_ci_bootstraps = 1000,
       # Runtime Options
@@ -1089,7 +1092,7 @@ test_that("fcmconfr_plot works with TFN FCMs", {
       max_iter = 1000,
       min_error = 1e-05,
       # Inference Estimation (bootstrap)
-      ci_centering_function = mean,
+      ci_centering_function = "mean",
       confidence_interval = 0.95,
       num_ci_bootstraps = 1000,
       # Runtime Options
