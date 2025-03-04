@@ -37,7 +37,7 @@
 #'
 #' @export
 #'
-#' @examples  NULL # man/examples/ex-standardize_adj_matrices.R
+#' @example man/examples/ex-standardize_adj_matrices.R
 standardize_adj_matrices <- function(adj_matrices = list()) {
 
   if (!is.null(dim(adj_matrices))) {
