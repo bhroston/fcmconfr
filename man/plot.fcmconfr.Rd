@@ -122,7 +122,7 @@ tfn_example_fcmconfr <- fcmconfr(
   max_iter = 1000,
   min_error = 1e-05,
   # Inference Estimation (bootstrap)
-  ci_centering_function = mean,
+  ci_centering_function = "mean",
   confidence_interval = 0.95,
   num_ci_bootstraps = 1000,
   # Runtime Options
@@ -168,12 +168,12 @@ plot(tfn_example_fcmconfr,
      xlim = c(-0.6, 0.6),
      coord_flip = FALSE,
      # Plot Aesthetic Parameters
-     mc_avg_and_CIs_color = "blue",
-     mc_inferences_color = "blue",
+     mc_avg_and_CIs_color = "darkblue",
+     mc_inferences_color = "darkblue",
      mc_inferences_shape = 3,
-     ind_inferences_color = "black",
+     ind_inferences_color = "maroon",
      ind_inferences_shape = 16,
-     agg_inferences_color = "red",
+     agg_inferences_color = "grey",
      agg_inferences_shape = 17,
      ind_ivfn_and_tfn_linewidth = 0.1,
      agg_ivfn_and_tfn_linewidth = 0.6

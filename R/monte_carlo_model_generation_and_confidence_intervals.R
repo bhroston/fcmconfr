@@ -55,7 +55,6 @@
 #'
 #' @srrstats {BS4.0} Using Base R sampling algorithms.
 #'
-#'
 #' @example man/examples/ex-build_monte_carlo_fcms.R
 build_monte_carlo_fcms <- function(adj_matrices = list(),
                                    n_samples = 1000L,

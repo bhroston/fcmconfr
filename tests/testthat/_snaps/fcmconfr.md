@@ -1,7 +1,7 @@
-# streamlined fcmconfr works
+# fcmconfr works
 
     Code
-      test
+      print(test)
     Output
       fcmconfr: 4 individual adj. matrices (conventional) 
       $inferences
@@ -20,7 +20,7 @@
 ---
 
     Code
-      test
+      print(test)
     Output
       fcmconfr: 2 individual adj. matrices (ivfn) 
       $inferences
@@ -39,7 +39,7 @@
 ---
 
     Code
-      test
+      print(test)
     Output
       fcmconfr: 1 individual adj. matrices (tfn) 
       $inferences

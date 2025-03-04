@@ -30,7 +30,7 @@ ex_conventional_fcmconfr <- fcmconfr(
   # adj_matrices = group_conventional_fcms,
   # Aggregation and Monte Carlo Sampling
   agg_function = 'mean',
-  num_mc_fcms = 1000L,
+  num_mc_fcms = 100L,
   # Simulation
   initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
   clamping_vector = c(1, 0, 0, 0, 0, 0, 0),
@@ -43,7 +43,7 @@ ex_conventional_fcmconfr <- fcmconfr(
   # Inference Estimation (bootstrap)
   ci_centering_function = "mean",
   confidence_interval = 0.95,
-  num_ci_bootstraps = 1000L,
+  num_ci_bootstraps = 100L,
   # Runtime Options
   show_progress = TRUE,
   parallel = FALSE,
@@ -66,7 +66,7 @@ ex_ivfn_fcmconfr <- fcmconfr(
   # adj_matrices = group_ivfn_fcms,
   # Aggregation and Monte Carlo Sampling
   agg_function = 'mean',
-  num_mc_fcms = 1000L,
+  num_mc_fcms = 10L,
   # Simulation
   initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
   clamping_vector = c(1, 0, 0, 0, 0, 0, 0),
@@ -77,9 +77,9 @@ ex_ivfn_fcmconfr <- fcmconfr(
   max_iter = 100L,
   min_error = 1e-05,
   # Inference Estimation (bootstrap)
-  ci_centering_function = mean,
+  ci_centering_function = "mean",
   confidence_interval = 0.95,
-  num_ci_bootstraps = 1000L,
+  num_ci_bootstraps = 10L,
   # Runtime Options
   show_progress = TRUE,
   parallel = FALSE,
@@ -113,7 +113,7 @@ ex_tfn_fcmconfr <- fcmconfr(
   max_iter = 1000L,
   min_error = 1e-05,
   # Inference Estimation (bootstrap)
-  ci_centering_function = mean,
+  ci_centering_function = "mean",
   confidence_interval = 0.95,
   num_ci_bootstraps = 1000L,
   # Runtime Options

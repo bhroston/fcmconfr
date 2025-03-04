@@ -83,7 +83,7 @@
 #' @srrstats {EA5.0, EA5.0a, EA5.0b} Emphasis on accessibility in graphical outputs
 #' @srrstats {EA5.5} All visualizations include units no all axes.
 #'
-#' @example man/examples/ex-plot_fcmconfr.R
+#' @example man/examples/ex-plot.fcmconfr.R
 plot.fcmconfr <- function(x,
                           interactive = FALSE,
                           # Plot Format Parameters
@@ -116,7 +116,8 @@ plot.fcmconfr <- function(x,
     )))
   }
 
-  check_plot_fcmconfr_inputs(
+  # Input Checks ----
+  checks <- check_plot_fcmconfr_inputs(
     interactive,
     filter_limit, xlim, coord_flip, text_font_size,
     mc_avg_and_CIs_color,
@@ -125,10 +126,28 @@ plot.fcmconfr <- function(x,
     agg_inferences_color, agg_inferences_alpha, agg_inferences_shape,
     ind_ivfn_and_tfn_linewidth, agg_ivfn_and_tfn_linewidth
   )
+  interactive = checks$interactive
+  filter_limit = checks$filter_limit
+  xlim = checks$xlim
+  coord_flip = checks$coord_flip
+  text_font_size = checks$text_font_size
+  mc_avg_and_CIs_color = checks$mc_avg_and_CIs_color
+  mc_inferences_color = checks$mc_inferences_color
+  mc_inferences_alpha = checks$mc_inferences_alpha
+  mc_inferences_shape = checks$mc_inferences_shape
+  ind_inferences_color = checks$ind_inferences_color
+  ind_inferences_alpha = checks$ind_inferences_alpha
+  ind_inferences_shape = checks$ind_inferences_shape
+  agg_inferences_color = checks$agg_inferences_color
+  agg_inferences_alpha = checks$agg_inferences_alpha
+  agg_inferences_shape = checks$agg_inferences_shape
+  ind_ivfn_and_tfn_linewidth = checks$ind_ivfn_and_tfn_linewidth
+  agg_ivfn_and_tfn_linewidth = checks$agg_ivfn_and_tfn_linewidth
+  # ----
 
   if (!interactive) {
     suppressWarnings(print(
-      autoplot(
+      autoplot.fcmconfr(
         x,
         interactive,
         filter_limit, xlim, coord_flip, text_font_size,
@@ -143,12 +162,13 @@ plot.fcmconfr <- function(x,
     suppressWarnings(
       interactive_plot_fcmconfr(
         x,
-        filter_limit, xlim, coord_flip, text_font_size,
-        mc_avg_and_CIs_color,
-        mc_inferences_color, mc_inferences_alpha, mc_inferences_shape,
-        ind_inferences_color, ind_inferences_alpha, ind_inferences_shape,
-        agg_inferences_color, agg_inferences_alpha, agg_inferences_shape,
-        ind_ivfn_and_tfn_linewidth, agg_ivfn_and_tfn_linewidth
+        checks
+        # filter_limit, xlim, coord_flip, text_font_size,
+        # mc_avg_and_CIs_color,
+        # mc_inferences_color, mc_inferences_alpha, mc_inferences_shape,
+        # ind_inferences_color, ind_inferences_alpha, ind_inferences_shape,
+        # agg_inferences_color, agg_inferences_alpha, agg_inferences_shape,
+        # ind_ivfn_and_tfn_linewidth, agg_ivfn_and_tfn_linewidth
       )
     )
   }
@@ -212,76 +232,46 @@ plot.fcmconfr <- function(x,
 #' NULL
 #' @keywords internal
 #' @noRd
-check_plot_fcmconfr_inputs <- function(interactive,
+check_plot_fcmconfr_inputs <- function(interactive = FALSE,
                                        # Plot Format Parameters
-                                       filter_limit,
-                                       xlim, # c(lower_limit, upper_limit)
-                                       coord_flip,
-                                       text_font_size, # NA: let ggplot determine
+                                       filter_limit = 1e-3,
+                                       xlim = NA, # c(lower_limit, upper_limit)
+                                       coord_flip = FALSE,
+                                       text_font_size = NA, # NA: let ggplot determine
                                        # Plot Aesthetic Parameters
-                                       mc_avg_and_CIs_color,
-                                       mc_inferences_color,
-                                       mc_inferences_alpha, # 0:transparent to 1:opaque
-                                       mc_inferences_shape, # R PCH point shape values
-                                       ind_inferences_color,
-                                       ind_inferences_alpha, # 0:transparent to 1:opaque
-                                       ind_inferences_shape, # R PCH point shape values
-                                       agg_inferences_color,
-                                       agg_inferences_alpha, # 0:transparent to 1:opaque
-                                       agg_inferences_shape, # R PCH point shape values
-                                       ind_ivfn_and_tfn_linewidth,
-                                       agg_ivfn_and_tfn_linewidth) {
+                                       mc_avg_and_CIs_color = "blue",
+                                       mc_inferences_color = "blue",
+                                       mc_inferences_alpha = 0.3, # 0:transparent to 1:opaque
+                                       mc_inferences_shape = 3, # R PCH point shape values
+                                       ind_inferences_color = "black",
+                                       ind_inferences_alpha = 1, # 0:transparent to 1:opaque
+                                       ind_inferences_shape = 16, # R PCH point shape values
+                                       agg_inferences_color = "red",
+                                       agg_inferences_alpha = 1, # 0:transparent to 1:opaque
+                                       agg_inferences_shape = 17, # R PCH point shape values
+                                       ind_ivfn_and_tfn_linewidth = 0.1,
+                                       agg_ivfn_and_tfn_linewidth = 0.6) {
 
-  # input validation template functions ----
-  is_not_logical <- function(input_value) {
-    !(is.logical(input_value))
-  }
-  is_not_numeric <- function(input_value) {
-    !(is.numeric(input_value))
-  }
-  is_not_positive <- function(input_value) {
-    !(input_value >= 0)
-  }
-  is_not_integer <- function(input_value) {
-    !(input_value %% 1 == 0)
-  }
-  is_not_char <- function(input_string) {
-    !("character" %in% methods::is(input_string))
-  }
-  is_not_color <- function(input_color) {
-    "try-error" %in% methods::is(try(grDevices::col2rgb(input_color), silent = TRUE))
-  }
-  is_not_shape_value <- function(input_shape) {
-    !(input_shape %in% 0:25)
-  }
-  is_not_shape_string <- function(input_shape) {
-    "try-error" %in% methods::is(try(ggplot2::translate_shape_string(input_shape), silent = TRUE))
-  }
-  # ----
+  check_fcmconfr_input(interactive, check = "logical", var_name = "interactive")
+  check_fcmconfr_input(filter_limit, check = "positive_number", var_name = "filter_limit")
+  # xlim checked below
+  check_fcmconfr_input(coord_flip, check = "logical", var_name = "coord_flip")
+  if (!is.na(text_font_size)) check_fcmconfr_input(text_font_size, check = "positive_number", var_name = "text_font_size")
+  check_fcmconfr_input(mc_avg_and_CIs_color, check = "color", var_name = "mc_avg_and_CIs_color")
+  check_fcmconfr_input(mc_inferences_color, check = "color", var_name = "mc_inferences_color")
+  check_fcmconfr_input(mc_inferences_alpha, check = "positive_number", var_name = "mc_inferences_alpha", zero_is_positive = TRUE)
+  check_fcmconfr_input(mc_inferences_shape, check = "shape", var_name = "mc_inferences_shape")
+  check_fcmconfr_input(ind_inferences_color, check = "color", var_name = "ind_inferences_color")
+  check_fcmconfr_input(ind_inferences_alpha, check = "positive_number", var_name = "ind_inferences_alpha", zero_is_positive = TRUE)
+  check_fcmconfr_input(ind_inferences_shape, check = "shape", var_name = "ind_inferences_shape")
+  check_fcmconfr_input(agg_inferences_color, check = "color", var_name = "agg_inferences_color")
+  check_fcmconfr_input(agg_inferences_alpha, check = "positive_number", var_name = "agg_inferences_alpha", zero_is_positive = TRUE)
+  check_fcmconfr_input(agg_inferences_shape, check = "shape", var_name = "agg_inferences_shape")
+  check_fcmconfr_input(ind_ivfn_and_tfn_linewidth, check = "positive_number", var_name = "ind_ivfn_and_tfn_linewidth")
+  check_fcmconfr_input(agg_ivfn_and_tfn_linewidth, check = "positive_number", var_name = "agg_ivfn_and_tfn_linewidth")
 
-  # interactive ----
-  if (is_not_logical(interactive)) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var interactive} must be logical (TRUE/FALSE)",
-      "+++++> Input {.var interactive} was of type: {methods::is(interactive)[1]}"
-    )))
-  }
-  # ----
-
-  # Plot Format Parameters
+  # Additional Checks
   # filter_limit ----
-  if (is_not_numeric(filter_limit)) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var filter_limit} must be a positive numeric value",
-      "+++++> Input {.var filter_limit} was of type: {methods::is(filter_limit)[1]}"
-    )))
-  }
-  if (filter_limit <= 0) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var filter_limit} must be a positive numeric value greater than 0",
-      "+++++> Input {.var filter_limit} was: {filter_limit}"
-    )))
-  }
   if (filter_limit > 1) {
     stop(cli::format_error(c(
       "x" = "Error: {.var filter_limit} must be less than the largest inference",
@@ -313,70 +303,7 @@ check_plot_fcmconfr_inputs <- function(interactive,
   }
   # ----
 
-  # coord_flip ----
-  if (is_not_logical(coord_flip)) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var coord_flip} must be logical (TRUE/FALSE)",
-      "+++++> Input {.var coord_flip} was of type: {methods::is(coord_flip)[1]}"
-    )))
-  }
-  # ----
-
-  # text_font_size ----
-  if (!is.na(text_font_size)) {
-    if (is_not_numeric(text_font_size)) {
-      stop(cli::format_error(c(
-        "x" = "Error: {.var text_font_size} must be a positive numeric value",
-        "+++++> Input {.var text_font_size} was of type: {methods::is(text_font_size)[1]}"
-      )))
-    }
-    if (text_font_size <= 0) {
-      stop(cli::format_error(c(
-        "x" = "Error: {.var text_font_size} must be a positive numeric value greater than 0",
-        "+++++> Input {.var text_font_size} was: {text_font_size}"
-      )))
-    }
-  }
-  # ----
-
-
-  # Plot Aesthetic Parameters
-  if (is_not_char(mc_avg_and_CIs_color)) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var mc_avg_and_CIs_color} must be a string (i.e. of type 'char')",
-      "+++++> Input {.var mc_avg_and_CIs_color} was: {methods::is(mc_avg_and_CIs_color)[1]}"
-    )))
-  }
-  if (is_not_color(mc_avg_and_CIs_color)) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var mc_avg_and_CIs_color} must be a valid color",
-      "+++++> Input {.var mc_avg_and_CIs_color} was '{mc_avg_and_CIs_color}'"
-    )))
-  }
-  # ----
-
-  # mc_inferences_color ----
-  if (is_not_char(mc_inferences_color)) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var mc_inferences_color} must be a string (i.e. of type 'char')",
-      "+++++> Input {.var mc_inferences_color} was: {methods::is(mc_inferences_color)[1]}"
-    )))
-  }
-  if (is_not_color(mc_inferences_color)) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var mc_inferences_color} must be a valid color",
-      "+++++> Input {.var mc_inferences_color} was '{mc_inferences_color}'"
-    )))
-  }
-  # ----
-
   # mc_inferences_alpha ----
-  if (is_not_numeric(mc_inferences_alpha)) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var mc_inferences_alpha} must be a positive numeric value between 0 and 1",
-      "+++++> Input {.var mc_inferences_alpha} was: {mc_inferences_alpha}"
-    )))
-  }
   if (mc_inferences_alpha < 0 | mc_inferences_alpha > 1) {
     stop(cli::format_error(c(
       "x" = "Error: {.var mc_inferences_alpha} must be a positive numeric value between 0 and 1",
@@ -385,52 +312,7 @@ check_plot_fcmconfr_inputs <- function(interactive,
   }
   # ----
 
-  # mc_inferences_shape ----
-  if (is.numeric(mc_inferences_shape)) {
-    if (is_not_integer(mc_inferences_shape) | is_not_shape_value(mc_inferences_shape)) {
-      stop(cli::format_error(c(
-        "x" = "Error: {.var mc_inferences_shape} must be a either an integer or a valid character string",
-        "+++++> Integer inputs must be a valid pch value (i.e. 0:25)",
-        "+++++> Input {.var mc_inferences_shape} was: {mc_inferences_shape}",
-        "+++++> Run ?points or ?gglpot2::translate_shape_string in the console for additional info"
-      )))
-    }
-  } else {
-    if (is_not_char(mc_inferences_shape) | is_not_shape_string(mc_inferences_shape)) {
-      stop(cli::format_error(c(
-        "x" = "Error: {.var mc_inferences_shape} must be a either an integer or a valid character string",
-        "+++++> Character string inputs must reference a valid pch value",
-        "+++++> Input {.var mc_inferences_shape} was: '{mc_inferences_shape}'",
-        "+++++> Run ?points or ?gglpot2::translate_shape_string in the console for additional info"
-      )))
-    } else {
-      mc_inferences_shape <- ggplot2::translate_shape_string(mc_inferences_shape)
-    }
-  }
-  # ----
-
-  # ind_inferences_color ----
-  if (is_not_char(ind_inferences_color)) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var ind_inferences_color} must be a string (i.e. of type 'char')",
-      "+++++> Input {.var ind_inferences_color} was: {methods::is(ind_inferences_color)[1]}"
-    )))
-  }
-  if (is_not_color(ind_inferences_color)) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var ind_inferences_color} must be a valid color",
-      "+++++> Input {.var ind_inferences_color} was '{ind_inferences_color}'"
-    )))
-  }
-  # ----
-
   # ind_inferences_alpha ----
-  if (is_not_numeric(ind_inferences_alpha)) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var ind_inferences_alpha} must be a positive numeric value between 0 and 1",
-      "+++++> Input {.var ind_inferences_alpha} was: {ind_inferences_alpha}"
-    )))
-  }
   if (ind_inferences_alpha < 0 | ind_inferences_alpha > 1) {
     stop(cli::format_error(c(
       "x" = "Error: {.var ind_inferences_alpha} must be a positive numeric value between 0 and 1",
@@ -439,113 +321,25 @@ check_plot_fcmconfr_inputs <- function(interactive,
   }
   # ----
 
-  # ind_inferences_shape ----
-  if (is.numeric(ind_inferences_shape)) {
-    if (is_not_integer(ind_inferences_shape) | is_not_shape_value(ind_inferences_shape)) {
-      stop(cli::format_error(c(
-        "x" = "Error: {.var ind_inferences_shape} must be a either an integer or a valid character string",
-        "+++++> Integer inputs must be a valid pch value (i.e. 0:25)",
-        "+++++> Input {.var ind_inferences_shape} was: {ind_inferences_shape}",
-        "+++++> Run ?points or ?gglpot2::translate_shape_string in the console for additional info"
-      )))
-    }
-  } else {
-    if (is_not_char(ind_inferences_shape) | is_not_shape_string(ind_inferences_shape)) {
-      stop(cli::format_error(c(
-        "x" = "Error: {.var ind_inferences_shape} must be a either an integer or a valid character string",
-        "+++++> Character string inputs must reference a valid pch value",
-        "+++++> Input {.var ind_inferences_shape} was: '{ind_inferences_shape}'",
-        "+++++> Run ?points or ?gglpot2::translate_shape_string in the console for additional info"
-      )))
-    } else {
-      ind_inferences_shape <- ggplot2::translate_shape_string(ind_inferences_shape)
-    }
-  }
-  # ----
-
-  # agg_inferences_color ----
-  if (is_not_char(agg_inferences_color)) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var agg_inferences_color} must be a string (i.e. of type 'char')",
-      "+++++> Input {.var agg_inferences_color} was: {methods::is(agg_inferences_color)[1]}"
-    )))
-  }
-  if (is_not_color(agg_inferences_color)) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var agg_inferences_color} must be a valid color",
-      "+++++> Input {.var agg_inferences_color} was '{agg_inferences_color}'"
-    )))
-  }
-  # ----
-
-  # agg_inferences_alpha ----
-  if (is_not_numeric(agg_inferences_alpha)) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var agg_inferences_alpha} must be a positive numeric value between 0 and 1",
-      "+++++> Input {.var agg_inferences_alpha} was: {agg_inferences_alpha}"
-    )))
-  }
-  if (agg_inferences_alpha < 0 | agg_inferences_alpha > 1) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var agg_inferences_alpha} must be a positive numeric value between 0 and 1",
-      "+++++> Input {.var agg_inferences_alpha} was: {agg_inferences_alpha}"
-    )))
-  }
-  # ----
-
-  # agg_inferences_shape ----
-  if (is.numeric(agg_inferences_shape)) {
-    if (is_not_integer(agg_inferences_shape) | is_not_shape_value(agg_inferences_shape)) {
-      stop(cli::format_error(c(
-        "x" = "Error: {.var agg_inferences_shape} must be a either an integer or a valid character string",
-        "+++++> Integer inputs must be a valid pch value (i.e. 0:25)",
-        "+++++> Input {.var agg_inferences_shape} was: {agg_inferences_shape}",
-        "+++++> Run ?points or ?gglpot2::translate_shape_string in the console for additional info"
-      )))
-    }
-  } else {
-    if (is_not_char(agg_inferences_shape) | is_not_shape_string(agg_inferences_shape)) {
-      stop(cli::format_error(c(
-        "x" = "Error: {.var agg_inferences_shape} must be a either an integer or a valid character string",
-        "+++++> Character string inputs must reference a valid pch value",
-        "+++++> Input {.var agg_inferences_shape} was: '{agg_inferences_shape}'",
-        "+++++> Run ?points or ?gglpot2::translate_shape_string in the console for additional info"
-      )))
-    } else {
-      agg_inferences_shape <- ggplot2::translate_shape_string(agg_inferences_shape)
-    }
-  }
-  # ----
-
-  # ind_ivfn_and_tfn_linewidth ----
-  if (is_not_numeric(ind_ivfn_and_tfn_linewidth)) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var ind_ivfn_and_tfn_linewidth} must be a value greater than or equal to 0 (i.e. positive)",
-      "+++++> Input {.var ind_ivfn_and_tfn_linewidth} was: {ind_ivfn_and_tfn_linewidth}"
-    )))
-  }
-  if (is_not_positive(ind_ivfn_and_tfn_linewidth)) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var ind_ivfn_and_tfn_linewidth} must be a value greater than or equal to 0 (i.e. positive)",
-      "+++++> Input {.var ind_ivfn_and_tfn_linewidth} was: {ind_ivfn_and_tfn_linewidth}"
-    )))
-  }
-  # ----
-
-  # agg_ivfn_and_tfn_linewidth ----
-  if (is_not_numeric(agg_ivfn_and_tfn_linewidth)) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var agg_ivfn_and_tfn_linewidth} must be a value greater than or equal to 0 (i.e. positive)",
-      "+++++> Input {.var agg_ivfn_and_tfn_linewidth} was: {agg_ivfn_and_tfn_linewidth}"
-    )))
-  }
-  if (is_not_positive(agg_ivfn_and_tfn_linewidth)) {
-    stop(cli::format_error(c(
-      "x" = "Error: {.var agg_ivfn_and_tfn_linewidth} must be a value greater than or equal to 0 (i.e. positive)",
-      "+++++> Input {.var agg_ivfn_and_tfn_linewidth} was: {agg_ivfn_and_tfn_linewidth}"
-    )))
-  }
-  # ----
+  return(list(
+    interactive = as.logical(interactive),
+    filter_limit = as.double(filter_limit),
+    xlim = xlim,
+    coord_flip = as.logical(coord_flip),
+    text_font_size = as.numeric(text_font_size),
+    mc_avg_and_CIs_color = tolower(as.character(mc_avg_and_CIs_color)),
+    mc_inferences_color = tolower(as.character(mc_inferences_color)),
+    mc_inferences_alpha = as.double(mc_inferences_alpha),
+    mc_inferences_shape = ifelse(is.character(mc_inferences_shape), tolower(as.character(mc_inferences_shape)), as.integer(mc_inferences_shape)),
+    ind_inferences_color = tolower(as.character(ind_inferences_color)),
+    ind_inferences_alpha = as.double(ind_inferences_alpha),
+    ind_inferences_shape = ifelse(is.character(ind_inferences_shape), tolower(as.character(ind_inferences_shape)), as.integer(ind_inferences_shape)),
+    agg_inferences_color = tolower(as.character(agg_inferences_color)),
+    agg_inferences_alpha = as.double(agg_inferences_alpha),
+    agg_inferences_shape = ifelse(is.character(agg_inferences_shape), tolower(as.character(agg_inferences_shape)), as.integer(agg_inferences_shape)),
+    ind_ivfn_and_tfn_linewidth = as.double(ind_ivfn_and_tfn_linewidth),
+    agg_ivfn_and_tfn_linewidth = as.double(agg_ivfn_and_tfn_linewidth)
+  ))
 }
 
 
@@ -579,7 +373,7 @@ check_plot_fcmconfr_inputs <- function(interactive,
 #' NULL
 #' @keywords internal
 #' @noRd
-get_concepts_to_plot <- function(fcmconfr_object, filter_limit = 10e-10) {
+get_concepts_to_plot <- function(fcmconfr_object, filter_limit = 1e-10) {
   fcm_clamping_vector <- fcmconfr_object$params$simulation_opts$clamping_vector
   fcm_nodes <- unique(lapply(fcmconfr_object$params$adj_matrices, colnames))[[1]]
   clamped_node_indexes <- which(fcm_clamping_vector != 0)
@@ -952,8 +746,6 @@ get_plot_data <- function(fcmconfr_object, filter_limit = 10e-3) {
 #' @returns An autoplot plot of an fcmconfr object's results
 #'
 #' @importFrom ggplot2 ggplot aes .data
-#'
-#' @export
 #'
 #' @examples
 #' NULL

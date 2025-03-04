@@ -16,6 +16,7 @@
 #   - simulate_conventional_fcm
 #   - simulate_ivfn_or_tfn_fcm
 #   - squash
+#   - get_next_state_vector
 #   - check_infer_fcm_set_inputs
 #   - calculate_next_conventional_fcm_state_vector
 #   - calculate_next_fuzzy_set_fcm_state_vector

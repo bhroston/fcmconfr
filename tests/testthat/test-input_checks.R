@@ -48,8 +48,8 @@ test_that("check_fcmconfr_input works", {
 
 test_that("check_adj_matrix_list works", {
 
-  # Confirm error if only 1 adj matrix
-  expect_error(check_adj_matrix_list(sample_fcms$simple_fcms$conventional_fcms[[1]]))
+  # Confirm no error if only 1 adj matrix
+  expect_no_error(check_adj_matrix_list(sample_fcms$simple_fcms$conventional_fcms[[1]]))
 
   # Confirm error if multiple FCM classes
   test_adj_mat_list <- c(sample_fcms$simple_fcms$conventional_fcms, sample_fcms$simple_fcms$ivfn_fcms)
@@ -113,13 +113,13 @@ test_that("check_square_adj_matrix works", {
   test_mats <- list(matrix(1:9, nrow = 3), matrix(1:9, nrow = 3))
   expect_error(check_square_adj_matrix(test_mats))
 
-  # Confirm warning on sparseMatrix
+  # Confirm no warning on sparseMatrix
   test_mat <- Matrix::Matrix(1:9, nrow = 3, sparse = TRUE)
-  expect_warning(check_square_adj_matrix(test_mat))
+  expect_true(check_square_adj_matrix(test_mat))
 
-  # Confirm warning on custom class
+  # Confirm no warning on custom class
   test_mat <- structure(.Data = matrix(1:9, nrow = 3), class = "different")
-  expect_warning(check_square_adj_matrix(test_mat))
+  expect_true(check_square_adj_matrix(test_mat))
 
   # Confirm error on improper format data that cannot be turned into dataframe
   test_mat <- structure(.Data = list(c(1, 1), c(1, 1, 1), c(1)), class = "different")

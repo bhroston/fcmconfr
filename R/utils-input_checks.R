@@ -62,6 +62,8 @@ NULL
 #'    that as.integer(x) returns the same as (x), but does not necessarily
 #'    require that (x) is the 'integer'-type R object}
 #'    \item{logical - checks that the input is a logical (TRUE/FALSE) value}
+#'    \item{color - checks that the input is a color accepted by ggplot2}
+#'    \item{shape - checks that the input is a shape accepted by ggplot2}
 #'  }
 #' @param var_name A [character] string of the variable name of (x)
 #' @param choice_selection_opts ONLY used if check = 'choice_selection'. A
@@ -78,14 +80,14 @@ NULL
 #'
 #' @example /man/examples/ex-check_fcmconfr_input.R
 check_fcmconfr_input <- function(x,
-                                 check = c("adj_matrix_list", "square_adj_matrix", "numeric_vector", "ivfn_vector", "tfn_vector", "choice_selection", "positive_number", "positive_integer", "logical"),
+                                 check = c("adj_matrix_list", "square_adj_matrix", "numeric_vector", "ivfn_vector", "tfn_vector", "choice_selection", "positive_number", "positive_integer", "logical", "color", "shape"),
                                  var_name = character(),
                                  choice_selection_opts = c(),
                                  zero_is_positive = FALSE) {
 
   var_name <- assert_var_name(var_name)
 
-  check_choices <-  c("adj_matrix_list", "square_adj_matrix", "numeric_vector", "ivfn_vector", "tfn_vector", "choice_selection", "positive_number", "positive_integer", "logical")
+  check_choices <-  c("adj_matrix_list", "square_adj_matrix", "numeric_vector", "ivfn_vector", "tfn_vector", "choice_selection", "positive_number", "positive_integer", "logical", "color", "shape")
   check_choices_text <- paste0("'", cli::ansi_collapse(check_choices, sep = "' '", sep2 = "' or '", last = "' or '"), "'")
 
   if (length(check) > 1) {
@@ -133,6 +135,10 @@ check_fcmconfr_input <- function(x,
     check_positive_integer(x, var_name = var_name, zero_is_positive = zero_is_positive)
   } else if (check == "logical") {
     check_logical(x, var_name = var_name)
+  } else if (check == "color") {
+    check_color(x, var_name = var_name)
+  } else if (check == "shape") {
+    check_shape(x, var_name = var_name)
   }
 
   return(TRUE)
@@ -158,7 +164,10 @@ check_fcmconfr_input <- function(x,
 #' @keywords internal
 #' @noRd
 #'
-#' @example /man/examples/ex-check_adj_matrix_list.R
+#' @examples
+#' check_adj_matrix_list(sample_fcms$simple_fcms$conventional_fcms)
+#' check_adj_matrix_list(sample_fcms$simple_fcms$ivfn_fcms)
+#' check_adj_matrix_list(sample_fcms$simple_fcms$tfn_fcms)
 check_adj_matrix_list <- function(x = list()) {
 
   if (!identical(methods::is(x)[1], "list")) {
@@ -229,7 +238,8 @@ check_adj_matrix_list <- function(x = list()) {
 #' @keywords internal
 #' @noRd
 #'
-#' @example /man/examples/ex-check_square_matrix.R
+#' @examples
+#' check_square_adj_matrix(matrix(1:9, nrow = 3))
 check_square_adj_matrix = function(x = matrix()) {
   requireNamespace("Matrix")
 
@@ -239,13 +249,6 @@ check_square_adj_matrix = function(x = matrix()) {
       "+++++> Input adj. matrix was a list of {length(x)} adj. matrices."
     ))))
   }
-
-  # if ("sparseMatrix" %in% methods::is(x)) {
-  #   warning(cli::format_warning(c(
-  #     "!" = "Warning: Converting sparseMatrix input to matrix"
-  #   )))
-  #   x <- as.matrix(x)
-  # }
 
   class_options <-  c("matrix", "array", "data.frame", "dgCMatrix", "data.table", "tibble", "tbl_df", "sparseMatrix", "adj_matrix_w_ivfns", "adj_matrix_w_tfns")
   class_options_text <- paste0("'", cli::ansi_collapse(class_options, sep = "' '", sep2 = "' or '", last = "' or '"), "'")
@@ -261,11 +264,13 @@ check_square_adj_matrix = function(x = matrix()) {
       } else {
         x_as_df <- as.data.frame(do.call(cbind, x_as_df))
       }
-      # warning(cli::format_warning(c(
-      #   "!" = "Warning: Converting adj. matrix to data.frame"
-      # )))
       x_as_df
-    }, error = function(e) {
+    }, warning = function(w) {
+      return(stop(cli::format_error(c(
+        "x" = "Error: Adj. Matrix must one of the following classes: ", "{class_options_text}",
+        "+++++> Input adj. matrix had class: {methods::is(x)[1]}"
+      ))))
+    },  error = function(e) {
       return(stop(cli::format_error(c(
         "x" = "Error: Adj. Matrix must one of the following classes: ", "{class_options_text}",
         "+++++> Input adj. matrix had class: {methods::is(x)[1]}"
@@ -304,7 +309,10 @@ check_square_adj_matrix = function(x = matrix()) {
 #' @keywords internal
 #' @noRd
 #'
-#' @example /man/examples/ex-check_numeric_vector.R
+#' @examples
+#' check_numeric_vector(c(1, 1, 1))
+#' check_numeric_vector(c(1, "1", 1))
+#' check_numeric_vector(c("one", "two"))
 check_numeric_vector = function(x, var_name = "") {
   # Skip test if no input given; an empty input will create an assumed
   # initial_state_vector/clamping_vector in the check function that called this
@@ -452,7 +460,10 @@ check_tfn_vector = function(x, var_name = "") {
 #' @keywords internal
 #' @noRd
 #'
-#' @example /man/examples/ex-check_choice_selection.R
+#' @examples
+#' squashing_opts <- c("sigmoid", "tanh")
+#' check_choice_selection("sigmoid", squashing_opts, var_name = "squashing")
+#' check_choice_selection(1, c(1, 2, 3))
 check_choice_selection <- function(x, choices = c(), var_name = "") {
   var_name <- assert_var_name(var_name)
 
@@ -462,6 +473,14 @@ check_choice_selection <- function(x, choices = c(), var_name = "") {
     stop(cli::format_error(c(
       "x" = "Error: {var_name} must be ONLY one of the following: {choices_text}",
       "+++++++> Input {var_name} was: '{x}'"
+    )))
+  }
+
+  if (is.function(x)) {
+    stop(cli::format_error(c(
+      "x" = "Error: {var_name} must be a character string that matches one of the following: {choices_text}",
+      "+++++++> Input {var_name} was a function object",
+      "+++++++> Make sure to put '' around input"
     )))
   }
 
@@ -499,7 +518,9 @@ check_choice_selection <- function(x, choices = c(), var_name = "") {
 #' @keywords internal
 #' @noRd
 #'
-#' @example /man/examples/ex-check_positive_number.R
+#' @examples
+#' check_positive_number(1, "lambda")
+#' check_positive_number(1.5, "lambda")
 check_positive_number <- function(x = numeric(), var_name = "", zero_is_positive = FALSE) {
   var_name <- assert_var_name(var_name)
 
@@ -563,7 +584,9 @@ check_positive_number <- function(x = numeric(), var_name = "", zero_is_positive
 #' @keywords internal
 #' @noRd
 #'
-#' @example /man/examples/ex-check_positive_integer.R
+#' @examples
+#' check_positive_integer(1, "max_iter")
+#' check_positive_integer("1", "max_iter")
 check_positive_integer <- function(x = 1L, var_name = "", zero_is_positive = FALSE) {
   var_name <- assert_var_name(var_name)
 
@@ -630,7 +653,8 @@ check_positive_integer <- function(x = 1L, var_name = "", zero_is_positive = FAL
 #' @keywords internal
 #' @noRd
 #'
-#' @example /man/examples/ex-check_logical.R
+#' @examples
+#' check_logical(TRUE, var_name = "include_zeroes_in_sampling")
 check_logical <- function(x = TRUE, var_name = "") {
   var_name <- assert_var_name(var_name)
 
@@ -652,6 +676,120 @@ check_logical <- function(x = TRUE, var_name = "") {
     stop(cli::format_error(c(
       "x" = "Error: {var_name} must be a logical (TRUE/FALSE) value",
       "+++++++> Input {var_name} vector had class: {class_of_x[1]}"
+    )))
+  }
+
+  return(TRUE)
+}
+
+
+
+#' Check Color
+#'
+#' @description
+#' Blank description
+#'
+#' @details
+#' INTENDED FOR DEVELOPER USE ONLY
+#'
+#' @param x \[`character(1)`]\cr A character string for a single color
+#' @param var_name \[`character()`]\cr The name of the input variable to
+#' be displayed in the error message
+#'
+#' @returns TRUE if the input object x is a character string representing a
+#' color accepted by ggplot2, or an error message if not
+#'
+#' @keywords internal
+#' @noRd
+#'
+#' @examples
+#' check_color("red")
+check_color <- function(x = character(1), var_name = "") {
+  var_name <- assert_var_name(var_name)
+
+  if (length(x) > 1) {
+    stop(cli::format_error(c(
+      "x" = "Error: '{var_name}' must be a character string of a single color",
+      "+++++++> Input {var_name} was: {x}"
+    )))
+  }
+
+  x <- tryCatch({
+    tolower(as.character(x))
+  }, error = function(x) {
+    stop(cli::format_error(c(
+      "x" = "Error: '{var_name}' must be a character string of a single color",
+      "+++++++> Input {var_name} was: {x}"
+    )))
+  })
+
+  if ("try-error" %in% methods::is(try(grDevices::col2rgb(x), silent = TRUE))) {
+    stop(cli::format_error(c(
+      "x" = "Error: '{var_name}' must be a character string of a single color",
+      "+++++++> Input {var_name} was: {x}"
+    )))
+  }
+
+  return(TRUE)
+}
+
+
+
+#' Check Shape
+#'
+#' @description
+#' Blank description
+#'
+#' @details
+#' INTENDED FOR DEVELOPER USE ONLY
+#'
+#' @param x \[`integer(1)` or `character(1)`]\cr An integer representing a PCH
+#' point value (https://r-charts.com/base-r/pch-symbols/) or a character string
+#' of a particular shape.
+#' @param var_name \[`character()`]\cr The name of the input variable to
+#' be displayed in the error message
+#'
+#' @returns TRUE if the input object x is an integer or character string
+#' representing a shape accepted by ggplot2, or an error message if not
+#'
+#' @keywords internal
+#' @noRd
+#'
+#' @examples
+#' check_shape(1)
+#' check_shape("square")
+check_shape <- function(x, var_name = "") {
+  var_name <- assert_var_name(var_name)
+
+  if (length(x) > 1) {
+    stop(cli::format_error(c(
+      "x" = "Error: '{var_name}' must be a character string of a single color",
+      "+++++++> Input {var_name} was: {x}"
+    )))
+  }
+
+  x_is_positive_integer <- try(check_positive_integer(x, var_name, zero_is_positive = FALSE), silent = TRUE)
+  if (isTRUE(x_is_positive_integer) && !(x %in% 0:25)) {
+    stop(cli::format_error(c(
+      "x" = "Error: '{var_name}' must be either a shape string or an integer between 1 and 25 (for pch point values)",
+      "+++++++> Input {var_name} was: {x}"
+    )))
+  } else if (isTRUE(x_is_positive_integer) && (x %in% 0:25)) {
+    return(TRUE)
+  }
+
+  x <- tryCatch({
+    tolower(as.character(x))
+  }, error = function(x) {
+    stop(cli::format_error(c(
+      "x" = "Error: '{var_name}' must be either a shape string or an integer between 1 and 25 (for pch point values)",
+      "+++++++> Input {var_name} was: {x}"
+    )))
+  })
+  if ("try-error" %in% methods::is(try(ggplot2::translate_shape_string(x), silent = TRUE))) {
+    stop(cli::format_error(c(
+      "x" = "Error: '{var_name}' must be either a shape string or an integer between 1 and 25 (for pch point values)",
+      "+++++++> Input {var_name} was: {x}"
     )))
   }
 

@@ -386,10 +386,9 @@ aggregate_conventional_fcms <- function(adj_matrices = list(),
 #' @returns \[`aggregate_of_fcms_w_ivfns`]\cr An aggregate adjacency matrix with
 #' edges represented as IVFN data types.
 #'
-#' @keywords internal
-#'
-#' @export
 #' @example  man/examples/ex-aggregate_fcms_w_ivfns.R
+#' @keywords internal
+#' @noRd
 aggregate_fcms_w_ivfns <- function(adj_matrices = list(),
                                    agg_function = c("mean", "median"),
                                    include_zeroes_in_sampling = TRUE) {

@@ -271,12 +271,6 @@ test_that("infer_ivfn_or_tfn_fcm works", {
   ivfn_infer <- infer_ivfn_or_tfn_fcm(test_ivfn_adj_matrix, initial_state_vector = c(1, 1, 1), clamping_vector = c(1, 0, 0), activation = "kosko", squashing = "sigmoid", point_of_inference = "final", lambda = 1, min_error = 0.00001)
   tfn_infer <- infer_ivfn_or_tfn_fcm(test_tfn_adj_matrix, initial_state_vector = c(1, 1, 1), clamping_vector = c(1, 0, 0), activation = "kosko", squashing = "sigmoid", point_of_inference = "final", lambda = 1, min_error = 0.00001)
 
-
-  # Check infer_ivfn_or_tfn_fcm cannot take conventional matrices
-  expect_error(
-    infer_ivfn_or_tfn_fcm(sample_fcms$simple_fcms$conventional_fcms[[1]], initial_state_vector = c(1, 1, 1, 1, 1, 1, 1, 1, 1), clamping_vector = c(0, 1, 0, 0, 0, 0, 0, 0, 0), activation = "kosko", squashing = "sigmoid", lambda = 1, point_of_inference = "final")
-  )
-
   # Check additional example
   lower_adj_matrix <- data.frame(
     C1 = c(0, 0, 0, 0, 0, 0),
@@ -386,37 +380,26 @@ test_that("infer_ivfn_or_tfn_fcm works", {
   crisp_differences <- sum(abs(salinization_sim_ivfn$inference$crisp - salinization_sim_tfn$inference$crisp))^2
   expect_true(lower_differences < 1e-3 & upper_differences < 1e-3 & crisp_differences < 1e-3)
 
-  # Check error if conventional FCM given
-  expect_error(infer_ivfn_or_tfn_fcm(sample_fcms$simple_fcms$conventional_fcms[[1]],
-                                     initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
-                                     clamping_vector = c(1, 0, 0, 0, 0, 0, 0),
-                                     activation = "modified-kosko",
-                                     squashing = "sigmoid",
-                                     lambda = 1,
-                                     point_of_inference = "final",
-                                     max_iter = 1000,
-                                     min_error = 1e-5))
-
   # Confirm works when class is different but object is still a IVFN
   test_adj_matrix <- sample_fcms$simple_fcms$ivfn_fcms[[1]]
   class(test_adj_matrix) <- NULL
   test_adj_matrix <- do.call(cbind, test_adj_matrix)
   test_adj_matrix <- structure(.Data = test_adj_matrix, class = "Different")
-  expect_warning(expect_warning(infer_ivfn_or_tfn_fcm(test_adj_matrix, initial_state_vector = c(1, 1, 1, 1, 1, 1, 1), clamping_vector = c(1, 0, 0, 0, 0, 0, 0), activation = "kosko", squashing = "sigmoid", lambda = 1, point_of_inference = "final")))
+  expect_no_error(infer_ivfn_or_tfn_fcm(test_adj_matrix, initial_state_vector = c(1, 1, 1, 1, 1, 1, 1), clamping_vector = c(1, 0, 0, 0, 0, 0, 0), activation = "kosko", squashing = "sigmoid", lambda = 1, point_of_inference = "final"))
 
   # Confirm works when class is different but object is still a TFN
   test_adj_matrix <- sample_fcms$simple_fcms$tfn_fcms[[1]]
   class(test_adj_matrix) <- NULL
   test_adj_matrix <- do.call(cbind, test_adj_matrix)
   test_adj_matrix <- structure(.Data = test_adj_matrix, class = "Different")
-  expect_warning(expect_warning(infer_ivfn_or_tfn_fcm(test_adj_matrix, initial_state_vector = c(1, 1, 1, 1, 1, 1, 1), clamping_vector = c(1, 0, 0, 0, 0, 0, 0), activation = "kosko", squashing = "sigmoid", lambda = 1, point_of_inference = "final")))
+  expect_no_error(infer_ivfn_or_tfn_fcm(test_adj_matrix, initial_state_vector = c(1, 1, 1, 1, 1, 1, 1), clamping_vector = c(1, 0, 0, 0, 0, 0, 0), activation = "kosko", squashing = "sigmoid", lambda = 1, point_of_inference = "final"))
 
   # Confirm works when class is different but object is still conventional
   test_adj_matrix <- sample_fcms$simple_fcms$conventional_fcms[[1]]
   class(test_adj_matrix) <- NULL
   test_adj_matrix <- do.call(cbind, test_adj_matrix)
   test_adj_matrix <- structure(.Data = test_adj_matrix, class = "Different")
-  expect_warning(expect_warning(infer_fcm(test_adj_matrix, initial_state_vector = c(1, 1, 1, 1, 1, 1, 1), clamping_vector = c(1, 0, 0, 0, 0, 0, 0), activation = "kosko", squashing = "sigmoid", lambda = 1, point_of_inference = "final")))
+  expect_no_error(infer_fcm(test_adj_matrix, initial_state_vector = c(1, 1, 1, 1, 1, 1, 1), clamping_vector = c(1, 0, 0, 0, 0, 0, 0), activation = "kosko", squashing = "sigmoid", lambda = 1, point_of_inference = "final"))
 })
 
 
@@ -823,7 +806,7 @@ test_that("check_simulation_inputs works", {
     check_simulation_inputs(cbind(test_adj_matrix, sample_fcms$simple_fcms$conventional_fcms[[2]]))
   )
   test_sparseMatrix <- Matrix::Matrix(as.matrix(test_adj_matrix), sparse = TRUE)
-  expect_warning(
+  expect_no_warning(
     check_simulation_inputs(adj_matrix = test_sparseMatrix, initial_state_vector = test_initial_state_vector, clamping_vector = test_clamping_vector, activation = "kosko", squashing = "tanh", point_of_inference = "final")
   )
   expect_no_error(

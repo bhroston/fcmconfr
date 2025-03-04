@@ -1,7 +1,7 @@
 # print.aggregate works
 
     Code
-      test_aggregate
+      print(test_aggregate)
     Output
         A     B
       A 0 0.625

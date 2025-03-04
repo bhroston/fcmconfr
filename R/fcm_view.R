@@ -26,10 +26,9 @@
 #' edges, and (6) the ability to change the curvature of edges and the smoothing
 #' method used.
 #'
-#' @param adj_matrix An n x n adjacency matrix that represents an FCM.
-#' fcm_view accepts either an adj_matrix or fcm_visNetwork input
-#' but NOT both. Accepts [data.frame, tbl_df, tbl] objects representing
-#' conventional, IVFN-, or TFN- adj. matrices.
+#' @param adj_matrix \[`list() or data.frame()`]\cr A single adjacency matrix
+#' (n x n) representing FCMs. An adjacency matrix can have conventional
+#' edge weights, IVFN edge weights or TFN edge weights.
 #' @param fcm_visNetwork An fcm_view visNetwork object output. fcm_view accepts
 #' either an adj_matrix or fcm_visNetwork input but NOT both.
 #' @param shiny View visNetwork output in an interactive shiny app. Allows the

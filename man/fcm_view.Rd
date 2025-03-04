@@ -12,10 +12,9 @@ fcm_view(
 )
 }
 \arguments{
-\item{adj_matrix}{An n x n adjacency matrix that represents an FCM.
-fcm_view accepts either an adj_matrix or fcm_visNetwork input
-but NOT both. Accepts \link{data.frame, tbl_df, tbl} objects representing
-conventional, IVFN-, or TFN- adj. matrices.}
+\item{adj_matrix}{[\verb{list() or data.frame()}]\cr A single adjacency matrix
+(n x n) representing FCMs. An adjacency matrix can have conventional
+edge weights, IVFN edge weights or TFN edge weights.}
 
 \item{fcm_visNetwork}{An fcm_view visNetwork object output. fcm_view accepts
 either an adj_matrix or fcm_visNetwork input but NOT both.}
