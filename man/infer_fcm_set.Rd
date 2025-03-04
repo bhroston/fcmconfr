@@ -12,267 +12,145 @@ infer_fcm_set(
   squashing = c("sigmoid", "tanh"),
   lambda = 1,
   point_of_inference = c("peak", "final"),
-  max_iter = 100,
+  max_iter = 100L,
   min_error = 1e-05,
   parallel = TRUE,
-  n_cores = integer(),
+  n_cores = 1L,
   show_progress = TRUE,
   include_sims_in_output = FALSE,
+  silent = FALSE,
   skip_checks = FALSE
 )
 }
 \arguments{
-\item{adj_matrices}{A list of adjecency matrices generated from simulation using build_fmcm_models.}
+\item{adj_matrices}{[\code{list()}]\cr A single adjacency matrix or a list of
+adjacency matrices (n x n) representing FCMs. Matrices can have conventional
+edge weights, IVFN edge weights or TFN edge weights.}
 
-\item{initial_state_vector}{A list state values at the start of an fcm simulation}
+\item{initial_state_vector}{[\code{vector("double")}]\cr A list of state values
+(one per node) at the start of an FCM simulation. In pulse simulations the
+\code{initial_state_vector}  controls the scenario (i.e., a non-zero value
+is a transient perturbation). In clamped simulations all values in the
+\code{initial_state_vector} are set to 1.}
 
-\item{clamping_vector}{A list of values representing specific actions taken to
-control the behavior of an FCM. Specifically, non-zero values defined in this vector
-will remain constant throughout the entire simulation as if they were "clamped" at those values.}
+\item{clamping_vector}{[\code{vector("double")}]\cr A list of values (one per
+node) that indicates whether clamped simulations will be performed. In
+clamped simulations the \code{clamping_vector} controls the scenario (nodes
+assigned non-zero values will remain at those values for the entire
+simulation). In pulse simulations all values in the \code{clamping_vector}
+are set to 0.}
 
-\item{activation}{The activation function to be applied. Must be one of the following:
-'kosko', 'modified-kosko', or 'rescale'.}
+\item{activation}{[\code{character(1)}]\cr The activation function used. Must be
+one of the following: 'kosko', 'modified-kosko', or 'rescale'.}
 
-\item{squashing}{A squashing function to apply. Must be one of the following:
-'tanh', or 'sigmoid'.}
+\item{squashing}{[\code{character(1)}]\cr The squashing function used. Must be
+one of the following: 'tanh' or 'sigmoid'.}
 
-\item{lambda}{A numeric value that defines the steepness of the slope of the
-squashing function when tanh or sigmoid are applied}
+\item{lambda}{[\code{double(1)}] Positive\cr A numeric value that defines the
+steepness of the squashing function's slope.}
 
-\item{point_of_inference}{The point along the simulation time-series to be
-identified as the inference. Must be one of the following: 'peak' or 'final'}
+\item{point_of_inference}{[\code{character(1)}]\cr Definition of an inference.
+The metric used to calculate  the response of each node to a scenario of
+interest from a simulation timeseries. Must be one of the following: 'peak'
+(the maximum value) or 'final' (the state at equilibrium).}
 
-\item{max_iter}{The maximum number of iterations to run if the minimum error value is not achieved}
+\item{max_iter}{[\code{integer(1)} - Positive]\cr The maximum number of
+iterations to run (increase if the minimum error value is not achieved).}
 
-\item{min_error}{The lowest error (sum of the absolute value of the current state
-vector minus the previous state vector) at which no more iterations are necessary
-and the simulation will stop}
+\item{min_error}{[\code{double(1)} - Positive]\cr The error past which a
+simulation has converged and no further iterations are necessary. \emph{Error
+equals the sum of the absolute value of the current state vector minus the
+previous state vector}.}
 
-\item{parallel}{TRUE/FALSE Whether to utilize parallel processing}
+\item{parallel}{[\code{logical(1)}]\cr If TRUE, utilize parallel processing.}
 
-\item{n_cores}{Number of cores to use in parallel processing. If no input given,
-will use all available cores in the machine.}
+\item{n_cores}{[\code{integer(1)} - Positive]\cr The number of cores to use in parallel
+processing. If no input given, all available cores will be used. Should be a
+positive integer.}
 
-\item{show_progress}{TRUE/FALSE Show progress bar when creating fmcm. Uses pbmapply
-from the pbapply package as the underlying function.}
+\item{show_progress}{[\code{logical(1)}]\cr If TRUE, show progress bars and print
+runtime updates in the console when performing FCM simulations.}
 
-\item{include_sims_in_output}{TRUE/FALSE whether to include simulations of monte-carlo-generated
-FCM. Will dramatically increase size of output if TRUE.}
+\item{include_sims_in_output}{[\code{logical(1)}]\cr If TRUE, include simulations
+and inferences in output. Set to FALSE to reduce output size.}
 
-\item{skip_checks}{FOR DEVELOPER USE ONLY. TRUE if infer_fcm is called within
-fcmconfr() and checks have already been performed}
+\item{silent}{[\code{logical(1)}]\cr If TRUE, suppress warning and error
+messages.}
+
+\item{skip_checks}{[\code{logical(1)}]\cr FOR DEVELOPER USE ONLY. If TRUE, skip
+call to \code{check_simulation_inputs} (internal function)}
 }
 \value{
-A list of two dataframes: the first contains all inference estimates
-across the empirical (monte carlo) FCM inferences, and the second is an
-elongated version of the first dataframe that organizes the data for
-plotting (particularly with ggplot2)
+[\code{inference_of_fcm_set}]\cr A list/data.frame of the inferences
+(and simulations if included) for each FCM in the set
 }
 \description{
-This function mass simulates a set of FCMs (Conventional, IVFN, and/or TFN)
+This function simulates a set of FCMs (Conventional, IVFN, and/or TFN)
 (whose edge weights were sampled using monte carlo methods) by repetitively
-calling the infer_fcm function for each empirical (monte carlo) adj. matrix.
+calling the infer_fcm function for each adj. matrix in the set.
 }
 \details{
-The show_progress and parallel inputs change the functions called, but do NOT
-change the output! These are allowed to be toggled on/off to increase user
-control at runtime.
+The show_progress and parallel inputs change how the function is run, but do
+NOT change the output! These are allowed to be toggled on/off to increase
+user control at runtime.
 }
 \examples{
-ex_adj_matrix_1 <- data.frame(
-  "A" = c(0, 0, 0, 0),
-  "B" = c(0, 0, 0, 1),
-  "C" = c(0, 1, 0, 0),
-  "D" = c(0, 0, 1, 0)
-)
-ex_adj_matrix_2 <- data.frame(
-  "A" = c(0, 0, 0, 0),
-  "B" = c(0.25, 0, 0, 0.25),
-  "C" = c(0, 0.25, 0, 0),
-  "D" = c(0, 0, 0.25, 0)
-)
-ex_adj_matrix_3 <- data.frame(
-  "A" = c(0, 0, 0, 0),
-  "B" = c(0.75, 0, 0, 0.75),
-  "C" = c(0, 0.75, 0, 0),
-  "D" = c(0, 0, 0.75, 0)
-)
-ex_adj_matrix_4 <- data.frame(
-  "A" = c(0, 0, 0, 0),
-  "B" = c(0.5, 0, 0, 0.5),
-  "C" = c(0, 0.5, 0, 0),
-  "D" = c(0, 0, 0.5, 0)
-)
-ex_fcms <- list(
-  ex_adj_matrix_1, ex_adj_matrix_2, ex_adj_matrix_3, ex_adj_matrix_4
-)
 
-mc_fcms <- build_monte_carlo_fcms_from_conventional_adj_matrices(
-  ex_fcms, N_samples = 1000, include_zeroes = FALSE, show_progress = TRUE
-)
-
-mc_fcms_inferences <- infer_fcm_set(
-  adj_matrices = mc_fcms,
-  initial_state_vector <- c(1, 1, 1, 1),
-  clamping_vector <- c(1, 0, 0, 0),
-  activation = "kosko",
+# Set of Conventional FCMs
+conventional_fcm_set_inferences <- infer_fcm_set(
+  adj_matrices = sample_fcms$simple_fcms$conventional_fcms[1:5],
+  initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
+  clamping_vector = c(1, 0, 0, 0, 0, 0, 0),
+  activation = "modified-kosko",
   squashing = "sigmoid",
-  lambda = 1,
+  lambda = 1.0,
   point_of_inference = "final",
-  max_iter = 1000,
+  max_iter = 100L,
   min_error = 1e-5,
   parallel = FALSE,
-  show_progress = TRUE
+  n_cores = 1L,
+  show_progress = FALSE,
+  include_sims_in_output = TRUE,
+  silent = FALSE,
+  skip_checks = FALSE
 )
 
-
-
-
-# For Interval-Valued Fuzzy Numbers (IVFNs)
-lower_adj_matrix_1 <- data.frame(
-  "A" = c(0, 0),
-  "B" = c(0.4, 0)
-)
-upper_adj_matrix_1 <- data.frame(
-  "A" = c(0, 0),
-  "B" = c(0.6, 0)
-)
-adj_matrix_1 <- make_adj_matrix_w_ivfns(lower_adj_matrix_1, upper_adj_matrix_1)
-lower_adj_matrix_2 <- data.frame(
-  "A" = c(0, 0),
-  "B" = c(0.6, 0)
-)
-upper_adj_matrix_2 <- data.frame(
-  "A" = c(0, 0),
-  "B" = c(1, 0)
-)
-adj_matrix_2 <- make_adj_matrix_w_ivfns(lower_adj_matrix_2, upper_adj_matrix_2)
-lower_adj_matrix_3 <- data.frame(
-  "A" = c(0, 0),
-  "B" = c(0.2, 0)
-)
-upper_adj_matrix_3 <- data.frame(
-  "A" = c(0, 0),
-  "B" = c(0.6, 0)
-)
-adj_matrix_3 <- make_adj_matrix_w_ivfns(lower_adj_matrix_3, upper_adj_matrix_3)
-lower_adj_matrix_4 <- data.frame(
-  "A" = c(0, 0),
-  "B" = c(0.0, 0)
-)
-upper_adj_matrix_4 <- data.frame(
-  "A" = c(0, 0),
-  "B" = c(0.4, 0)
-)
-adj_matrix_4 <- make_adj_matrix_w_ivfns(lower_adj_matrix_4, upper_adj_matrix_4)
-fcms_w_ivfns <- list(adj_matrix_1, adj_matrix_2, adj_matrix_3, adj_matrix_4)
-
-mc_fcms <- build_monte_carlo_fcms_from_fuzzy_set_adj_matrices(
-  fcms_w_ivfns, "ivfn", 1000, include_zeroes = FALSE
-)
-mc_fcms_inferences <- infer_fcm_set(
-  adj_matrices = mc_fcms,
-  initial_state_vector <- c(1, 1),
-  clamping_vector <- c(1, 0),
-  activation = "kosko",
+# Set of IVFN FCMs
+ivfn_fcm_set_inferences <- infer_fcm_set(
+  adj_matrices = sample_fcms$simple_fcms$ivfn_fcms[1:5],
+  initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
+  clamping_vector = c(1, 0, 0, 0, 0, 0, 0),
+  activation = "modified-kosko",
   squashing = "sigmoid",
-  lambda = 1,
+  lambda = 1.0,
   point_of_inference = "final",
-  max_iter = 100,
+  max_iter = 100L,
   min_error = 1e-5,
   parallel = FALSE,
-  show_progress = TRUE
+  n_cores = 1L,
+  show_progress = FALSE,
+  include_sims_in_output = TRUE,
+  silent = FALSE,
+  skip_checks = FALSE
 )
 
-# For Triangular Fuzzy Numbers (TFNs)
-lower_adj_matrix_1 <- data.frame(
-  "A" = c(0, 0),
-  "B" = c(0.4, 0)
-)
-mode_adj_matrix_1 <- data.frame(
-  "A" = c(0, 0),
-  "B" = c(0.4, 0)
-)
-upper_adj_matrix_1 <- data.frame(
-  "A" = c(0, 0),
-  "B" = c(0.6, 0)
-)
-adj_matrix_1 <- make_adj_matrix_w_tfns(
-  lower_adj_matrix_1, mode_adj_matrix_1, upper_adj_matrix_1
-)
-lower_adj_matrix_2 <- data.frame(
-  "A" = c(0, 0),
-  "B" = c(0.6, 0)
-)
-mode_adj_matrix_2 <- data.frame(
-  "A" = c(0, 0),
-  "B" = c(0.7, 0)
-)
-upper_adj_matrix_2 <- data.frame(
-  "A" = c(0, 0),
-  "B" = c(1, 0)
-)
-adj_matrix_2 <- make_adj_matrix_w_tfns(
-  lower_adj_matrix_2, mode_adj_matrix_2, upper_adj_matrix_2
-)
-lower_adj_matrix_3 <- data.frame(
-  "A" = c(0, 0),
-  "B" = c(0.2, 0)
-)
-mode_adj_matrix_3 <- data.frame(
-  "A" = c(0, 0),
-  "B" = c(0.4, 0)
-)
-upper_adj_matrix_3 <- data.frame(
-  "A" = c(0, 0),
-  "B" = c(0.6, 0)
-)
-adj_matrix_3 <- make_adj_matrix_w_tfns(
-  lower_adj_matrix_3, mode_adj_matrix_3, upper_adj_matrix_3
-)
-lower_adj_matrix_4 <- data.frame(
-  "A" = c(0, 0),
-  "B" = c(0.0, 0)
-)
-mode_adj_matrix_4 <- data.frame(
-  "A" = c(0, 0),
-  "B" = c(0, 0)
-)
-upper_adj_matrix_4 <- data.frame(
-  "A" = c(0, 0),
-  "B" = c(0.4, 0)
-)
-adj_matrix_4 <- make_adj_matrix_w_tfns(
-  lower_adj_matrix_4, mode_adj_matrix_4, upper_adj_matrix_4
-)
-
-fcms_w_tfns <- list(adj_matrix_1, adj_matrix_2, adj_matrix_3, adj_matrix_4)
-
-mc_fcms <- build_monte_carlo_fcms_from_fuzzy_set_adj_matrices(
-  fcms_w_tfns, "tfn", 1000, include_zeroes = FALSE
-)
-mc_fcms_inferences <- infer_fcm_set(
-  adj_matrices = mc_fcms,
-  initial_state_vector <- c(1, 1),
-  clamping_vector <- c(1, 0),
-  activation = "kosko",
+# Set of TFN FCMs
+tfn_fcm_set_inferences <- infer_fcm_set(
+  adj_matrices = sample_fcms$simple_fcms$tfn_fcms[1:5],
+  initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
+  clamping_vector = c(1, 0, 0, 0, 0, 0, 0),
+  activation = "modified-kosko",
   squashing = "sigmoid",
-  lambda = 1,
+  lambda = 1.0,
   point_of_inference = "final",
-  max_iter = 100,
+  max_iter = 100L,
   min_error = 1e-5,
   parallel = FALSE,
-  show_progress = TRUE
+  n_cores = 1L,
+  show_progress = FALSE,
+  include_sims_in_output = TRUE,
+  silent = FALSE,
+  skip_checks = FALSE
 )
 }
-\seealso{
-Other monte-carlo-model-generation-and-simulation: 
-\code{\link{build_monte_carlo_fcms}()},
-\code{\link{build_monte_carlo_fcms_from_conventional_adj_matrices}()},
-\code{\link{build_monte_carlo_fcms_from_fuzzy_set_adj_matrices}()},
-\code{\link{check_build_monte_carlo_fcms_inputs}()},
-\code{\link{check_infer_fcm_set_inputs}()},
-\code{\link{check_monte_carlo_bootstrap_inputs}()},
-\code{\link{get_mc_simulations_inference_CIs_w_bootstrap}()}
-}
-\concept{monte-carlo-model-generation-and-simulation}
+\concept{infer_and_simulate_fcm}

@@ -7,16 +7,19 @@
 tfn(lower = double(), mode = double(), upper = double())
 }
 \arguments{
-\item{lower}{lower limit of a Triangular Number set (the lower value must be
-less than or equal to the upper value)}
+\item{lower}{[\code{double(1)} - Unrestriced (positive or negative)]\cr The lower
+limit of a Triangular Number set (the lower value must be less than or equal
+to the upper value)}
 
-\item{mode}{the most likely value of a Triangular Number set}
+\item{mode}{[\code{double(1)} - Unrestriced (positive or negative)]\cr The most
+likely value of a Triangular Number set}
 
-\item{upper}{upper limit of a Triangular Number set (the upper value must be
-greater or equal to the lower value)}
+\item{upper}{[\code{double(1)} - Unrestriced (positive or negative)]\cr The
+upper limit of a Triangular Number set (the upper value must be greater or
+equal to the lower value)}
 }
 \value{
-A triangular fuzzy number (TFN)
+[\code{tfn}]\cr A triangular fuzzy number (TFN)
 }
 \description{
 This constructs an triangular fuzzy number (ivfn) that represents a
@@ -30,11 +33,24 @@ For TFNs, the lower bound must be less than or equal to the mode which must
 be less than or equal to the upper bound.
 If the lower bound, mode, and upper bound are equal, the TFN represents a
 "crisp" numeric value.
+
+\deqn{
+\mathbf{TFN} :\ \left[ x^{L} ,\ x^{M} ,\ x^{U}\right]
+}
+where \eqn{x^{L}}, \eqn{x^{M}}, and \eqn{x^{U}} are the lower bound, mode,
+and upper bound of the TFN.
 }
 \examples{
-tfn(-1, 0, 1)
-tfn(0, 0, 1)
-tfn(1, 1, 1)
+tfn(lower = -1.0, mode = 0.0, upper = 1.0)
+tfn(0, 0.5, 0.8)
+tfn(-0.3, 0.1, 0.4)
+}
+\references{
+\insertRef{chakravertyFuzzyNumbers2019}{fcmconfr}
+
+\insertRef{hanssAppliedFuzzyArithmetic2005}{fcmconfr}
+
+\insertRef{trillasFuzzyArithmetic2015}{fcmconfr}
 }
 \seealso{
 Other triangular-fuzzy-numbers: 

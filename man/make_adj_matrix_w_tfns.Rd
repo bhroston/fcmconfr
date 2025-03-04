@@ -4,19 +4,25 @@
 \alias{make_adj_matrix_w_tfns}
 \title{Create Adj. Matrix w/ Edges Represented as TFNs}
 \usage{
-make_adj_matrix_w_tfns(lower = matrix(), mode = matrix(), upper = matrix())
+make_adj_matrix_w_tfns(
+  lower = data.frame(),
+  mode = data.frame(),
+  upper = data.frame()
+)
 }
 \arguments{
-\item{lower}{An n x n adjacency matrix that represents the lower limits of
-edges in an FCM}
+\item{lower}{[\code{list()} or \code{data.frame()}]\cr An n x n adjacency matrix that
+represents the lower limits of edges in an FCM}
 
-\item{mode}{An n x n adjacency matrix that represents the modes of edges in an FCM}
+\item{mode}{[\code{list()} or \code{data.frame()}]\cr An n x n adjacency matrix that
+represents the modes (most likely values) of edges in an FCM}
 
-\item{upper}{An n x n adjacency matrix that represents the upper limits of
-edges in an FCM}
+\item{upper}{[\code{list()} or \code{data.frame()}]\cr An n x n adjacency matrix that
+represents the upper limits of edges in an FCM}
 }
 \value{
-An adj. matrix (of class 'tfn') with edges represented as TFNs
+[\code{adj_matrix_w_tfns}]\cr An adjacency matrix (of class 'tfn') with
+edges represented as TFNs
 }
 \description{
 This constructs an adjacency matrix with edges represented by triangular

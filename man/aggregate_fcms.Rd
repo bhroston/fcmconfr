@@ -5,26 +5,31 @@
 \title{Aggregate FCMs}
 \usage{
 aggregate_fcms(
-  adj_matrices = list(matrix()),
+  adj_matrices = list(),
   agg_function = c("mean", "median"),
-  include_zeroes_in_sampling = FALSE
+  include_zeroes_in_sampling = FALSE,
+  skip_checks = FALSE
 )
 }
 \arguments{
-\item{adj_matrices}{A list of adj. matrix objects; these can represent
-conventional FCM, IVFN FCM, and TFN FCM, but all adj. matrices must be of
-the same type between the three options.}
+\item{adj_matrices}{[\code{list()}]\cr A single adjacency matrix or a list of
+adjacency matrices (n x n) representing FCMs. Matrices can have conventional
+edge weights, IVFN edge weights or TFN edge weights.}
 
-\item{agg_function}{Calculate aggregate edge weights as either the
-"mean" or "median" of the input edge weights across inputs}
+\item{agg_function}{[\code{character(1)}]\cr Choice of aggregation method
+(mean, median) for producing a single "collective" FCM from a group of
+individual FCMs. Omit this argument when analyzing a single FCM.}
 
-\item{include_zeroes_in_sampling}{TRUE/FALSE Whether to include zeroes in the mean/median
-calculations. (i.e. if edges not included in a map should count as a zero-weighted
-edge or not at all)}
+\item{include_zeroes_in_sampling}{[\code{logical(1)}]\cr  If TRUE, incorporate
+zero-weighted edges during FCM aggregation.}
+
+\item{skip_checks}{[\code{logical(1)}]\cr FOR DEVELOPER USE ONLY. If TRUE, skip
+call to \code{check_simulation_inputs} (internal function)}
 }
 \value{
-An aggregate adj. matrix (of class 'aggregate') with edges represented
-as the same data types as the inputs (i.e. Numerics for conventional, IVFNs, or TFNs)
+[\code{aggregate}]\cr An an aggregate adj. matrix with edges
+represented as the same data types as the inputs (i.e. Numerics for, IVFNs,
+or TFNs)
 }
 \description{
 Generate an aggregate adj. matrix from a list of adj. matrices. FCM
@@ -33,87 +38,140 @@ across the input adj. matrices (i.e. the mean/median of the edge weight
 connecting A -> B across all maps, the mean/median of the edge weight
 connecting B -> C across all maps, and so on). The user may dictate whether
 to incorporate 0-valued edge weights in the mean/median calculations.
+
+All input adj. matrices must have the same dimensions and concept names to
+generate an aggregate. Call \code{\link{standardize_adj_matrices}} to make
+sure all adj. matrices have the same dimensions.
 }
 \details{
-All input adj. matrices must have the same dimensions and concept names to
-generate an aggregate.
+This function implements FCM aggregation methods used in
+Aminpour 2020 (https://doi.org/10.1038/s41893-019-0467-z) for use with
+conventional FCMs, and expands upon them for IVFN- and TFN-FCMs.
+
+\strong{Conventional FCMs}
+
+The mean aggregate FCM of a set of conventional FCMs is:
+\deqn{
+A_{ij}^{aggregate} =\frac{\sum _{p\ =\ 1}^{N} A_{ij}^{FCM_{p}}}{N}
+}
+where \eqn{A_{ij}^{aggregate}} is the weight in the aggregate adjacency
+matrix for the element in row i and column j, and \eqn{FCM_{p}} is the
+weight for the element in row i and column j in the adjacency matrix of
+the p-th FCM.
+
+If not including zeroe-valued edges in aggregation calculations, the mean
+aggregate equation becomes:
+\deqn{
+A_{ij}^{aggregate} =\frac{\sum _{p\ =\ 1}^{N} A_{ij}^{FCM_{p}}}{\sum _{p\ =\ 1}^{N} 1|A_{ij}^{FCM_{p}} \neq 0}
+}
+
+The median aggregate FCM of a set of conventional FCMs is:
+\deqn{
+A_{ij}^{aggregate} =\mathrm{Median} (A_{ij}^{FCM_{1}} ,A_{ij}^{FCM_{2}} ,...,A_{ij}^{FCM_{N}} )\
+}
+If not including zero-valued edges in aggregation calculations, the median
+aggregate equation becomes:
+\deqn{
+A_{ij}^{aggregate} =\mathrm{Median} (A_{ij}^{FCM_{1}} ,A_{ij}^{FCM_{2}} ,...,A_{ij}^{FCM_{N}} )\ |\ A_{ij}^{FCM_{p}} \neq 0
+}
+
+\strong{IVFN-FCMs}
+
+The mean aggregate FCM of a set of IVFN-FCMs is:
+\deqn{
+A_{ij}^{aggregate} =\left[ A^{L} ,A^{U} \ \right]_{ij}^{FCM_{aggregate}} =\left[\frac{\sum _{p\ =\ 1}^{N}\left[ A^{L}\right]_{ij}^{FCM_{p}}}{N} ,\ \frac{\sum _{p\ =\ 1}^{N}\left[ A^{U}\right]_{ij}^{FCM_{p}}}{N}\right]
+}
+where \eqn{\left[ A^{L} ,A^{U} \ \right]_{ij}^{FCM_{aggregate}}} is the IVFN
+weight (with lower bound \eqn{A^{L}} and upper bound \eqn{A^{U}}) of the
+element in row i and column j of the aggregate, and
+\eqn{\left[ A^{L}\right]_{ij}^{FCM_{p}}} and \eqn{\left[ A^{L}\right]_{ij}^{FCM_{p}}}
+are the lower and upper bounds of the IVFN weight of the element in row i and
+column j for the p-th FCM adjacency matrix.
+
+If not including zeroe-valued edges in aggregation calculations, the mean
+aggregate equation becomes:
+\deqn{
+A_{ij}^{aggregate} =\left[ A^{L} ,A^{U} \ \right]_{ij}^{FCM_{aggregate}} =\left[\frac{\sum _{p\ =\ 1}^{N}\left[ A^{L}\right]_{ij}^{FCM_{p}}}{\sum _{p\ =\ 1}^{N} 1|\left[ A^{L}\right]_{ij}^{FCM_{p}} \neq 0} ,\ \frac{\sum _{p\ =\ 1}^{N}\left[ A^{U}\right]_{ij}^{FCM_{p}}}{\sum _{p\ =\ 1}^{N} 1|\left[ A^{U}\right]_{ij}^{FCM_{p}} \neq 0}\right]
+}
+
+The median aggregate FCM of a set of IVFN-FCMs is:
+\deqn{
+A_{ij}^{aggregate} =\left[ \mathrm{Median}\left( A_{ij}^{FCM_{1} -L} ,A_{ij}^{FCM_{2} -L} ,...,A_{ij}^{FCM_{N} -L}\right) , \mathrm{Median}\left( A_{ij}^{FCM_{1} -U} ,A_{ij}^{FCM_{2} -U} ,...,A_{ij}^{FCM_{N} -U}\right)\right]
+}
+If not including zero-valued edges in aggregation calculations, the median
+aggregate equation becomes:
+\deqn{
+A_{ij}^{aggregate} =\
+[ \mathrm{Median}\left( A_{ij}^{FCM_{1} -L} ,A_{ij}^{FCM_{2} -L} ,...,A_{ij}^{FCM_{N} -L}\right) |A_{ij}^{FCM_{1} -L} \neq A_{ij}^{FCM_{1} -U} \neq 0,\\
+  \ \mathrm{Median}\left( A_{ij}^{FCM_{1} -U} ,A_{ij}^{FCM_{2} -U} ,...,A_{ij}^{FCM_{N} -U}\right) |A_{ij}^{FCM_{1} -L} \neq A_{ij}^{FCM_{1} -U} \neq 0]
+}
+
+\strong{TFN-FCMs}
+
+The mean aggregate FCM of a set of TFN-FCMs is:
+\deqn{
+A_{ij}^{aggregate} =\left[ A^{L} ,A^{M} ,A^{U} \ \right]_{ij}^{FCM_{aggregate}} =\left[\frac{\sum _{p\ =\ 1}^{N}\left[ A^{L}\right]_{ij}^{FCM_{p}}}{N} ,\frac{\sum _{p\ =\ 1}^{N}\left[ A^{M}\right]_{ij}^{FCM_{p}}}{N} ,\frac{\sum _{p\ =\ 1}^{N}\left[ A^{U}\right]_{ij}^{FCM_{p}}}{N}\right]
+}
+
+where \eqn{\left[ A^{L} , A^{M}, A^{U} \ \right]_{ij}^{FCM_{aggregate}}} is the TFN
+weight (with lower bound \eqn{A^{L}}, mode \eqn{A^{M}}, and upper bound \eqn{A^{U}}) of the
+element in row i and column j of the aggregate, and
+\eqn{\left[ A^{L}\right]_{ij}^{FCM_{p}}}, \eqn{\left[ A^{M}\right]_{ij}^{FCM_{p}}}, and
+\eqn{\left[ A^{U}\right]_{ij}^{FCM_{p}}} are the lower bound, mode, and upper
+bound of the TFN weight of the element in row i and column j for the p-th
+FCM adjacency matrix.
+
+If not including zero-valued edges in aggregation calculations, the mean
+aggregate equation becomes:
+\deqn{
+A_{ij}^{aggregate} =\left[ A^{L} ,A^{M} ,A^{U} \ \right]_{ij}^{FCM_{aggregate}} =\left[\frac{\sum _{p\ =\ 1}^{N}\left[ A^{L}\right]_{ij}^{FCM_{p}}}{\sum _{p\ =\ 1}^{N} 1|\left[ A^{L}\right]_{ij}^{FCM_{p}} \neq 0} ,\frac{\sum _{p\ =\ 1}^{N}\left[ A^{M}\right]_{ij}^{FCM_{p}}}{\sum _{p\ =\ 1}^{N} 1|\left[ A^{M}\right]_{ij}^{FCM_{p}} \neq 0} ,\ \frac{\sum _{p\ =\ 1}^{N}\left[ A^{U}\right]_{ij}^{FCM_{p}}}{\sum _{p\ =\ 1}^{N} 1|\left[ A^{U}\right]_{ij}^{FCM_{p}} \neq 0}\right]
+}
+
+The median aggregate FCM of a set of TFN-FCMs is:
+\deqn{
+A_{ij}^{aggregate} =[ Median\left( A_{ij}^{FCM_{1} -L} ,A_{ij}^{FCM_{2} -L} ,...,A_{ij}^{FCM_{N} -L}\right) ,\ \ \\
+Median\left( A_{ij}^{FCM_{1} -M} ,A_{ij}^{FCM_{2} -M} ,...,A_{ij}^{FCM_{N} -M}\right) ,\ \\
+Median\left( A_{ij}^{FCM_{1} -U} ,A_{ij}^{FCM_{2} -U} ,...,A_{ij}^{FCM_{N} -U}\right)]
+}
+If not including zero-valued edges in aggregation calculations, the median
+aggregate equation becomes:
+\deqn{
+A_{ij}^{aggregate} =\ \newline
+[ Median\left( A_{ij}^{FCM_{1} -L} ,A_{ij}^{FCM_{2} -L} ,...,A_{ij}^{FCM_{N} -L}\right) |A_{ij}^{FCM_{1} -L} \neq A_{ij}^{FCM_{1} -M} \neq A_{ij}^{FCM_{1} -U} \neq 0,\ \newline
+  [ Median\left( A_{ij}^{FCM_{1} -M} ,A_{ij}^{FCM_{2} -M} ,...,A_{ij}^{FCM_{N} -M}\right) |A_{ij}^{FCM_{1} -L} \neq A_{ij}^{FCM_{1} -M} \neq A_{ij}^{FCM_{1} -U} \neq 0,\ \newline
+    \ Median\left( A_{ij}^{FCM_{1} -U} ,A_{ij}^{FCM_{2} -U} ,...,A_{ij}^{FCM_{N} -U}\right) |A_{ij}^{FCM_{1} -L} \neq A_{ij}^{FCM_{1} -M} \neq A_{ij}^{FCM_{1} -U} \neq 0]
+}
 }
 \examples{
 # Aggregate Conventional FCMs
-adj_matrix_1 <- data.frame(
-  "A" = c(0, 0.8),
-  "B" = c(1, 0)
-)
-adj_matrix_2 <- data.frame(
-  "A" = c(0, 0.4),
-  "B" = c(0.25, 0)
-)
-adj_matrix_3 <- data.frame(
-  "A" = c(0, 0),
-  "B" = c(0.75, 0)
-)
-adj_matrix_4 <- data.frame(
-  "A" = c(0, 0),
-  "B" = c(0.5, 0)
-)
-fcms <- list(adj_matrix_1, adj_matrix_2, adj_matrix_3, adj_matrix_4)
-aggregate_fcms(fcms, "mean", include_zeroes = TRUE)
-
+aggregate_fcms(sample_fcms$simple_fcms$conventional_fcms,
+               agg_function = "mean",
+               include_zeroes_in_sampling = TRUE,
+               skip_checks = FALSE)
 
 # Aggregate IVFN FCMs
-lower_adj_matrix_1 <- data.frame(
-  "A" = c(0, 0),
-  "B" = c(0.4, 0)
-)
-upper_adj_matrix_1 <- data.frame(
-  "A" = c(0, 0.2),
-  "B" = c(0.6, 0)
-)
-adj_matrix_1 <- make_adj_matrix_w_ivfns(lower_adj_matrix_1, upper_adj_matrix_1)
-lower_adj_matrix_2 <- data.frame(
-  "A" = c(0, 0.3),
-  "B" = c(0.6, 0)
-)
-upper_adj_matrix_2 <- data.frame(
-  "A" = c(0, 0.4),
-  "B" = c(1, 0)
-)
-adj_matrix_2 <- make_adj_matrix_w_ivfns(lower_adj_matrix_2, upper_adj_matrix_2)
-lower_adj_matrix_3 <- data.frame(
-  "A" = c(0, 0),
-  "B" = c(0.2, 0)
-)
-upper_adj_matrix_3 <- data.frame(
-  "A" = c(0, 0),
-  "B" = c(0.6, 0)
-)
-adj_matrix_3 <- make_adj_matrix_w_ivfns(lower_adj_matrix_3, upper_adj_matrix_3)
-lower_adj_matrix_4 <- data.frame(
-  "A" = c(0, 0),
-  "B" = c(0.0, 0)
-)
-upper_adj_matrix_4 <- data.frame(
-  "A" = c(0, 0),
-  "B" = c(0.4, 0)
-)
-adj_matrix_4 <- make_adj_matrix_w_ivfns(lower_adj_matrix_4, upper_adj_matrix_4)
+aggregate_fcms(sample_fcms$simple_fcms$ivfn_fcms,
+               agg_function = "mean",
+               include_zeroes_in_sampling = TRUE,
+               skip_checks = FALSE)
 
-fcms_w_ivfns <- list(adj_matrix_1, adj_matrix_2, adj_matrix_3, adj_matrix_4)
+# Aggregate TFN FCMs
+aggregate_fcms(sample_fcms$simple_fcms$tfn_fcms,
+               agg_function = "mean",
+               include_zeroes_in_sampling = TRUE,
+               skip_checks = FALSE)
 
 # NOTE: If the lower bound of an edge weight is 0, but the upper bound is > 0,
 # the assumption that a stakeholder simply did not include the edge is invalid.
 # Thus, since the 0-lower bound is meaningful, it is included in mean/median
 # calculations even if include_zeroes = FALSE
-aggregate_fcms(fcms_w_ivfns, "mean", include_zeroes = FALSE)
+aggregate_fcms(sample_fcms$simple_fcms$ivfn_fcms, "mean", include_zeroes_in_sampling = FALSE)
 }
 \references{
 \insertRef{aminpourWisdomStakeholderCrowds2020}{fcmconfr}
 }
 \seealso{
 Other aggregate_fcms: 
-\code{\link{aggregate_conventional_fcms}()},
-\code{\link{aggregate_fcms_w_ivfns}()},
-\code{\link{aggregate_fcms_w_tfns}()},
 \code{\link{print.aggregate}()}
 }
 \concept{aggregate_fcms}

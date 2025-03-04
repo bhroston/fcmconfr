@@ -1,7 +1,7 @@
 # print.infer_conventional_fcm works
 
     Code
-      test_infer
+      print(test_infer)
     Output
       fcmconfr: conventional 
        $inference

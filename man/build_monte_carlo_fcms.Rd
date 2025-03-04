@@ -6,34 +6,42 @@
 \title{Build Monte Carlo FCMs}
 \usage{
 build_monte_carlo_fcms(
-  adj_matrix_list = list(matrix()),
-  N_samples = 1000,
-  include_zeroes = TRUE,
+  adj_matrices = list(),
+  n_samples = 1000L,
+  include_zeroes_in_sampling = TRUE,
   show_progress = TRUE,
+  silent = FALSE,
   skip_checks = FALSE
 )
 }
 \arguments{
-\item{adj_matrix_list}{A list of n x n adjacency matrices representing fcms}
+\item{adj_matrices}{[\code{list()}]\cr A single adjacency matrix or a list of
+adjacency matrices (n x n) representing FCMs. Matrices can have conventional
+edge weights, IVFN edge weights or TFN edge weights.}
 
-\item{N_samples}{The number of samples to draw with the selected sampling method. Also,
-the number of sampled models to generate}
+\item{n_samples}{[\code{integer()} - Positive]\cr The number of samples to draw
+with the selected sampling method. Also, the number of sampled models to
+generate.}
 
-\item{include_zeroes}{TRUE/FALSE Whether to incorporate zeroes as intentionally-defined
-edge weights or ignore them in aggregation}
+\item{include_zeroes_in_sampling}{[\code{logical(1)}]\cr If TRUE, incorporate
+zero-weighted edges during Monte Carlo sampling.}
 
-\item{show_progress}{TRUE/FALSE Show progress bar when creating fmcm. Uses pbmapply
-from the pbapply package as the underlying function.}
+\item{show_progress}{[\code{logical(1)}]\cr If TRUE, show progress bars and print
+runtime updates in the console when performing FCM simulations.}
 
-\item{skip_checks}{FOR DEVELOPER USE ONLY. TRUE if infer_fcm is called within
-fcmconfr() and checks have already been performed}
+\item{silent}{[\code{logical(1)}]\cr If TRUE, suppress warning and error
+messages.}
+
+\item{skip_checks}{[\code{logical(1)}]\cr FOR DEVELOPER USE ONLY. If TRUE, skip
+call to \code{check_simulation_inputs} (internal function)}
 }
 \value{
-A list of empirical (Conventional) FCM adj. matrices generated via monte carlo methods
+[\code{list()}]\cr A list of empirical (Conventional) FCM adj. matrices
+generated via monte carlo methods
 }
 \description{
-This function generates N fcm adjacency matrices whose edge weights are sampled
-from edge values (that may be numeric, IVFNs, or TFNs) and
+This function generates N fcm adjacency matrices whose edge weights are
+sampled from edge values (that may be numeric, IVFNs, or TFNs) and
 stores them as a list of adjacency matrices.
 
 The show_progress and parallel inputs change the functions called, but do NOT
@@ -47,169 +55,41 @@ defined in the input FCMs.
 For IVFN and TFN FCMs, edge weights are sampled from the combined
 distributions representative of the IVFN/TFN edge weights. For example,
 if an edge is given the following weights across two maps: IVFN(0.4, 0.8) and
-IVFN[0.5, 0.7], the samples will be drawn from the combined distribution:
+IVFN [0.5, 0.7]\, the samples will be drawn from the combined distribution:
 sample(N, c(runif(N, 0.4, 0.8), runif(N, 0.5, 0.7)), replace = TRUE).
 }
 \examples{
+
 # Conventional FCMs
-ex_adj_matrix_1 <- data.frame(
-  "A" = c(0, 0, 0, 0),
-  "B" = c(0, 0, 0, 1),
-  "C" = c(0, 1, 0, 0),
-  "D" = c(0, 0, 1, 0)
-)
-ex_adj_matrix_2 <- data.frame(
-  "A" = c(0, 0, 0, 0),
-  "B" = c(0.25, 0, 0, 0.25),
-  "C" = c(0, 0.25, 0, 0),
-  "D" = c(0, 0, 0.25, 0)
-)
-ex_adj_matrix_3 <- data.frame(
-  "A" = c(0, 0, 0, 0),
-  "B" = c(0.75, 0, 0, 0.75),
-  "C" = c(0, 0.75, 0, 0),
-  "D" = c(0, 0, 0.75, 0)
-)
-ex_adj_matrix_4 <- data.frame(
-  "A" = c(0, 0, 0, 0),
-  "B" = c(0.5, 0, 0, 0.5),
-  "C" = c(0, 0.5, 0, 0),
-  "D" = c(0, 0, 0.5, 0)
-)
-ex_fcms <- list(
-  ex_adj_matrix_1, ex_adj_matrix_2, ex_adj_matrix_3, ex_adj_matrix_4
+conventional_mc_fcms <- build_monte_carlo_fcms(
+  adj_matrices = sample_fcms$simple_fcms$conventional_fcms[1:10],
+  n_samples = 1000,
+  include_zeroes_in_sampling = TRUE,
+  show_progress = FALSE,
+  silent = FALSE,
+  skip_checks = FALSE
 )
 
-mc_conventional_fcms <- build_monte_carlo_fcms(
-  ex_fcms, N_samples = 1000, include_zeroes = FALSE, show_progress = TRUE
+# IVFN FCMs
+ivfn_mc_fcms <- build_monte_carlo_fcms(
+  adj_matrices = sample_fcms$simple_fcms$ivfn_fcms[1:10],
+  n_samples = 1000,
+  include_zeroes_in_sampling = TRUE,
+  show_progress = FALSE,
+  silent = FALSE,
+  skip_checks = FALSE
+)
+
+# TFN FCMs
+tfn_mc_fcms <- build_monte_carlo_fcms(
+  adj_matrices = sample_fcms$simple_fcms$tfn_fcms[1:10],
+  n_samples = 1000,
+  include_zeroes_in_sampling = TRUE,
+  show_progress = FALSE,
+  silent = FALSE,
+  skip_checks = FALSE
 )
 
 
-
-# For Interval-Valued Fuzzy Numbers (IVFNs)
-lower_adj_matrix_1 <- data.frame(
-  "A" = c(0, 0),
-  "B" = c(0.4, 0)
-)
-upper_adj_matrix_1 <- data.frame(
-  "A" = c(0, 0),
-  "B" = c(0.6, 0)
-)
-adj_matrix_1 <- make_adj_matrix_w_ivfns(lower_adj_matrix_1, upper_adj_matrix_1)
-lower_adj_matrix_2 <- data.frame(
-  "A" = c(0, 0),
-  "B" = c(0.6, 0)
-)
-upper_adj_matrix_2 <- data.frame(
-  "A" = c(0, 0),
-  "B" = c(1, 0)
-)
-adj_matrix_2 <- make_adj_matrix_w_ivfns(lower_adj_matrix_2, upper_adj_matrix_2)
-lower_adj_matrix_3 <- data.frame(
-  "A" = c(0, 0),
-  "B" = c(0.2, 0)
-)
-upper_adj_matrix_3 <- data.frame(
-  "A" = c(0, 0),
-  "B" = c(0.6, 0)
-)
-adj_matrix_3 <- make_adj_matrix_w_ivfns(lower_adj_matrix_3, upper_adj_matrix_3)
-lower_adj_matrix_4 <- data.frame(
-  "A" = c(0, 0),
-  "B" = c(0.0, 0)
-)
-upper_adj_matrix_4 <- data.frame(
-  "A" = c(0, 0),
-  "B" = c(0.4, 0)
-)
-adj_matrix_4 <- make_adj_matrix_w_ivfns(lower_adj_matrix_4, upper_adj_matrix_4)
-fcms_w_ivfns <- list(adj_matrix_1, adj_matrix_2, adj_matrix_3, adj_matrix_4)
-
-mc_ivfn_fcms <- build_monte_carlo_fcms(
-  fcms_w_ivfns, N_samples = 1000, include_zeroes = FALSE
-)
-
-
-# For Triangular Fuzzy Numbers (TFNs)
-lower_adj_matrix_1 <- data.frame(
-  "A" = c(0, 0),
-  "B" = c(0.4, 0)
-)
-mode_adj_matrix_1 <- data.frame(
-  "A" = c(0, 0),
-  "B" = c(0.4, 0)
-)
-upper_adj_matrix_1 <- data.frame(
-  "A" = c(0, 0),
-  "B" = c(0.6, 0)
-)
-adj_matrix_1 <- make_adj_matrix_w_tfns(
-  lower_adj_matrix_1, mode_adj_matrix_1, upper_adj_matrix_1
-)
-lower_adj_matrix_2 <- data.frame(
-  "A" = c(0, 0),
-  "B" = c(0.6, 0)
-)
-mode_adj_matrix_2 <- data.frame(
-  "A" = c(0, 0),
-  "B" = c(0.7, 0)
-)
-upper_adj_matrix_2 <- data.frame(
-  "A" = c(0, 0),
-  "B" = c(1, 0)
-)
-adj_matrix_2 <- make_adj_matrix_w_tfns(
-  lower_adj_matrix_2, mode_adj_matrix_2, upper_adj_matrix_2
-)
-lower_adj_matrix_3 <- data.frame(
-  "A" = c(0, 0),
-  "B" = c(0.2, 0)
-)
-mode_adj_matrix_3 <- data.frame(
-  "A" = c(0, 0),
-  "B" = c(0.4, 0)
-)
-upper_adj_matrix_3 <- data.frame(
-  "A" = c(0, 0),
-  "B" = c(0.6, 0)
-)
-adj_matrix_3 <- make_adj_matrix_w_tfns(
-  lower_adj_matrix_3, mode_adj_matrix_3, upper_adj_matrix_3
-)
-lower_adj_matrix_4 <- data.frame(
-  "A" = c(0, 0),
-  "B" = c(0.0, 0)
-)
-mode_adj_matrix_4 <- data.frame(
-  "A" = c(0, 0),
-  "B" = c(0, 0)
-)
-upper_adj_matrix_4 <- data.frame(
-  "A" = c(0, 0),
-  "B" = c(0.4, 0)
-)
-adj_matrix_4 <- make_adj_matrix_w_tfns(
-  lower_adj_matrix_4, mode_adj_matrix_4, upper_adj_matrix_4
-)
-
-fcms_w_tfns <- list(
-  adj_matrix_1, adj_matrix_2, adj_matrix_3, adj_matrix_4
-)
-
-mc_tfn_fcms <- build_monte_carlo_fcms(
-  fcms_w_tfns, N_samples = 1000, include_zeroes = FALSE
-)
-
-
-}
-\seealso{
-Other monte-carlo-model-generation-and-simulation: 
-\code{\link{build_monte_carlo_fcms_from_conventional_adj_matrices}()},
-\code{\link{build_monte_carlo_fcms_from_fuzzy_set_adj_matrices}()},
-\code{\link{check_build_monte_carlo_fcms_inputs}()},
-\code{\link{check_infer_fcm_set_inputs}()},
-\code{\link{check_monte_carlo_bootstrap_inputs}()},
-\code{\link{get_mc_simulations_inference_CIs_w_bootstrap}()},
-\code{\link{infer_fcm_set}()}
 }
 \concept{monte-carlo-model-generation-and-simulation}

@@ -7,12 +7,12 @@
 \method{print}{aggregate}(x, ...)
 }
 \arguments{
-\item{x}{an aggregate object}
+\item{x}{[\code{aggregate}]\cr A direct output from aggregate_fcms}
 
 \item{...}{additional inputs}
 }
 \value{
-A console printout of aggregate_fcm output
+[\code{NULL}]\cr A console printout of aggregate_fcm output
 }
 \description{
 Print method for aggregate
@@ -22,10 +22,6 @@ NULL
 }
 \seealso{
 Other aggregate_fcms: 
-\code{\link{aggregate_conventional_fcms}()},
-\code{\link{aggregate_fcms}()},
-\code{\link{aggregate_fcms_w_ivfns}()},
-\code{\link{aggregate_fcms_w_tfns}()}
+\code{\link{aggregate_fcms}()}
 }
 \concept{aggregate_fcms}
-\keyword{internal}

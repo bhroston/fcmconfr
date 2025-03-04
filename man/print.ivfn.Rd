@@ -7,12 +7,12 @@
 \method{print}{ivfn}(x, ...)
 }
 \arguments{
-\item{x}{a ivfn object}
+\item{x}{[\code{ivfn}]\cr a ivfn object}
 
 \item{...}{additional inputs}
 }
 \value{
-A console printout of an IVFN object
+[\code{NULL}]\cr A console printout of an IVFN object
 }
 \description{
 This prints an ivfn object

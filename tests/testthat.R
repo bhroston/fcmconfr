@@ -1,3 +1,9 @@
+#' @srrstatsTODO {G5.2, G5.2a, G5.2b, G5.4, G5.4a, 5.4b, G5.8, G5.8a, G5.8b,
+#' G5.8c, G5.8d, G5.9, G5.9a, G5.9b, BS2.1a}
+#' Demonstrated by package tests.
+
+
+
 # This file is part of the standard setup for testthat.
 # It is recommended that you do not modify it.
 #
