@@ -34,7 +34,7 @@ test_that("infer_fcm_set works", {
                   min_error = 1e-5,
                   parallel = FALSE,
                   show_progress = FALSE,
-                  silent = TRUE),
+                  silent = TRUE)
   )
 
   # Confirm no error if silent if FALSE while parallel and show_progress are TRUE
@@ -55,10 +55,12 @@ test_that("infer_fcm_set works", {
   )
 
   # Confirm works if only a single adj matrix given
-  test_fcm <- sample_fcms$simple_fcms$conventional_fcms[[1]]
+  test_fcm <- sample_fcms$large_fcms$conventional_fcms[[1]]
+  test_clamping_vector <- rep(0, 46)
+  test_clamping_vector[1] <- 1
   expect_no_error(infer_fcm_set(adj_matrices = test_fcm,
-                                initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
-                                clamping_vector = c(1, 0, 0, 0, 0, 0, 0),
+                                initial_state_vector = rep(1, 46),
+                                clamping_vector = test_clamping_vector,
                                 activation = "modified-kosko",
                                 squashing = "sigmoid",
                                 lambda = 1,
@@ -163,11 +165,13 @@ test_that("infer_fcm_set works", {
                                   min_error = 1e-5,
                                   parallel = FALSE,
                                   show_progress = FALSE,
-                                  silent = TRUE))
+                                  silent = FALSE))
 
-  expect_no_error(infer_fcm_set(adj_matrices = sample_fcms$simple_fcms$tfn_fcms,
-                                initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
-                                clamping_vector = c(1, 0, 0, 0, 0, 0, 0),
+  test_clamping_vector <- rep(0, 46)
+  test_clamping_vector[1] <- 1
+  expect_no_error(infer_fcm_set(adj_matrices = sample_fcms$large_fcms$tfn_fcms,
+                                initial_state_vector = rep(1, 46),
+                                clamping_vector = test_clamping_vector,
                                 activation = "modified-kosko",
                                 squashing = "sigmoid",
                                 lambda = 1,
@@ -178,6 +182,7 @@ test_that("infer_fcm_set works", {
                                 show_progress = FALSE,
                                 silent = TRUE))
   # ----
+
 })
 
 
@@ -416,6 +421,8 @@ test_that("simulate_fcm works", {
 
 
 # All checks pass (and autotest returns NULL)
+#' @srrstatsTODO {G5.6, G5.6a} Tests that results are comparable to existing
+#  packages with similar functionality.
 test_that("simulate_conventional_fcm works", {
   # functions_to_check <- c("simulate_conventional_fcm")
   # yaml_list <- autotest::examples_to_yaml(package = ".", functions = functions_to_check)

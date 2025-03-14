@@ -12,10 +12,10 @@
 #' @srrstats {G1.4, 1.4a} All functions (exported and internal) use roxygen2
 #' format; internal functions include the `@noRd` tag
 #' @srrstats {G1.5, 1.6} No performance claims are made
-#' @srrstats {G3.0} Floating point numbers are not compared for equality.
-#'
+#' @srrstats {G2.10} Extraction of single columns is systematic and robust
+#' @srrstats {G3.0} Floating point numbers are not compared for equality
 #' @srrstats {EA1.3} Input data types defined for all functions
-
-
+#' @srrstats {EA2.0, EA2.1, EA2.2, EA2.2a, EA2.2b, EA2.3} Tabular data features
+#' index columns where appropriate.
 #'
 "_PACKAGE"

@@ -136,7 +136,7 @@ test_that("ivfn works", {
   expect_equal(test_ivfn$lower, -1)
   expect_equal(test_ivfn$upper, 1)
   expect_error(ivfn(1, -1))
-  expect_equal(ivfn(), ivfn(-Inf, Inf))
+  expect_error(ivfn(-Inf, Inf))
   expect_error(ivfn("a", "b"))
 })
 
@@ -263,7 +263,7 @@ test_that("tfn works", {
   expect_equal(test_tfn$upper, 1)
   expect_error(tfn(1, 0, -1))
   expect_error(tfn(-1, 1, 0.5))
-  expect_equal(tfn(), tfn(-Inf, 0, Inf))
+  expect_error(tfn(-Inf, 0, Inf))
   expect_error(tfn("a", 0, 1))
 })
 
@@ -327,7 +327,7 @@ test_that("rtriangular_dist works", {
   expect_lt(perc_error_of_vars, 0.01)
 
   expect_error(rtriangular_dist(100, 1, 0, 1))
-  expect_no_error(rtriangular_dist(100, lower = 0, upper = 1))
+  expect_error(rtriangular_dist(100, lower = 0, upper = 1))
 
   expect_error(rtriangular_dist(n = "a", 0, 0.5, 1))
   expect_error(rtriangular_dist(n = 50.5, 0, 0.5, 1))

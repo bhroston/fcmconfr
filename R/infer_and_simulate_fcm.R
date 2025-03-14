@@ -123,10 +123,10 @@ infer_fcm_set <- function(adj_matrices = list(matrix()),
   }
 
   if (!skip_checks) {
-    check_fcmconfr_input(adj_matrices, check = "adj_matrix_list")
     if (!is.null(dim(adj_matrices))) {
       adj_matrices <- list(adj_matrices)
     }
+    check_fcmconfr_input(adj_matrices, check = "adj_matrix_list")
     fcm_class <- get_fcm_class_from_adj_matrix(adj_matrices[[1]])
     adj_matrices <- lapply(adj_matrices, function(x) assert_matrix(x, fcm_class, var_name_input = "adj_matrix"))
     checks <- check_simulation_inputs(adj_matrices[[1]], initial_state_vector, clamping_vector, activation, squashing, lambda, point_of_inference, max_iter, min_error, parallel, n_cores, show_progress, include_sims_in_output, skip_checks)
@@ -157,16 +157,6 @@ infer_fcm_set <- function(adj_matrices = list(matrix()),
   include_sims_in_output <- as.logical(include_sims_in_output)
   # ----
 
-  # if (parallel && testthat::is_testing()) {
-  #   suppressMessages(requireNamespace("parallel"))
-  # } else if (parallel && !testthat::is_testing()) {
-  #   requireNamespace("parallel")
-  # }
-  # if (show_progress && testthat::is_testing()) {
-  #   suppressMessages(requireNamespace("pbapply"))
-  # }  else if(show_progress && !testthat::is_testing()) {
-  #   requireNamespace("pbapply")
-  # }
   if (silent && parallel) {
     suppressMessages(requireNamespace("parallel"))
   } else if (!silent && parallel) {
@@ -292,11 +282,13 @@ infer_fcm_set <- function(adj_matrices = list(matrix()),
   }
 
   inference_values_by_sim <- do.call(rbind, inference_values_by_sim)
-  rownames(inference_values_by_sim) <- seq_along(rownames(inference_values_by_sim))
-
-  # if (silent) {
-  #   sink()
-  # }
+  if (is.null(names(adj_matrices))) {
+    inference_values_by_sim <- cbind("adj_matrix_index" = paste0("adj_matrix_", seq_along(adj_matrices)), inference_values_by_sim)
+  } else {
+    inference_values_by_sim <- cbind("adj_matrix_index" = names(adj_matrices), inference_values_by_sim)
+  }
+  rownames(inference_values_by_sim) <- NULL
+  attr(inference_values_by_sim, "index") <- "adj_matrix_index"
 
   if (include_sims_in_output) {
     return(structure(
@@ -741,7 +733,7 @@ infer_ivfn_or_tfn_fcm <- function(adj_matrix = data.frame(),
     inferences[1, i][[1]] <- raw_inferences[i]
   }
   colnames(inferences) <- concept_names
-  rownames(inferences) <- point_of_inference
+  # rownames(inferences) <- point_of_inference
 
   if (fcm_class == "ivfn") {
     crisp_inferences <- vapply(inferences, function(ivfn_value) mean(ivfn_value[[1]]$lower, ivfn_value[[1]]$upper), numeric(1))
@@ -1291,6 +1283,11 @@ simulate_ivfn_or_tfn_fcm <- function(adj_matrix = data.frame(),
     rownames(inferences) <- "final"
   }
 
+  attr(fuzzy_set_state_vectors, "index") <- "iter"
+  attr(crisp_state_vectors, "index") <- "iter"
+  attr(fuzzy_set_errors, "index") <- "iter"
+  attr(crisp_errors, "index") <- "iter"
+
   return(structure(
     .Data = list(
       inferences = inferences,
@@ -1720,6 +1717,8 @@ clean_simulation_output <- function(simulation_output, concepts) {
     cleaned_simulation_output <- cbind(iter = 0:(nrow(cleaned_simulation_output) - 1), cleaned_simulation_output)
   }
 
+  attr(cleaned_simulation_output, "index") <- "iter"
+
   return(cleaned_simulation_output)
 }
 
@@ -1898,9 +1897,8 @@ check_simulation_inputs <- function(adj_matrix = data.frame(),
   initial_state_vector_generic_check_passed <- isTRUE(initial_state_vector_check)
   if (initial_state_vector_generic_check_passed && (!setequal(length(initial_state_vector), n_nodes))) {
     stop(cli::format_error(c(
-      "{class(as.matrix(adj_matrix))}"
-      # "x" = "Error: {.var initial_state_vector} must be the same length as the number of nodes in input {.var adj_matrix}",
-      # "+++++ Length of {.var initial_state_vector} is {length(initial_state_vector)}, but should be {n_nodes}"
+      "x" = "Error: {.var initial_state_vector} must be the same length as the number of nodes in input {.var adj_matrix}",
+      "+++++ Length of {.var initial_state_vector} is {length(initial_state_vector)}, but should be {n_nodes}"
     )))
   }
 

@@ -75,6 +75,10 @@ test_that("check_adj_matrix_list works", {
   test_adj_mat_list <- list(sample_fcms$simple_fcms$conventional_fcms[[1]])
   expect_true(check_adj_matrix_list(test_adj_mat_list))
 
+  # Confirm error if any missing adjacency matrices
+  test_adj_mat_list <- list(sample_fcms$simple_fcms$conventional_fcms[[1]], NA)
+  expect_error(check_adj_matrix_list(test_adj_mat_list))
+
   expect_true(check_adj_matrix_list(sample_fcms$simple_fcms$conventional_fcms))
 
   expect_true(check_adj_matrix_list(sample_fcms$simple_fcms$ivfn_fcms))
@@ -94,20 +98,6 @@ test_that("check_adj_matrix_list works", {
 
 
 test_that("check_square_adj_matrix works", {
-  test_mat <- matrix(1:9, nrow = 3)
-  expect_true(check_square_adj_matrix(test_mat))
-
-  test_mat <- array(data = 1:9, dim = c(3, 3))
-  expect_true(check_square_adj_matrix(test_mat))
-
-  test_mat <- data.frame(matrix(1:9, nrow = 3))
-  expect_true(check_square_adj_matrix(test_mat))
-
-  test_mat <- data.table::data.table(matrix(1:9, nrow = 3))
-  expect_true(check_square_adj_matrix(test_mat))
-
-  test_mat <- tibble::as_tibble(matrix(1:9, nrow = 3), .name_repair = "minimal")
-  expect_true(check_square_adj_matrix(test_mat))
 
   # Confirm error on multiple input adj. matrices
   test_mats <- list(matrix(1:9, nrow = 3), matrix(1:9, nrow = 3))
@@ -129,22 +119,56 @@ test_that("check_square_adj_matrix works", {
   test_mat <- matrix(1:12, nrow = 4)
   expect_error(check_square_adj_matrix(test_mat))
 
+  # Confirm error if adjacency matrix = NA
+  expect_error(check_square_adj_matrix(NA))
+
+  # Confirm error if adjacency matrix contains missing data
+  test_mat <- sample_fcms$simple_fcms$conventional_fcms[[1]]
+  test_mat[1, 4] <- NA
+  check_square_adj_matrix(test_mat)
+
+  test_mat <- matrix(1:9, nrow = 3)
+  expect_true(check_square_adj_matrix(test_mat))
+
+  test_mat <- array(data = 1:9, dim = c(3, 3))
+  expect_true(check_square_adj_matrix(test_mat))
+
+  test_mat <- data.frame(matrix(1:9, nrow = 3))
+  expect_true(check_square_adj_matrix(test_mat))
+
+  test_mat <- data.table::data.table(matrix(1:9, nrow = 3))
+  expect_true(check_square_adj_matrix(test_mat))
+
+  test_mat <- tibble::as_tibble(matrix(1:9, nrow = 3), .name_repair = "minimal")
+  expect_true(check_square_adj_matrix(test_mat))
+
   # yaml_list <- autotest::examples_to_yaml(package = ".", functions = "check_square_adj_matrix")
   # res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)
 })
 
 
 test_that("check_numeric_vector works", {
-  test_vec <- c(1, 1, 1, 1)
-  expect_true(check_numeric_vector(test_vec, var_name = "test_vec"))
 
+  # Confirm error if NA values found
+  test_vec <- c(1, NA, 1)
+  expect_error(check_numeric_vector(test_vec, "test_vec"))
+
+  # Confirm error if non-numeric values found
+  test_vec <- c(1, "a", 1)
+  expect_error(check_numeric_vector(test_vec))
+
+  # Confirm no error if non-numeric values can be converted to numeric
   test_vec <- c("1", "2")
   expect_true(check_numeric_vector(test_vec, var_name = "test_vec"))
 
-  expect_true(check_numeric_vector(c(), var_name = "empty"))
-
+  # Confirm error if non-numeric values cannot be converted to numeric
   test_vec <- c("one", "two")
   expect_error(check_numeric_vector(test_vec, var_name = "test_vec"))
+
+  test_vec <- c(1, 1, 1, 1)
+  expect_true(check_numeric_vector(test_vec, var_name = "test_vec"))
+
+  expect_true(check_numeric_vector(c(), var_name = "empty"))
 
   # yaml_list <- autotest::examples_to_yaml(package = ".", functions = "check_fcmconfr_inputs")
   # res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)
@@ -152,6 +176,10 @@ test_that("check_numeric_vector works", {
 
 
 test_that("check_ivfn_vector works", {
+
+  # Confirm error if vector contains NA values
+  test_vec <- c(ivfn(1, 1), NA)
+  expect_error(check_ivfn_vector(test_vec))
 
   # Confirm error for multiple input types
   test_vec <- c(ivfn(1, 1), 1)
@@ -168,6 +196,10 @@ test_that("check_ivfn_vector works", {
 
 test_that("check_tfn_vector works", {
 
+  # Confirm error if vector contains NA values
+  test_vec <- c(tfn(1, 1, 1), NA)
+  expect_error(check_tfn_vector(test_vec))
+
   # Confirm error for multiple input types
   test_vec <- c(tfn(1, 1), 1)
   expect_error(check_tfn_vector(test_vec, var_name = "test_vec"))
@@ -183,15 +215,15 @@ test_that("check_tfn_vector works", {
 
 test_that("check_choice_selection works", {
 
-  opts <- c("sigmoid", "tanh")
-  expect_true(check_choice_selection("sigmoid", opts, "test"))
-
   # Confirm error for multiple inputs
   expect_error(check_choice_selection(opts, choices = opts))
 
   # Confirm error for non-match
   random_chars <- paste0(sample(c(letters, LETTERS), size = 10), collapse = "")
   expect_error(check_choice_selection(random_chars, c("sigmoig", "tanh")))
+
+  opts <- c("sigmoid", "tanh")
+  expect_true(check_choice_selection("sigmoid", opts, "test"))
 
   # yaml_list <- autotest::examples_to_yaml(package = ".", functions = "check_choice_selection")
   # res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)
@@ -203,11 +235,8 @@ test_that("check_choice_selection works", {
 
 test_that("check_positive_number works", {
 
-  expect_true(check_positive_number(1, "lambda"))
-
-  expect_true(check_positive_integer("1", "lambda"))
-
-  expect_true(check_positive_number(1.1, "lambda"))
+  # Confirm error if missing value
+  expect_error(check_positive_number(NA))
 
   # Confirm error if more than one input given
   expect_error(check_positive_number(c(1, 1), "lambda"))
@@ -218,6 +247,12 @@ test_that("check_positive_number works", {
   # Confirm error on negative input
   expect_error(check_positive_number(-1, "lambda"))
 
+  expect_true(check_positive_number(1, "lambda"))
+
+  expect_true(check_positive_integer("1", "lambda"))
+
+  expect_true(check_positive_number(1.1, "lambda"))
+
   # yaml_list <- autotest::examples_to_yaml(package = ".", functions = "check_positive_number")
   # res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)
 })
@@ -225,9 +260,8 @@ test_that("check_positive_number works", {
 
 test_that("check_positive_integer works", {
 
-  expect_true(check_positive_integer(1, "max_iter"))
-
-  expect_true(check_positive_integer("1", "max_iter"))
+  # Confirm error if missing value
+  expect_error(check_positive_integer(NA))
 
   # Confirm error if negative value
   expect_error(check_positive_integer(-1, "max_iter"))
@@ -240,6 +274,10 @@ test_that("check_positive_integer works", {
 
   # Confirm error if non-integer
   expect_error(check_positive_integer("one", "max_iter"))
+
+  expect_true(check_positive_integer(1, "max_iter"))
+
+  expect_true(check_positive_integer("1", "max_iter"))
 
   # yaml_list <- autotest::examples_to_yaml(package = ".", functions = "check_positive_integer")
   # res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)
