@@ -561,7 +561,7 @@ test_that("fcmconfr_plot works with IVFN FCMs", {
       clamping_vector = test_clamping_vector,
       activation = 'modified-kosko',
       squashing = 'sigmoid',
-      lambda = 0.5,
+      lambda = 1,
       point_of_inference = "final",
       max_iter = 1000,
       min_error = 1e-05,
@@ -578,7 +578,7 @@ test_that("fcmconfr_plot works with IVFN FCMs", {
     )
   ))
   suppressWarnings(
-    vdiffr::expect_doppelganger("IVFN Clamping Inputs Only", plot(ivfn_clamping_inputs_only))
+    vdiffr::expect_doppelganger("IVFN Clamping Inputs Only", plot(ivfn_clamping_inputs_only, filter_limit = 1e-10))
   )
 
   # Pulse: Inputs Only
