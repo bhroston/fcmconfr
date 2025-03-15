@@ -411,6 +411,8 @@ get_plot_data <- function(fcmconfr_object, filter_limit = 10e-3) {
     aggregate_inferences <- fcmconfr_inferences$aggregate_inferences
     aggregate_inferences_longer <- aggregate_inferences
     aggregate_inferences_longer$analysis_source <- "Agg FCM Inferences"
+  } else {
+    aggregate_inferences <- data.frame(NA)
   }
   # ----
 
@@ -423,6 +425,9 @@ get_plot_data <- function(fcmconfr_object, filter_limit = 10e-3) {
     mc_mean_inferences_longer <- tidyr::pivot_longer(mean_mc_inferences, cols = seq_along(mean_mc_inferences), names_to = "node", values_to = "value")
     mc_inferences_longer$analysis_source <- "MC FCM Inferences"
     mc_mean_inferences_longer$analysis_source <- "MC FCM Avg Inferences"
+  } else {
+    mc_inferences_longer <- data.frame(NA)
+    mc_mean_inferences_longer <- data.frame(NA)
   }
   # ----
 
@@ -431,13 +436,15 @@ get_plot_data <- function(fcmconfr_object, filter_limit = 10e-3) {
     mc_inference_CIs <- fcmconfr_inferences$mc_CIs_and_quantiles
     mc_inference_CIs_longer <- mc_inference_CIs
     mc_inference_CIs_longer$analysis_source <- "CIs of MC FCM Avg Inferences"
+  } else {
+    mc_inference_CIs_longer <- data.frame(NA)
   }
   # ----
 
   # Calculate y-axis range ----
   max_inference <- max(c(individual_inferences_longer$upper, aggregate_inferences_longer$upper, mc_inferences_longer$value))
   max_y_axis <- (ceiling(max_inference*1000))/1000
-  min_inference <- max(c(individual_inferences_longer$lower, aggregate_inferences_longer$lower, mc_inferences_longer$value))
+  min_inference <- min(c(individual_inferences_longer$lower, aggregate_inferences_longer$lower, mc_inferences_longer$value))
   min_y_axis <- (ceiling(min_inference*1000))/1000
   # ----
 
@@ -630,25 +637,30 @@ filter_concepts_to_plot <- function(fcmconfr_plot_data, filter_limit = 1e-10) {
   concepts <- unique(fcmconfr_plot_data$individual_inferences$node)
 
   individual_inferences_values <- fcmconfr_plot_data$individual_inferences[colnames(fcmconfr_plot_data$individual_inferences) != c("adj_matrix_index", "analysis_source")]
-  aggregate_inferences_values <- fcmconfr_plot_data$aggregate_inferences[colnames(fcmconfr_plot_data$aggregate_inferences) != c("analysis_source")]
-  mc_inferences_values <- fcmconfr_plot_data$mc_inferences[colnames(fcmconfr_plot_data$mc_inferences) != c("adj_matrix_index", "analysis_source")]
-  mc_mean_inferences_values <- fcmconfr_plot_data$mc_mean_inferences[colnames(fcmconfr_plot_data$mc_mean_inferences) != "analysis_source"]
-  mc_inference_CIs_values <- fcmconfr_plot_data$mc_inference_CIs[colnames(fcmconfr_plot_data$mc_inference_CIs) != "analysis_source"]
-
   longer_individual_inferences_values <- tidyr::pivot_longer(individual_inferences_values, cols = seq_along(individual_inferences_values)[-1])
   max_individual_inferences <- vapply(concepts, function(concept) max(longer_individual_inferences_values$value[longer_individual_inferences_values$node == concept]), FUN.VALUE = numeric(1))
-  # min_individual_inferences <- vapply(concepts, function(concept) min(longer_individual_inferences_values$value[longer_individual_inferences_values$node == concept]), FUN.VALUE = numeric(1))
 
-  longer_aggregate_inferences_values <- tidyr::pivot_longer(aggregate_inferences_values, cols = seq_along(aggregate_inferences_values)[-1])
+  if (!all(is.na(fcmconfr_plot_data$aggregate_inferences))) {
+    aggregate_inferences_values <- fcmconfr_plot_data$aggregate_inferences[colnames(fcmconfr_plot_data$aggregate_inferences) != c("analysis_source")]
+    longer_aggregate_inferences_values <- tidyr::pivot_longer(aggregate_inferences_values, cols = seq_along(aggregate_inferences_values)[-1])
+  } else {
+    longer_aggregate_inferences_values <- data.frame(NA)
+  }
   max_aggregate_inferences <- vapply(concepts, function(concept) max(longer_aggregate_inferences_values$value[longer_aggregate_inferences_values$node == concept]), FUN.VALUE = numeric(1))
-  # min_aggregate_inferences <- vapply(concepts, function(concept) min(longer_aggregate_inferences_values$value[longer_aggregate_inferences_values$node == concept]), FUN.VALUE = numeric(1))
 
+  if (!all(is.na(fcmconfr_plot_data$mc_inferences))) {
+    mc_inferences_values <- fcmconfr_plot_data$mc_inferences[colnames(fcmconfr_plot_data$mc_inferences) != c("adj_matrix_index", "analysis_source")]
+    mc_mean_inferences_values <- fcmconfr_plot_data$mc_mean_inferences[colnames(fcmconfr_plot_data$mc_mean_inferences) != "analysis_source"]
+  } else {
+    mc_inferences_values <- data.frame(NA)
+  }
   max_mc_inferences <- vapply(concepts, function(concept) max(mc_inferences_values$value[mc_inferences_values$node == concept]), FUN.VALUE = numeric(1))
-  # min_mc_inferences <- vapply(concepts, function(concept) min(mc_inferences_values$value[mc_inferences_values$node == concept]), FUN.VALUE = numeric(1))
+
+  if (!all(is.na(fcmconfr_plot_data$mc_inference_CIs))) {
+    mc_inference_CIs_values <- fcmconfr_plot_data$mc_inference_CIs[colnames(fcmconfr_plot_data$mc_inference_CIs) != "analysis_source"]
+  }
 
   max_inferences_df <- rbind(max_individual_inferences, max_aggregate_inferences, max_mc_inferences)
-  # min_inferences_df <- rbind(min_individual_inferences, min_aggregate_inferences, min_mc_inferences)
-
   surpasses_filter_limit <- apply(max_inferences_df, 2, function(x) any(x >= filter_limit))
 
   nodes_to_plot <- concepts[surpasses_filter_limit]
