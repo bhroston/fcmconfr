@@ -627,54 +627,44 @@ get_plot_data <- function(fcmconfr_object, filter_limit = 10e-3) {
 #' @noRd
 filter_concepts_to_plot <- function(fcmconfr_plot_data, filter_limit = 1e-10) {
 
-  browser()
+  concepts <- unique(fcmconfr_plot_data$individual_inferences$node)
 
   individual_inferences_values <- fcmconfr_plot_data$individual_inferences[colnames(fcmconfr_plot_data$individual_inferences) != c("adj_matrix_index", "analysis_source")]
   aggregate_inferences_values <- fcmconfr_plot_data$aggregate_inferences[colnames(fcmconfr_plot_data$aggregate_inferences) != c("analysis_source")]
   mc_inferences_values <- fcmconfr_plot_data$mc_inferences[colnames(fcmconfr_plot_data$mc_inferences) != c("adj_matrix_index", "analysis_source")]
   mc_mean_inferences_values <- fcmconfr_plot_data$mc_mean_inferences[colnames(fcmconfr_plot_data$mc_mean_inferences) != "analysis_source"]
-  fcmconfr_plot_data$mc_inference_CIs
+  mc_inference_CIs_values <- fcmconfr_plot_data$mc_inference_CIs[colnames(fcmconfr_plot_data$mc_inference_CIs) != "analysis_source"]
 
-  fcm_clamping_vector <- fcmconfr_object$params$simulation_opts$clamping_vector
-  fcm_nodes <- unique(lapply(fcmconfr_object$params$adj_matrices, colnames))[[1]]
-  clamped_node_indexes <- which(fcm_clamping_vector != 0)
-  clamped_nodes <- fcm_nodes[clamped_node_indexes]
+  longer_individual_inferences_values <- tidyr::pivot_longer(individual_inferences_values, cols = seq_along(individual_inferences_values)[-1])
+  max_individual_inferences <- vapply(concepts, function(concept) max(longer_individual_inferences_values$value[longer_individual_inferences_values$node == concept]), FUN.VALUE = numeric(1))
+  # min_individual_inferences <- vapply(concepts, function(concept) min(longer_individual_inferences_values$value[longer_individual_inferences_values$node == concept]), FUN.VALUE = numeric(1))
 
-  lapply(fcmconfr_plot_data, dim)
+  longer_aggregate_inferences_values <- tidyr::pivot_longer(aggregate_inferences_values, cols = seq_along(aggregate_inferences_values)[-1])
+  max_aggregate_inferences <- vapply(concepts, function(concept) max(longer_aggregate_inferences_values$value[longer_aggregate_inferences_values$node == concept]), FUN.VALUE = numeric(1))
+  # min_aggregate_inferences <- vapply(concepts, function(concept) min(longer_aggregate_inferences_values$value[longer_aggregate_inferences_values$node == concept]), FUN.VALUE = numeric(1))
 
-  all_inferences_data <- Reduce(
-    function(x, y) merge(x, y, all = TRUE),
-    fcmconfr_plot_data
-  )
+  max_mc_inferences <- vapply(concepts, function(concept) max(mc_inferences_values$value[mc_inferences_values$node == concept]), FUN.VALUE = numeric(1))
+  # min_mc_inferences <- vapply(concepts, function(concept) min(mc_inferences_values$value[mc_inferences_values$node == concept]), FUN.VALUE = numeric(1))
 
-  apply(all_inferences_data, 1, function(row) max(row))
+  max_inferences_df <- rbind(max_individual_inferences, max_aggregate_inferences, max_mc_inferences)
+  # min_inferences_df <- rbind(min_individual_inferences, min_aggregate_inferences, min_mc_inferences)
 
-  all_inferences_data[is.numeric(all_inferences_data)]
+  surpasses_filter_limit <- apply(max_inferences_df, 2, function(x) any(x >= filter_limit))
 
+  nodes_to_plot <- concepts[surpasses_filter_limit]
+  fcmconfr_plot_data$nodes_to_plot <- nodes_to_plot
+  # nodes_to_plot_indexes <- which(surpasses_filter_limit)
 
-  individual_inferences_longer <- Reduce(function(x, y) merge(x, y, all=TRUE), list(lower_individual_inferences_longer, mode_individual_inferences_longer, upper_individual_inferences_longer))
+  fcmconfr_plot_data$individual_inferences <- fcmconfr_plot_data$individual_inferences[fcmconfr_plot_data$individual_inferences$node %in% nodes_to_plot, ]
+  fcmconfr_plot_data$aggregate_inferences <- fcmconfr_plot_data$aggregate_inferences[fcmconfr_plot_data$aggregate_inferences$node %in% nodes_to_plot, ]
+  fcmconfr_plot_data$mc_inferences <- fcmconfr_plot_data$mc_inferences[fcmconfr_plot_data$mc_inferences$node %in% nodes_to_plot, ]
+  fcmconfr_plot_data$mc_mean_inferences <- fcmconfr_plot_data$mc_mean_inferences[fcmconfr_plot_data$mc_mean_inferences$node %in% nodes_to_plot, ]
+  fcmconfr_plot_data$mc_inference_CIs <- fcmconfr_plot_data$mc_inference_CIs[fcmconfr_plot_data$mc_inference_CIs$node %in% nodes_to_plot, ]
 
-
-
-
-  non_null_inference_dfs <- !(unlist(lapply(fcmconfr_inferences, is.null)))
-  fcmconfr_inferences_across_analyses <- data.frame(do.call(rbind, fcmconfr_inferences[non_null_inference_dfs]))[, -1]
-
-  # if (identical(fcmconfr_object$fcm_class, "conventional")) {
-  abs_max_inference_by_node <- apply(fcmconfr_inferences_across_analyses, 2, function(col) max(abs(col)))
-  # } else if (identical(fcmconfr_object$fcm_class, "ivfn")) {
-  #   # upper_values_of_inferences <- apply(fcmconfr_inferences_across_analyses[, 2:ncol(fcmconfr_inferences_across_analyses)], c(1, 2), function(element) element[[1]]$upper)
-  #   abs_max_inference_by_node <- apply(fcmconfr_inferences_across_analyses, 2, function(col) max(abs(col)))
-  # }
-
-  nodes_to_plot_indexes <-  which(abs_max_inference_by_node > filter_limit & !(fcm_nodes %in% clamped_nodes))
-  nodes_to_plot <- fcm_nodes[nodes_to_plot_indexes]
-
-  list(
-    name = nodes_to_plot,
-    index = nodes_to_plot_indexes
-  )
-
+  return(structure(
+    .Data = fcmconfr_plot_data,
+    class = "filtered_fcmconfr_plot_data"
+  ))
 
   # if (identical(fcmconfr_object$fcm_class, "conventional")) {
   #   fcmconfr_inferences = list(
@@ -834,11 +824,12 @@ autoplot.fcmconfr <- function(object,
 
   # Get Plotting Data ----
   plot_data <- get_plot_data(object, filter_limit)
-  concepts_to_plot <- unique(c(plot_data$individual_inferences$name, plot_data$aggregate_inferences$name, plot_data$mc_inferences$name))
-  concepts_to_plot <- concepts_to_plot[concepts_to_plot != "blank"]
+  plot_data <- filter_concepts_to_plot(plot_data, filter_limit)
+  nodes_to_plot <- plot_data$nodes_to_plot
 
-  plot_data$max_activation <- plot_data$max_activation + 0.1*plot_data$max_activation
-  plot_data$min_activation <- plot_data$min_activation - 0.1*plot_data$min_activation
+  y_axis_buffer <- 0.1
+  plot_data$max_y_axis <- plot_data$max_y_axis + y_axis_buffer
+  plot_data$min_y_axis <- plot_data$min_y_axis - y_axis_buffer
 
   if (object$params$simulation_opts$squashing == "sigmoid" & all(object$params$simulation_opts$clamping == 0)) {
     zero_intercept <- 0.5
@@ -846,12 +837,16 @@ autoplot.fcmconfr <- function(object,
     zero_intercept <- 0
   }
 
-  inputs_only <- (identical(plot_data$aggregate_inferences$name, "blank") & identical(plot_data$mc_inferences$name, "blank") & identical(plot_data$mc_inference_CIs$name, "blank"))
-  inputs_and_agg <- (!(identical(plot_data$aggregate_inferences$name, "blank")) & identical(plot_data$mc_inferences$name, "blank") & identical(plot_data$mc_inference_CIs$name, "blank"))
-  inputs_agg_and_mc_no_bs <- (!(identical(plot_data$aggregate_inferences$name, "blank")) & !(identical(plot_data$mc_inferences$name, "blank")) & identical(plot_data$mc_inference_CIs$name, "blank"))
-  inputs_agg_and_mc_w_bs <- (!(identical(plot_data$aggregate_inferences$name, "blank")) & !(identical(plot_data$mc_inferences$name, "blank")) & !(identical(plot_data$mc_inference_CIs$name, "blank")))
-  inputs_no_agg_and_mc_w_no_bs <- ((identical(plot_data$aggregate_inferences$name, "blank")) & !(identical(plot_data$mc_inferences$name, "blank")) & (identical(plot_data$mc_inference_CIs$name, "blank")))
-  inputs_no_agg_and_mc_w_bs <- ((identical(plot_data$aggregate_inferences$name, "blank")) & !(identical(plot_data$mc_inferences$name, "blank")) & !(identical(plot_data$mc_inference_CIs$name, "blank")))
+  has_agg_calcs <- object$params$additional_opts$run_agg_calcs
+  has_mc_calcs <- object$params$additional_opts$run_mc_calcs
+  has_ci_calcs <- object$params$additional_opts$run_ci_calcs
+
+  inputs_only <- (!has_agg_calcs && !has_mc_calcs && !has_ci_calcs)
+  inputs_and_agg <- (has_agg_calcs && !has_mc_calcs && !has_ci_calcs)
+  inputs_agg_and_mc_no_bs <- (has_agg_calcs && has_mc_calcs && !has_ci_calcs)
+  inputs_agg_and_mc_w_bs <- (has_agg_calcs && has_mc_calcs && has_ci_calcs)
+  inputs_no_agg_and_mc_w_no_bs <- (!has_agg_calcs && has_mc_calcs && !has_ci_calcs)
+  inputs_no_agg_and_mc_w_bs <- (!has_agg_calcs && has_mc_calcs && has_ci_calcs)
   # ----
 
   ggplot_main <- ggplot() +
@@ -862,13 +857,17 @@ autoplot.fcmconfr <- function(object,
     ggplot_main <- ggplot_main +
       ggplot2::geom_crossbar(
         data = ggplot2::remove_missing(plot_data$mc_inference_CIs),
-        aes(y = .data$node, xmin = .data$lower_CI, x = .data$lower_CI, xmax = .data$lower_CI, linewidth = .data$analysis_source),
+        # lower_CI col. index = 3
+        # upper_CI col. index = 4
+        aes(y = .data$node, xmin = plot_data$mc_inference_CIs[, 3], x = plot_data$mc_inference_CIs[, 3], xmax = plot_data$mc_inference_CIs[, 3], linewidth = .data$analysis_source),
         width = 0.7, color = mc_avg_and_CIs_color,
         na.rm = TRUE, key_glyph = ggplot2::draw_key_vline
       ) +
       ggplot2::geom_crossbar(
         data = ggplot2::remove_missing(plot_data$mc_inference_CIs),
-        aes(y = .data$node, xmin = .data$upper_CI, x = .data$upper_CI, xmax = .data$upper_CI, linewidth = .data$analysis_source),
+        # lower_CI col. index = 3
+        # upper_CI col. index = 4
+        aes(y = .data$node, xmin = plot_data$mc_inference_CIs[, 4], x = plot_data$mc_inference_CIs[, 4], xmax = plot_data$mc_inference_CIs[, 4], linewidth = .data$analysis_source),
         width = 0.7, color = mc_avg_and_CIs_color,
         na.rm = TRUE, key_glyph = ggplot2::draw_key_vline
       )
@@ -886,7 +885,7 @@ autoplot.fcmconfr <- function(object,
         na.rm = FALSE
       ) +
       ggplot2::geom_crossbar(
-        data = ggplot2::remove_missing(plot_data$mc_avg_inferences),
+        data = ggplot2::remove_missing(plot_data$mc_mean_inferences),
         aes(y = .data$node, xmin = .data$value, x = .data$value, xmax = .data$value),
         width = 0.9, linewidth = 0.1, color = mc_avg_and_CIs_color, na.rm = FALSE, key_glyph = ggplot2::draw_key_vline
       )
@@ -920,29 +919,27 @@ autoplot.fcmconfr <- function(object,
   # ----
 
   # Aggregate FCM Inferences ----
-  if (!inputs_only & !(inputs_no_agg_and_mc_w_bs | inputs_no_agg_and_mc_w_no_bs)) {
-    if (object$fcm_class == "conventional") {
-      ggplot_main <- ggplot_main +
-        ggplot2::geom_point(
-          data = ggplot2::remove_missing(plot_data$aggregate_inferences),
-          aes(y = .data$node, x = .data$value, color = .data$analysis_source, alpha = .data$analysis_source, shape = .data$analysis_source),
-          size = 2,
-        )
-    } else if (object$fcm_class == "ivfn") {
-      ggplot_main <- ggplot_main +
-        ggplot2::geom_linerange(
-          data = ggplot2::remove_missing(plot_data$aggregate_inferences),
-          aes(y = .data$node, xmin = .data$lower, xmax = .data$upper, alpha = .data$analysis_source, color = .data$analysis_source),
-          linewidth = agg_ivfn_and_tfn_linewidth
-        )
-    } else if (object$fcm_class == "tfn") {
-      ggplot_main <- ggplot_main +
-        ggplot2::geom_pointrange(
-          data = ggplot2::remove_missing(plot_data$aggregate_inferences),
-          aes(y = .data$node, xmin = .data$lower, x = .data$mode, xmax = .data$upper, color = .data$analysis_source, alpha = .data$analysis_source, shape = .data$analysis_source),
-          fatten = 2, linewidth = agg_ivfn_and_tfn_linewidth
-        )
-    }
+  if (has_agg_calcs && object$fcm_class == "conventional") {
+    ggplot_main <- ggplot_main +
+      ggplot2::geom_point(
+        data = ggplot2::remove_missing(plot_data$aggregate_inferences),
+        aes(y = .data$node, x = .data$value, color = .data$analysis_source, alpha = .data$analysis_source, shape = .data$analysis_source),
+        size = 2,
+      )
+  } else if (has_agg_calcs && object$fcm_class == "ivfn") {
+    ggplot_main <- ggplot_main +
+      ggplot2::geom_linerange(
+        data = ggplot2::remove_missing(plot_data$aggregate_inferences),
+        aes(y = .data$node, xmin = .data$lower, xmax = .data$upper, alpha = .data$analysis_source, color = .data$analysis_source),
+        linewidth = agg_ivfn_and_tfn_linewidth
+      )
+  } else if (has_agg_calcs && object$fcm_class == "tfn") {
+    ggplot_main <- ggplot_main +
+      ggplot2::geom_pointrange(
+        data = ggplot2::remove_missing(plot_data$aggregate_inferences),
+        aes(y = .data$node, xmin = .data$lower, x = .data$mode, xmax = .data$upper, color = .data$analysis_source, alpha = .data$analysis_source, shape = .data$analysis_source),
+        fatten = 2, linewidth = agg_ivfn_and_tfn_linewidth
+      )
   }
   # ----
 
@@ -1058,8 +1055,6 @@ autoplot.fcmconfr <- function(object,
         )"
     )
   }
-
-  browser()
 
   scales_expr <- parse(text = scales_str)
   ggplot_main <- eval(scales_expr)
