@@ -307,7 +307,7 @@ check_square_adj_matrix = function(x = matrix()) {
     ))))
   }
 
-  check_no_invalid_data(x, var_name)
+  check_no_invalid_data(x, "adj_matrix")
 
   return(TRUE)
 }

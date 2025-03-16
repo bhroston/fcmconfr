@@ -415,7 +415,7 @@ get_plot_data <- function(fcmconfr_object) {
     aggregate_inferences_longer <- fcmconfr_inferences$aggregate_inferences
     aggregate_inferences_longer$analysis_source <- "Agg FCM Inferences"
   } else {
-    aggregate_inferences <- data.frame(NA)
+    aggregate_inferences_longer <- data.frame(NA)
   }
   # ----
 

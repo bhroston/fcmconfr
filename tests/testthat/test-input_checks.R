@@ -201,8 +201,7 @@ test_that("check_tfn_vector works", {
   expect_error(check_tfn_vector(test_vec))
 
   # Confirm error for multiple input types
-  test_vec <- c(tfn(1, 1), 1)
-  expect_error(check_tfn_vector(test_vec, var_name = "test_vec"))
+  expect_error(check_tfn_vector(c(tfn(1, 1), 1), var_name = "test_vec"))
 
   # Confirm error for incorrect input types
   test_vec <- c(1, 1)

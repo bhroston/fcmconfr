@@ -646,7 +646,7 @@ print.tfn <- function(x, ...) {
 #'
 #' @export
 #' @examples
-#' c(tfn(0, 1), tfn(0.2, 0.5))
+#' c(tfn(0, 0.5, 1), tfn(0.2, 0.4, 0.5))
 c.tfn <- function(...) {
   return(list(...))
 }

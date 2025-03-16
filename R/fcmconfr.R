@@ -15,7 +15,7 @@
 ################################################################################
 
 # rOpenSci Statistical Software Standards ----
-#' @srrstatsTODO {EA4.2} Primary fcmconfr object features corresponding plot
+#' @srrstats {EA4.2} Primary fcmconfr object features corresponding plot
 #' and print functions
 NULL
 # ----
@@ -761,6 +761,8 @@ check_fcmconfr_function_inputs <- function(adj_matrices = list(),
 #' @returns An organzed list output of fcmconfr
 #'
 #' @srrstats {BS5.0, BS5.1, BS5.2} Users may access inputs all from fcmconfr output object
+#' @srrstats {EA3.1} Standardised comparison of inputs, processes, models, or
+#' outputs
 #'
 #' @keywords internal
 #' @noRd
@@ -857,7 +859,7 @@ organize_fcmconfr_output <- function(...) {
 #' descriptions/summaries of objects within each sub-list like inference_opts,
 #' bootstrap_input_opts, etc.
 #'
-#' @param x \[`fcmconfr`]\cr A direct output from the \code{\link{fcmconfr}}
+#' @param fcmconfr_obj \[`fcmconfr`]\cr A direct output from the \code{\link{fcmconfr}}
 #' function
 #' @param ... additional inputs
 #'
@@ -914,7 +916,7 @@ summary.fcmconfr <- function(fcmconfr_obj, ...) {
 #'
 #' @export
 #'
-#' @srrstatsTODO {BS6.0} Print method included for fcmconfr objects
+#' @srrstats {BS6.0} Print method included for fcmconfr objects
 #'
 #' @examples
 #' NULL

@@ -7,10 +7,10 @@
 \method{summary}{fcmconfr}(fcmconfr_obj, ...)
 }
 \arguments{
-\item{...}{additional inputs}
-
-\item{x}{[\code{fcmconfr}]\cr A direct output from the \code{\link{fcmconfr}}
+\item{fcmconfr_obj}{[\code{fcmconfr}]\cr A direct output from the \code{\link{fcmconfr}}
 function}
+
+\item{...}{additional inputs}
 }
 \value{
 A console printout (summary) of fcmconfr results
