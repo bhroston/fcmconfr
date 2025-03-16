@@ -17,5 +17,7 @@
 #' @srrstats {EA1.3} Input data types defined for all functions
 #' @srrstats {EA2.0, EA2.1, EA2.2, EA2.2a, EA2.2b, EA2.3} Tabular data features
 #' index columns where appropriate.
+#' @srrstatsTODO {EA5.2} Screen-based outputs of numeric data are formatted
+#' using round()
 #'
 "_PACKAGE"

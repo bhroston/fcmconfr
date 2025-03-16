@@ -2,11 +2,11 @@
 ################################################################################
 # fcmconfr.R
 #
-# This contains the primary fcmconfr() function and the get_inferences()
+# This contains the primary fcmconfr() function and the get_fcmconfr_inferences()
 # function.
 #
 #   - fcmconfr
-#   - get_inferences
+#   - get_fcmconfr_inferences
 #   - check_fcmconfr_inputs
 #   - organize_fcmconfr_output
 #   - summary.fcmconfr
@@ -475,7 +475,8 @@ get_fcmconfr_inferences <- function(fcmconfr_result_obj = list(),
 
   if (fcmconfr_result_obj$params$additional_opts$run_agg_calcs) {
     if (fcm_class == "conventional") {
-      aggregate_inferences<- fcmconfr_result_obj$inferences$aggregate_fcm$inferences
+      aggregate_inferences <- fcmconfr_result_obj$inferences$aggregate_fcm$inferences
+      aggregate_inferences <- tidyr::pivot_longer(aggregate_inferences, cols = seq_along(aggregate_inferences)[-1], names_to = "node")
       inferences_list$aggregate_inferences <- aggregate_inferences
     } else if (fcm_class == "ivfn") {
       aggregate_inferences_df <- fcmconfr_result_obj$inferences$aggregate_fcm$inferences

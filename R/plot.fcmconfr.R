@@ -80,8 +80,12 @@
 #' @export
 #'
 #' @srrstats {BS6.1} Plot method included for fcmconfr output
-#' @srrstats {EA5.0, EA5.0a, EA5.0b} Emphasis on accessibility in graphical outputs
-#' @srrstats {EA5.5} All visualizations include units no all axes.
+#' @srrstats {EA5.0, EA5.0a, EA5.0b} Emphasis on accessibility in graphical
+#' outputs
+#' @srrstats {EA5.5} All visualizations include units for all axes. (Except
+#' where axis is unit-less)
+#' @srrstats {EA5.4} All visualisations should ensure values are rounded
+#' sensibly
 #'
 #' @example man/examples/ex-plot.fcmconfr.R
 plot.fcmconfr <- function(x,
@@ -369,7 +373,7 @@ check_plot_fcmconfr_inputs <- function(interactive = FALSE,
 #' NULL
 #' @keywords internal
 #' @noRd
-get_plot_data <- function(fcmconfr_object, filter_limit = 10e-3) {
+get_plot_data <- function(fcmconfr_object) {
   # nodes_to_plot <- get_concepts_to_plot(fcmconfr_object, filter_limit)
 
   # if (length(nodes_to_plot$name) == 0) {
@@ -408,8 +412,7 @@ get_plot_data <- function(fcmconfr_object, filter_limit = 10e-3) {
 
   # Elongate aggregate_inferences ----
   if (!is.null(fcmconfr_inferences$aggregate_inferences)) {
-    aggregate_inferences <- fcmconfr_inferences$aggregate_inferences
-    aggregate_inferences_longer <- aggregate_inferences
+    aggregate_inferences_longer <- fcmconfr_inferences$aggregate_inferences
     aggregate_inferences_longer$analysis_source <- "Agg FCM Inferences"
   } else {
     aggregate_inferences <- data.frame(NA)
@@ -636,20 +639,21 @@ filter_concepts_to_plot <- function(fcmconfr_plot_data, filter_limit = 1e-10) {
 
   concepts <- unique(fcmconfr_plot_data$individual_inferences$node)
 
-  individual_inferences_values <- fcmconfr_plot_data$individual_inferences[colnames(fcmconfr_plot_data$individual_inferences) != c("adj_matrix_index", "analysis_source")]
+  individual_inferences_values <- fcmconfr_plot_data$individual_inferences[!(colnames(fcmconfr_plot_data$individual_inferences) %in% c("adj_matrix_index", "analysis_source"))]
   longer_individual_inferences_values <- tidyr::pivot_longer(individual_inferences_values, cols = seq_along(individual_inferences_values)[-1])
   max_individual_inferences <- vapply(concepts, function(concept) max(longer_individual_inferences_values$value[longer_individual_inferences_values$node == concept]), FUN.VALUE = numeric(1))
 
   if (!all(is.na(fcmconfr_plot_data$aggregate_inferences))) {
     aggregate_inferences_values <- fcmconfr_plot_data$aggregate_inferences[colnames(fcmconfr_plot_data$aggregate_inferences) != c("analysis_source")]
-    longer_aggregate_inferences_values <- tidyr::pivot_longer(aggregate_inferences_values, cols = seq_along(aggregate_inferences_values)[-1])
+    longer_aggregate_inferences_values <- aggregate_inferences_values
+    # longer_aggregate_inferences_values <- tidyr::pivot_longer(aggregate_inferences_values, cols = seq_along(aggregate_inferences_values)[-c(1, 2)], names_to = "node")
   } else {
     longer_aggregate_inferences_values <- data.frame(NA)
   }
   max_aggregate_inferences <- vapply(concepts, function(concept) max(longer_aggregate_inferences_values$value[longer_aggregate_inferences_values$node == concept]), FUN.VALUE = numeric(1))
 
   if (!all(is.na(fcmconfr_plot_data$mc_inferences))) {
-    mc_inferences_values <- fcmconfr_plot_data$mc_inferences[colnames(fcmconfr_plot_data$mc_inferences) != c("adj_matrix_index", "analysis_source")]
+    mc_inferences_values <- fcmconfr_plot_data$mc_inferences[!(colnames(fcmconfr_plot_data$mc_inferences) %in% c("adj_matrix_index", "analysis_source"))]
     mc_mean_inferences_values <- fcmconfr_plot_data$mc_mean_inferences[colnames(fcmconfr_plot_data$mc_mean_inferences) != "analysis_source"]
   } else {
     mc_inferences_values <- data.frame(NA)
@@ -665,7 +669,7 @@ filter_concepts_to_plot <- function(fcmconfr_plot_data, filter_limit = 1e-10) {
 
   nodes_to_plot <- concepts[surpasses_filter_limit]
   fcmconfr_plot_data$nodes_to_plot <- nodes_to_plot
-  # nodes_to_plot_indexes <- which(surpasses_filter_limit)
+  # nodes_to_plot_indexes <- which(surpasses_filter_limit
 
   fcmconfr_plot_data$individual_inferences <- fcmconfr_plot_data$individual_inferences[fcmconfr_plot_data$individual_inferences$node %in% nodes_to_plot, ]
   fcmconfr_plot_data$aggregate_inferences <- fcmconfr_plot_data$aggregate_inferences[fcmconfr_plot_data$aggregate_inferences$node %in% nodes_to_plot, ]
@@ -835,7 +839,7 @@ autoplot.fcmconfr <- function(object,
   }
 
   # Get Plotting Data ----
-  plot_data <- get_plot_data(object, filter_limit)
+  plot_data <- get_plot_data(object)
   plot_data <- filter_concepts_to_plot(plot_data, filter_limit)
   nodes_to_plot <- plot_data$nodes_to_plot
 
@@ -865,7 +869,7 @@ autoplot.fcmconfr <- function(object,
     ggplot2::geom_vline(xintercept = zero_intercept, linetype = "dotted", size = 0.5)
 
   # MC Avg Ingerences CIs ----
-  if (inputs_agg_and_mc_w_bs | inputs_no_agg_and_mc_w_bs) {
+  if (has_ci_calcs) {
     ggplot_main <- ggplot_main +
       ggplot2::geom_crossbar(
         data = ggplot2::remove_missing(plot_data$mc_inference_CIs),
@@ -887,7 +891,7 @@ autoplot.fcmconfr <- function(object,
   # ----
 
   # MC FCM Inferences ----
-  if (inputs_agg_and_mc_no_bs | inputs_agg_and_mc_w_bs | inputs_no_agg_and_mc_w_bs | inputs_no_agg_and_mc_w_no_bs) {
+  if (has_mc_calcs) {
     ggplot_main <- ggplot_main +
       ggplot2::geom_point(
         data = ggplot2::remove_missing(plot_data$mc_inferences),
