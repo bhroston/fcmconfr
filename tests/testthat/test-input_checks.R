@@ -125,7 +125,7 @@ test_that("check_square_adj_matrix works", {
   # Confirm error if adjacency matrix contains missing data
   test_mat <- sample_fcms$simple_fcms$conventional_fcms[[1]]
   test_mat[1, 4] <- NA
-  check_square_adj_matrix(test_mat)
+  expect_error(check_square_adj_matrix(test_mat))
 
   test_mat <- matrix(1:9, nrow = 3)
   expect_true(check_square_adj_matrix(test_mat))

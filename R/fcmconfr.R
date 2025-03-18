@@ -859,7 +859,7 @@ organize_fcmconfr_output <- function(...) {
 #' descriptions/summaries of objects within each sub-list like inference_opts,
 #' bootstrap_input_opts, etc.
 #'
-#' @param fcmconfr_obj \[`fcmconfr`]\cr A direct output from the \code{\link{fcmconfr}}
+#' @param object \[`fcmconfr`]\cr A direct output from the \code{\link{fcmconfr}}
 #' function
 #' @param ... additional inputs
 #'
@@ -871,17 +871,17 @@ organize_fcmconfr_output <- function(...) {
 #'
 #' @examples
 #' NULL
-summary.fcmconfr <- function(fcmconfr_obj, ...) {
+summary.fcmconfr <- function(object, ...) {
 
-  fcm_class <- fcmconfr_obj$fcm_class
-  inferences <- get_fcmconfr_inferences(fcmconfr_obj)
-  aggregate_adj_matrix <- fcmconfr_obj$aggregate_adj_matrix
-  mc_adj_matrices <- fcmconfr_obj$mc_adj_matrices
+  fcm_class <- object$fcm_class
+  inferences <- get_fcmconfr_inferences(object)
+  aggregate_adj_matrix <- object$aggregate_adj_matrix
+  mc_adj_matrices <- object$mc_adj_matrices
 
   summary_obj <- list(
     fcm_class = fcm_class,
     inferences = inferences,
-    params = fcmconfr_obj$params
+    params = object$params
   )
 
   if (!is.null(aggregate_adj_matrix)) {

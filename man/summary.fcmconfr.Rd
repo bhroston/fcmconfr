@@ -4,10 +4,10 @@
 \alias{summary.fcmconfr}
 \title{summary.fcmconfr}
 \usage{
-\method{summary}{fcmconfr}(fcmconfr_obj, ...)
+\method{summary}{fcmconfr}(object, ...)
 }
 \arguments{
-\item{fcmconfr_obj}{[\code{fcmconfr}]\cr A direct output from the \code{\link{fcmconfr}}
+\item{object}{[\code{fcmconfr}]\cr A direct output from the \code{\link{fcmconfr}}
 function}
 
 \item{...}{additional inputs}

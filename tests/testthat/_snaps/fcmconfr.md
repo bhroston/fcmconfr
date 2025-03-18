@@ -9,8 +9,8 @@
         - aggregate_fcm: Inferences and data from the aggregate (mean) of the 4 input fcm adj. matrices.
         - monte_carlo_fcms: Inferences of data from the 100 fcms constructed from the 4 input fcm adj. matrices. 
       $confidence_intervals
-        - CIs_about_means_and_quantiles_by_node: % CI of means of inferences and quantiles by node
-        - bootstrapped_expected_values:  
+        - CIs_about_means_and_quantiles_by_node: 0.95% CI of means of inferences and quantiles by node
+        - bootstrapped_expected_values: 1000 
       $aggregate_adj_matrix 
       $mc_adj_matrices 
       $params
@@ -28,8 +28,8 @@
         - aggregate_fcm: Inferences and data from the aggregate (mean) of the 2 input fcm adj. matrices.
         - monte_carlo_fcms: Inferences of data from the 100 fcms constructed from the 2 input fcm adj. matrices. 
       $confidence_intervals
-        - CIs_about_means_and_quantiles_by_node: % CI of means of inferences and quantiles by node
-        - bootstrapped_expected_values:  
+        - CIs_about_means_and_quantiles_by_node: 0.95% CI of means of inferences and quantiles by node
+        - bootstrapped_expected_values: 1000 
       $aggregate_adj_matrix 
       $mc_adj_matrices 
       $params
@@ -59,8 +59,8 @@
         - aggregate_fcm: Inferences and data from the aggregate (mean) of the 4 input fcm adj. matrices.
         - monte_carlo_fcms: Inferences of data from the 100 fcms constructed from the 4 input fcm adj. matrices. 
       $confidence_intervals
-        - CIs_about_means_and_quantiles_by_node: % CI of means of inferences and quantiles by node
-        - bootstrapped_expected_values:  
+        - CIs_about_means_and_quantiles_by_node: 0.95% CI of means of inferences and quantiles by node
+        - bootstrapped_expected_values: 1000 
       $aggregate_adj_matrix 
       $mc_adj_matrices 
       $params
@@ -93,8 +93,8 @@
         - individual_fcms: Inferences and data from the 4 input fcm adj. matrices.
         - monte_carlo_fcms: Inferences of data from the 100 fcms constructed from the 4 input fcm adj. matrices. 
       $bootstrap
-        - CIs_about_means_and_quantiles_by_node: % CI of means of inferences and quantiles by node
-        - bootstrapped_expected_values:  
+        - CIs_about_means_and_quantiles_by_node: 0.95% CI of means of inferences and quantiles by node
+        - bootstrapped_expected_values: 1000 
       $mc_adj_matrices 
       $params
         - simulation_opts: act = kosko; squash = sigmoid; lambda = 1 
