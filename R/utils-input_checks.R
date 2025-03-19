@@ -84,8 +84,7 @@ NULL
 #'
 #' @returns TRUE if the input passes the selected check, or an error if not
 #'
-#' @keywords internal
-#' @noRd
+#' @export
 #'
 #' @example /man/examples/ex-check_fcmconfr_input.R
 check_fcmconfr_input <- function(x,
