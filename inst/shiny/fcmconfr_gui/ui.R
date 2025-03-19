@@ -183,7 +183,22 @@ shiny_ui <- function() {
         bslib::card(
           shiny::fluidRow(
             shiny::actionButton(
-              "submit", "Submit", icon = shiny::icon("arrow-right-to-bracket")
+              "get_code", "Get Code!", icon = shiny::icon("code")
+            ),
+            shiny::verbatimTextOutput("fcmconfr_code_snippet")
+          )
+        ),
+        shiny::fluidRow(
+          shiny::column(width = 12, div(style = "height:px"))
+        ),
+        shiny::fluidRow(
+          shiny::column(width = 8),
+          shiny::column(
+            width = 4,
+            bslib::card(
+              shiny::actionButton(
+                "close_app", "Close App", icon = shiny::icon("arrow-right-to-bracket")
+              )
             )
           )
         )

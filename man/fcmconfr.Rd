@@ -18,7 +18,6 @@ fcmconfr(
   min_error = 1e-05,
   ci_centering_function = c("mean", "median"),
   confidence_interval = 0.95,
-  num_ci_bootstraps = 5000L,
   show_progress = TRUE,
   parallel = FALSE,
   n_cores = 1L,
@@ -79,8 +78,6 @@ absolute value of the current state vector minus the previous state vector}.}
 inferences from Monte Carlo simulations}
 
 \item{confidence_interval}{Bootstrapped confidence level}
-
-\item{num_ci_bootstraps}{Number of bootstrap draws}
 
 \item{show_progress}{TRUE/FALSE Show progress bar when running FCM
 simulations.}

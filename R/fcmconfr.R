@@ -236,7 +236,6 @@ NULL
 #' @param ci_centering_function Estimate confidence intervals about the "mean" or "median" of
 #' inferences from Monte Carlo simulations
 #' @param confidence_interval Bootstrapped confidence level
-#' @param num_ci_bootstraps Number of bootstrap draws
 #' @param show_progress TRUE/FALSE Show progress bar when running FCM
 #' simulations.
 #' @param parallel TRUE/FALSE Whether to utilize parallel processing
@@ -283,7 +282,6 @@ fcmconfr <- function(adj_matrices = list(),
                      # Inference Estimation (bootstrap)
                      ci_centering_function = c("mean", "median"),
                      confidence_interval = 0.95,
-                     num_ci_bootstraps = 5000L,
                      # Runtime Options
                      show_progress = TRUE,
                      parallel = FALSE,
@@ -310,7 +308,7 @@ fcmconfr <- function(adj_matrices = list(),
     # Simulation
     initial_state_vector, clamping_vector, activation, squashing, lambda, point_of_inference, max_iter, min_error,
     # Inference Estimation (bootstrap)
-    ci_centering_function, confidence_interval, num_ci_bootstraps,
+    ci_centering_function, confidence_interval,
     # Runtime Options
     show_progress, parallel, n_cores, run_agg_calcs,
     # Additional Options
@@ -334,7 +332,6 @@ fcmconfr <- function(adj_matrices = list(),
   # Inference Estimation (bootstrap)
   ci_centering_function <- checks$ci_centering_function
   confidence_interval <- checks$confidence_interval
-  num_ci_bootstraps <- checks$num_ci_bootstraps
   # Runtime Options
   show_progress <- checks$show_progress
   parallel <- checks$parallel
@@ -387,7 +384,7 @@ fcmconfr <- function(adj_matrices = list(),
     mc_inferences <- infer_fcm_set(mc_adj_matrices, initial_state_vector, clamping_vector, activation, squashing, lambda, point_of_inference, max_iter, min_error, parallel, n_cores, show_progress, include_sims_in_output, silent = silent, skip_checks = TRUE)
 
     if (run_ci_calcs) {
-      CIs_of_expected_values_of_mc_simulation_inferences <- get_quantiles_and_bootstrapped_CIs_of_inferences(mc_inferences, ci_centering_function, confidence_interval, num_ci_bootstraps, parallel, n_cores, show_progress, skip_checks = TRUE)
+      CIs_of_expected_values_of_mc_simulation_inferences <- get_quantiles_and_bootstrapped_CIs_of_inferences(mc_inferences, ci_centering_function, confidence_interval, parallel, n_cores, show_progress, skip_checks = TRUE)
     }
   }
   # ----
@@ -586,8 +583,6 @@ get_fcmconfr_inferences <- function(fcmconfr_result_obj = list(),
 #' simulations
 #' @param confidence_interval \[`double(1)` - Positive (between 0 and 1)]\cr
 #' Bootstrapped confidence level
-#' @param num_ci_bootstraps  \[`integer(1)` - Positive] Number of bootstrap
-#' draws
 #' @param parallel \[`logical(1)`]\cr If TRUE, utilize parallel processing.
 #' @param n_cores \[`integer(1)` - Positive]\cr The number of cores to use in
 #' parallel processing. If no input given, all available cores will be used.
@@ -629,7 +624,6 @@ check_fcmconfr_function_inputs <- function(adj_matrices = list(),
                                            # Inference Estimation (bootstrap)
                                            ci_centering_function = c("mean", "median"),
                                            confidence_interval = 0.95,
-                                           num_ci_bootstraps = 5000L,
                                            # Runtime Options
                                            show_progress = TRUE,
                                            parallel = TRUE,
@@ -676,7 +670,6 @@ check_fcmconfr_function_inputs <- function(adj_matrices = list(),
   check_fcmconfr_input(num_mc_fcms, check = "positive_integer", var_name = "num_ci_fcms")
   check_fcmconfr_input(ci_centering_function, check = "choice_selection", var_name = "ci_centering_function", choice_selection_opts = c("mean", "median"))
   check_fcmconfr_input(confidence_interval, check = "positive_number", var_name = "confidence_interval")
-  check_fcmconfr_input(num_ci_bootstraps, check = "positive_integer", var_name = "num_ci_bootstraps")
   check_fcmconfr_input(run_agg_calcs, check = "logical", var_name = "run_agg_calcs")
   check_fcmconfr_input(run_mc_calcs, check = "logical", var_name = "run_mc_calcs")
   check_fcmconfr_input(run_ci_calcs, check = "logical", var_name = "run_ci_calcs")
@@ -730,7 +723,6 @@ check_fcmconfr_function_inputs <- function(adj_matrices = list(),
     # Inference Estimation (bootstrap)
     ci_centering_function = tolower(as.character(ci_centering_function)),
     confidence_interval = as.numeric(confidence_interval),
-    num_ci_bootstraps = as.integer(num_ci_bootstraps),
     # Runtime Options
     show_progress = sim_input_checks$show_progress,
     parallel = sim_input_checks$parallel,
@@ -836,8 +828,7 @@ organize_fcmconfr_output <- function(...) {
     )
     fcmconfr_output$params$confidence_intervals_bootstrap_opts = list(
       ci_centering_function = variables$ci_centering_function,
-      confidence_interval = variables$confidence_interval,
-      num_ci_bootstraps = variables$num_ci_bootstraps
+      confidence_interval = variables$confidence_interval
     )
   }
 
@@ -937,7 +928,6 @@ print.fcmconfr <- function(x, ...) {
         paste0(" - monte_carlo_fcms: Inferences of data from the ", n_mc_sims, " fcms constructed from the ", n_input_fcm, " input fcm adj. matrices."),
         "\n$confidence_intervals\n",
         paste0(" - CIs_about_means_and_quantiles_by_node: ", round(x$params$confidence_intervals_bootstrap_opts$confidence_interval, 2), "% CI of means of inferences and quantiles by node\n"),
-        paste0(" - bootstrapped_expected_values: ", x$params$confidence_intervals_bootstrap_opts$num_ci_bootstraps),
         "\n$aggregate_adj_matrix",
         "\n$mc_adj_matrices",
         "\n$params\n",
@@ -969,7 +959,6 @@ print.fcmconfr <- function(x, ...) {
         paste0(" - monte_carlo_fcms: Inferences of data from the ", n_mc_sims, " fcms constructed from the ", n_input_fcm, " input fcm adj. matrices."),
         "\n$bootstrap\n",
         paste0(" - CIs_about_means_and_quantiles_by_node: ", round(x$params$confidence_intervals_bootstrap_opts$confidence_interval, 2), "% CI of means of inferences and quantiles by node\n"),
-        paste0(" - bootstrapped_expected_values: ", x$params$confidence_intervals_bootstrap_opts$num_ci_bootstraps),
         "\n$mc_adj_matrices",
         "\n$params\n",
         " - simulation_opts:",

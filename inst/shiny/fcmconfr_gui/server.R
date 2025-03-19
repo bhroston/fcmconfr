@@ -8,6 +8,7 @@
 #' @param session data surrounding the shiny instance itself
 shiny_server <- function(input, output, session) {
 
+  # Definitions Sidebar ----
   output$definitions <- shiny::renderUI(
     if (input$nav_panel == "Data") {
       shiny::fluidRow(
@@ -81,127 +82,55 @@ shiny_server <- function(input, output, session) {
       )
     }
   )
+  # ----
 
   # Data Nav Panel
   # Data Loading and Checks ====
-  adj_matrices_selected <- reactive({
-    input$adj_matrices != ""
-  })
-
-  adj_matrices_checks <- shiny::eventReactive(input$adj_matrices, {
-    if (!adj_matrices_selected()) {
-      return(
-        list(
-          adj_matrices = list(data.frame()),
-          note = "nothing_selected"
-        )
-      )
-    } else {
-      note <- NULL
-      adj_matrices_input <- as.list(.GlobalEnv)[names(as.list(.GlobalEnv)) == input$adj_matrices][[1]]
-
-      check_fcmconfr_input(adj_matrices_input, check = "adj_matrix_list")
-      if (!is.null(dim(adj_matrices_input))) {
-        adj_matrices_input <- list(adj_matrices_input)
-      }
-      fcm_class <- get_fcm_class_from_adj_matrix(adj_matrices_input[[1]])
-      adj_matrices_input <- lapply(adj_matrices_input, function(x) assert_matrix(x, fcm_class, var_name_input = "adj_matrix"))
-
-      concepts_in_adj_matrices <- unique(lapply(adj_matrices_input, colnames))
-      dims_of_adj_matrices <- unique(unlist(lapply(adj_matrices_input, function(x) unique(dim(x)))))
-
-      if (fcm_class == "unavailable") {
-        note <- "objects_in_matrix_not_available_fcm_class"
-      }
-      if (length(dims_of_adj_matrices) > 1) {
-        note <- "adj_matrices_of_different_dimensions_or_not_square"
-      }
-      if (length(concepts_in_adj_matrices) > 1) {
-        note <- "different_concept_sets_across_matrices"
-      }
-
-      if (is.null(note)) {
-        checked_adj_matrices <- adj_matrices_input
-      } else {
-        checked_adj_matrices <- list(data.frame())
-      }
-
-      # browser()
-      return(
-        list(
-          adj_matrices = checked_adj_matrices,
-          note = note
-        )
-      )
-    }
-  })
-
-  accepted_adj_matrices_input <- shiny::reactive({
-    # (identical(checked_adj_matrices, list(data.frame())))
-    # !is.null(note)
-    # identical(note, "nothing_selected")
-    if (identical(adj_matrices_checks()$adj_matrices, list(data.frame()))) {
-      FALSE
-    } else if (!is.null(adj_matrices_checks()$note)) {
-      FALSE
-    } else if (identical(adj_matrices_checks()$note, "nothing_selected")) {
-      FALSE
-    } else {
-      TRUE
-    }
-  })
-
   adj_matrices <- shiny::reactive({
-    if (accepted_adj_matrices_input()) {
-      adj_matrices_checks()$adj_matrices
-    } else {
-      list(data.frame())
+    shiny::validate(
+      shiny::need(input$adj_matrices != "", message = "none_selected")
+    )
+
+    adj_matrices_input <- as.list(.GlobalEnv)[names(as.list(.GlobalEnv)) == input$adj_matrices][[1]]
+    if (!is.null(dim(adj_matrices_input))) {
+      adj_matrices_input <- list(adj_matrices_input)
     }
+
+    tryCatch({
+      check_fcmconfr_input(adj_matrices_input, check = "adj_matrix_list", var_name = "adj_matrices_input")
+    }, error = function(e) {
+      error_message <- gsub(".*m ", "<p>", e$message)
+      error_message <- gsub("\033.*", "</p>", error_message)
+      error_message <- gsub("+++++>", "", error_message, fixed = TRUE)
+      error_message <- gsub("\n", "<br><br>", error_message)
+
+      shinyWidgets::show_alert(
+        title = "Unable to load data",
+        text = shiny::HTML(error_message),
+        type = "error",
+        html = TRUE
+      )
+    })
+
+    return(adj_matrices_input)
   })
 
   concepts <- shiny::reactive({
-    if (accepted_adj_matrices_input()) {
-      unique(lapply(adj_matrices(), colnames))[[1]]
-    } else {
-      NULL
-    }
+    shiny::validate(
+      shiny::need(input$adj_matrices != "", message = FALSE)
+    )
+    concepts <- unique(lapply(adj_matrices(), colnames))[[1]]
+    return(concepts)
   })
 
   fcm_class <- shiny::reactive({
-    if (accepted_adj_matrices_input()) {
-      get_fcm_class_from_adj_matrix(adj_matrices()[[1]])
-    } else {
-      "unavailable"
-    }
+    shiny::validate(
+      shiny::need(input$adj_matrices != "", message = FALSE)
+    )
+    fcm_class <- get_fcm_class_from_adj_matrix(adj_matrices()[[1]])
+    return(fcm_class)
   })
 
-  output$rejected_adj_matrices_note <- shiny::renderUI({
-    if (!adj_matrices_selected()) {
-      shiny::column(
-        width = 12, align = "left", shiny::h5("Please select a list of Adj. Matrices or an Individual Adj. Matrix")
-      )
-    } else if (accepted_adj_matrices_input()) {
-      NULL
-    } else {
-      note <- adj_matrices_checks()$note
-      # browser()
-      if (note == "objects_in_matrix_not_available_fcm_class") {
-        shiny::column(
-          width = 12, align = "left", shiny::h5("Selection must be an Adj. Matrix with edge values being Numerics, IVFNs, or TFNs"),
-          shiny::p("All matrices must represent edges with the same class (all edges are either Numerics or IVFNs or TFNs)")
-        )
-      } else if (note == "adj_matrices_of_different_dimensions_or_not_square") {
-        shiny::column(
-          width = 12, align = "left", shiny::h5("Selected Adj. Matrix/Matrices must be square (and all must have the same dimensions if multiple matrices)")
-        )
-      } else if (note == "different_concept_sets_across_matrices") {
-        shiny::column(
-          width = 12, align = "left", shiny::h5("Selected Adj. Matrices have different concept names (column names)"),
-          shiny::p("Call standardize_adj_matrices() to standardize the size of the list of adj. matrices")
-        )
-      }
-    }
-  })
   # ====
 
   # Initial State Vector ====
@@ -234,34 +163,34 @@ shiny_server <- function(input, output, session) {
   }, align = "l", spacing = "xs")
 
   output$initial_state_vector_input_ui <- shiny::renderUI({
-    if (!accepted_adj_matrices_input()) {
-      NULL
-    } else {
-      shiny::fluidRow(
-        shiny::column(
-          width = 12, div(style = "height:20px")
-        )
+    shiny::validate(
+      shiny::need(input$adj_matrices != "", message = FALSE)
+    )
+
+    shiny::fluidRow(
+      shiny::column(
+        width = 12, div(style = "height:20px")
       )
-      shiny::fluidRow(
-        shiny::column(
-          width = 6, align = "center",
-          bslib::card(
-            max_height = "450px", full_screen = TRUE,
-            shiny::uiOutput("initial_state_vector_numeric_inputs")
-          )
+    )
+    shiny::fluidRow(
+      shiny::column(
+        width = 6, align = "center",
+        bslib::card(
+          max_height = "450px", full_screen = TRUE,
+          shiny::uiOutput("initial_state_vector_numeric_inputs")
+        )
+      ),
+      shiny::column(
+        width = 6, align = "center",
+        bslib::card(
+          max_height = "450px", full_screen = TRUE,
+          shiny::tableOutput("initial_state_vector_table")
         ),
-        shiny::column(
-          width = 6, align = "center",
-          bslib::card(
-            max_height = "450px", full_screen = TRUE,
-            shiny::tableOutput("initial_state_vector_table")
-          ),
-          bslib::card(
-            shiny::actionButton("reset_initial_state_vector", "Reset", icon = shiny::icon("rotate-right"))
-          )
+        bslib::card(
+          shiny::actionButton("reset_initial_state_vector", "Reset", icon = shiny::icon("rotate-right"))
         )
       )
-    }
+    )
   })
 
   shiny::observeEvent(input$reset_initial_state_vector, {
@@ -299,34 +228,34 @@ shiny_server <- function(input, output, session) {
   }, align = "l", spacing = "xs")
 
   output$clamping_vector_input_ui <- shiny::renderUI({
-    if (!accepted_adj_matrices_input()) {
-      NULL
-    } else {
-      shiny::fluidRow(
-        shiny::column(
-          width = 12, div(style = "height:20px")
-        )
+    shiny::validate(
+      shiny::need(input$adj_matrices != "", message = FALSE)
+    )
+
+    shiny::fluidRow(
+      shiny::column(
+        width = 12, div(style = "height:20px")
       )
-      shiny::fluidRow(
-        shiny::column(
-          width = 6, align = "center",
-          bslib::card(
-            max_height = "450px", full_screen = TRUE,
-            shiny::uiOutput("clamping_vector_numeric_inputs")
-          )
+    )
+    shiny::fluidRow(
+      shiny::column(
+        width = 6, align = "center",
+        bslib::card(
+          max_height = "450px", full_screen = TRUE,
+          shiny::uiOutput("clamping_vector_numeric_inputs")
+        )
+      ),
+      shiny::column(
+        width = 6, align = "center",
+        bslib::card(
+          max_height = "450px", full_screen = TRUE,
+          shiny::tableOutput("clamping_vector_table")
         ),
-        shiny::column(
-          width = 6, align = "center",
-          bslib::card(
-            max_height = "450px", full_screen = TRUE,
-            shiny::tableOutput("clamping_vector_table")
-          ),
-          bslib::card(
-            shiny::actionButton("reset_clamping_vector", "Reset", icon = shiny::icon("rotate-right"))
-          )
+        bslib::card(
+          shiny::actionButton("reset_clamping_vector", "Reset", icon = shiny::icon("rotate-right"))
         )
       )
-    }
+    )
   })
 
   shiny::observeEvent(input$reset_clamping_vector, {
@@ -334,17 +263,19 @@ shiny_server <- function(input, output, session) {
   })
   # ====
 
-  # Aggregation and Monte Carlo Panel
+  # # Aggregation and Monte Carlo Panel
   # Aggregation Card ----
   can_perform_aggregation_analysis <- shiny::reactive({
-    if (!accepted_adj_matrices_input()) {
-      FALSE
-    } else if (accepted_adj_matrices_input() & length(adj_matrices()) == 1 & !identical(fcm_class(), "conventional")) {
-      FALSE
-    } else if (accepted_adj_matrices_input() & length(adj_matrices()) == 1 & identical(fcm_class(), "conventional")) {
-      FALSE
+    shiny::validate(
+      shiny::need(input$adj_matrices != "", message = FALSE)
+    )
+
+    if (length(adj_matrices()) == 1 & !identical(fcm_class(), "conventional")) {
+      return(FALSE)
+    } else if (length(adj_matrices()) == 1 & identical(fcm_class(), "conventional")) {
+      return(FALSE)
     } else {
-      TRUE
+      return(TRUE)
     }
   })
 
@@ -357,7 +288,11 @@ shiny_server <- function(input, output, session) {
   })
 
   output$aggregation_options_ui <- shiny::renderUI({
-    if ((can_perform_aggregation_analysis() & perform_aggregation_analysis()) | !adj_matrices_selected()) {
+    shiny::validate(
+      shiny::need(input$adj_matrices != "", message = FALSE)
+    )
+
+    if ((can_perform_aggregation_analysis() & perform_aggregation_analysis())) {
       shiny::fluidPage(
         shiny::fluidRow(
           shiny::fluidRow(
@@ -367,7 +302,6 @@ shiny_server <- function(input, output, session) {
             ),
             shiny::column(
               width = 6, align = "left",
-              #shinyWidgets::radioGroupButtons("aggregation_fun", "", choices = c("Mean", "Median"), selected = "Mean"),
               shiny::radioButtons("aggregation_fun", "", choiceNames = c("Mean", "Median"), choiceValues = c("mean", "median"))
             )
           )
@@ -403,12 +337,14 @@ shiny_server <- function(input, output, session) {
 
   # Monte Carlo Card ----
   can_perform_monte_carlo_analysis <- shiny::reactive({
-    if (!accepted_adj_matrices_input()) {
-      FALSE
-    } else if (accepted_adj_matrices_input() & length(adj_matrices()) == 1 & fcm_class() == "conventional") {
-      FALSE
+    shiny::validate(
+      shiny::need(input$adj_matrices != "", message = FALSE)
+    )
+
+    if (length(adj_matrices()) == 1 & fcm_class() == "conventional") {
+      return(FALSE)
     } else {
-      TRUE
+      return(TRUE)
     }
   })
 
@@ -421,7 +357,11 @@ shiny_server <- function(input, output, session) {
   })
 
   output$monte_carlo_options_ui <- shiny::renderUI({
-    if ((can_perform_monte_carlo_analysis() & perform_monte_carlo_analysis()) | !adj_matrices_selected()) {
+    shiny::validate(
+      shiny::need(input$adj_matrices != "", message = FALSE)
+    )
+
+    if ((can_perform_monte_carlo_analysis() & perform_monte_carlo_analysis())) {
       shiny::fluidPage(
         shiny::fluidRow(
           shiny::column(
@@ -430,7 +370,7 @@ shiny_server <- function(input, output, session) {
           ),
           shiny::column(
             width = 6, align = "left",
-            shiny::numericInput("monte_carlo_samples", "", value = 1000, min = 1, step = 500)
+            shiny::numericInput("num_mc_fcms", "", value = 1000, min = 1, step = 500)
           )
         ),
         shiny::fluidRow(
@@ -440,7 +380,7 @@ shiny_server <- function(input, output, session) {
           ),
           shiny::column(
             width = 6, align = "left",
-            shiny::checkboxInput("include_monte_carlo_FCM_simulations_in_output", "", value = TRUE)
+            shiny::checkboxInput("include_sims_in_output", "", value = TRUE)
           )
         )
       )
@@ -472,7 +412,9 @@ shiny_server <- function(input, output, session) {
   })
 
 
-  # Inference Bootstrap Card ----
+
+
+  # # Inference Bootstrap Card ----
   can_perform_inference_bootstrap_analysis <- shiny::reactive({
     if (perform_monte_carlo_analysis()) {
       TRUE
@@ -490,7 +432,11 @@ shiny_server <- function(input, output, session) {
   })
 
   output$monte_carlo_inference_bootstrap_options_ui <- shiny::renderUI({
-    if ((can_perform_inference_bootstrap_analysis() & perform_inference_bootstrap_analysis()) | !adj_matrices_selected()) {
+    shiny::validate(
+      shiny::need(input$adj_matrices != "", message = FALSE)
+    )
+
+    if ((can_perform_inference_bootstrap_analysis() & perform_inference_bootstrap_analysis())) {
       shiny::fluidPage(
         shiny::fluidRow(
           shiny::column(
@@ -499,7 +445,7 @@ shiny_server <- function(input, output, session) {
           ),
           shiny::column(
             width = 6, align = "left",
-            shiny::radioButtons("mc_inference_estimation_function", "", choiceNames = c("Mean", "Median"), choiceValues = c("mean", "median"))
+            shiny::radioButtons("ci_centering_function", "", choiceNames = c("Mean", "Median"), choiceValues = c("mean", "median"))
           )
         ),
         shiny::fluidRow(
@@ -509,17 +455,7 @@ shiny_server <- function(input, output, session) {
           ),
           shiny::column(
             width = 6, align = "left",
-            shiny::numericInput("mc_inference_estimation_CI", "", value = 0.95, min = 1e-10, max = 1)
-          )
-        ),
-        shiny::fluidRow(
-          shiny::column(
-            width = 6, align = "right",
-            shiny::h5("# Bootstraps", style = "padding: 25px;")
-          ),
-          shiny::column(
-            width = 6, align = "left",
-            shiny::numericInput("mc_inference_bootstrap_reps", "", value = 1000, min = 100, step = 100)
+            shiny::numericInput("confidence_interval", "", value = 0.95, min = 1e-10, max = 1)
           )
         )
       )
@@ -550,16 +486,20 @@ shiny_server <- function(input, output, session) {
     }
   })
 
-  # ----
+  #----
 
-  # Include 0's Option
+  # Include 0's Option ----
   output$include_zero_edges_ui <- shiny::renderUI({
-    if ((perform_monte_carlo_analysis() | perform_aggregation_analysis()) | (!adj_matrices_selected())) {
+    shiny::validate(
+      shiny::need(input$adj_matrices != "", message = FALSE)
+    )
+
+    if ((perform_monte_carlo_analysis() | perform_aggregation_analysis())) {
       bslib::card(
         shiny::fluidRow(
           shiny::column(
             width = 2, align = "center",
-            shiny::checkboxInput("include_zero_weighted_edges_in_aggregation_and_mc_sampling", "", value = TRUE)
+            shiny::checkboxInput("include_zeroes_in_sampling", "", value = TRUE)
           ),
           shiny::column(
             width = 10, align = "left",
@@ -571,6 +511,7 @@ shiny_server <- function(input, output, session) {
   })
   # ----
 
+  # Activation and Squashing Functions Formulae ----
   output$activation_function_formulae <- shiny::renderUI({
     if (input$activation == "kosko") {
       formula <- "$$
@@ -654,8 +595,9 @@ shiny_server <- function(input, output, session) {
       )
     )
   })
+  # ----
 
-  # Num Cores in Parallel
+  # Num Cores in Parallel ----
   output$num_cores_in_paralell <- shiny::renderUI({
     if (input$parallel) {
       shiny::fluidRow(
@@ -672,24 +614,259 @@ shiny_server <- function(input, output, session) {
       NULL
     }
   })
+  # ----
 
 
-  # Form Data
-  form_data <- shiny::reactive({
-    inputs <- shiny::reactiveValuesToList(input)
-    inputs$initial_state_vector <- initial_state_vector()
-    inputs$clamping_vector <- clamping_vector()
-    inputs$concepts <- concepts()
-    inputs
+  # fcmconfr Code Snippet
+
+  fcmconfr_code_snippet_text <- shiny::eventReactive(input$get_code, {
+
+    no_adj_matrices_selected <- identical(methods::is(try(adj_matrices())), "try-error")
+
+    if (no_adj_matrices_selected) {
+      code_snippet_text <- "Select an Object then Click *get_code* to load fcmconfr code snippet"
+      return(code_snippet_text)
+    }
+
+    simulation_inputs <- c(
+      "activation", "squashing",
+      "lambda", "point_of_inference", "max_iter", "min_error"
+    )
+    if (!all(simulation_inputs %in% names(input)) && !is.null(initial_state_vector()) && !is.null(clamping_vector())) {
+      code_snippet_text <- "Select Simulation options to create fcmconfr() code snippet"
+      return(code_snippet_text)
+    }
+
+    aggregation_inputs <- c("aggregation_fun", "include_zeroes_in_sampling")
+    if (!all(aggregation_inputs %in% names(input))) {
+      code_snippet_text <- "Select Aggregation and Monte Carlo sampling options to create fcmconfr() code snippet"
+      return(code_snippet_text)
+    }
+
+    monte_carlo_inputs <- c(
+      "num_mc_fcms", "show_progress", "parallel",
+      "include_sims_in_output", "include_zeroes_in_sampling"
+    )
+    if (!all(monte_carlo_inputs %in% names(input))) {
+      code_snippet_text <- "Select Aggregation and Monte Carlo sampling options to create fcmconfr() code snippet"
+      return(code_snippet_text)
+    }
+
+    bootstrap_inputs <- c(
+      "ci_centering_function", "confidence_interval"
+    )
+    if (!all(bootstrap_inputs %in% names(input))) {
+      code_snippet_text <- "Select bootstrapping options to create fcmconfr() code snippet"
+      return(code_snippet_text)
+    }
+
+    if (input$parallel == "FALSE" || is.null(input$n_cores)) {
+      n_cores <- "integer()"
+    }
+
+    if (is.null(clamping_vector())) {
+      clamping_vector <- shiny::reactive({
+        rep(0, length(initial_state_vector()))
+      })
+    }
+
+    performed_aggregation <- input$perform_aggregation
+    performed_mc <- input$perform_monte_carlo
+    performed_bootstrap <- input$perform_inference_bootstrap
+
+    if (performed_aggregation & !performed_mc & !performed_bootstrap) {
+      code_snippet_text <- paste0(
+        "fcmconfr(", "\n",
+        "  adj_matrices = ", input$adj_matrices, ",\n",
+        "  # Aggregation", "\n",
+        "  agg_function = ", paste0("'", input$aggregation_fun, "'"), ",\n",
+        "  # Simulation", "\n",
+        "  initial_state_vector = ", paste0("c(", paste0(initial_state_vector(), collapse = ", "), ")"), ",\n",
+        "  clamping_vector = ", paste0("c(", paste0(clamping_vector(), collapse = ", "), ")"), ",\n",
+        "  activation = ", paste0("'", input$activation, "'"), ",\n",
+        "  squashing = ",  paste0("'", input$squashing, "'"), ",\n",
+        "  lambda = ", input$lambda, ",\n",
+        "  point_of_inference = ", paste0("'", input$point_of_inference, "'"), ",\n",
+        "  max_iter = ", input$max_iter, ",\n",
+        "  min_error = ", input$min_error, ",\n",
+        "  # Runtime Options", "\n",
+        "  show_progress = ", input$show_progress, ",\n",
+        "  # Additional Options", "\n",
+        "  run_agg_calcs = ", input$perform_aggregation, ",\n",
+        "  run_mc_calcs = ", input$perform_monte_carlo, ",\n",
+        "  run_ci_calcs = ", input$perform_inference_bootstrap, ",\n",
+        "  include_zeroes_in_sampling = ", input$include_zeroes_in_sampling, "\n",
+        ")", sep = ""
+      )
+    } else if (performed_aggregation & performed_mc & !performed_bootstrap) {
+      code_snippet_text <- paste0(
+        "fcmconfr(", "\n",
+        "  adj_matrices = ", input$adj_matrices, ",\n",
+        "  # Aggregation and Monte Carlo Sampling", "\n",
+        "  agg_function = ", paste0("'", input$aggregation_fun, "'"), ",\n",
+        "  num_mc_fcms = ", input$num_mc_fcms, ",\n",
+        "  # Simulation", "\n",
+        "  initial_state_vector = ", paste0("c(", paste0(initial_state_vector(), collapse = ", "), ")"), ",\n",
+        "  clamping_vector = ", paste0("c(", paste0(clamping_vector(), collapse = ", "), ")"), ",\n",
+        "  activation = ", paste0("'", input$activation, "'"), ",\n",
+        "  squashing = ",  paste0("'", input$squashing, "'"), ",\n",
+        "  lambda = ", input$lambda, ",\n",
+        "  point_of_inference = ", paste0("'", input$point_of_inference, "'"), ",\n",
+        "  max_iter = ", input$max_iter, ",\n",
+        "  min_error = ", input$min_error, ",\n",
+        "  # Runtime Options", "\n",
+        "  show_progress = ", input$show_progress, ",\n",
+        "  parallel = ", input$parallel, ",\n",
+        "  n_cores = ", n_cores, ",\n",
+        "  # Additional Options", "\n",
+        "  run_agg_calcs = ", input$perform_aggregation, ",\n",
+        "  run_mc_calcs = ", input$perform_monte_carlo, ",\n",
+        "  run_ci_calcs = ", input$perform_inference_bootstrap, ",\n",
+        "  include_zeroes_in_sampling = ", input$include_zeroes_in_sampling, ",\n",
+        "  include_sims_in_output = ",  input$include_sims_in_output, "\n",
+        ")", sep = ""
+      )
+    } else if (performed_aggregation & performed_mc & performed_bootstrap) {
+      code_snippet_text <- paste0(
+        "fcmconfr(", "\n",
+        "  adj_matrices = ", input$adj_matrices, ",\n",
+        "  # Aggregation and Monte Carlo Sampling", "\n",
+        "  agg_function = ", paste0("'", input$aggregation_fun, "'"), ",\n",
+        "  num_mc_fcms = ", input$num_mc_fcms, ",\n",
+        "  # Simulation", "\n",
+        "  initial_state_vector = ", paste0("c(", paste0(initial_state_vector(), collapse = ", "), ")"), ",\n",
+        "  clamping_vector = ", paste0("c(", paste0(clamping_vector(), collapse = ", "), ")"), ",\n",
+        "  activation = ", paste0("'", input$activation, "'"), ",\n",
+        "  squashing = ",  paste0("'", input$squashing, "'"), ",\n",
+        "  lambda = ", input$lambda, ",\n",
+        "  point_of_inference = ", paste0("'", input$point_of_inference, "'"), ",\n",
+        "  max_iter = ", input$max_iter, ",\n",
+        "  min_error = ", input$min_error, ",\n",
+        "  # Inference Estimation (bootstrap)", "\n",
+        "  ci_centering_function = ", paste0("'", input$ci_centering_function, "'"), ",\n",
+        "  confidence_interval = ", input$confidence_interval, ",\n",
+        "  # Runtime Options", "\n",
+        "  show_progress = ", input$show_progress, ",\n",
+        "  parallel = ", input$parallel, ",\n",
+        "  n_cores = ", n_cores, ",\n",
+        "  # Additional Options", "\n",
+        "  run_agg_calcs = ", input$perform_aggregation, ",\n",
+        "  run_mc_calcs = ", input$perform_monte_carlo, ",\n",
+        "  run_ci_calcs = ", input$perform_inference_bootstrap, ",\n",
+        "  include_zeroes_in_sampling = ", input$include_zeroes_in_sampling, ",\n",
+        "  include_sims_in_output = ",  input$include_sims_in_output, "\n",
+        ")", sep = ""
+      )
+    } else if (!performed_aggregation & performed_mc & !performed_bootstrap) {
+      code_snippet_text <- paste0(
+        "fcmconfr(", "\n",
+        "  adj_matrices = ", input$adj_matrices, ",\n",
+        "  # Monte Carlo Sampling", "\n",
+        "  num_mc_fcms = ", input$num_mc_fcms, ",\n",
+        "  # Simulation", "\n",
+        "  initial_state_vector = ", paste0("c(", paste0(initial_state_vector(), collapse = ", "), ")"), ",\n",
+        "  clamping_vector = ", paste0("c(", paste0(clamping_vector(), collapse = ", "), ")"), ",\n",
+        "  activation = ", paste0("'", input$activation, "'"), ",\n",
+        "  squashing = ",  paste0("'", input$squashing, "'"), ",\n",
+        "  lambda = ", input$lambda, ",\n",
+        "  point_of_inference = ", paste0("'", input$point_of_inference, "'"), ",\n",
+        "  max_iter = ", input$max_iter, ",\n",
+        "  min_error = ", input$min_error, ",\n",
+        "  # Runtime Options", "\n",
+        "  show_progress = ", input$show_progress, ",\n",
+        "  parallel = ", input$parallel, ",\n",
+        "  n_cores = ", n_cores, ",\n",
+        "  # Additional Options", "\n",
+        "  run_agg_calcs = ", input$perform_aggregation, ",\n",
+        "  run_mc_calcs = ", input$perform_monte_carlo, ",\n",
+        "  run_ci_calcs = ", input$perform_inference_bootstrap, ",\n",
+        "  include_zeroes_in_sampling = ", input$include_zeroes_in_sampling, ",\n",
+        "  include_sims_in_output = ",  input$include_sims_in_output, "\n",
+        ")", sep = ""
+      )
+    } else if (!performed_aggregation & performed_mc & performed_bootstrap) {
+      code_snippet_text <- paste0(
+        "fcmconfr(", "\n",
+        "  adj_matrices = ", input$adj_matrices, ",\n",
+        "  # Monte Carlo Sampling", "\n",
+        "  num_mc_fcms = ", input$num_mc_fcms, ",\n",
+        "  # Simulation", "\n",
+        "  initial_state_vector = ", paste0("c(", paste0(initial_state_vector(), collapse = ", "), ")"), ",\n",
+        "  clamping_vector = ", paste0("c(", paste0(clamping_vector(), collapse = ", "), ")"), ",\n",
+        "  activation = ", paste0("'", input$activation, "'"), ",\n",
+        "  squashing = ",  paste0("'", input$squashing, "'"), ",\n",
+        "  lambda = ", input$lambda, ",\n",
+        "  point_of_inference = ", paste0("'", input$point_of_inference, "'"), ",\n",
+        "  max_iter = ", input$max_iter, ",\n",
+        "  min_error = ", input$min_error, ",\n",
+        "  # Inference Estimation (bootstrap)", "\n",
+        "  ci_centering_function = ", paste0("'", input$ci_centering_function, "'"), ",\n",
+        "  confidence_interval = ", input$confidence_interval, ",\n",
+        "  # Runtime Options", "\n",
+        "  show_progress = ", input$show_progress, ",\n",
+        "  parallel = ", input$parallel, ",\n",
+        "  n_cores = ", n_cores, ",\n",
+        "  # Additional Options", "\n",
+        "  run_agg_calcs = ", input$perform_aggregation, ",\n",
+        "  run_mc_calcs = ", input$perform_monte_carlo, ",\n",
+        "  run_ci_calcs = ", input$perform_inference_bootstrap, ",\n",
+        "  include_zeroes_in_sampling = ", input$include_zeroes_in_sampling, ",\n",
+        "  include_sims_in_output = ",  input$include_sims_in_output, "\n",
+        ")", sep = ""
+      )
+    } else if (!performed_aggregation & !performed_mc & !performed_bootstrap) {
+      code_snippet_text <- paste0(
+        "fcmconfr(", "\n",
+        "  adj_matrices = ", input$adj_matrices, ",\n",
+        "  # Simulation", "\n",
+        "  initial_state_vector = ", paste0("c(", paste0(initial_state_vector(), collapse = ", "), ")"), ",\n",
+        "  clamping_vector = ", paste0("c(", paste0(clamping_vector(), collapse = ", "), ")"), ",\n",
+        "  activation = ", paste0("'", input$activation, "'"), ",\n",
+        "  squashing = ",  paste0("'", input$squashing, "'"), ",\n",
+        "  lambda = ", input$lambda, ",\n",
+        "  point_of_inference = ", paste0("'", input$point_of_inference, "'"), ",\n",
+        "  max_iter = ", input$max_iter, ",\n",
+        "  min_error = ", input$min_error, ",\n",
+        "  # Runtime Options", "\n",
+        "  show_progress = ", input$show_progress, ",\n",
+        "  # Additional Options", "\n",
+        "  run_agg_calcs = ", input$perform_aggregation, ",\n",
+        "  run_mc_calcs = ", input$perform_monte_carlo, ",\n",
+        "  run_ci_calcs = ", input$perform_inference_bootstrap, "\n",
+        ")", sep = ""
+      )
+    }
+
+    return(code_snippet_text)
+
   })
 
-  shiny::observeEvent(input$submit, {
-    env_frame_index <- which(unlist(lapply(sys.frames(), function(frame) frame$shiny_env_check)) == 1)
-    assign(
-      x = "fcmconfr_gui_input",
-      value = structure(.Data = form_data(), class = "fcmconfr_gui_input"),
-      envir = sys.frames()[[env_frame_index]]
-    )
+  output$fcmconfr_code_snippet <- shiny::renderPrint({
+    cat(fcmconfr_code_snippet_text())
+  })
+
+  shiny::observeEvent(input$close_app, {
     shiny::stopApp()
   })
+
+  # # Form Data
+  # form_data <- shiny::reactive({
+  #   inputs <- shiny::reactiveValuesToList(input)
+  #   inputs$initial_state_vector <- initial_state_vector()
+  #   inputs$clamping_vector <- clamping_vector()
+  #   inputs$concepts <- concepts()
+  #   inputs
+  # })
+  #
+  # shiny::observeEvent(input$submit, {
+  #   env_frame_index <- which(unlist(lapply(sys.frames(), function(frame) frame$shiny_env_check)) == 1)
+  #   assign(
+  #     x = "fcmconfr_gui_input",
+  #     value = structure(.Data = form_data(), class = "fcmconfr_gui_input"),
+  #     envir = sys.frames()[[env_frame_index]]
+  #   )
+  #   shiny::stopApp()
+  # })
 }
+
+

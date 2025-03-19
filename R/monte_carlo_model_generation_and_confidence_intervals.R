@@ -217,7 +217,6 @@ build_monte_carlo_fcms <- function(adj_matrices = list(),
 #' simulations
 #' @param confidence_interval \[`double(1)` - Positive (between 0 and 1)]\cr
 #' Bootstrapped confidence level
-#' @param num_ci_bootstraps \[`integer(1)` - Positive] Number of bootstrap draws
 #' @param parallel \[`logical(1)`]\cr If TRUE, utilize parallel processing.
 #' @param n_cores \[`integer(1)` - Positive]\cr The number of cores to use in parallel
 #' processing. If no input given, all available cores will be used.
