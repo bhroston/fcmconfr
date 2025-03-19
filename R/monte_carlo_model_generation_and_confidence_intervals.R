@@ -250,6 +250,7 @@ get_quantiles_and_bootstrapped_CIs_of_inferences <- function(infer_fcm_set_infer
     )))
   }
   infer_fcm_set_inference_df <- infer_fcm_set_inference_obj$inferences
+  infer_fcm_set_inference_df <- infer_fcm_set_inference_df[colnames(infer_fcm_set_inference_df) != attr(infer_fcm_set_inference_df, "index")]
 
   check_fcmconfr_input(skip_checks, check = "logical", var_name = "skip_checks")
   skip_checks <- as.logical(skip_checks)
@@ -387,6 +388,8 @@ get_quantiles_and_bootstrapped_CIs_of_inferences <- function(infer_fcm_set_infer
   for (col in 2:ncol(fcm_set_inference_distributions_df)) {
     fcm_set_inference_distributions_df[, col] <- as.numeric(fcm_set_inference_distributions_df[, col])
   }
+
+  attr(fcm_set_inference_distributions_df, "index") <- "node"
 
   if (show_progress) print("Done", quote = FALSE)
   # ----

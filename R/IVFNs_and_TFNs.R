@@ -209,12 +209,15 @@ ivfn <- function(lower = double(), upper = double()) {
   lower <- as.numeric(lower)
   upper <- as.numeric(upper)
 
-  if (identical(lower, double())) {
-    lower <- -Inf
+  if (identical(lower, double()) && identical(upper, double())) {
+    lower <- 0
+    upper <- 0
   }
 
-  if (identical(upper, double())) {
-    upper <- Inf
+  if (identical(lower, double()) || identical(upper, double())) {
+    stop(cli::format_error(c(
+      "x" = "Error: IVFN must have defined lower and upper inputs"
+    )))
   }
 
   if (lower > upper) {
@@ -500,16 +503,16 @@ tfn <- function(lower = double(), mode = double(), upper = double()) {
   mode <- as.numeric(mode)
   upper <- as.numeric(upper)
 
-  if (identical(lower, double())) {
-    lower <- -Inf
-  }
-
-  if (identical(mode, double())) {
+  if (identical(lower, double()) && identical(mode, double()) && identical(upper, double())) {
+    lower <- 0
     mode <- 0
+    upper <- 0
   }
 
-  if (identical(upper, double())) {
-    upper <- Inf
+  if (identical(lower, double()) || identical(mode, double()) || identical(upper, double())) {
+    stop(cli::format_error(c(
+      "x" = "Error: TFN must have defined lower, mode, and upper inputs"
+    )))
   }
 
   if (lower > upper || lower > mode) {
@@ -643,7 +646,7 @@ print.tfn <- function(x, ...) {
 #'
 #' @export
 #' @examples
-#' c(tfn(0, 1), tfn(0.2, 0.5))
+#' c(tfn(0, 0.5, 1), tfn(0.2, 0.4, 0.5))
 c.tfn <- function(...) {
   return(list(...))
 }

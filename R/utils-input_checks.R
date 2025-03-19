@@ -25,7 +25,16 @@
 # rOpenSci Statistical Software Standards ----
 #' @srrstats {G2.0, G2.0a, 2.1, 2.1a, 2.2, 2.3, 2.3a, 2.3b, 2.4, 2.4a, 2.4b,
 #' 2.4c, 2.6, 2.7, 2.8, 2.9, 2.12} Thorough input validation methods are applied.
-#' @srrstats {BS2.1} Proper dimensionality is ensured for inputs
+#' @srrstats {G2.11} Data.frame-like tabular objects handle non-standard classes
+#' appropriately
+#' @srrstats {G2.13, 2.14, 2.14a, 2.15, 2.16} Throws errors on missing/infinite
+#' data. Inappropriate to assume values for invalid data in analysis.
+#' @srrstats {BS2.1, BS2.6} Proper checks for inputs and computational parameters.
+#' @srrstats {BS3.0} No assumptions are made regarding missing values as
+#' inputs with missing values are rejected with errors.
+#' @srrstats {EA2.6} Routines appropriately process vector data regardless of
+#' additional attributes.
+
 NULL
 # ----
 
@@ -183,6 +192,13 @@ check_adj_matrix_list <- function(x = list()) {
     })
   }
 
+  if (any(is.na(x))) {
+    stop(cli::format_error(c(
+      "x" = "Error: The adj. matrix list must not contain any missing data",
+      "+++++> Found NA in adj. matrix list"
+    )))
+  }
+
   for (i in seq_along(x)) {
     tryCatch({
       check_square_adj_matrix(x[[i]])
@@ -250,6 +266,12 @@ check_square_adj_matrix = function(x = matrix()) {
     ))))
   }
 
+  if (all(is.na(x))) {
+    stop(cli::format_error(c(
+      "x" = "Error: Adj. Matrix input was NA"
+    )))
+  }
+
   class_options <-  c("matrix", "array", "data.frame", "dgCMatrix", "data.table", "tibble", "tbl_df", "sparseMatrix", "adj_matrix_w_ivfns", "adj_matrix_w_tfns")
   class_options_text <- paste0("'", cli::ansi_collapse(class_options, sep = "' '", sep2 = "' or '", last = "' or '"), "'")
 
@@ -267,12 +289,12 @@ check_square_adj_matrix = function(x = matrix()) {
       x_as_df
     }, warning = function(w) {
       return(stop(cli::format_error(c(
-        "x" = "Error: Adj. Matrix must one of the following classes: ", "{class_options_text}",
+        "x" = "Error: Adj. Matrix must be one of the following classes: ", "{class_options_text}",
         "+++++> Input adj. matrix had class: {methods::is(x)[1]}"
       ))))
     },  error = function(e) {
       return(stop(cli::format_error(c(
-        "x" = "Error: Adj. Matrix must one of the following classes: ", "{class_options_text}",
+        "x" = "Error: Adj. Matrix must be one of the following classes: ", "{class_options_text}",
         "+++++> Input adj. matrix had class: {methods::is(x)[1]}"
       ))))
     })
@@ -284,6 +306,8 @@ check_square_adj_matrix = function(x = matrix()) {
       "+++++> Input has dimensions {dim(x)}"
     ))))
   }
+
+  check_no_invalid_data(x, "adj_matrix")
 
   return(TRUE)
 }
@@ -319,6 +343,8 @@ check_numeric_vector = function(x, var_name = "") {
   if (identical(x, c())) {
     return(TRUE)
   }
+
+  check_no_invalid_data(x, var_name)
 
   var_name <- assert_var_name(var_name)
 
@@ -377,6 +403,8 @@ check_ivfn_vector = function(x, var_name = "") {
 
   var_name <- assert_var_name(var_name)
 
+  check_no_invalid_data(x, var_name)
+
   classes_in_x <- unique(lapply(x, function(x) methods::is(x)[1]))
   if (length(classes_in_x) > 1) {
     stop(cli::format_error(c(
@@ -420,6 +448,8 @@ check_ivfn_vector = function(x, var_name = "") {
 check_tfn_vector = function(x, var_name = "") {
 
   var_name <- assert_var_name(var_name)
+
+  check_no_invalid_data(x, var_name)
 
   classes_in_x <- unique(lapply(x, function(x) methods::is(x)[1]))
   if (length(classes_in_x) > 1) {
@@ -466,6 +496,8 @@ check_tfn_vector = function(x, var_name = "") {
 #' check_choice_selection(1, c(1, 2, 3))
 check_choice_selection <- function(x, choices = c(), var_name = "") {
   var_name <- assert_var_name(var_name)
+
+  check_no_invalid_data(x, var_name)
 
   choices_text <- paste0("'", cli::ansi_collapse(choices, sep = "' '", sep2 = "' or '", last = "' or '"), "'")
 
@@ -524,6 +556,8 @@ check_choice_selection <- function(x, choices = c(), var_name = "") {
 check_positive_number <- function(x = numeric(), var_name = "", zero_is_positive = FALSE) {
   var_name <- assert_var_name(var_name)
 
+  check_no_invalid_data(x, var_name)
+
   check_logical(zero_is_positive, var_name = "zero_is_positive")
 
   if (length(x) > 1) {
@@ -564,10 +598,7 @@ check_positive_number <- function(x = numeric(), var_name = "", zero_is_positive
 }
 
 
-#' Check Integer
-#'
-#' @description
-#' Blank description
+#' Check Positive Integer
 #'
 #' @details
 #' INTENDED FOR DEVELOPER USE ONLY
@@ -589,6 +620,8 @@ check_positive_number <- function(x = numeric(), var_name = "", zero_is_positive
 #' check_positive_integer("1", "max_iter")
 check_positive_integer <- function(x = 1L, var_name = "", zero_is_positive = FALSE) {
   var_name <- assert_var_name(var_name)
+
+  check_no_invalid_data(x, var_name)
 
   check_logical(zero_is_positive, var_name = "zero_is_positive")
 
@@ -635,7 +668,7 @@ check_positive_integer <- function(x = 1L, var_name = "", zero_is_positive = FAL
 }
 
 
-#' Check Integer
+#' Check Logical
 #'
 #' @description
 #' Blank description
@@ -657,6 +690,8 @@ check_positive_integer <- function(x = 1L, var_name = "", zero_is_positive = FAL
 #' check_logical(TRUE, var_name = "include_zeroes_in_sampling")
 check_logical <- function(x = TRUE, var_name = "") {
   var_name <- assert_var_name(var_name)
+
+  check_no_invalid_data(x, var_name)
 
   if (length(x) > 1) {
     stop(cli::format_error(c(
@@ -686,9 +721,6 @@ check_logical <- function(x = TRUE, var_name = "") {
 
 #' Check Color
 #'
-#' @description
-#' Blank description
-#'
 #' @details
 #' INTENDED FOR DEVELOPER USE ONLY
 #'
@@ -706,6 +738,8 @@ check_logical <- function(x = TRUE, var_name = "") {
 #' check_color("red")
 check_color <- function(x = character(1), var_name = "") {
   var_name <- assert_var_name(var_name)
+
+  check_no_invalid_data(x, var_name)
 
   if (length(x) > 1) {
     stop(cli::format_error(c(
@@ -761,6 +795,8 @@ check_color <- function(x = character(1), var_name = "") {
 check_shape <- function(x, var_name = "") {
   var_name <- assert_var_name(var_name)
 
+  check_no_invalid_data(x, var_name)
+
   if (length(x) > 1) {
     stop(cli::format_error(c(
       "x" = "Error: '{var_name}' must be a character string of a single color",
@@ -796,6 +832,80 @@ check_shape <- function(x, var_name = "") {
   return(TRUE)
 }
 
+
+
+#' Check No Invalid Data
+#'
+#' @details
+#' INTENDED FOR DEVELOPER USE ONLY
+#'
+#' @param x \[`numeric(1)` or `character(1)` or `logical(1)`]\cr Any input
+#' @param var_name \[`character()`]\cr The name of the input variable to
+#' be displayed in the error message
+#'
+#' @returns TRUE if the input object x is not a missing or infinite value
+#'
+#' @keywords internal
+#' @noRd
+#'
+#' @examples
+#' check_no_invalid_data(c(1, 1, 1))
+#' check_no_invalid_data("A")
+check_no_invalid_data <- function(x, var_name = "") {
+
+  if (any(is.na(x))) {
+    stop(cli::format_error(c(
+      "x" = "Error: {var_name} contains/is NA/NaN",
+      "+++++> {var_name} cannot contain/be a missing value"
+    )))
+  }
+
+  if (!is.null(dim(x)) && (all(c("data.frame", "list") %in% methods::is(x)) || any(c("adj_matrix_w_ivfns", "adj_matrix_w_tfns") %in% methods::is(x)))) {
+    infinite_elements <- apply(x, c(1, 2), function(element) {
+      tryCatch({
+        is.infinite(element)
+      }, error = function(e) {
+        FALSE
+      })
+    })
+    if (any(infinite_elements)) {
+      stop(cli::format_error(c(
+        "x" = "Error: {var_name} contains Inf values",
+        "+++++> {var_name} cannot contain a missing value"
+      )))
+    } else {
+      return(TRUE)
+    }
+  } else if (is.null(dim(x)) && all(c("list", "vector") %in% methods::is(x))) {
+    infinite_elements <- unlist(lapply(x, function(element) {
+      tryCatch({
+        is.infinite(element)
+      }, error = function(e) {
+        FALSE
+      })
+    }))
+    if (any(infinite_elements)) {
+      stop(cli::format_error(c(
+        "x" = "Error: {var_name} contains Inf values",
+        "+++++> {var_name} cannot contain a missing value"
+      )))
+    } else {
+      return(TRUE)
+    }
+  } else if (is.null(dim(x)) && any(is.infinite(x))) {
+    stop(cli::format_error(c(
+      "x" = "Error: {var_name} contains/is Inf (or -Inf)",
+      "+++++> {var_name} cannot be contain/be an infinite value"
+    )))
+  } else if (!is.null(dim(x)) && any(apply(x, c(1, 2), is.infinite))) {
+    stop(cli::format_error(c(
+      "x" = "Error: {var_name} contains/is Inf (or -Inf)",
+      "+++++> {var_name} cannot be contain/be an infinite value"
+    )))
+  }
+
+  return(TRUE)
+}
 
 
 #' Assert var_name
@@ -997,3 +1107,4 @@ check_access_to_parallel_processing_and_progress_display_functionalities <- func
     )
   )
 }
+

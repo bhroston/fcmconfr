@@ -80,8 +80,12 @@
 #' @export
 #'
 #' @srrstats {BS6.1} Plot method included for fcmconfr output
-#' @srrstats {EA5.0, EA5.0a, EA5.0b} Emphasis on accessibility in graphical outputs
-#' @srrstats {EA5.5} All visualizations include units no all axes.
+#' @srrstats {EA5.0, EA5.0a, EA5.0b} Emphasis on accessibility in graphical
+#' outputs
+#' @srrstats {EA5.5} All visualizations include units for all axes. (Except
+#' where axis is unit-less)
+#' @srrstats {EA5.4} All visualisations should ensure values are rounded
+#' sensibly
 #'
 #' @example man/examples/ex-plot.fcmconfr.R
 plot.fcmconfr <- function(x,
@@ -344,6 +348,264 @@ check_plot_fcmconfr_inputs <- function(interactive = FALSE,
 
 
 
+#' Get fcmconfr Object Plot Data
+#'
+#' @description
+#' This function parses through an \code{\link{fcmconfr}} output to gather and
+#' organize the analysis results into dataframes that are constructed to be
+#' plugged directly into a ggplot2 pipeline
+#'
+#' @details
+#' This function produces slightly different outputs for \code{\link{fcmconfr}}
+#' outputs generated from conventional, ivfn, and tfn FCMs
+#'
+#' @param fcmconfr_object \[`fcmconfr`]\cr A direct output of the
+#' \code{\link{fcmconfr}} function
+#' @param filter_limit \[`double(1)`]\cr Only nodes with inferences above the
+#' filter_limit across any analysis will be plotted. This removes nodes with
+#' mostly 0-valued inferences indicating they were not impacted in the
+#' simulation.
+#'
+#' @returns A list of fcmconfr output dataframes organized to streamline
+#' functionality with ggplot
+#'
+#' @examples
+#' NULL
+#' @keywords internal
+#' @noRd
+get_plot_data <- function(fcmconfr_object) {
+  # nodes_to_plot <- get_concepts_to_plot(fcmconfr_object, filter_limit)
+
+  # if (length(nodes_to_plot$name) == 0) {
+  #   stop(cli::format_error(c(
+  #     "x" = "Error: No inferences are greater than the {.var filter limit}, so no plot cannot be drawn.",
+  #     "+++++> Reduce {.var filter limit}"
+  #   )))
+  #   stop("No inferences are greater than the filter limit, so no plot cannot be drawn.")
+  # }
+
+  fcm_class <- fcmconfr_object$fcm_class
+
+  fcmconfr_inferences <- get_fcmconfr_inferences(fcmconfr_object)
+  individual_inferences <- fcmconfr_inferences$individual_inferences
+
+  # Elongate individual_inferences ----
+  if (fcm_class == "conventional") {
+    fcm_class_subtitle <- "Conventional FCMs"
+    individual_inferences_longer <- tidyr::pivot_longer(individual_inferences, cols = seq_along(individual_inferences)[-1], names_to = "node", values_to = "value")
+    individual_inferences_longer$analysis_source <- "Ind FCM Inferences"
+  } else if (fcm_class == "ivfn") {
+    fcm_class_subtitle <- "IVFN FCMs"
+    lower_individual_inferences_longer <- tidyr::pivot_longer(individual_inferences$lower_values, cols = seq_along(individual_inferences$ivfn_df)[-1], names_to = "node", values_to = "lower")
+    upper_individual_inferences_longer <- tidyr::pivot_longer(individual_inferences$upper_values, cols = seq_along(individual_inferences$ivfn_df)[-1], names_to = "node", values_to = "upper")
+    individual_inferences_longer <- merge(lower_individual_inferences_longer, upper_individual_inferences_longer)
+    individual_inferences_longer$analysis_source <- "Ind FCM Inferences"
+  } else if (fcm_class == "tfn") {
+    fcm_class_subtitle <- "TFN FCMs"
+    lower_individual_inferences_longer <- tidyr::pivot_longer(individual_inferences$lower_values, cols = seq_along(individual_inferences$tfn_df)[-1], names_to = "node", values_to = "lower")
+    mode_individual_inferences_longer <- tidyr::pivot_longer(individual_inferences$mode_values, cols = seq_along(individual_inferences$tfn_df)[-1], names_to = "node", values_to = "mode")
+    upper_individual_inferences_longer <- tidyr::pivot_longer(individual_inferences$upper_values, cols = seq_along(individual_inferences$tfn_df)[-1], names_to = "node", values_to = "upper")
+    individual_inferences_longer <- Reduce(function(x, y) merge(x, y, all=TRUE), list(lower_individual_inferences_longer, mode_individual_inferences_longer, upper_individual_inferences_longer))
+    individual_inferences_longer$analysis_source <- "Ind FCM Inferences"
+  }
+  # ----
+
+  # Elongate aggregate_inferences ----
+  if (!is.null(fcmconfr_inferences$aggregate_inferences)) {
+    aggregate_inferences_longer <- fcmconfr_inferences$aggregate_inferences
+    aggregate_inferences_longer$analysis_source <- "Agg FCM Inferences"
+  } else {
+    aggregate_inferences_longer <- data.frame(NA)
+  }
+  # ----
+
+  # Elongate mc_inferences ----
+  if (!is.null(fcmconfr_inferences$mc_inferences)) {
+    mc_inferences <- fcmconfr_inferences$mc_inferences
+    mc_inferences_no_index <- mc_inferences[, colnames(mc_inferences) != "adj_matrix_index"]
+    mean_mc_inferences <- data.frame(t(apply(mc_inferences_no_index, 2, mean)))
+    mc_inferences_longer <- tidyr::pivot_longer(mc_inferences, cols = seq_along(mc_inferences)[-1],  names_to = "node", values_to = "value")
+    mc_mean_inferences_longer <- tidyr::pivot_longer(mean_mc_inferences, cols = seq_along(mean_mc_inferences), names_to = "node", values_to = "value")
+    mc_inferences_longer$analysis_source <- "MC FCM Inferences"
+    mc_mean_inferences_longer$analysis_source <- "MC FCM Avg Inferences"
+  } else {
+    mc_inferences_longer <- data.frame(NA)
+    mc_mean_inferences_longer <- data.frame(NA)
+  }
+  # ----
+
+  # Elongate CIs ----
+  if (!is.null(fcmconfr_inferences$mc_CIs_and_quantiles)) {
+    mc_inference_CIs <- fcmconfr_inferences$mc_CIs_and_quantiles
+    mc_inference_CIs_longer <- mc_inference_CIs
+    mc_inference_CIs_longer$analysis_source <- "CIs of MC FCM Avg Inferences"
+  } else {
+    mc_inference_CIs_longer <- data.frame(NA)
+  }
+  # ----
+
+  # Calculate y-axis range ----
+  max_inference <- max(c(individual_inferences_longer$upper, aggregate_inferences_longer$upper, mc_inferences_longer$value))
+  max_y_axis <- (ceiling(max_inference*1000))/1000
+  min_inference <- min(c(individual_inferences_longer$lower, aggregate_inferences_longer$lower, mc_inferences_longer$value))
+  min_y_axis <- (ceiling(min_inference*1000))/1000
+  # ----
+
+  return(structure(
+    .Data = list(
+      fcm_class_subtitle = fcm_class_subtitle,
+      individual_inferences = individual_inferences_longer,
+      aggregate_inferences = aggregate_inferences_longer,
+      mc_inferences = mc_inferences_longer,
+      mc_mean_inferences = mc_mean_inferences_longer,
+      mc_inference_CIs = mc_inference_CIs_longer,
+      max_y_axis = max_y_axis,
+      min_y_axis = min_y_axis
+    ),
+    class = "fcmconfr_plot_data"
+  ))
+
+  # if (fcmconfr_object$params$additional_opts$run_agg_calcs) {
+  #   aggregate_inferences <- fcmconfr_inferences$aggregate_inferences
+  #   if (fcmconfr_object$fcm_class == "conventional") {
+  #     aggregate_inferences <- data.frame(
+  #       aggregate_inferences[,nodes_to_plot$index]
+  #     )
+  #   } else {
+  #     aggregate_inferences <- data.frame(
+  #       aggregate_inferences[nodes_to_plot$index ,]
+  #     )
+  #   }
+  # } else {
+  #   aggregate_inferences <- NA
+  # }
+
+  # if (fcmconfr_object$params$additional_opts$run_mc_calcs) {
+  #   mc_inference_values <- fcmconfr_inferences$mc_inferences
+  #
+  #   mc_inference_values <- data.frame(
+  #     mc_inference_values[nodes_to_plot$index, ]
+  #   )
+  #
+  #   mean_mc_inferences <- data.frame(apply(mc_inference_values[, -1], 2, mean, simplify = FALSE))
+  #   mean_mc_inferences <- data.frame(
+  #     mean_mc_inferences[, nodes_to_plot$index]
+  #   )
+  #
+  #   mc_inferences <- list(
+  #     inferences = mc_inference_values,
+  #     averages = mean_mc_inferences
+  #   )
+  # } else {
+  #   mc_inferences <- list(
+  #     inferences = data.frame(adj_matrix_index = NA, empty = NA),
+  #     averages = data.frame(blank = NA, empty = NA)
+  #   )
+  # }
+  # if (fcmconfr_object$params$additional_opts$run_ci_calcs) {
+  #   mc_inference_CIs <- as.data.frame(fcmconfr_object$inferences$monte_carlo_fcms$confidence_intervals$CIs_and_quantiles_by_node)
+  #   mc_inference_CIs <- data.frame(
+  #     mc_inference_CIs[nodes_to_plot$index, ]
+  #   )
+  #   mc_inference_CIs <- mc_inference_CIs[, c(1, which(sapply(colnames(mc_inference_CIs), function(string) grepl("_CI", string))))]
+  #   colnames(mc_inference_CIs) <- c("node", "lower_CI", "upper_CI")
+  #
+  # } else {
+  #   mc_inference_CIs <- data.frame(
+  #     name = 'blank',
+  #     lower_CI = 0,
+  #     upper_CI = 0
+  #   )
+  # }
+
+  # if (fcmconfr_object$fcm_class == "conventional") {
+  #   fcm_class_subtitle <- "Conventional FCMs"
+  #   individual_inferences_longer <- tidyr::pivot_longer(individual_inferences, cols = 2:ncol(individual_inferences), values_to = "value", names_to = "node")
+  #   individual_inferences_longer$adj_matrix_index <- NULL
+  #   if (is.na(aggregate_inferences)) {
+  #     aggregate_inferences <- data.frame("index" = NA, "node" = NA)
+  #   }
+  #   aggregate_inferences_longer <- tidyr::pivot_longer(aggregate_inferences, cols = 2:ncol(aggregate_inferences), values_to = "value", names_to = "node")
+  #   mc_inferences_longer <- tidyr::pivot_longer(mc_inferences$inferences, cols = 2:ncol(mc_inferences$inferences), values_to = "value", names_to = "node")
+  #   mc_inferences_longer$adj_matrix_index <- NULL
+  #   mc_avg_inferences_longer <- tidyr::pivot_longer(mc_inferences$averages, cols = 1:ncol(mc_inferences$averages), values_to = "value", names_to = "node")
+
+    # # Need to write a better filter for this
+    # if (any(abs(individual_inferences_longer$value) > 1) | any(abs(aggregate_inferences_longer$value[!is.na(aggregate_inferences_longer$value)]) > 1) | any(abs(mc_inferences_longer$value[!is.na(mc_inferences_longer$value)]) > 1)) {
+    #   warning("Some inferences have a magnitude greater than 1 which suggests that
+    #           the simulations did not converge, and will likely output unclear and/or
+    #           illogical results.. Either increase the max. number of iterations
+    #           (max_iter) or decrease lambda for improved results.")
+    # }
+
+    # max_y <- max(max(individual_inferences_longer$value), max(mc_inferences_longer$value), max(aggregate_inferences_longer$value))
+    # max_y <- (ceiling(max_y*1000))/1000
+    # min_y <- min(min(individual_inferences_longer$value), min(mc_inferences_longer$value), min(aggregate_inferences_longer$value))
+    # min_y <- (floor(min_y*1000))/1000
+    #
+    # individual_inferences_longer$analysis_source <- "Ind FCM Inferences"
+    # aggregate_inferences_longer$analysis_source <- "Agg FCM Inferences"
+    # mc_inferences_longer$analysis_source <- "MC FCM Inferences"
+    # mc_avg_inferences_longer$analysis_source <- "MC FCM Avg Inferences"
+    # mc_inference_CIs$analysis_source <- "CIs of MC FCM Avg Inferences"
+
+  # } else if (fcmconfr_object$fcm_class == "ivfn") {
+  #   fcm_class_subtitle <- "IVFN FCM"
+  #
+  #   lower_individual_inferences_longer <- tidyr::pivot_longer(individual_inferences$lower_values, cols = 2:ncol(individual_inferences$lower_values), values_to = "lower", names_to = "node")
+  #   upper_individual_inferences_longer <- tidyr::pivot_longer(individual_inferences$upper_values, cols = 2:ncol(individual_inferences$upper_values), values_to = "upper", names_to = "node")
+  #   individual_inferences_longer <- merge(lower_individual_inferences_longer, upper_individual_inferences_longer)
+  #   individual_inferences_longer$analysis_source <- "Ind FCM Inferences"
+  #   individual_inferences_longer$adj_matrix_index <- NULL
+  #
+  #   if (is.na(aggregate_inferences)) {
+  #     aggregate_inferences <- data.frame("node" = individual_inferences_longer$node[1], "lower" = 0, "upper" = 0, "crisp" = 0)
+  #   }
+  #   aggregate_inferences_longer <- aggregate_inferences
+  #
+  #   mc_inferences_longer <- tidyr::pivot_longer(mc_inferences$inferences, cols = 2:ncol(mc_inferences$inferences), values_to = "value", names_to = "node")
+  #   mc_inferences_longer$adj_matrix_index <- NULL
+  #   mc_avg_inferences_longer <- tidyr::pivot_longer(mc_inferences$averages, cols = 1:ncol(mc_inferences$averages), values_to = "value", names_to = "node")
+  #
+  #   max_y <- max(max(individual_inferences_longer$upper), max(mc_inferences_longer$value), max(aggregate_inferences_longer$upper))
+  #   max_y <- (ceiling(max_y*1000))/1000
+  #   min_y <- min(min(individual_inferences_longer$lower), min(mc_inferences_longer$value), min(aggregate_inferences_longer$lower))
+  #   min_y <- (floor(min_y*1000))/1000
+  #
+  #   aggregate_inferences_longer$analysis_source <- "Agg FCM Inferences"
+  #   mc_inferences_longer$analysis_source <- "MC FCM Inferences"
+  #   mc_avg_inferences_longer$analysis_source <- "MC FCM Avg Inferences"
+  #   mc_inference_CIs$analysis_source <- "CIs of MC FCM Avg Inferences"
+  # } else if (fcmconfr_object$fcm_class == "tfn") {
+  #   fcm_class_subtitle <- "TFN FCM"
+  #
+  #   lower_individual_inferences_longer <- tidyr::pivot_longer(individual_inferences$lower_values, cols = 2:ncol(individual_inferences$lower_values), values_to = "lower", names_to = "node")
+  #   mode_individual_inferences_longer <- tidyr::pivot_longer(individual_inferences$mode_values, cols = 2:ncol(individual_inferences$mode_values), values_to = "mode", names_to = "node")
+  #   upper_individual_inferences_longer <- tidyr::pivot_longer(individual_inferences$upper_values, cols = 2:ncol(individual_inferences$upper_values), values_to = "upper", names_to = "node")
+  #   individual_inferences_longer <- Reduce(function(x, y) merge(x, y, all=TRUE), list(lower_individual_inferences_longer, mode_individual_inferences_longer, upper_individual_inferences_longer))
+  #   #individual_inferences_longer <- merge(lower_individual_inferences_longer, mode_individual_inferences_longer, upper_individual_inferences_longer, all = TRUE)
+  #   individual_inferences_longer$analysis_source <- "Ind FCM Inferences"
+  #   individual_inferences_longer$adj_matrix_index <- NULL
+  #
+  #   aggregate_inferences_longer <- aggregate_inferences
+  #
+  #   mc_inferences_longer <- tidyr::pivot_longer(mc_inferences$inferences, cols = 2:ncol(mc_inferences$inferences), values_to = "value", names_to = "node")
+  #   mc_inferences_longer$adj_matrix_index <- NULL
+  #   mc_avg_inferences_longer <- tidyr::pivot_longer(mc_inferences$averages, cols = 1:ncol(mc_inferences$averages), values_to = "value", names_to = "node")
+  #
+  #   max_y <- max(max(individual_inferences_longer$upper), max(mc_inferences_longer$value), max(aggregate_inferences_longer$upper), na.rm = TRUE)
+  #   max_y <- (ceiling(max_y*1000))/1000
+  #   min_y <- min(min(individual_inferences_longer$lower), min(mc_inferences_longer$value), min(aggregate_inferences_longer$lower), na.rm = TRUE)
+  #   min_y <- (floor(min_y*1000))/1000
+  #
+  #   aggregate_inferences_longer$analysis_source <- "Agg FCM Inferences"
+  #   mc_inferences_longer$analysis_source <- "MC FCM Inferences"
+  #   mc_avg_inferences_longer$analysis_source <- "MC FCM Avg Inferences"
+  #   mc_inference_CIs$analysis_source <- "CIs of MC FCM Avg Inferences"
+  # }
+}
+
+
 #' Get Concepts in fcmconfr Object to Include in Plot
 #'
 #' @description
@@ -373,318 +635,106 @@ check_plot_fcmconfr_inputs <- function(interactive = FALSE,
 #' NULL
 #' @keywords internal
 #' @noRd
-get_concepts_to_plot <- function(fcmconfr_object, filter_limit = 1e-10) {
-  fcm_clamping_vector <- fcmconfr_object$params$simulation_opts$clamping_vector
-  fcm_nodes <- unique(lapply(fcmconfr_object$params$adj_matrices, colnames))[[1]]
-  clamped_node_indexes <- which(fcm_clamping_vector != 0)
-  clamped_nodes <- fcm_nodes[clamped_node_indexes]
+filter_concepts_to_plot <- function(fcmconfr_plot_data, filter_limit = 1e-10) {
 
-  if (identical(fcmconfr_object$fcm_class, "conventional")) {
-    fcmconfr_inferences = list(
-      individual = fcmconfr_object$inferences$individual_fcms$inferences[, -1],
-      agg = fcmconfr_object$inferences$aggregate_fcm$inferences,
-      mc = fcmconfr_object$inferences$monte_carlo_fcms$inferences
-    )
-  } else if (identical(fcmconfr_object$fcm_class, "ivfn")) {
-    raw_individual_inferences <- fcmconfr_object$inferences$individual_fcms$inferences
-    adj_matrix_labels <- rownames(raw_individual_inferences)
-    individual_inferences_as_ivfns <- do.call(cbind, raw_individual_inferences)
-    rownames(individual_inferences_as_ivfns) <- NULL
-    # individual_inferences_as_ivfns <- individual_inferences_as_ivfns[, !(colnames(individual_inferences_as_ivfns) %in% c("adj_matrix"))]
-    individual_inferences <- list(
-      lower_inference_values = cbind(adj_matrix = adj_matrix_labels, data.frame(apply(individual_inferences_as_ivfns, c(1, 2), function(element) element[[1]]$lower))),
-      upper_inference_values = cbind(adj_matrix = adj_matrix_labels, data.frame(apply(individual_inferences_as_ivfns, c(1, 2), function(element) element[[1]]$upper)))
-    )
+  concepts <- unique(fcmconfr_plot_data$individual_inferences$node)
 
-    agg_inferences_df <- fcmconfr_object$inferences$aggregate_fcm$inferences_df
-    lower_agg_inference_values <- agg_inferences_df$lower
-    names(lower_agg_inference_values) <- agg_inferences_df$concept
-    upper_agg_inference_values <- agg_inferences_df$upper
-    names(upper_agg_inference_values) <- agg_inferences_df$concept
-    aggregate_inferences <- list(
-      lower_inference_values = lower_agg_inference_values,
-      upper_inference_values = upper_agg_inference_values
-    )
+  individual_inferences_values <- fcmconfr_plot_data$individual_inferences[!(colnames(fcmconfr_plot_data$individual_inferences) %in% c("adj_matrix_index", "analysis_source"))]
+  longer_individual_inferences_values <- tidyr::pivot_longer(individual_inferences_values, cols = seq_along(individual_inferences_values)[-1])
+  max_individual_inferences <- vapply(concepts, function(concept) max(longer_individual_inferences_values$value[longer_individual_inferences_values$node == concept]), FUN.VALUE = numeric(1))
 
-    fcmconfr_inferences = list(
-      lower_individual = individual_inferences$lower_inference_values[, -1],
-      upper_individual = individual_inferences$upper_inference_values[, -1],
-      lower_agg = aggregate_inferences$lower_inference_values,
-      upper_agg = aggregate_inferences$upper_inference_values,
-      mc = fcmconfr_object$inferences$monte_carlo_fcms$inferences
-    )
-  } else if (identical(fcmconfr_object$fcm_class, "tfn")) {
-    raw_individual_inferences <- fcmconfr_object$inferences$individual_fcms$inferences
-    adj_matrix_labels <- rownames(raw_individual_inferences)
-    individual_inferences_as_tfns <- do.call(cbind, raw_individual_inferences)
-    rownames(individual_inferences_as_tfns) <- NULL
-    # individual_inferences_as_tfns <- individual_inferences_as_tfns[, !(colnames(individual_inferences_as_tfns) %in% c("adj_matrix"))]
-    individual_inferences <- list(
-      lower_inference_values = cbind(adj_matrix = adj_matrix_labels, data.frame(apply(individual_inferences_as_tfns, c(1, 2), function(element) element[[1]]$lower))),
-      mode_inference_values = cbind(adj_matrix = adj_matrix_labels, data.frame(apply(individual_inferences_as_tfns, c(1, 2), function(element) element[[1]]$mode))),
-      upper_inference_values = cbind(adj_matrix = adj_matrix_labels, data.frame(apply(individual_inferences_as_tfns, c(1, 2), function(element) element[[1]]$upper)))
-    )
+  if (!all(is.na(fcmconfr_plot_data$aggregate_inferences))) {
+    aggregate_inferences_values <- fcmconfr_plot_data$aggregate_inferences[colnames(fcmconfr_plot_data$aggregate_inferences) != c("analysis_source")]
+    longer_aggregate_inferences_values <- aggregate_inferences_values
+    # longer_aggregate_inferences_values <- tidyr::pivot_longer(aggregate_inferences_values, cols = seq_along(aggregate_inferences_values)[-c(1, 2)], names_to = "node")
+  } else {
+    longer_aggregate_inferences_values <- data.frame(NA)
+  }
+  max_aggregate_inferences <- vapply(concepts, function(concept) max(longer_aggregate_inferences_values$value[longer_aggregate_inferences_values$node == concept]), FUN.VALUE = numeric(1))
 
-    agg_inferences_df <- fcmconfr_object$inferences$aggregate_fcm$inferences_df
-    lower_agg_inference_values <- agg_inferences_df$lower
-    names(lower_agg_inference_values) <- agg_inferences_df$concept
-    mode_agg_inference_values <- agg_inferences_df$mode
-    names(mode_agg_inference_values) <- agg_inferences_df$concept
-    upper_agg_inference_values <- agg_inferences_df$upper
-    names(upper_agg_inference_values) <- agg_inferences_df$concept
-    aggregate_inferences <- list(
-      lower_inference_values = lower_agg_inference_values,
-      mode_inference_values = mode_agg_inference_values,
-      upper_inference_values = upper_agg_inference_values
-    )
+  if (!all(is.na(fcmconfr_plot_data$mc_inferences))) {
+    mc_inferences_values <- fcmconfr_plot_data$mc_inferences[!(colnames(fcmconfr_plot_data$mc_inferences) %in% c("adj_matrix_index", "analysis_source"))]
+    mc_mean_inferences_values <- fcmconfr_plot_data$mc_mean_inferences[colnames(fcmconfr_plot_data$mc_mean_inferences) != "analysis_source"]
+  } else {
+    mc_inferences_values <- data.frame(NA)
+  }
+  max_mc_inferences <- vapply(concepts, function(concept) max(mc_inferences_values$value[mc_inferences_values$node == concept]), FUN.VALUE = numeric(1))
 
-    fcmconfr_inferences = list(
-      lower_individual = individual_inferences$lower_inference_values[, -1],
-      mode_individual = individual_inferences$mode_inference_values[, -1],
-      upper_individual = individual_inferences$upper_inference_values[, -1],
-      lower_agg = aggregate_inferences$lower_inference_values,
-      mode_agg = aggregate_inferences$mode_inference_values,
-      upper_agg = aggregate_inferences$upper_inference_values,
-      mc = fcmconfr_object$inferences$monte_carlo_fcms$inferences
-    )
+  if (!all(is.na(fcmconfr_plot_data$mc_inference_CIs))) {
+    mc_inference_CIs_values <- fcmconfr_plot_data$mc_inference_CIs[colnames(fcmconfr_plot_data$mc_inference_CIs) != "analysis_source"]
   }
 
-  non_null_inference_dfs <- !(unlist(lapply(fcmconfr_inferences, is.null)))
-  fcmconfr_inferences_across_analyses <- data.frame(do.call(rbind, fcmconfr_inferences[non_null_inference_dfs]))
+  max_inferences_df <- rbind(max_individual_inferences, max_aggregate_inferences, max_mc_inferences)
+  surpasses_filter_limit <- apply(max_inferences_df, 2, function(x) any(x >= filter_limit))
+
+  nodes_to_plot <- concepts[surpasses_filter_limit]
+  fcmconfr_plot_data$nodes_to_plot <- nodes_to_plot
+  # nodes_to_plot_indexes <- which(surpasses_filter_limit
+
+  fcmconfr_plot_data$individual_inferences <- fcmconfr_plot_data$individual_inferences[fcmconfr_plot_data$individual_inferences$node %in% nodes_to_plot, ]
+  fcmconfr_plot_data$aggregate_inferences <- fcmconfr_plot_data$aggregate_inferences[fcmconfr_plot_data$aggregate_inferences$node %in% nodes_to_plot, ]
+  fcmconfr_plot_data$mc_inferences <- fcmconfr_plot_data$mc_inferences[fcmconfr_plot_data$mc_inferences$node %in% nodes_to_plot, ]
+  fcmconfr_plot_data$mc_mean_inferences <- fcmconfr_plot_data$mc_mean_inferences[fcmconfr_plot_data$mc_mean_inferences$node %in% nodes_to_plot, ]
+  fcmconfr_plot_data$mc_inference_CIs <- fcmconfr_plot_data$mc_inference_CIs[fcmconfr_plot_data$mc_inference_CIs$node %in% nodes_to_plot, ]
+
+  return(structure(
+    .Data = fcmconfr_plot_data,
+    class = "filtered_fcmconfr_plot_data"
+  ))
 
   # if (identical(fcmconfr_object$fcm_class, "conventional")) {
-  abs_max_inference_by_node <- apply(fcmconfr_inferences_across_analyses, 2, function(col) max(abs(col)))
+  #   fcmconfr_inferences = list(
+  #     individual = fcmconfr_object$inferences$individual_fcms$inferences,
+  #     agg = fcmconfr_object$inferences$aggregate_fcm$inferences,
+  #     mc = fcmconfr_object$inferences$monte_carlo_fcms$inferences
+  #   )
   # } else if (identical(fcmconfr_object$fcm_class, "ivfn")) {
-  #   # upper_values_of_inferences <- apply(fcmconfr_inferences_across_analyses[, 2:ncol(fcmconfr_inferences_across_analyses)], c(1, 2), function(element) element[[1]]$upper)
-  #   abs_max_inference_by_node <- apply(fcmconfr_inferences_across_analyses, 2, function(col) max(abs(col)))
+  #   fcmconfr_inferences <- get_fcmconfr_inferences(fcmconfr_object)
+  #   individual_inferences <- fcmconfr_inferences$individual_inferences
+  #   agg_inferences_df <- fcmconfr_inferences$aggregate_inferences
+  #   lower_agg_inference_values <- agg_inferences_df$lower
+  #   names(lower_agg_inference_values) <- agg_inferences_df$concept
+  #   upper_agg_inference_values <- agg_inferences_df$upper
+  #   names(upper_agg_inference_values) <- agg_inferences_df$concept
+  #   aggregate_inferences <- list(
+  #     lower_inference_values = lower_agg_inference_values,
+  #     upper_inference_values = upper_agg_inference_values
+  #   )
+  #   fcmconfr_inferences = list(
+  #     lower_individual = individual_inferences$lower_values[, -1],
+  #     upper_individual = individual_inferences$upper_values[, -1],
+  #     lower_agg = aggregate_inferences$lower_inference_values,
+  #     upper_agg = aggregate_inferences$upper_inference_values,
+  #     mc = fcmconfr_inferences$mc_inferences
+  #   )
+  # } else if (identical(fcmconfr_object$fcm_class, "tfn")) {
+  #   fcmconfr_inferences <- get_fcmconfr_inferences(fcmconfr_object)
+  #   individual_inferences <- fcmconfr_inferences$individual_inferences
+  #   agg_inferences_df <- fcmconfr_inferences$aggregate_inferences
+  #   lower_agg_inference_values <- agg_inferences_df$lower
+  #   names(lower_agg_inference_values) <- agg_inferences_df$concept
+  #   mode_agg_inference_values <- agg_inferences_df$mode
+  #   names(mode_agg_inference_values) <- agg_inferences_df$concept
+  #   upper_agg_inference_values <- agg_inferences_df$upper
+  #   names(upper_agg_inference_values) <- agg_inferences_df$concept
+  #   aggregate_inferences <- list(
+  #     lower_inference_values = lower_agg_inference_values,
+  #     mode_inference_values = mode_agg_inference_values,
+  #     upper_inference_values = upper_agg_inference_values
+  #   )
+  #   fcmconfr_inferences = list(
+  #     lower_individual = individual_inferences$lower_values[, -1],
+  #     mode_individual = individual_inferences$mode_values[, -1],
+  #     upper_individual = individual_inferences$upper_values[, -1],
+  #     lower_agg = aggregate_inferences$lower_values,
+  #     mode_agg = aggregate_inferences$mode_values,
+  #     upper_agg = aggregate_inferences$upper_values,
+  #     mc = fcmconfr_inferences$mc_inferences
+  #   )
   # }
-
-  nodes_to_plot_indexes <-  which(abs_max_inference_by_node > filter_limit & !(fcm_nodes %in% clamped_nodes))
-  nodes_to_plot <- fcm_nodes[nodes_to_plot_indexes]
-
-  list(
-    name = nodes_to_plot,
-    index = nodes_to_plot_indexes
-  )
 }
 
 
-
-#' Get fcmconfr Object Plot Data
-#'
-#' @description
-#' This function parses through an \code{\link{fcmconfr}} output to gather and
-#' organize the analysis results into dataframes that are constructed to be
-#' plugged directly into a ggplot2 pipeline
-#'
-#' @details
-#' This function produces slightly different outputs for \code{\link{fcmconfr}}
-#' outputs generated from conventional, ivfn, and tfn FCMs
-#'
-#' @param fcmconfr_object \[`fcmconfr`]\cr A direct output of the
-#' \code{\link{fcmconfr}} function
-#' @param filter_limit \[`double(1)`]\cr Only nodes with inferences above the
-#' filter_limit across any analysis will be plotted. This removes nodes with
-#' mostly 0-valued inferences indicating they were not impacted in the
-#' simulation.
-#'
-#' @returns A list of fcmconfr output dataframes organized to streamline
-#' functionality with ggplot
-#'
-#' @examples
-#' NULL
-#' @keywords internal
-#' @noRd
-get_plot_data <- function(fcmconfr_object, filter_limit = 10e-3) {
-  nodes_to_plot <- get_concepts_to_plot(fcmconfr_object, filter_limit)
-
-  if (length(nodes_to_plot$name) == 0) {
-    stop(cli::format_error(c(
-      "x" = "Error: No inferences are greater than the {.var filter limit}, so no plot cannot be drawn.",
-      "+++++> Reduce {.var filter limit}"
-    )))
-    stop("No inferences are greater than the filter limit, so no plot cannot be drawn.")
-  }
-
-  if (identical(fcmconfr_object$fcm_class, "conventional")) {
-    individual_inferences <- as.data.frame(fcmconfr_object$inferences$individual_fcms$inferences)
-    individual_inferences <- fcmconfr_object$inferences$individual_fcms$inferences[, c(1, nodes_to_plot$index + 1)] # Add + 1 to match column indexes in individual_fcms$inferences dataframe
-  } else if (identical(fcmconfr_object$fcm_class, "ivfn")) {
-    raw_individual_inferences <- fcmconfr_object$inferences$individual_fcms$inferences
-    adj_matrix_labels <- rownames(raw_individual_inferences)
-    individual_inferences_as_ivfns <- do.call(cbind, raw_individual_inferences)
-    rownames(individual_inferences_as_ivfns) <- NULL
-    #individual_inferences_as_ivfns <- individual_inferences_as_ivfns[, !(colnames(individual_inferences_as_ivfns) %in% c("adj_matrix"))]
-    individual_inferences <- list(
-      lower_inference_values = cbind(adj_matrix = adj_matrix_labels, data.frame(apply(individual_inferences_as_ivfns, c(1, 2), function(element) element[[1]]$lower))),
-      upper_inference_values = cbind(adj_matrix = adj_matrix_labels, data.frame(apply(individual_inferences_as_ivfns, c(1, 2), function(element) element[[1]]$upper)))
-    )
-    individual_inferences$lower_inference_values <- individual_inferences$lower_inference_values[, c(1, nodes_to_plot$index + 1)] # Add + 1 to match column indexes in individual_fcms$inferences dataframe
-    individual_inferences$upper_inference_values <- individual_inferences$upper_inference_values[, c(1, nodes_to_plot$index + 1)] # Add + 1 to match column indexes in individual_fcms$inferences dataframe
-  } else if (identical(fcmconfr_object$fcm_class, "tfn")) {
-    raw_individual_inferences <- fcmconfr_object$inferences$individual_fcms$inferences
-    adj_matrix_labels <- rownames(raw_individual_inferences)
-    individual_inferences_as_tfns <- do.call(cbind, raw_individual_inferences)
-    # rownames(individual_inferences_as_tfns) <- NULL
-    # individual_inferences_as_tfns <- individual_inferences_as_tfns[, !(colnames(individual_inferences_as_tfns) %in% c("adj_matrix"))]
-    individual_inferences <- list(
-      lower_inference_values = cbind(adj_matrix = adj_matrix_labels, data.frame(apply(individual_inferences_as_tfns, c(1, 2), function(element) element[[1]]$lower))),
-      mode_inference_values = cbind(adj_matrix = adj_matrix_labels, data.frame(apply(individual_inferences_as_tfns, c(1, 2), function(element) element[[1]]$mode))),
-      upper_inference_values = cbind(adj_matrix = adj_matrix_labels, data.frame(apply(individual_inferences_as_tfns, c(1, 2), function(element) element[[1]]$upper)))
-    )
-    individual_inferences$lower_inference_values <- individual_inferences$lower_inference_values[, c(1, nodes_to_plot$index + 1)] # Add + 1 to match column indexes in individual_fcms$inferences dataframe
-    individual_inferences$mode_inference_values <- individual_inferences$mode_inference_values[, c(1, nodes_to_plot$index + 1)] # Add + 1 to match column indexes in individual_fcms$inferences dataframe
-    individual_inferences$upper_inference_values <- individual_inferences$upper_inference_values[, c(1, nodes_to_plot$index + 1)] # Add + 1 to match column indexes in individual_fcms$inferences dataframe
-  }
-
-  if (fcmconfr_object$params$additional_opts$run_agg_calcs) {
-    aggregate_inferences <- as.data.frame(fcmconfr_object$inferences$aggregate_fcm$inferences)
-    aggregate_inferences <- data.frame(
-      aggregate_inferences[, nodes_to_plot$index]
-    )
-    names(aggregate_inferences) <- nodes_to_plot$name
-  } else {
-    aggregate_inferences <- data.frame(
-      blank = NA
-    )
-  }
-  if (fcmconfr_object$params$additional_opts$run_mc_calcs) {
-    mc_inference_values <- as.data.frame(fcmconfr_object$inferences$monte_carlo_fcms$inferences)
-    mc_inference_values <- data.frame(
-      mc_inference_values[, nodes_to_plot$index]
-    )
-    colnames(mc_inference_values) <- nodes_to_plot$name
-    mean_mc_inferences <- data.frame(apply(fcmconfr_object$inferences$monte_carlo_fcms$inferences, 2, mean, simplify = FALSE))
-    mean_mc_inferences <- data.frame(
-      mean_mc_inferences[, nodes_to_plot$index]
-    )
-    colnames(mean_mc_inferences) <- nodes_to_plot$name
-    mc_inferences <- list(
-      inferences = mc_inference_values,
-      averages = mean_mc_inferences
-    )
-  } else {
-    mc_inferences <- list(
-      inferences = data.frame(blank = NA),
-      averages = data.frame(blank = NA)
-    )
-  }
-  if (fcmconfr_object$params$additional_opts$run_ci_calcs) {
-    mc_inference_CIs <- as.data.frame(fcmconfr_object$inferences$monte_carlo_fcms$confidence_intervals$CIs_and_quantiles_by_node)
-    mc_inference_CIs <- data.frame(
-      mc_inference_CIs[nodes_to_plot$index, ]
-    )
-    mc_inference_CIs <- mc_inference_CIs[, c(1, which(sapply(colnames(mc_inference_CIs), function(string) grepl("_CI", string))))]
-    colnames(mc_inference_CIs) <- c("name", "lower_CI", "upper_CI")
-
-  } else {
-    mc_inference_CIs <- data.frame(
-      name = 'blank',
-      lower_CI = NA,
-      upper_CI = NA
-    )
-  }
-
-  if (fcmconfr_object$fcm_class == "conventional") {
-    fcm_class_subtitle <- "Conventional FCMs"
-    individual_inferences_longer <- tidyr::pivot_longer(individual_inferences, cols = 2:ncol(individual_inferences))
-    aggregate_inferences_longer <- tidyr::pivot_longer(aggregate_inferences, cols = 1:ncol(aggregate_inferences))
-    mc_inferences_longer <- tidyr::pivot_longer(mc_inferences$inferences, cols = 1:ncol(mc_inferences$inferences))
-    mc_avg_inferences_longer <- tidyr::pivot_longer(mc_inferences$averages, cols = 1:ncol(mc_inferences$averages))
-    # mc_inference_CIs_longer <- tidyr::pivot_longer(mc_inference_CIs, cols = 1:ncol(mc_inference_CIs))
-
-    # Need to write a better filter for this
-    if (any(abs(individual_inferences_longer$value) > 1) | any(abs(aggregate_inferences_longer$value[!is.na(aggregate_inferences_longer$value)]) > 1) | any(abs(mc_inferences_longer$value[!is.na(mc_inferences_longer$value)]) > 1)) {
-      warning("Some inferences have a magnitude greater than 1 which suggests that
-              the simulations did not converge, and will likely output unclear and/or
-              illogical results.. Either increase the max. number of iterations
-              (max_iter) or decrease lambda for improved results.")
-    }
-
-    max_y <- max(max(individual_inferences_longer$value), max(mc_inferences_longer$value), max(aggregate_inferences_longer$value))
-    max_y <- (ceiling(max_y*1000))/1000
-    min_y <- min(min(individual_inferences_longer$value), min(mc_inferences_longer$value), min(aggregate_inferences_longer$value))
-    min_y <- (floor(min_y*1000))/1000
-
-    individual_inferences_longer$analysis_source <- "Ind FCM Inferences"
-    aggregate_inferences_longer$analysis_source <- "Agg FCM Inferences"
-    mc_inferences_longer$analysis_source <- "MC FCM Inferences"
-    mc_avg_inferences_longer$analysis_source <- "MC FCM Avg Inferences"
-    mc_inference_CIs$analysis_source <- "CIs of MC FCM Avg Inferences"
-
-  } else if (fcmconfr_object$fcm_class == "ivfn") {
-    fcm_class_subtitle <- "IVFN FCM"
-
-    lower_individual_inferences_longer <- tidyr::pivot_longer(individual_inferences$lower_inference_values, cols = 2:ncol(individual_inferences$lower_inference_values), values_to = "lower")
-    upper_individual_inferences_longer <- tidyr::pivot_longer(individual_inferences$upper_inference_values, cols = 2:ncol(individual_inferences$upper_inference_values), values_to = "upper")
-    individual_inferences_longer <- merge(lower_individual_inferences_longer, upper_individual_inferences_longer)
-    individual_inferences_longer$analysis_source <- "Ind FCM Inferences"
-
-    lower_aggregate_inferences <- vapply(aggregate_inferences, function(element) ifelse(identical(methods::is(element[[1]]), "ivfn"), element[[1]]$lower, NA), numeric(1))
-    upper_aggregate_inferences <- vapply(aggregate_inferences, function(element) ifelse(identical(methods::is(element[[1]]), "ivfn"), element[[1]]$upper, NA), numeric(1))
-    aggregate_inferences_longer <- data.frame(
-      name = names(lower_aggregate_inferences),
-      lower = lower_aggregate_inferences,
-      upper = upper_aggregate_inferences
-    )
-
-    mc_inferences_longer <- tidyr::pivot_longer(mc_inferences$inferences, cols = 1:ncol(mc_inferences$inferences))
-    mc_avg_inferences_longer <- tidyr::pivot_longer(mc_inferences$averages, cols = 1:ncol(mc_inferences$averages))
-
-    max_y <- max(max(individual_inferences_longer$upper), max(mc_inferences_longer$value), max(aggregate_inferences_longer$upper))
-    max_y <- (ceiling(max_y*1000))/1000
-    min_y <- min(min(individual_inferences_longer$lower), min(mc_inferences_longer$value), min(aggregate_inferences_longer$lower))
-    min_y <- (floor(min_y*1000))/1000
-
-    aggregate_inferences_longer$analysis_source <- "Agg FCM Inferences"
-    mc_inferences_longer$analysis_source <- "MC FCM Inferences"
-    mc_avg_inferences_longer$analysis_source <- "MC FCM Avg Inferences"
-    mc_inference_CIs$analysis_source <- "CIs of MC FCM Avg Inferences"
-  } else if (fcmconfr_object$fcm_class == "tfn") {
-    fcm_class_subtitle <- "TFN FCM"
-
-    lower_individual_inferences_longer <- tidyr::pivot_longer(individual_inferences$lower_inference_values, cols = 2:ncol(individual_inferences$lower_inference_values), values_to = "lower")
-    mode_individual_inferences_longer <- tidyr::pivot_longer(individual_inferences$mode_inference_values, cols = 2:ncol(individual_inferences$mode_inference_values), values_to = "mode")
-    upper_individual_inferences_longer <- tidyr::pivot_longer(individual_inferences$upper_inference_values, cols = 2:ncol(individual_inferences$upper_inference_values), values_to = "upper")
-    individual_inferences_longer <- Reduce(function(x, y) merge(x, y, all=TRUE), list(lower_individual_inferences_longer, mode_individual_inferences_longer, upper_individual_inferences_longer))
-    #individual_inferences_longer <- merge(lower_individual_inferences_longer, mode_individual_inferences_longer, upper_individual_inferences_longer, all = TRUE)
-    individual_inferences_longer$analysis_source <- "Ind FCM Inferences"
-
-    lower_aggregate_inferences <- vapply(aggregate_inferences, function(element) ifelse(identical(methods::is(element[[1]]), "tfn"), element[[1]]$lower, NA), numeric(1))
-    mode_aggregate_inferences <- vapply(aggregate_inferences, function(element) ifelse(identical(methods::is(element[[1]]), "tfn"), element[[1]]$mode, NA), numeric(1))
-    upper_aggregate_inferences <- vapply(aggregate_inferences, function(element) ifelse(identical(methods::is(element[[1]]), "tfn"), element[[1]]$upper, NA), numeric(1))
-    aggregate_inferences_longer <- data.frame(
-      name = names(lower_aggregate_inferences),
-      lower = lower_aggregate_inferences,
-      mode = mode_aggregate_inferences,
-      upper = upper_aggregate_inferences
-    )
-
-    mc_inferences_longer <- tidyr::pivot_longer(mc_inferences$inferences, cols = 1:ncol(mc_inferences$inferences))
-    mc_avg_inferences_longer <- tidyr::pivot_longer(mc_inferences$averages, cols = 1:ncol(mc_inferences$averages))
-
-    max_y <- max(max(individual_inferences_longer$upper), max(mc_inferences_longer$value), max(aggregate_inferences_longer$upper), na.rm = TRUE)
-    max_y <- (ceiling(max_y*1000))/1000
-    min_y <- min(min(individual_inferences_longer$lower), min(mc_inferences_longer$value), min(aggregate_inferences_longer$lower), na.rm = TRUE)
-    min_y <- (floor(min_y*1000))/1000
-
-    aggregate_inferences_longer$analysis_source <- "Agg FCM Inferences"
-    mc_inferences_longer$analysis_source <- "MC FCM Inferences"
-    mc_avg_inferences_longer$analysis_source <- "MC FCM Avg Inferences"
-    mc_inference_CIs$analysis_source <- "CIs of MC FCM Avg Inferences"
-  }
-
-  list(
-    fcm_class_subtitle = fcm_class_subtitle,
-    individual_inferences = individual_inferences_longer,
-    aggregate_inferences = aggregate_inferences_longer,
-    mc_inferences = mc_inferences_longer,
-    mc_avg_inferences = mc_avg_inferences_longer,
-    mc_inference_CIs = mc_inference_CIs,
-    max_activation = max_y,
-    min_activation = min_y
-  )
-}
 
 
 #' Autoplot fcmconfr
@@ -773,29 +823,6 @@ autoplot.fcmconfr <- function(object,
                               agg_ivfn_and_tfn_linewidth = 0.6,
                               ...) {
 
-  # Parse additional_inputs [DEPRECATED] ----
-  # additional_inputs <- list(...)[[1]]
-  # # Plot formatting parameters
-  # filter_limit <- additional_inputs$filter_limit
-  # xlim <- additional_inputs$xlim
-  # coord_flip <- additional_inputs$coord_flip
-  # text_font_size <- additional_inputs$text_font_size
-  # # Plot aesthetic parameters
-  # mc_avg_and_CIs_color <- additional_inputs$mc_avg_and_CIs_color
-  # mc_avg_and_CIs_alpha <- additional_inputs$mc_avg_and_CIs_alpha
-  # mc_inferences_color <- additional_inputs$mc_inferences_color
-  # mc_inferences_alpha <- additional_inputs$mc_inferences_alpha
-  # mc_inferences_shape <- additional_inputs$mc_inferences_shape
-  # ind_inferences_color <- additional_inputs$ind_inferences_color
-  # ind_inferences_alpha <- additional_inputs$ind_inferences_alpha
-  # ind_inferences_shape <- additional_inputs$ind_inferences_shape
-  # agg_inferences_color <- additional_inputs$agg_inferences_color
-  # agg_inferences_alpha <- additional_inputs$agg_inferences_alpha
-  # agg_inferences_shape <- additional_inputs$agg_inferences_shape
-  # ind_ivfn_and_tfn_linewidth <- additional_inputs$ind_ivfn_and_tfn_linewidth
-  # agg_ivfn_and_tfn_linewidth <- additional_inputs$agg_ivfn_and_tfn_linewidth
-  # ----
-
   if (object$fcm_class == "ivfn") {
     ind_inferences_shape <- NA
     agg_inferences_shape <- NA
@@ -811,15 +838,14 @@ autoplot.fcmconfr <- function(object,
     mc_inferences_shape <- ggplot2::translate_shape_string(mc_inferences_shape)
   }
 
-  # browser()
-
   # Get Plotting Data ----
-  plot_data <- get_plot_data(object, filter_limit)
-  concepts_to_plot <- unique(c(plot_data$individual_inferences$name, plot_data$aggregate_inferences$name, plot_data$mc_inferences$name))
-  concepts_to_plot <- concepts_to_plot[concepts_to_plot != "blank"]
+  plot_data <- get_plot_data(object)
+  plot_data <- filter_concepts_to_plot(plot_data, filter_limit)
+  nodes_to_plot <- plot_data$nodes_to_plot
 
-  plot_data$max_activation <- plot_data$max_activation + 0.1*plot_data$max_activation
-  plot_data$min_activation <- plot_data$min_activation - 0.1*plot_data$min_activation
+  y_axis_buffer <- 0.1
+  plot_data$max_y_axis <- plot_data$max_y_axis + y_axis_buffer
+  plot_data$min_y_axis <- plot_data$min_y_axis - y_axis_buffer
 
   if (object$params$simulation_opts$squashing == "sigmoid" & all(object$params$simulation_opts$clamping == 0)) {
     zero_intercept <- 0.5
@@ -827,29 +853,37 @@ autoplot.fcmconfr <- function(object,
     zero_intercept <- 0
   }
 
-  inputs_only <- (identical(plot_data$aggregate_inferences$name, "blank") & identical(plot_data$mc_inferences$name, "blank") & identical(plot_data$mc_inference_CIs$name, "blank"))
-  inputs_and_agg <- (!(identical(plot_data$aggregate_inferences$name, "blank")) & identical(plot_data$mc_inferences$name, "blank") & identical(plot_data$mc_inference_CIs$name, "blank"))
-  inputs_agg_and_mc_no_bs <- (!(identical(plot_data$aggregate_inferences$name, "blank")) & !(identical(plot_data$mc_inferences$name, "blank")) & identical(plot_data$mc_inference_CIs$name, "blank"))
-  inputs_agg_and_mc_w_bs <- (!(identical(plot_data$aggregate_inferences$name, "blank")) & !(identical(plot_data$mc_inferences$name, "blank")) & !(identical(plot_data$mc_inference_CIs$name, "blank")))
-  inputs_no_agg_and_mc_w_no_bs <- ((identical(plot_data$aggregate_inferences$name, "blank")) & !(identical(plot_data$mc_inferences$name, "blank")) & (identical(plot_data$mc_inference_CIs$name, "blank")))
-  inputs_no_agg_and_mc_w_bs <- ((identical(plot_data$aggregate_inferences$name, "blank")) & !(identical(plot_data$mc_inferences$name, "blank")) & !(identical(plot_data$mc_inference_CIs$name, "blank")))
+  has_agg_calcs <- object$params$additional_opts$run_agg_calcs
+  has_mc_calcs <- object$params$additional_opts$run_mc_calcs
+  has_ci_calcs <- object$params$additional_opts$run_ci_calcs
+
+  inputs_only <- (!has_agg_calcs && !has_mc_calcs && !has_ci_calcs)
+  inputs_and_agg <- (has_agg_calcs && !has_mc_calcs && !has_ci_calcs)
+  inputs_agg_and_mc_no_bs <- (has_agg_calcs && has_mc_calcs && !has_ci_calcs)
+  inputs_agg_and_mc_w_bs <- (has_agg_calcs && has_mc_calcs && has_ci_calcs)
+  inputs_no_agg_and_mc_w_no_bs <- (!has_agg_calcs && has_mc_calcs && !has_ci_calcs)
+  inputs_no_agg_and_mc_w_bs <- (!has_agg_calcs && has_mc_calcs && has_ci_calcs)
   # ----
 
   ggplot_main <- ggplot() +
     ggplot2::geom_vline(xintercept = zero_intercept, linetype = "dotted", size = 0.5)
 
   # MC Avg Ingerences CIs ----
-  if (inputs_agg_and_mc_w_bs | inputs_no_agg_and_mc_w_bs) {
+  if (has_ci_calcs) {
     ggplot_main <- ggplot_main +
       ggplot2::geom_crossbar(
         data = ggplot2::remove_missing(plot_data$mc_inference_CIs),
-        aes(y = .data$name, xmin = .data$lower_CI, x = .data$lower_CI, xmax = .data$lower_CI, linewidth = .data$analysis_source),
+        # lower_CI col. index = 3
+        # upper_CI col. index = 4
+        aes(y = .data$node, xmin = plot_data$mc_inference_CIs[, 3], x = plot_data$mc_inference_CIs[, 3], xmax = plot_data$mc_inference_CIs[, 3], linewidth = .data$analysis_source),
         width = 0.7, color = mc_avg_and_CIs_color,
         na.rm = TRUE, key_glyph = ggplot2::draw_key_vline
       ) +
       ggplot2::geom_crossbar(
         data = ggplot2::remove_missing(plot_data$mc_inference_CIs),
-        aes(y = .data$name, xmin = .data$upper_CI, x = .data$upper_CI, xmax = .data$upper_CI, linewidth = .data$analysis_source),
+        # lower_CI col. index = 3
+        # upper_CI col. index = 4
+        aes(y = .data$node, xmin = plot_data$mc_inference_CIs[, 4], x = plot_data$mc_inference_CIs[, 4], xmax = plot_data$mc_inference_CIs[, 4], linewidth = .data$analysis_source),
         width = 0.7, color = mc_avg_and_CIs_color,
         na.rm = TRUE, key_glyph = ggplot2::draw_key_vline
       )
@@ -857,18 +891,18 @@ autoplot.fcmconfr <- function(object,
   # ----
 
   # MC FCM Inferences ----
-  if (inputs_agg_and_mc_no_bs | inputs_agg_and_mc_w_bs | inputs_no_agg_and_mc_w_bs | inputs_no_agg_and_mc_w_no_bs) {
+  if (has_mc_calcs) {
     ggplot_main <- ggplot_main +
       ggplot2::geom_point(
         data = ggplot2::remove_missing(plot_data$mc_inferences),
-        aes(y = .data$name, x = .data$value, color = .data$analysis_source, alpha = .data$analysis_source, shape = .data$analysis_source),
+        aes(y = .data$node, x = .data$value, color = .data$analysis_source, alpha = .data$analysis_source, shape = .data$analysis_source),
         position = ggplot2::position_dodge2(width = 0.25),
         # shape = 3,
         na.rm = FALSE
       ) +
       ggplot2::geom_crossbar(
-        data = ggplot2::remove_missing(plot_data$mc_avg_inferences),
-        aes(y = .data$name, xmin = .data$value, x = .data$value, xmax = .data$value),
+        data = ggplot2::remove_missing(plot_data$mc_mean_inferences),
+        aes(y = .data$node, xmin = .data$value, x = .data$value, xmax = .data$value),
         width = 0.9, linewidth = 0.1, color = mc_avg_and_CIs_color, na.rm = FALSE, key_glyph = ggplot2::draw_key_vline
       )
   }
@@ -880,50 +914,48 @@ autoplot.fcmconfr <- function(object,
       ggplot2::geom_point(
         data = ggplot2::remove_missing(plot_data$individual_inferences),
         position = ggplot2::position_dodge2(width = 0.1),
-        aes(y = .data$name, x = .data$value, color = .data$analysis_source, alpha = .data$analysis_source, shape = .data$analysis_source),
+        aes(y = .data$node, x = .data$value, color = .data$analysis_source, alpha = .data$analysis_source, shape = .data$analysis_source),
         size = 2, na.rm = TRUE
       )
   } else if (object$fcm_class == "ivfn") {
     ggplot_main <- ggplot_main +
       ggplot2::geom_linerange(
         data = ggplot2::remove_missing(plot_data$individual_inferences),
-        aes(y = .data$name, xmin = .data$lower, xmax = .data$upper, color = .data$analysis_source, alpha = .data$analysis_source),
+        aes(y = .data$node, xmin = .data$lower, xmax = .data$upper, color = .data$analysis_source, alpha = .data$analysis_source),
         position = ggplot2::position_dodge2(width = 0.5), linewidth = ind_ivfn_and_tfn_linewidth
       )
   } else if (object$fcm_class == "tfn") {
     ggplot_main <- ggplot_main +
       ggplot2::geom_pointrange(
         data = ggplot2::remove_missing(plot_data$individual_inferences),
-        aes(y = .data$name, xmin = .data$lower, x = .data$mode, xmax = .data$upper, color = .data$analysis_source, alpha = .data$analysis_source, shape = .data$analysis_source),
+        aes(y = .data$node, xmin = .data$lower, x = .data$mode, xmax = .data$upper, color = .data$analysis_source, alpha = .data$analysis_source, shape = .data$analysis_source),
         position = ggplot2::position_dodge2(width = 0.5), fatten = 0.6, linewidth = ind_ivfn_and_tfn_linewidth
       )
   }
   # ----
 
   # Aggregate FCM Inferences ----
-  if (!inputs_only & !(inputs_no_agg_and_mc_w_bs | inputs_no_agg_and_mc_w_no_bs)) {
-    if (object$fcm_class == "conventional") {
-      ggplot_main <- ggplot_main +
-        ggplot2::geom_point(
-          data = ggplot2::remove_missing(plot_data$aggregate_inferences),
-          aes(y = .data$name, x = .data$value, color = .data$analysis_source, alpha = .data$analysis_source, shape = .data$analysis_source),
-          size = 2,
-        )
-    } else if (object$fcm_class == "ivfn") {
-      ggplot_main <- ggplot_main +
-        ggplot2::geom_linerange(
-          data = ggplot2::remove_missing(plot_data$aggregate_inferences),
-          aes(y = .data$name, xmin = .data$lower, xmax = .data$upper, alpha = .data$analysis_source, color = .data$analysis_source),
-          linewidth = agg_ivfn_and_tfn_linewidth
-        )
-    } else if (object$fcm_class == "tfn") {
-      ggplot_main <- ggplot_main +
-        ggplot2::geom_pointrange(
-          data = ggplot2::remove_missing(plot_data$aggregate_inferences),
-          aes(y = .data$name, xmin = .data$lower, x = .data$mode, xmax = .data$upper, color = .data$analysis_source, alpha = .data$analysis_source, shape = .data$analysis_source),
-          fatten = 2, linewidth = agg_ivfn_and_tfn_linewidth
-        )
-    }
+  if (has_agg_calcs && object$fcm_class == "conventional") {
+    ggplot_main <- ggplot_main +
+      ggplot2::geom_point(
+        data = ggplot2::remove_missing(plot_data$aggregate_inferences),
+        aes(y = .data$node, x = .data$value, color = .data$analysis_source, alpha = .data$analysis_source, shape = .data$analysis_source),
+        size = 2,
+      )
+  } else if (has_agg_calcs && object$fcm_class == "ivfn") {
+    ggplot_main <- ggplot_main +
+      ggplot2::geom_linerange(
+        data = ggplot2::remove_missing(plot_data$aggregate_inferences),
+        aes(y = .data$node, xmin = .data$lower, xmax = .data$upper, alpha = .data$analysis_source, color = .data$analysis_source),
+        linewidth = agg_ivfn_and_tfn_linewidth
+      )
+  } else if (has_agg_calcs && object$fcm_class == "tfn") {
+    ggplot_main <- ggplot_main +
+      ggplot2::geom_pointrange(
+        data = ggplot2::remove_missing(plot_data$aggregate_inferences),
+        aes(y = .data$node, xmin = .data$lower, x = .data$mode, xmax = .data$upper, color = .data$analysis_source, alpha = .data$analysis_source, shape = .data$analysis_source),
+        fatten = 2, linewidth = agg_ivfn_and_tfn_linewidth
+      )
   }
   # ----
 
