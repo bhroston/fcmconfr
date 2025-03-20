@@ -257,5 +257,17 @@ test_that("package function pass pkgcheck checks", {
 
 
 test_that("package passes autotest", {
-  autotest_obj <- autotest::autotest_package()
+  # Autotest package says the installation is corrupt, so have to test each
+  # exported function individually
+  # autotest_obj <- autotest::autotest_package()
+
+  examples_as_yamls <- autotest::examples_to_yaml(".")
+
+  yaml_list <- autotest::examples_to_yaml(package = ".", functions = "aggregate_fcms")
+
+  # yaml_list <- autotest::examples_to_yaml(package = ".", functions = "aggregate_fcms")
+  # res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)
+
+
+
 })

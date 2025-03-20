@@ -43,6 +43,9 @@ pak::pak("bhroston/fcmconfr")
 remotes::install_github("bhroston/fcmconfr")
 ```
 
+Note: `fcmconfr` requires the following packages for GUI-based
+functions: visNetwork, shiny, shinyWidgets, bslib.
+
 ## Example
 
 A typical `fcmconfr` workflow includes the following four steps:
