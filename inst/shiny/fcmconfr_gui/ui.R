@@ -161,7 +161,7 @@ shiny_ui <- function() {
           ),
           shiny::column(
             width = 7, align = "left",
-            shinyWidgets::radioGroupButtons("parallel", "", choiceNames = c("Yes", "No"), choiceValues = c(TRUE, FALSE))
+            shinyWidgets::radioGroupButtons("parallel", "", choiceNames = c("Yes", "No"), choiceValues = c(TRUE, FALSE), selected = FALSE)
           )
         ),
         shiny::uiOutput("num_cores_in_paralell"),

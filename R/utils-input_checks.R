@@ -5,10 +5,8 @@
 # This contains internal input validation functions to ensure inputs pass
 # mutation testing from autotest.
 #
-#   Exported
-#   - check_fcmconfr_input
-#
 #   Internal
+#   - check_fcmconfr_input
 #   - check_adj_matrix_list
 #   - check_square_adj_matrix
 #   - check_numeric_vector
@@ -34,7 +32,6 @@
 #' inputs with missing values are rejected with errors.
 #' @srrstats {EA2.6} Routines appropriately process vector data regardless of
 #' additional attributes.
-
 NULL
 # ----
 
@@ -46,9 +43,6 @@ NULL
 #' particular type of fcmoconfr input (e.g. a square adjacency matrix,
 #' a numeric vector, a choice from a particular set of choices, a positive
 #' number, a positive integer, or a logical value).
-#'
-#' @details
-#' INTENDED FOR DEVELOPER USE ONLY
 #'
 #' @param x A character string, a [numeric]/[numercic vector], a [matrix]
 #' or [data.frame]-like object, or a [logical] (TRUE/FALSE) value
@@ -84,7 +78,8 @@ NULL
 #'
 #' @returns TRUE if the input passes the selected check, or an error if not
 #'
-#' @export
+#' @keywords internal
+#' @noRd
 #'
 #' @example /man/examples/ex-check_fcmconfr_input.R
 check_fcmconfr_input <- function(x,

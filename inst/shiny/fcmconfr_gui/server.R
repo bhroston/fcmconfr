@@ -457,6 +457,16 @@ shiny_server <- function(input, output, session) {
             width = 6, align = "left",
             shiny::numericInput("confidence_interval", "", value = 0.95, min = 1e-10, max = 1)
           )
+        ),
+        shiny::fluidRow(
+          shiny::column(
+            width = 6, align = "right",
+            shiny::h5("# Bootstraps", style = "padding: 25px;")
+          ),
+          shiny::column(
+            width = 6, align = "left",
+            shiny::numericInput("num_ci_bootstraps", "", value = 1000, min = 100, step = 100)
+          )
         )
       )
     } else if (!can_perform_monte_carlo_analysis()) {
@@ -607,7 +617,7 @@ shiny_server <- function(input, output, session) {
         ),
         shiny::column(
           width = 7, align = "left",
-          shiny::numericInput("n_cores", "", value = parallel::detectCores(), min = 2, max = parallel::detectCores(), step = 1)
+          shiny::numericInput("n_cores", "", value = parallel::detectCores() - 1, min = 2, max = parallel::detectCores() - 1, step = 1)
         )
       )
     } else {
@@ -617,7 +627,7 @@ shiny_server <- function(input, output, session) {
   # ----
 
 
-  # fcmconfr Code Snippet
+  # fcmconfr Code Snippet ----
 
   fcmconfr_code_snippet_text <- shiny::eventReactive(input$get_code, {
 
@@ -653,7 +663,7 @@ shiny_server <- function(input, output, session) {
     }
 
     bootstrap_inputs <- c(
-      "ci_centering_function", "confidence_interval"
+      "ci_centering_function", "confidence_interval", "num_ci_bootstraps"
     )
     if (!all(bootstrap_inputs %in% names(input))) {
       code_snippet_text <- "Select bootstrapping options to create fcmconfr() code snippet"
@@ -661,7 +671,9 @@ shiny_server <- function(input, output, session) {
     }
 
     if (input$parallel == "FALSE" || is.null(input$n_cores)) {
-      n_cores <- "integer()"
+      n_cores <- 1
+    } else {
+      n_cores <- input$n_cores
     }
 
     if (is.null(clamping_vector())) {
@@ -745,6 +757,7 @@ shiny_server <- function(input, output, session) {
         "  # Inference Estimation (bootstrap)", "\n",
         "  ci_centering_function = ", paste0("'", input$ci_centering_function, "'"), ",\n",
         "  confidence_interval = ", input$confidence_interval, ",\n",
+        "  num_ci_bootstraps = ", input$num_ci_bootstraps, ",\n",
         "  # Runtime Options", "\n",
         "  show_progress = ", input$show_progress, ",\n",
         "  parallel = ", input$parallel, ",\n",
@@ -802,6 +815,7 @@ shiny_server <- function(input, output, session) {
         "  # Inference Estimation (bootstrap)", "\n",
         "  ci_centering_function = ", paste0("'", input$ci_centering_function, "'"), ",\n",
         "  confidence_interval = ", input$confidence_interval, ",\n",
+        "  num_ci_bootstraps = ", x$num_ci_bootstraps, ",\n",
         "  # Runtime Options", "\n",
         "  show_progress = ", input$show_progress, ",\n",
         "  parallel = ", input$parallel, ",\n",
@@ -844,6 +858,8 @@ shiny_server <- function(input, output, session) {
   output$fcmconfr_code_snippet <- shiny::renderPrint({
     cat(fcmconfr_code_snippet_text())
   })
+
+  # ----
 
   shiny::observeEvent(input$close_app, {
     shiny::stopApp()

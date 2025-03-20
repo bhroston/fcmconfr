@@ -124,7 +124,6 @@ tfn_example_fcmconfr <- fcmconfr(
   # Inference Estimation (bootstrap)
   ci_centering_function = "mean",
   confidence_interval = 0.95,
-  num_ci_bootstraps = 1000,
   # Runtime Options
   show_progress = TRUE,
   parallel = FALSE,

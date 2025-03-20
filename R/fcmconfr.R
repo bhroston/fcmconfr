@@ -200,58 +200,63 @@ NULL
 #' f_{tanh}( x) =\frac{e^{x} -e^{-x}}{e^{x} +e^{-x}}
 #' }
 #'
-#' @param adj_matrices A single adjacency matrix or a list of adjacency matrices
-#' (n x n) representing FCMs. Matrices can have conventional edge weights, IVFN
-#' edge weights or TFN edge weights
-#' @param agg_function Choice of aggregation method (mean, median) for
-#' producing a single "collective" FCM from a group of individual FCMs. Omit
-#' this argument when analyzing a single, conventional FCM.
-#' @param num_mc_fcms Number of inferences to generate via Monte Carlo sampling.
-#' Omit this argument when analyzing a single, conventional FCM.
-#' @param initial_state_vector A list of state values (one per node) at the
-#' start of an FCM simulation. In pulse simulations the
+#' @param adj_matrices \[`list()`]\cr A single adjacency matrix or a list of
+#' adjacency matrices (n x n) representing FCMs. Matrices can have conventional
+#' edge weights, IVFN edge weights or TFN edge weights.
+#' @param agg_function Aggregate the adj. matrices into a single FCM by taking
+#' either the mean or median of the edge weights for edges included in multiple maps
+#' @param num_mc_fcms \[`integer(1)` - Positive] The number of inferences to
+#' generate via Monte Carlo sampling. Omit this argument when analyzing a
+#' single, conventional FCM.
+#' @param initial_state_vector \[`vector("double")`]\cr A list of state values
+#' (one per node) at the start of an FCM simulation. In pulse simulations the
 #' \code{initial_state_vector}  controls the scenario (i.e., a non-zero value
 #' is a transient perturbation). In clamped simulations all values in the
 #' \code{initial_state_vector} are set to 1.
-#' @param clamping_vector A list of values (one per node) that indicates
-#' whether clamped simulations will be performed. In clamped simulations the
-#' \code{clamping_vector} controls the scenario (nodes assigned non-zero values
-#' will remain at those values for the entire simulation). In pulse simulations
-#' all values in the \code{clamping_vector} are set to 0.
-#' @param activation The activation function used. Must be one of the following:
-#' 'kosko', 'modified-kosko', or 'rescale'.
-#' @param squashing The squashing function used. Must be one of the following:
-#' 'tanh', or 'sigmoid'.
-#' @param lambda A numeric value that defines the steepness of the squashing
-#' function
-#' @param point_of_inference Definition of an inference. The metric used to
-#' calculate  the response of each node to a scenario of interest from
-#' simulation timeseries. Must be one of the following: 'peak' (the maximum
-#' value) or 'final' (the state at equilibrium).
-#' @param max_iter The maximum number of iterations to run (increase if the
-#' minimum error value is not achieved)
-#' @param min_error The error past which a simulation has converged and no
-#' further iterations are necessary. \emph{Error equals the sum of the
-#' absolute value of the current state vector minus the previous state vector}.
-#' @param ci_centering_function Estimate confidence intervals about the "mean" or "median" of
-#' inferences from Monte Carlo simulations
-#' @param confidence_interval Bootstrapped confidence level
-#' @param show_progress TRUE/FALSE Show progress bar when running FCM
-#' simulations.
-#' @param parallel TRUE/FALSE Whether to utilize parallel processing
-#' @param n_cores Number of cores to use in parallel processing. If no input given,
-#' all available cores will be used.
-#' @param run_agg_calcs TRUE/FALSE Generate an aggregate FCM and perform dynamic
-#' simulations using the aggregate
-#' @param run_mc_calcs TRUE/FALSE Perform Monte Carlo sampling to estimate
-#' uncertainty in simulation inferences.
-#' @param run_ci_calcs TRUE/FALSE Estimate bootstrapped confidence bounds about
-#' the central tendency of Monte Carlo inferences.
-#' @param include_zeroes_in_sampling TRUE/FALSE Incorporate zero-weighted edges
-#' during FCM aggregation and Monte Carlo sampling.
-#' @param include_sims_in_output TRUE/FALSE Include Monte Carlo FCMs in addition
-#' to Monte Carlo simulations (and inferences) in fcmconfr output. Switch to
-#' FALSE to reduce output size.
+#' @param clamping_vector \[`vector("double")`]\cr A list of values (one per
+#' node) that indicates whether clamped simulations will be performed. In
+#' clamped simulations the \code{clamping_vector} controls the scenario (nodes
+#' assigned non-zero values will remain at those values for the entire
+#' simulation). In pulse simulations all values in the \code{clamping_vector}
+#' are set to 0.
+#' @param activation \[`character(1)`]\cr The activation function used. Must be
+#'  one of the following: 'kosko', 'modified-kosko', or 'rescale'.
+#' @param squashing  \[`character(1)`]\cr The squashing function used. Must be
+#' one of the following: 'tanh' or 'sigmoid'.
+#' @param lambda \[`double(1)`] Positive\cr A numeric value that defines the
+#' steepness of the squashing function's slope.
+#' @param point_of_inference \[`character(1)`]\cr Definition of an inference.
+#' The metric used to calculate  the response of each node to a scenario of
+#' interest from a simulation timeseries. Must be one of the following: 'peak'
+#' (the maximum value) or 'final' (the state at equilibrium).
+#' @param max_iter \[`integer(1)` - Positive]\cr The maximum number of
+#' iterations to run (increase if the minimum error value is not achieved).
+#' @param min_error \[`double(1)` - Positive]\cr The error past which a
+#' simulation has converged and no further iterations are necessary. \emph{Error
+#' equals the sum of the absolute value of the current state vector minus the
+#' previous state vector}.
+#' @param ci_centering_function \[`character(1)`]\cr Estimate confidence
+#' intervals about the "mean" or "median" of inferences from Monte Carlo
+#' simulations
+#' @param confidence_interval \[`double(1)` - Positive (between 0 and 1)]\cr
+#' Bootstrapped confidence level
+#' @param num_ci_bootstraps \[`integer(1)` - Positive] Number of bootstrap draws
+#' @param parallel \[`logical(1)`]\cr If TRUE, utilize parallel processing.
+#' @param n_cores \[`integer(1)` - Positive]\cr The number of cores to use in
+#' parallel processing. If no input given, all available cores will be used.
+#' @param show_progress \[`logical(1)`]\cr If TRUE, show progress bars and print
+#' runtime updates in the console when performing FCM simulations.
+#' @param run_agg_calcs \[`logical(1)`]\cr If TRUE, run the code to generate and
+#' simulate an aggregate FCM generated from the input adj_matrices.
+#' @param run_mc_calcs \[`logical(1)`]\cr If TRUE, run the code to generate and
+#' simulate monte carlo-generated FCM sampled from the input adj_matrices
+#' @param run_ci_calcs TRUE/FALSE Run the code to estimate the 95 percent CI
+#' bounds about the means of the inferences of the monte carlo adj matrices
+#' @param include_zeroes_in_sampling \[`logical(1)`]\cr If TRUE, incorporate
+#' zeroes as intentionally-defined edge weights or ignore them when aggregating
+#' adjacency matrices and sampling for Monte Carlo FCMs.
+#' @param include_sims_in_output \[`logical(1)`]\cr If TRUE, include simulations
+#' and inferences in output. Set to FALSE to reduce output size.
 #' @param silent \[`logical(1)`]\cr If TRUE, suppress warning and error
 #' messages.
 #'
@@ -282,6 +287,7 @@ fcmconfr <- function(adj_matrices = list(),
                      # Inference Estimation (bootstrap)
                      ci_centering_function = c("mean", "median"),
                      confidence_interval = 0.95,
+                     num_ci_bootstraps = 1000L,
                      # Runtime Options
                      show_progress = TRUE,
                      parallel = FALSE,
@@ -308,7 +314,7 @@ fcmconfr <- function(adj_matrices = list(),
     # Simulation
     initial_state_vector, clamping_vector, activation, squashing, lambda, point_of_inference, max_iter, min_error,
     # Inference Estimation (bootstrap)
-    ci_centering_function, confidence_interval,
+    ci_centering_function, confidence_interval, num_ci_bootstraps,
     # Runtime Options
     show_progress, parallel, n_cores, run_agg_calcs,
     # Additional Options
@@ -332,6 +338,7 @@ fcmconfr <- function(adj_matrices = list(),
   # Inference Estimation (bootstrap)
   ci_centering_function <- checks$ci_centering_function
   confidence_interval <- checks$confidence_interval
+  num_ci_bootstraps <- checks$num_ci_bootstraps
   # Runtime Options
   show_progress <- checks$show_progress
   parallel <- checks$parallel
@@ -384,7 +391,7 @@ fcmconfr <- function(adj_matrices = list(),
     mc_inferences <- infer_fcm_set(mc_adj_matrices, initial_state_vector, clamping_vector, activation, squashing, lambda, point_of_inference, max_iter, min_error, parallel, n_cores, show_progress, include_sims_in_output, silent = silent, skip_checks = TRUE)
 
     if (run_ci_calcs) {
-      CIs_of_expected_values_of_mc_simulation_inferences <- get_quantiles_and_bootstrapped_CIs_of_inferences(mc_inferences, ci_centering_function, confidence_interval, parallel, n_cores, show_progress, skip_checks = TRUE)
+      CIs_of_expected_values_of_mc_simulation_inferences <- get_quantiles_and_bootstrapped_CIs_of_inferences(mc_inferences, ci_centering_function,  confidence_interval, num_ci_bootstraps, parallel, n_cores, show_progress, skip_checks = TRUE)
     }
   }
   # ----
@@ -583,6 +590,7 @@ get_fcmconfr_inferences <- function(fcmconfr_result_obj = list(),
 #' simulations
 #' @param confidence_interval \[`double(1)` - Positive (between 0 and 1)]\cr
 #' Bootstrapped confidence level
+#' @param num_ci_bootstraps \[`integer(1)` - Positive] Number of bootstrap draws
 #' @param parallel \[`logical(1)`]\cr If TRUE, utilize parallel processing.
 #' @param n_cores \[`integer(1)` - Positive]\cr The number of cores to use in
 #' parallel processing. If no input given, all available cores will be used.
@@ -624,6 +632,7 @@ check_fcmconfr_function_inputs <- function(adj_matrices = list(),
                                            # Inference Estimation (bootstrap)
                                            ci_centering_function = c("mean", "median"),
                                            confidence_interval = 0.95,
+                                           num_ci_bootstraps = 1000L,
                                            # Runtime Options
                                            show_progress = TRUE,
                                            parallel = TRUE,
@@ -670,6 +679,7 @@ check_fcmconfr_function_inputs <- function(adj_matrices = list(),
   check_fcmconfr_input(num_mc_fcms, check = "positive_integer", var_name = "num_ci_fcms")
   check_fcmconfr_input(ci_centering_function, check = "choice_selection", var_name = "ci_centering_function", choice_selection_opts = c("mean", "median"))
   check_fcmconfr_input(confidence_interval, check = "positive_number", var_name = "confidence_interval")
+  check_fcmconfr_input(num_ci_bootstraps, check = "positive_integer", var_name = "num_ci_bootstraps")
   check_fcmconfr_input(run_agg_calcs, check = "logical", var_name = "run_agg_calcs")
   check_fcmconfr_input(run_mc_calcs, check = "logical", var_name = "run_mc_calcs")
   check_fcmconfr_input(run_ci_calcs, check = "logical", var_name = "run_ci_calcs")
@@ -723,6 +733,7 @@ check_fcmconfr_function_inputs <- function(adj_matrices = list(),
     # Inference Estimation (bootstrap)
     ci_centering_function = tolower(as.character(ci_centering_function)),
     confidence_interval = as.numeric(confidence_interval),
+    num_ci_bootstraps = as.integer(num_ci_bootstraps),
     # Runtime Options
     show_progress = sim_input_checks$show_progress,
     parallel = sim_input_checks$parallel,
@@ -828,7 +839,8 @@ organize_fcmconfr_output <- function(...) {
     )
     fcmconfr_output$params$confidence_intervals_bootstrap_opts = list(
       ci_centering_function = variables$ci_centering_function,
-      confidence_interval = variables$confidence_interval
+      confidence_interval = variables$confidence_interval,
+      num_ci_bootstraps = variables$num_ci_bootstraps
     )
   }
 
@@ -928,6 +940,7 @@ print.fcmconfr <- function(x, ...) {
         paste0(" - monte_carlo_fcms: Inferences of data from the ", n_mc_sims, " fcms constructed from the ", n_input_fcm, " input fcm adj. matrices."),
         "\n$confidence_intervals\n",
         paste0(" - CIs_about_means_and_quantiles_by_node: ", round(x$params$confidence_intervals_bootstrap_opts$confidence_interval, 2), "% CI of means of inferences and quantiles by node\n"),
+        paste0(" - bootstrapped_expected_values: ", x$params$confidence_intervals_bootstrap_opts$num_ci_bootstraps),
         "\n$aggregate_adj_matrix",
         "\n$mc_adj_matrices",
         "\n$params\n",
@@ -959,6 +972,7 @@ print.fcmconfr <- function(x, ...) {
         paste0(" - monte_carlo_fcms: Inferences of data from the ", n_mc_sims, " fcms constructed from the ", n_input_fcm, " input fcm adj. matrices."),
         "\n$bootstrap\n",
         paste0(" - CIs_about_means_and_quantiles_by_node: ", round(x$params$confidence_intervals_bootstrap_opts$confidence_interval, 2), "% CI of means of inferences and quantiles by node\n"),
+        paste0(" - bootstrapped_expected_values: ", x$params$confidence_intervals_bootstrap_opts$num_ci_bootstraps),
         "\n$mc_adj_matrices",
         "\n$params\n",
         " - simulation_opts:",
