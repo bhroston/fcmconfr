@@ -1,3 +1,23 @@
+#' @srrstats {G2.0, G2.0a, G2.1, G2.1a, G2.2, G2.3, G2.3a, G2.3b} Thorough input
+#'  validation methods are applied
+#'
+#' @srrstats {G2.4, G2.4a, G2.4b, G2.4c} Data type assertions performed
+#' @srrstats {G2.6, G2.7, G2.8, G2.9, G2.12} Additional input validations applied
+#'  validation methods are applied
+#' @srrstats {G2.11} Data.frame-like tabular objects handle non-standard classes
+#'  appropriately
+#' @srrstats {G2.13, G2.14, G2.14a, G2.15, G2.16} Throws errors on missing/infinite
+#'  data. Inappropriate to assume values for invalid data in analysis
+#' @srrstats {BS2.1, BS2.6} Proper checks for inputs and computational parameters
+#' @srrstats {BS3.0} No assumptions are made regarding missing values as
+#'  inputs with missing values are rejected with errors
+#' @srrstats {EA2.6} Routines appropriately process vector data regardless of
+#'  additional attributes
+#' @srrstats {EA4.1} Input validation functions validate integer vs
+#'  numeric inputs
+#' @noRd
+NULL
+
 
 ################################################################################
 # utils-input_checks.R
@@ -19,24 +39,6 @@
 #   - check_access_to_parallel_processing_and_progress_display_functionalities
 #
 ################################################################################
-
-# rOpenSci Statistical Software Standards ----
-#' @srrstats {G2.0, G2.0a, 2.1, 2.1a, 2.2, 2.3, 2.3a, 2.3b, 2.4, 2.4a, 2.4b,
-#' 2.4c, 2.6, 2.7, 2.8, 2.9, 2.12} Thorough input validation methods are applied.
-#' @srrstats {G2.11} Data.frame-like tabular objects handle non-standard classes
-#' appropriately
-#' @srrstats {G2.13, 2.14, 2.14a, 2.15, 2.16} Throws errors on missing/infinite
-#' data. Inappropriate to assume values for invalid data in analysis.
-#' @srrstats {BS2.1, BS2.6} Proper checks for inputs and computational parameters.
-#' @srrstats {BS3.0} No assumptions are made regarding missing values as
-#' inputs with missing values are rejected with errors.
-#' @srrstats {EA2.6} Routines appropriately process vector data regardless of
-#' additional attributes.
-#' @srrstats{EA4.1} Input validation functions validate integer vs
-#' numeric inputs.
-#' @noRd
-NULL
-# ----
 
 #' Check fcmconfr Input
 #'

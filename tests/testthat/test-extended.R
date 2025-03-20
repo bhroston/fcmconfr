@@ -251,23 +251,24 @@ test_that("fcmconfr scales appropriately with additional adjacency matrices", {
 
 
 test_that("package function pass pkgcheck checks", {
+  skip_if_not(run_extended_tests)
+
   pkgcheck_obj <- pkgcheck::pkgcheck()
 
 })
 
 
 test_that("package passes autotest", {
+  skip_if_not(run_extended_tests)
   # Autotest package says the installation is corrupt, so have to test each
   # exported function individually
   # autotest_obj <- autotest::autotest_package()
 
-  examples_as_yamls <- autotest::examples_to_yaml(".")
+  examples_as_yamls <- autotest::examples_to_yaml(".", functions = "estimate_fcm_lambda")
 
   yaml_list <- autotest::examples_to_yaml(package = ".", functions = "aggregate_fcms")
 
   # yaml_list <- autotest::examples_to_yaml(package = ".", functions = "aggregate_fcms")
   # res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)
-
-
 
 })

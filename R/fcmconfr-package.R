@@ -6,14 +6,18 @@
 #' `browseVignettes(package = "fcmconfr")`
 #' @keywords internal
 #'
-#' @srrstats {G1.0, 1.1} Methods cited in fcmconfr() function documentation and
+#' @srrstats {G1.0, G1.1} Methods cited in fcmconfr() function documentation and
 #' fcmconfr vignette
+#' @srrstats {G1.2} Package includes a lifestyle statement in the README
 #' @srrstats {G1.3} All statistical terminology is defined and explained
-#' @srrstats {G1.4, 1.4a} All functions (exported and internal) use roxygen2
+#' @srrstats {G1.4, G1.4a} All functions (exported and internal) use roxygen2
 #' format; internal functions include the `@noRd` tag
-#' @srrstats {G1.5, 1.6} No performance claims are made
+#' @srrstats {G1.5, G1.6} No performance claims are made
 #' @srrstats {G2.10} Extraction of single columns is systematic and robust
 #' @srrstats {G3.0} Floating point numbers are not compared for equality
+#' @srrstats {BS1.1} Descriptions of data entry in vignette
+#' @srrstats {EA1.0, EA1.1, EA1.2} Audience, data, and study questions discussed
+#' in README and vignette
 #' @srrstats {EA1.3} Input data types defined for all functions
 #' @srrstats {EA2.0, EA2.1, EA2.2, EA2.2a, EA2.2b, EA2.3} Tabular data features
 #' index columns where appropriate.
