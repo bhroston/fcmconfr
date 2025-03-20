@@ -1,4 +1,73 @@
 #
+# test_that("fcmconfr_gui works (manually)", {
+#
+#   test_conventional_fcms <- sample_fcms$simple_fcms$conventional_fcms
+#
+#   fcmconfr_gui()
+#
+#   x <- fcmconfr(
+#     adj_matrices = test_conventional_fcms,
+#     # Aggregation and Monte Carlo Sampling
+#     agg_function = 'mean',
+#     num_mc_fcms = 1000,
+#     # Simulation
+#     initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
+#     clamping_vector = c(0, 1, 0, 0, 0, 0, 0),
+#     activation = 'kosko',
+#     squashing = 'sigmoid',
+#     lambda = 1,
+#     point_of_inference = 'final',
+#     max_iter = 100,
+#     min_error = 1e-05,
+#     # Inference Estimation (bootstrap)
+#     ci_centering_function = 'mean',
+#     confidence_interval = 0.95,
+#     num_ci_bootstraps = 1000,
+#     # Runtime Options
+#     show_progress = TRUE,
+#     parallel = TRUE,
+#     n_cores = 1,
+#     # Additional Options
+#     run_agg_calcs = TRUE,
+#     run_mc_calcs = TRUE,
+#     run_ci_calcs = TRUE,
+#     include_zeroes_in_sampling = TRUE,
+#     include_sims_in_output = TRUE
+#   )
+#
+#   x <- fcmconfr(
+#     adj_matrices = test_conventional_fcms,
+#     # Aggregation and Monte Carlo Sampling
+#     agg_function = 'mean',
+#     num_mc_fcms = 1000,
+#     # Simulation
+#     initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
+#     clamping_vector = c(0, 1, 0, 0, 0, 0, 0),
+#     activation = 'kosko',
+#     squashing = 'sigmoid',
+#     lambda = 1,
+#     point_of_inference = 'final',
+#     max_iter = 100,
+#     min_error = 1e-05,
+#     # Inference Estimation (bootstrap)
+#     ci_centering_function = 'mean',
+#     confidence_interval = 0.95,
+#     num_ci_bootstraps = 1000,
+#     # Runtime Options
+#     show_progress = TRUE,
+#     parallel = FALSE,
+#     n_cores = 1,
+#     # Additional Options
+#     run_agg_calcs = TRUE,
+#     run_mc_calcs = TRUE,
+#     run_ci_calcs = TRUE,
+#     include_zeroes_in_sampling = TRUE,
+#     include_sims_in_output = TRUE
+#   )
+# })
+
+
+#
 # test_that("fcmconfr_gui console output works", {
 #   agg_and_no_mc_and_no_bs <- structure(
 #     .Data = list(

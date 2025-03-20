@@ -16,7 +16,6 @@ ex_conventional_fcmconfr <- fcmconfr(
   # Inference Estimation (bootstrap)
   ci_centering_function = "mean",
   confidence_interval = 0.95,
-  num_ci_bootstraps = 100L,
   # Runtime Options
   show_progress = TRUE,
   parallel = FALSE,
@@ -48,7 +47,6 @@ ex_ivfn_fcmconfr <- fcmconfr(
   # Inference Estimation (bootstrap)
   ci_centering_function = "mean",
   confidence_interval = 0.95,
-  num_ci_bootstraps = 100L,
   # Runtime Options
   show_progress = TRUE,
   parallel = FALSE,
@@ -79,7 +77,6 @@ ex_tfn_fcmconfr <- fcmconfr(
   # Inference Estimation (bootstrap)
   ci_centering_function = "mean",
   confidence_interval = 0.95,
-  num_ci_bootstraps = 100L,
   # Runtime Options
   show_progress = TRUE,
   parallel = FALSE,

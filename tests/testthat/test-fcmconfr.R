@@ -354,7 +354,7 @@ test_that("pulse only fcmconfr works", {
 test_that("fcmconfr works with igraph inputs", {
   fcms_as_igraph_objects <- lapply(sample_fcms$large_fcms$conventional_fcms, function(fcm) {
     igraph::graph_from_adjacency_matrix(as.matrix(fcm), mode = "directed", weighted = TRUE)
-    }
+  }
   )
   fcms_from_igraph_objects <- lapply(fcms_as_igraph_objects, igraph::as_adjacency_matrix, attr = "weight")
 

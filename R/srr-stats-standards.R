@@ -8,19 +8,7 @@
 #' (These comments may be deleted at any time.)
 #'
 #' @srrstatsVerbose TRUE
-
-# May need to be used in an extended  test
-#' @srrstatsTODO {G5.7} **Algorithm performance tests** *to test that implementation performs as expected as properties of data change. For instance, a test may show that parameters approach correct estimates within tolerance as data size increases, or that convergence times decrease for higher convergence thresholds.*
-
-#' Bayesian standards
-#' @srrstatsTODO {BS7.3} *Bayesian software should include tests which demonstrate and confirm the scaling of algorithmic efficiency with sizes of input data.*
-
-# Exploratory Data Analysis Standards
 #'
-#' @srrstatsTODO {EA3.0} *The algorithmic components of EDA Software should enable automated extraction and/or reporting of statistics as some sufficiently "meta" level (such as variable or model selection), for which previous or reference implementations require manual intervention.*
-#' @srrstatsTODO {EA4.1} *EDA Software should implement parameters to enable explicit control of numeric precision*
-#'
-
 #' @noRd
 NULL
 
@@ -39,7 +27,6 @@ NULL
 #' files.
 #' @srrstatsNA {G5.0} Tests require non-standard data sets.
 #' @srrstatsNA {G5.4c} Outputs are not compared to values in published papers.
-#' @srrstatsNA {G5.10, G5.11, G5.11a, G5.12} No extended tests used.
 #' @srrstatsNA {BS1.0} No use of the term "hyperparameter".
 #' @srrstatsNA {BS1.2, BS1.2a, BS1.2b, BS1.2c} No prior distributions used.
 #' @srrstatsNA {BS1.3, BS1.3a, BS1.3b} Functionality not supported in this
@@ -59,8 +46,6 @@ NULL
 #' @srrstatsNA {EA5.1} Graphing functions do not override default typeface values
 #' @srrstatsNA {EA2.4, EA2.5} Multi-tabular inputs not accepted by package
 #' @srrstatsNA {EA5.3} No column-based summary statistics used.
-#'
-#'
 #' @noRd
 NULL
 

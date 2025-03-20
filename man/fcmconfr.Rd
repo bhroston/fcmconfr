@@ -18,7 +18,7 @@ fcmconfr(
   min_error = 1e-05,
   ci_centering_function = c("mean", "median"),
   confidence_interval = 0.95,
-  num_ci_bootstraps = 5000L,
+  num_ci_bootstraps = 1000L,
   show_progress = TRUE,
   parallel = FALSE,
   n_cores = 1L,
@@ -31,80 +31,84 @@ fcmconfr(
 )
 }
 \arguments{
-\item{adj_matrices}{A single adjacency matrix or a list of adjacency matrices
-(n x n) representing FCMs. Matrices can have conventional edge weights, IVFN
-edge weights or TFN edge weights}
+\item{adj_matrices}{[\code{list()}]\cr A single adjacency matrix or a list of
+adjacency matrices (n x n) representing FCMs. Matrices can have conventional
+edge weights, IVFN edge weights or TFN edge weights.}
 
-\item{agg_function}{Choice of aggregation method (mean, median) for
-producing a single "collective" FCM from a group of individual FCMs. Omit
-this argument when analyzing a single, conventional FCM.}
+\item{agg_function}{Aggregate the adj. matrices into a single FCM by taking
+either the mean or median of the edge weights for edges included in multiple maps}
 
-\item{num_mc_fcms}{Number of inferences to generate via Monte Carlo sampling.
-Omit this argument when analyzing a single, conventional FCM.}
+\item{num_mc_fcms}{[\code{integer(1)} - Positive] The number of inferences to
+generate via Monte Carlo sampling. Omit this argument when analyzing a
+single, conventional FCM.}
 
-\item{initial_state_vector}{A list of state values (one per node) at the
-start of an FCM simulation. In pulse simulations the
+\item{initial_state_vector}{[\code{vector("double")}]\cr A list of state values
+(one per node) at the start of an FCM simulation. In pulse simulations the
 \code{initial_state_vector}  controls the scenario (i.e., a non-zero value
 is a transient perturbation). In clamped simulations all values in the
 \code{initial_state_vector} are set to 1.}
 
-\item{clamping_vector}{A list of values (one per node) that indicates
-whether clamped simulations will be performed. In clamped simulations the
-\code{clamping_vector} controls the scenario (nodes assigned non-zero values
-will remain at those values for the entire simulation). In pulse simulations
-all values in the \code{clamping_vector} are set to 0.}
+\item{clamping_vector}{[\code{vector("double")}]\cr A list of values (one per
+node) that indicates whether clamped simulations will be performed. In
+clamped simulations the \code{clamping_vector} controls the scenario (nodes
+assigned non-zero values will remain at those values for the entire
+simulation). In pulse simulations all values in the \code{clamping_vector}
+are set to 0.}
 
-\item{activation}{The activation function used. Must be one of the following:
-'kosko', 'modified-kosko', or 'rescale'.}
+\item{activation}{[\code{character(1)}]\cr The activation function used. Must be
+one of the following: 'kosko', 'modified-kosko', or 'rescale'.}
 
-\item{squashing}{The squashing function used. Must be one of the following:
-'tanh', or 'sigmoid'.}
+\item{squashing}{[\code{character(1)}]\cr The squashing function used. Must be
+one of the following: 'tanh' or 'sigmoid'.}
 
-\item{lambda}{A numeric value that defines the steepness of the squashing
-function}
+\item{lambda}{[\code{double(1)}] Positive\cr A numeric value that defines the
+steepness of the squashing function's slope.}
 
-\item{point_of_inference}{Definition of an inference. The metric used to
-calculate  the response of each node to a scenario of interest from
-simulation timeseries. Must be one of the following: 'peak' (the maximum
-value) or 'final' (the state at equilibrium).}
+\item{point_of_inference}{[\code{character(1)}]\cr Definition of an inference.
+The metric used to calculate  the response of each node to a scenario of
+interest from a simulation timeseries. Must be one of the following: 'peak'
+(the maximum value) or 'final' (the state at equilibrium).}
 
-\item{max_iter}{The maximum number of iterations to run (increase if the
-minimum error value is not achieved)}
+\item{max_iter}{[\code{integer(1)} - Positive]\cr The maximum number of
+iterations to run (increase if the minimum error value is not achieved).}
 
-\item{min_error}{The error past which a simulation has converged and no
-further iterations are necessary. \emph{Error equals the sum of the
-absolute value of the current state vector minus the previous state vector}.}
+\item{min_error}{[\code{double(1)} - Positive]\cr The error past which a
+simulation has converged and no further iterations are necessary. \emph{Error
+equals the sum of the absolute value of the current state vector minus the
+previous state vector}.}
 
-\item{ci_centering_function}{Estimate confidence intervals about the "mean" or "median" of
-inferences from Monte Carlo simulations}
+\item{ci_centering_function}{[\code{character(1)}]\cr Estimate confidence
+intervals about the "mean" or "median" of inferences from Monte Carlo
+simulations}
 
-\item{confidence_interval}{Bootstrapped confidence level}
+\item{confidence_interval}{[\code{double(1)} - Positive (between 0 and 1)]\cr
+Bootstrapped confidence level}
 
-\item{num_ci_bootstraps}{Number of bootstrap draws}
+\item{num_ci_bootstraps}{[\code{integer(1)} - Positive] Number of bootstrap draws}
 
-\item{show_progress}{TRUE/FALSE Show progress bar when running FCM
-simulations.}
+\item{show_progress}{[\code{logical(1)}]\cr If TRUE, show progress bars and print
+runtime updates in the console when performing FCM simulations.}
 
-\item{parallel}{TRUE/FALSE Whether to utilize parallel processing}
+\item{parallel}{[\code{logical(1)}]\cr If TRUE, utilize parallel processing.}
 
-\item{n_cores}{Number of cores to use in parallel processing. If no input given,
-all available cores will be used.}
+\item{n_cores}{[\code{integer(1)} - Positive]\cr The number of cores to use in
+parallel processing. If no input given, all available cores will be used.}
 
-\item{run_agg_calcs}{TRUE/FALSE Generate an aggregate FCM and perform dynamic
-simulations using the aggregate}
+\item{run_agg_calcs}{[\code{logical(1)}]\cr If TRUE, run the code to generate and
+simulate an aggregate FCM generated from the input adj_matrices.}
 
-\item{run_mc_calcs}{TRUE/FALSE Perform Monte Carlo sampling to estimate
-uncertainty in simulation inferences.}
+\item{run_mc_calcs}{[\code{logical(1)}]\cr If TRUE, run the code to generate and
+simulate monte carlo-generated FCM sampled from the input adj_matrices}
 
-\item{run_ci_calcs}{TRUE/FALSE Estimate bootstrapped confidence bounds about
-the central tendency of Monte Carlo inferences.}
+\item{run_ci_calcs}{TRUE/FALSE Run the code to estimate the 95 percent CI
+bounds about the means of the inferences of the monte carlo adj matrices}
 
-\item{include_zeroes_in_sampling}{TRUE/FALSE Incorporate zero-weighted edges
-during FCM aggregation and Monte Carlo sampling.}
+\item{include_zeroes_in_sampling}{[\code{logical(1)}]\cr If TRUE, incorporate
+zeroes as intentionally-defined edge weights or ignore them when aggregating
+adjacency matrices and sampling for Monte Carlo FCMs.}
 
-\item{include_sims_in_output}{TRUE/FALSE Include Monte Carlo FCMs in addition
-to Monte Carlo simulations (and inferences) in fcmconfr output. Switch to
-FALSE to reduce output size.}
+\item{include_sims_in_output}{[\code{logical(1)}]\cr If TRUE, include simulations
+and inferences in output. Set to FALSE to reduce output size.}
 
 \item{silent}{[\code{logical(1)}]\cr If TRUE, suppress warning and error
 messages.}
@@ -300,7 +304,6 @@ ex_conventional_fcmconfr <- fcmconfr(
   # Inference Estimation (bootstrap)
   ci_centering_function = "mean",
   confidence_interval = 0.95,
-  num_ci_bootstraps = 100L,
   # Runtime Options
   show_progress = TRUE,
   parallel = FALSE,
@@ -332,7 +335,6 @@ ex_ivfn_fcmconfr <- fcmconfr(
   # Inference Estimation (bootstrap)
   ci_centering_function = "mean",
   confidence_interval = 0.95,
-  num_ci_bootstraps = 100L,
   # Runtime Options
   show_progress = TRUE,
   parallel = FALSE,
@@ -363,7 +365,6 @@ ex_tfn_fcmconfr <- fcmconfr(
   # Inference Estimation (bootstrap)
   ci_centering_function = "mean",
   confidence_interval = 0.95,
-  num_ci_bootstraps = 100L,
   # Runtime Options
   show_progress = TRUE,
   parallel = FALSE,

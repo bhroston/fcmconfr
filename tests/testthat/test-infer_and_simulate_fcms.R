@@ -421,7 +421,7 @@ test_that("simulate_fcm works", {
 
 
 # All checks pass (and autotest returns NULL)
-#' @srrstatsTODO {G5.6, G5.6a} Tests that results are comparable to existing
+#' @srrstats {G5.6, G5.6a, G5.6b} Tests that results are comparable to existing
 #  packages with similar functionality.
 test_that("simulate_conventional_fcm works", {
   # functions_to_check <- c("simulate_conventional_fcm")
