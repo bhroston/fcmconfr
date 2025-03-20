@@ -22,9 +22,7 @@
 #' using round()
 #' @srrstats {EA5.6} Need for libraries for dynamic visualization are explained
 #' is explained in README
-#'
-
-#'
+#' @noRd
 "_PACKAGE"
 
 

@@ -34,8 +34,9 @@ Suggests:
     graphics (>= 4.3.2),
     vdiffr (>= 1.0.8)
 Config/testthat/edition: 3
+Roxygen: list(markdown = TRUE, roclets = c ("namespace", "rd", 
+  "srr::srr_stats_roclet"))
 RoxygenNote: 7.3.2
-Roxygen: list (markdown = TRUE, roclets = c ("namespace", "rd", "srr::srr_stats_roclet"))
 RdMacros: Rdpack
 Imports: 
     Rdpack (>= 2.6.1),
