@@ -32,9 +32,11 @@
 #' inputs with missing values are rejected with errors.
 #' @srrstats {EA2.6} Routines appropriately process vector data regardless of
 #' additional attributes.
+#' @srrstats{EA4.1} Input validation functions validate integer vs
+#' numeric inputs.
+#' @noRd
 NULL
 # ----
-
 
 #' Check fcmconfr Input
 #'

@@ -35,7 +35,7 @@ Suggests:
     vdiffr (>= 1.0.8)
 Config/testthat/edition: 3
 RoxygenNote: 7.3.2
-Roxygen:list (markdown = TRUE, roclets = c ("namespace", "rd", "srr::srr_stats_roclet"))
+Roxygen: list (markdown = TRUE, roclets = c ("namespace", "rd", "srr::srr_stats_roclet"))
 RdMacros: Rdpack
 Imports: 
     Rdpack (>= 2.6.1),

@@ -8,17 +8,7 @@
 #' (These comments may be deleted at any time.)
 #'
 #' @srrstatsVerbose TRUE
-
-# May need to be used in an extended  test
-
-#' Bayesian standards
-
-# Exploratory Data Analysis Standards
 #'
-#' @srrstatsTODO {EA3.0} *The algorithmic components of EDA Software should enable automated extraction and/or reporting of statistics as some sufficiently "meta" level (such as variable or model selection), for which previous or reference implementations require manual intervention.*
-#' @srrstatsTODO {EA4.1} *EDA Software should implement parameters to enable explicit control of numeric precision*
-#'
-
 #' @noRd
 NULL
 
@@ -56,8 +46,6 @@ NULL
 #' @srrstatsNA {EA5.1} Graphing functions do not override default typeface values
 #' @srrstatsNA {EA2.4, EA2.5} Multi-tabular inputs not accepted by package
 #' @srrstatsNA {EA5.3} No column-based summary statistics used.
-#'
-#'
 #' @noRd
 NULL
 

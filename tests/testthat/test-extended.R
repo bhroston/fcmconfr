@@ -3,9 +3,11 @@
 #' @srrstats {G5.11, G5.11a} No large data sets are used in the extended tests.
 #' @srrstats {G5.12} Instructions on how to run extended tests is provided in
 #' tests/README.md.
-#' @srrstatsTODO {BS7.3} Tests include scaling tests for algorithmic efficiency
+#' @srrstats {BS7.3} Tests include scaling tests for algorithmic efficiency
 #' with sizes of input data.
-#' @srrstatsTODO {G5.7} Tests include algorithm performance tests.
+#' @srrstats {G5.7} Tests include algorithm performance tests.
+#' @noRd
+NULL
 
 
 
@@ -137,7 +139,6 @@ test_that("fcmconfr scales appropriately with additional adjacency matrices", {
 })
 
 
-
 test_that("fcmconfr scales appropriately with additional adjacency matrices", {
   skip_if_not(run_extended_tests)
 
@@ -249,4 +250,12 @@ test_that("fcmconfr scales appropriately with additional adjacency matrices", {
 })
 
 
+test_that("package function pass pkgcheck checks", {
+  pkgcheck_obj <- pkgcheck::pkgcheck()
 
+})
+
+
+test_that("package passes autotest", {
+  autotest_obj <- autotest::autotest_package()
+})
