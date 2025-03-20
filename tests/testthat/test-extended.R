@@ -254,6 +254,7 @@ test_that("package function pass pkgcheck checks", {
   skip_if_not(run_extended_tests)
 
   pkgcheck_obj <- pkgcheck::pkgcheck()
+  pkgcheck::render_md2html(pkgcheck::checks_to_markdown(pkgcheck_obj))
 
 })
 

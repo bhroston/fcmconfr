@@ -118,7 +118,7 @@ ivfn_fcm[2, 2][[1]] <- list(ivfn(0, 0))
 To report the IVFN of a particular edge within an IVFN matrix, we can call `ivfn_fcm[row, col]`, which returns a `list` object or `ivfn_fcm[row, col][[1]]` to return the first record in the `list` object, the IVFN itself.
 
 ::: {style="text-align: center;"}
-![](images/ivfn_example.png){width="50%"}
+![`ivfn` object organization](images/ivfn_example.png){width="50%"}
 :::
 
 <br>
