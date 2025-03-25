@@ -1015,9 +1015,15 @@ print.summary.fcmconfr <- function(object, ...) {
     summary_output$mc_CIs_and_quantiles <- mc_CIs_and_quantiles_df
   }
 
+  if (object$fcm_class == "conventional") {
+    n_individual_fcms <- nrow(object$inferences$individual_inferences)
+  } else if (object$fcm_class == "ivfn") {
+    n_individual_fcms <- nrow(object$inferences$individual_inferences$ivfn_df)
+  } else if (object$fcm_class == "tfn") {
+    n_individual_fcms <- nrow(object$inferences$individual_inferences$tfn_df)
+  }
 
-
-  summary_text_header <- paste0("Inferences via fcmconfr: ", nrow(object$inferences$individual_inferences), " individual adj. matrices (", object$fcm_class, ")")
+  summary_text_header <- paste0("Inferences via fcmconfr: ", n_individual_fcms, " individual adj. matrices (", object$fcm_class, ")")
   full_text <- capture.output(
     cat("~~~~~ Summary ~~~~~\n\n"),
     print(summary_output),
