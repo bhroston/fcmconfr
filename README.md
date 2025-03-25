@@ -82,7 +82,7 @@ package procides an easy to use GUI that can be accessed by
 <div style="text-align: center;">
 
 <figure>
-<img src="vignettes/images/cluster_1_fcmconfr_gui.png"
+<img src="reference/figures/cluster_1_fcmconfr_gui.png"
 style="width:70.0%" alt="fcmconfr_gui() Screenshot" />
 <figcaption aria-hidden="true"><code>fcmconfr_gui()</code>
 Screenshot</figcaption>
@@ -163,7 +163,7 @@ plot(fcmconfr_obj)
 <div style="text-align: center;">
 
 <figure>
-<img src="vignettes/images/fcmconfr_obj_plot.png" style="width:90.0%"
+<img src="reference/figures/fcmconfr_obj_plot.png" style="width:90.0%"
 alt="plot.fcmconfr() Output" />
 <figcaption aria-hidden="true"><code>plot.fcmconfr()</code>
 Output</figcaption>
