@@ -856,7 +856,7 @@ organize_fcmconfr_output <- function(...) {
 #' summary.fcmconfr
 #'
 #' @description
-#' This prints a summary of the fcmconfr output
+#' This creates a summary object of the fcmconfr output
 #'
 #' @details
 #' Show the objects listed in the fcmconfr output \code{$inference} and \code{$params},
@@ -868,7 +868,7 @@ organize_fcmconfr_output <- function(...) {
 #' function
 #' @param ... additional inputs
 #'
-#' @returns A console printout (summary) of fcmconfr results
+#' @returns A summary object of fcmconfr results
 #'
 #' @export
 #'
@@ -883,23 +883,152 @@ summary.fcmconfr <- function(object, ...) {
   aggregate_adj_matrix <- object$aggregate_adj_matrix
   mc_adj_matrices <- object$mc_adj_matrices
 
-  summary_obj <- list(
-    fcm_class = fcm_class,
-    inferences = inferences,
-    params = object$params
+  summary_obj <- structure(
+    .Data = list(
+      fcm_class = fcm_class,
+      inferences = inferences
+    ),
+    class = "summary.fcmconfr"
   )
+
 
   if (!is.null(aggregate_adj_matrix)) {
     summary_obj$aggregate_adj_matrix <- aggregate_adj_matrix
   }
 
-  if (!is.null(mc_adj_matrices)) {
-    summary_obj$mc_adj_matrices <- mc_adj_matrices
-  }
-
   return(summary_obj)
 }
 
+
+
+#' print.summary.fcmconfr
+#'
+#' @description
+#' This prints a summary object of the fcmconfr output
+#'
+#' @details
+#' Show the objects listed in the fcmconfr output \code{$inference} and \code{$params},
+#' as well as \code{$bootstrap} if present in output. Additionally, this prints
+#' descriptions/summaries of objects within each sub-list like inference_opts,
+#' bootstrap_input_opts, etc.
+#'
+#' @param object \[`summary.fcmconfr`]\cr A direct output from the
+#' \code{\link{summary.fcmconfr}} function
+#' @param ... additional inputs
+#'
+#' @returns A console printout (summary) of fcmconfr results
+#'
+#' @export
+#'
+#' @srrstats {BS6.4} *Software may provide `summary` methods for return objects*
+#'
+#' @examples
+#' NULL
+print.summary.fcmconfr <- function(object, ...) {
+  digits <- 3
+
+  if (object$fcm_class == "conventional") {
+    individual_inferences_summary_df <- t(apply(object$inferences$individual_inferences[, -1], 2, function(x) round(summary(x), digits)))
+    summary_output <- list(
+      "individual_inferences" = individual_inferences_summary_df
+    )
+    if (!is.null(object$aggregate_adj_matrix)) {
+      aggregate_inferences_df <- data.frame("value" = round(object$inferences$aggregate_inferences$value, digits))
+      rownames(aggregate_inferences_df) <-  object$inferences$aggregate_inferences$node
+      summary_output$aggregate_inferences <- aggregate_inferences_df
+    }
+  } else if (object$fcm_class == "ivfn") {
+    lower_summary <- data.frame(t(apply(
+      object$inferences$individual_inferences$lower_values[, -1], 2, function(x) round(summary(x), digits))
+    ))
+    upper_summary <- data.frame(t(apply(
+      object$inferences$individual_inferences$upper_values[, -1], 2, function(x) round(summary(x), digits))
+    ))
+    individuals_ivfn_df <- lower_summary
+    for (i in seq_along(rownames(lower_summary))) {
+      for (j in seq_along(colnames(lower_summary))) {
+        individuals_ivfn_df[[j]][[i]] <- list(ivfn(
+          # [[j]][[i]] instead of [[i]][[j]]
+          # because this notation is
+          # [[col]][[row]] for data.frames
+          lower = lower_summary[i, j],
+          upper = upper_summary[i, j]
+        ))
+      }
+    }
+    colnames(individuals_ivfn_df) <- c("Min.", "1st.Qu", "Median", "Mean", "3rd.Qu", "Max.")
+    individuals_ivfn_df <- individuals_ivfn_df[, colnames(individuals_ivfn_df) %in% c("Median", "Mean")]
+    summary_output <- list(
+      "individual_inferences" = individuals_ivfn_df
+    )
+    if (!is.null(object$aggregate_adj_matrix)) {
+      aggregate_inferences_df <- data.frame("value" = round(object$inferences$aggregate_inferences[, -1], digits))
+      colnames(aggregate_inferences_df) <- c("crisp", "lower", "upper")
+      summary_output$aggregate_inferences <- aggregate_inferences_df
+    }
+  } else if (object$fcm_class == "tfn") {
+    lower_summary <- data.frame(t(apply(
+      object$inferences$individual_inferences$lower_values[, -1], 2, function(x) round(summary(x), digits))
+    ))
+    mode_summary <- data.frame(t(apply(
+      object$inferences$individual_inferences$mode_values[, -1], 2, function(x) round(summary(x), digits))
+    ))
+    upper_summary <- data.frame(t(apply(
+      object$inferences$individual_inferences$upper_values[, -1], 2, function(x) round(summary(x), digits))
+    ))
+    individuals_tfn_df <- lower_summary
+    for (i in seq_along(rownames(lower_summary))) {
+      for (j in seq_along(colnames(lower_summary))) {
+        individuals_tfn_df[[j]][[i]] <- list(tfn(
+          # [[j]][[i]] instead of [[i]][[j]]
+          # because this notation is
+          # [[col]][[row]] for data.frames
+          lower = lower_summary[i, j],
+          mode = mode_summary[i, j],
+          upper = upper_summary[i, j]
+        ))
+      }
+    }
+    colnames(individuals_tfn_df) <- c("Min.", "1st.Qu", "Median", "Mean", "3rd.Qu", "Max.")
+    individuals_tfn_df <- individuals_tfn_df[, colnames(individuals_tfn_df) %in% c("Median", "Mean")]
+    summary_output <- list(
+      "individual_inferences" = individuals_tfn_df
+    )
+    if (!is.null(object$aggregate_adj_matrix)) {
+      aggregate_inferences_df <- data.frame("value" = round(object$inferences$aggregate_inferences[, -1], digits))
+      colnames(aggregate_inferences_df) <- c("crisp", "lower", "mode", "upper")
+      summary_output$aggregate_inferences <- aggregate_inferences_df
+    }
+  }
+
+  if (!is.null(object$inferences$mc_inferences)) {
+    mc_inferences_summary_df <- t(apply(object$inferences$mc_inferences[, -1], 2, function(x) round(summary(x), digits)))
+    summary_output$mc_inferences <- mc_inferences_summary_df
+  }
+  if (!is.null(object$inferences$mc_CIs_and_quantiles)) {
+    column_names <- colnames(object$inferences$mc_CIs_and_quantiles)[-1]
+    rounded_CIs_df <- data.frame(apply(object$inferences$mc_CIs_and_quantiles[, -1], c(1, 2), function(x) round(x, digits)))
+    mc_CIs_and_quantiles_df <- data.frame(cbind(object$inferences$mc_CIs_and_quantiles$node, rounded_CIs_df))
+    rownames(mc_CIs_and_quantiles_df) <- object$inferences$mc_CIs_and_quantiles$node
+    mc_CIs_and_quantiles_df <- mc_CIs_and_quantiles_df[, -1]
+    colnames(mc_CIs_and_quantiles_df) <- column_names
+    summary_output$mc_CIs_and_quantiles <- mc_CIs_and_quantiles_df
+  }
+
+
+
+  summary_text_header <- paste0("Inferences via fcmconfr: ", nrow(object$inferences$individual_inferences), " individual adj. matrices (", object$fcm_class, ")")
+  full_text <- capture.output(
+    cat("~~~~~ Summary ~~~~~\n\n"),
+    print(summary_output),
+    print(cli::boxx(summary_text_header))
+  )
+
+  return(
+    cat(full_text, sep = "\n")
+  )
+
+}
 
 
 #' print.fcmconfr
