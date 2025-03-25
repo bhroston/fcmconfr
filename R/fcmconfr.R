@@ -10,6 +10,7 @@
 #   - check_fcmconfr_inputs
 #   - organize_fcmconfr_output
 #   - summary.fcmconfr
+#   - print.summary.fcmconfr
 #   - print.fcmconfr
 #
 ################################################################################
@@ -912,7 +913,7 @@ summary.fcmconfr <- function(object, ...) {
 #' descriptions/summaries of objects within each sub-list like inference_opts,
 #' bootstrap_input_opts, etc.
 #'
-#' @param object \[`summary.fcmconfr`]\cr A direct output from the
+#' @param x \[`summary.fcmconfr`]\cr A direct output from the
 #' \code{\link{summary.fcmconfr}} function
 #' @param ... additional inputs
 #'
@@ -924,25 +925,25 @@ summary.fcmconfr <- function(object, ...) {
 #'
 #' @examples
 #' NULL
-print.summary.fcmconfr <- function(object, ...) {
+print.summary.fcmconfr <- function(x, ...) {
   digits <- 3
 
-  if (object$fcm_class == "conventional") {
-    individual_inferences_summary_df <- t(apply(object$inferences$individual_inferences[, -1], 2, function(x) round(summary(x), digits)))
+  if (x$fcm_class == "conventional") {
+    individual_inferences_summary_df <- t(apply(x$inferences$individual_inferences[, -1], 2, function(x) round(summary(x), digits)))
     summary_output <- list(
       "individual_inferences" = individual_inferences_summary_df
     )
-    if (!is.null(object$aggregate_adj_matrix)) {
-      aggregate_inferences_df <- data.frame("value" = round(object$inferences$aggregate_inferences$value, digits))
-      rownames(aggregate_inferences_df) <-  object$inferences$aggregate_inferences$node
+    if (!is.null(x$aggregate_adj_matrix)) {
+      aggregate_inferences_df <- data.frame("value" = round(x$inferences$aggregate_inferences$value, digits))
+      rownames(aggregate_inferences_df) <-  x$inferences$aggregate_inferences$node
       summary_output$aggregate_inferences <- aggregate_inferences_df
     }
-  } else if (object$fcm_class == "ivfn") {
+  } else if (x$fcm_class == "ivfn") {
     lower_summary <- data.frame(t(apply(
-      object$inferences$individual_inferences$lower_values[, -1], 2, function(x) round(summary(x), digits))
+      x$inferences$individual_inferences$lower_values[, -1], 2, function(x) round(summary(x), digits))
     ))
     upper_summary <- data.frame(t(apply(
-      object$inferences$individual_inferences$upper_values[, -1], 2, function(x) round(summary(x), digits))
+      x$inferences$individual_inferences$upper_values[, -1], 2, function(x) round(summary(x), digits))
     ))
     individuals_ivfn_df <- lower_summary
     for (i in seq_along(rownames(lower_summary))) {
@@ -961,20 +962,20 @@ print.summary.fcmconfr <- function(object, ...) {
     summary_output <- list(
       "individual_inferences" = individuals_ivfn_df
     )
-    if (!is.null(object$aggregate_adj_matrix)) {
-      aggregate_inferences_df <- data.frame("value" = round(object$inferences$aggregate_inferences[, -1], digits))
+    if (!is.null(x$aggregate_adj_matrix)) {
+      aggregate_inferences_df <- data.frame("value" = round(x$inferences$aggregate_inferences[, -1], digits))
       colnames(aggregate_inferences_df) <- c("crisp", "lower", "upper")
       summary_output$aggregate_inferences <- aggregate_inferences_df
     }
-  } else if (object$fcm_class == "tfn") {
+  } else if (x$fcm_class == "tfn") {
     lower_summary <- data.frame(t(apply(
-      object$inferences$individual_inferences$lower_values[, -1], 2, function(x) round(summary(x), digits))
+      x$inferences$individual_inferences$lower_values[, -1], 2, function(x) round(summary(x), digits))
     ))
     mode_summary <- data.frame(t(apply(
-      object$inferences$individual_inferences$mode_values[, -1], 2, function(x) round(summary(x), digits))
+      x$inferences$individual_inferences$mode_values[, -1], 2, function(x) round(summary(x), digits))
     ))
     upper_summary <- data.frame(t(apply(
-      object$inferences$individual_inferences$upper_values[, -1], 2, function(x) round(summary(x), digits))
+      x$inferences$individual_inferences$upper_values[, -1], 2, function(x) round(summary(x), digits))
     ))
     individuals_tfn_df <- lower_summary
     for (i in seq_along(rownames(lower_summary))) {
@@ -994,37 +995,37 @@ print.summary.fcmconfr <- function(object, ...) {
     summary_output <- list(
       "individual_inferences" = individuals_tfn_df
     )
-    if (!is.null(object$aggregate_adj_matrix)) {
-      aggregate_inferences_df <- data.frame("value" = round(object$inferences$aggregate_inferences[, -1], digits))
+    if (!is.null(x$aggregate_adj_matrix)) {
+      aggregate_inferences_df <- data.frame("value" = round(x$inferences$aggregate_inferences[, -1], digits))
       colnames(aggregate_inferences_df) <- c("crisp", "lower", "mode", "upper")
       summary_output$aggregate_inferences <- aggregate_inferences_df
     }
   }
 
-  if (!is.null(object$inferences$mc_inferences)) {
-    mc_inferences_summary_df <- t(apply(object$inferences$mc_inferences[, -1], 2, function(x) round(summary(x), digits)))
+  if (!is.null(x$inferences$mc_inferences)) {
+    mc_inferences_summary_df <- t(apply(x$inferences$mc_inferences[, -1], 2, function(x) round(summary(x), digits)))
     summary_output$mc_inferences <- mc_inferences_summary_df
   }
-  if (!is.null(object$inferences$mc_CIs_and_quantiles)) {
-    column_names <- colnames(object$inferences$mc_CIs_and_quantiles)[-1]
-    rounded_CIs_df <- data.frame(apply(object$inferences$mc_CIs_and_quantiles[, -1], c(1, 2), function(x) round(x, digits)))
-    mc_CIs_and_quantiles_df <- data.frame(cbind(object$inferences$mc_CIs_and_quantiles$node, rounded_CIs_df))
-    rownames(mc_CIs_and_quantiles_df) <- object$inferences$mc_CIs_and_quantiles$node
+  if (!is.null(x$inferences$mc_CIs_and_quantiles)) {
+    column_names <- colnames(x$inferences$mc_CIs_and_quantiles)[-1]
+    rounded_CIs_df <- data.frame(apply(x$inferences$mc_CIs_and_quantiles[, -1], c(1, 2), function(x) round(x, digits)))
+    mc_CIs_and_quantiles_df <- data.frame(cbind(x$inferences$mc_CIs_and_quantiles$node, rounded_CIs_df))
+    rownames(mc_CIs_and_quantiles_df) <- x$inferences$mc_CIs_and_quantiles$node
     mc_CIs_and_quantiles_df <- mc_CIs_and_quantiles_df[, -1]
     colnames(mc_CIs_and_quantiles_df) <- column_names
     summary_output$mc_CIs_and_quantiles <- mc_CIs_and_quantiles_df
   }
 
-  if (object$fcm_class == "conventional") {
-    n_individual_fcms <- nrow(object$inferences$individual_inferences)
-  } else if (object$fcm_class == "ivfn") {
-    n_individual_fcms <- nrow(object$inferences$individual_inferences$ivfn_df)
-  } else if (object$fcm_class == "tfn") {
-    n_individual_fcms <- nrow(object$inferences$individual_inferences$tfn_df)
+  if (x$fcm_class == "conventional") {
+    n_individual_fcms <- nrow(x$inferences$individual_inferences)
+  } else if (x$fcm_class == "ivfn") {
+    n_individual_fcms <- nrow(x$inferences$individual_inferences$ivfn_df)
+  } else if (x$fcm_class == "tfn") {
+    n_individual_fcms <- nrow(x$inferences$individual_inferences$tfn_df)
   }
 
-  summary_text_header <- paste0("Inferences via fcmconfr: ", n_individual_fcms, " individual adj. matrices (", object$fcm_class, ")")
-  full_text <- capture.output(
+  summary_text_header <- paste0("Inferences via fcmconfr: ", n_individual_fcms, " individual adj. matrices (", x$fcm_class, ")")
+  full_text <- utils::capture.output(
     cat("~~~~~ Summary ~~~~~\n\n"),
     print(summary_output),
     print(cli::boxx(summary_text_header))
