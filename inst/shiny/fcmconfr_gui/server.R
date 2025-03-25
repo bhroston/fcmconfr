@@ -12,45 +12,51 @@ shiny_server <- function(input, output, session) {
   output$definitions <- shiny::renderUI(
     if (input$nav_panel == "Data") {
       shiny::fluidRow(
-        shiny::HTML("<p><small><b>Initial State Vector:</b> Sets the starting
-        value of each concept in the simulation. Typically, all values are set
-        to 1 to include every concept. Set concepts that should not be included
-        in the simulation to 0 (i.e. their impacts on the system should be
-        ignored).</small>
+        shiny::HTML("<p><small><b>Initial State Vector:</b> A list of state values
+        (one per node) at the start of an FCM simulation. In pulse simulations the
+        initial_state_vector controls the scenario (i.e., a non-zero value is a
+        transient perturbation). In clamped simulations all values in the
+        initial_state_vector are set to 1.</small>
         <br><br>
-        <small><b>Clamping Vector:</b> Fixes or 'clamps' the value of specific
-        concepts for the entire simulation. Set a concept's clamping value in
-        the range of [0, 1] or [-1, 1] depending on the squashing function to
-        measure its influence on the simulation output.</small></p>")
+        <small><b>Clamping Vector:</b> A list of values (one per node) that
+        indicates whether clamped simulations will be performed. In clamped
+        simulations the clamping_vector controls the scenario (nodes
+        assigned non-zero values will remain at those values for the entire
+        simulation). In pulse simulations all values in the clamping_vector
+        are set to 0.</small></p>")
       )
     } else if (input$nav_panel == "Agg. and Monte Carlo Options") {
       shiny::fluidRow(
         shiny::HTML("<p><small><b>Include 0-Weighted Edges:</b> Only applicable
-        when FCMs are aggregated. When taking the median or the mean across all
-        adjacency matrices in a set, links that are not specified are either
-        assigned a weight of zero (Include 0-Weighted Edges = TRUE) or ignored
-        (Include 0-Weighted Edges = FALSE).</small></p><br>"),
+        when FCMs are aggregated. If TRUE, incorporate zeroes as
+        intentionally-defined edge weights or ignore them when aggregating
+        adjacency matrices and sampling for Monte Carlo FCMs.</small></p>
+        <br>"),
         shiny::h4("Aggregation Options"),
         shiny::HTML("<p><small><b>Aggregation Analysis:</b> Aggregate input
         adjacency matrices into a single, collective adjacency matrix.</small></p>
         <br>
-        <small><b>Aggregation Function:</b> Specify the expected value (mean or
-        median) of edge weights across all adjacency matrices in a set.
+        <small><b>Aggregation Function:</b> Aggregate the adj. matrices into a
+        single FCM by taking either the mean or median of the edge weights for
+        edges included in multiple maps.
         </small></p>
         <br>"),
         shiny::h4("Monte Carlo Options"),
         shiny::HTML("<small><b>Monte Carlo Analysis:</b> Generate N simulations
         from N adjacency matrices created via Monte Carlo sampling of input
         adjacency matrices.</small></p>
-        <small><b># Sample Maps to Generate:</b> The number of adjacency
-        matrices (N) to generate</small></p>
+        <small><b># Sample Maps to Generate:</b> The number of inferences to
+        generate via Monte Carlo sampling. Omit this argument when analyzing a
+        single, conventional FCM.</small></p>
         <small><b>Inference Bootstrap Analysis:</b> Estimate confidence bounds
         about Monte Carlo simulation outputs for each modeled concept
         </small></p>
-        <small><b>Inference Estimation Function:</b> Specify whether confidence
-        bounds will be about the mean or the median</small></p>
-        <small><b># Bootstraps:</b> The number of bootstraps to perform when
-        estimating confidence intervals </small></p>
+        <small><b>Inference Estimation Function:</b> Estimate confidence
+        intervals about the 'mean' or 'median' of inferences from Monte Carlo
+        simulations.</small></p>
+        <small><b>Inference Confidence Interval:</b> Bootstrapped confidence
+        level</small></p>
+        <small><b># Bootstraps:</b> Number of bootstrap draws </small></p>
         <br></>")
       )
     } else if (input$nav_panel == "Simulation Options") {

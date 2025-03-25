@@ -21,7 +21,7 @@ library(fcmconfr)
 
 # The `fcmconfr` Workflow
 
-`fcmconfr` streamlines the process of conducting dynamic simulations using fuzzy cognitive maps (FCMs). The package can (1) analyze different types of FCMs (conventional, interval-value fuzzy number, and triangular fuzzy number), (2) perform dynamic simulations on one or more individual FCMs, (3) aggregate individual FCMs so that dynamic simulations can be performed on the aggregate, and (4) estimate uncertainty using Monte Carlo approaches. A typical fcmconfer workflow includes the following four steps:
+`fcmconfr` streamlines the process of conducting dynamic simulations using fuzzy cognitive maps (FCMs). The package can (1) analyze different types of FCMs (conventional, interval-value fuzzy number, and triangular fuzzy number), (2) perform dynamic simulations on one or more individual FCMs, (3) aggregate individual FCMs so that dynamic simulations can be performed on the aggregate, and (4) estimate uncertainty using Monte Carlo approaches. A typical fcmconfr workflow includes the following four steps:
 
 1.  Import FCMs
 
@@ -29,9 +29,9 @@ library(fcmconfr)
 
 3.  Run simulations using `fcmconfr()`
 
-4.  Explore outputs using `get_fcmconfr_inferences()` and `plot()`
+4.  Explore outputs using `get_fcmconfr_inferences()` , `summary()`, and `plot()`
 
-This guide walks through each of these steps, from data import to visualization. It frequently references data from a `sample_fcms` object that users can access after loading `fcmconfr`.
+This guide walks through each of these steps, from data import to visualization. It frequently references data from the `sample_fcms` object that users can access after loading `fcmconfr`.
 
 ## 1. Import FCMs
 
@@ -111,7 +111,9 @@ ivfn_fcm[2, 1][[1]] <- list(ivfn(0.7, 0.8))
 ivfn_fcm[2, 2][[1]] <- list(ivfn(0, 0))
 ```
 
+::: {style="text-align: center;"}
 ![`ivfn_df` formats. The console output for `ivfn_fcm` will vary depending on whether it is loaded as a matrix or dataframe. If loaded as a dataframe it will print out IVFN values. If loaded as a matrix it will print out object types (e.g., `ivfn,2`).](images/ivfn_df_formats.png){width="50%"}
+:::
 
 <br>
 
@@ -214,7 +216,9 @@ The GUI interface is organized into four tabs: Data, Agg. and Monte Carlo Option
 
 A brief summary of each parameter within the `fcmconfr_gui()` is provided in a glossary stored in a side tab within the GUI. The side tab can be opened by clicking the arrow symbol in the top-right-hand-corner of the GUI.
 
-Once parameter selection is complete, click the Submit button at the bottom of the GUI to receive the corresponding code for a call to `fcmconfr()`. This code will be reported in the console. DO NOT exit the GUI without clicking Submit. Doing so WILL NOT create a call to `fcmconfr()` and all previously entered information will be lost. The following code is an example output from `fcmconfr_gui()`.
+Once parameter selection is complete, click the 'Get Code' button at the bottom of the GUI to display the corresponding code for a call to `fcmconfr()` within the app.
+
+The following code is an example output from `fcmconfr_gui()`.
 
 ```{r eval=FALSE}
 fcmconfr(
@@ -282,6 +286,8 @@ fcmconfr_obj <- fcmconfr(
 )
 ```
 
+Click on 'Close App' or exit out of the shiny window to close the app.
+
 ### Optional: Selecting an Appropriate Lambda
 
 Lambda is set to 1 by default in `fcmconfr`. However, there is no one "correct" value for lambda and values that work for one FCM may not work for another. To give users a starting estimate for lambda, `fcmconfr` provides the `estimate_lambda()` function, which implements an algorithm developed by Koutsellis et al. (2022) - <https://doi.org/10.1007/s12351-022-00717-x>.
@@ -320,6 +326,7 @@ lambda_estimates <- lapply(
 # and calculate the minimum value
 lambda_for_example_fcms <- min(unlist(lambda_estimates))
 
+# Call fcmconfr using the estimated lambda value
 fcmconfr_obj <- fcmconfr(
   adj_matrices = example_fcms,
   # Aggregation and Monte Carlo Sampling
@@ -417,9 +424,7 @@ plot(fcmconfr_obj,
 ![A screenshot of an example `fcmconfr()` object launched inside the Shiny app (user controls on left; plot on right).](images/interactive_plot_gui.png){width="100%"}
 :::
 
-[]
-
-### 4.2 Retrieving Inferences
+### 4.2 Retrieving Inferences with get_fcmconfr_inferences()
 
 Simulation inferences (individual, aggregate, Monte Carlo) are the main output from `fcmconfr()`. They indicate how much each node is influenced by a particular change or action. Inferences can be accessed as follows:
 
@@ -441,6 +446,46 @@ fcmconfr_inferences <- get_fcmconfr_inferences(fcmconfr_obj, analysis = c("indiv
 The output of `get_fcmconfr_inferences()` is a `list` of dataframes containing the inferences for each analysis. By default, `analysis = c("individual", "aggregate", "mc")`, but users can also specify a subset of these categories.
 
 When `"mc"` is included and the box for bootstrapped confidence intervals is checked, `get_fcmconfr_inferences()` returns two types of MC outputs: (1) inferences from each empirical FCM generated by Monte Carlo sampling and (2) a dataframe containing user specified bootstrapped confidence bounds about the average of those inferences.
+
+### 4.3 Retrieving Inferences with summary()
+
+Users can also access a simplified output of `fcmconfr()` inferences using the `summary()` function on an `fcmconfr()` output object.
+
+```{r eval = FALSE}
+summary(fcmconfr_obj)
+```
+
+`summary()` also prints information about the inferences across each analysis performed to create the `fcmconfr()` output. An example of a `summary(fcmconfr_obj)` output for an analysis of IVFN-FCMs that only calculated inferences for the individual and aggregate adjacency matrices is given below:
+
+```         
+~~~~~ Summary ~~~~~
+
+$individual_inferences
+                                                             Median                   Mean
+Guidance.Docs.for.Salt.Management                           1, 1, 1                1, 1, 1
+Public.Education.Programs                                   0, 0, 0    0.002, 0.007, 0.011
+Salts.Added.during.Water.Treatment                          0, 0, 0                0, 0, 0
+Salts.Added.by.Winter.Maintenance.Activities  -0.250, -0.097, 0.000 -0.175, -0.118, -0.043
+Ecosystem.Health                                0.012, 0.064, 0.088    0.034, 0.071, 0.092
+Public.Awareness.of.Reservoir.Salinization                  0, 0, 0   -0.001, 0.000, 0.000
+Salinization.of.the.Reservoir                -0.139, -0.092, -0.012 -0.144, -0.100, -0.038
+
+$aggregate_inferences
+                                              crisp  lower   mode  upper
+Guidance.Docs.for.Salt.Management             1.000  1.000  1.000  1.000
+Public.Education.Programs                     0.008  0.002  0.008  0.015
+Salts.Added.during.Water.Treatment            0.000  0.000  0.000  0.000
+Salts.Added.by.Winter.Maintenance.Activities -0.131 -0.212 -0.136 -0.046
+Ecosystem.Health                              0.076  0.034  0.080  0.115
+Public.Awareness.of.Reservoir.Salinization   -0.001 -0.002 -0.001  0.000
+Salinization.of.the.Reservoir                -0.119 -0.187 -0.124 -0.045
+
+┌────────────────────────────────────────────────────────────────┐
+│                                                                │
+│   Inferences via fcmconfr: 30 individual adj. matrices (tfn)   │
+│                                                                │
+└────────────────────────────────────────────────────────────────┘
+```
 
 #### Advanced Inference Options
 

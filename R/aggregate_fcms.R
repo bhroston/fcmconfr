@@ -42,7 +42,9 @@
 #'
 #' The mean aggregate FCM of a set of conventional FCMs is:
 #' \deqn{
-#' A_{ij}^{aggregate} =\frac{\sum _{p\ =\ 1}^{N} A_{ij}^{FCM_{p}}}{N}
+#'  \begin{array} {lcl}
+#'    A_{ij}^{aggregate} & = & \frac{\sum _{p\ =\ 1}^{N} A_{ij}^{FCM_{p}}}{N}
+#'  \end{array}
 #' }
 #' where \eqn{A_{ij}^{aggregate}} is the weight in the aggregate adjacency
 #' matrix for the element in row i and column j, and \eqn{FCM_{p}} is the
@@ -52,24 +54,33 @@
 #' If not including zeroe-valued edges in aggregation calculations, the mean
 #' aggregate equation becomes:
 #' \deqn{
-#' A_{ij}^{aggregate} =\frac{\sum _{p\ =\ 1}^{N} A_{ij}^{FCM_{p}}}{\sum _{p\ =\ 1}^{N} 1|A_{ij}^{FCM_{p}} \neq 0}
+#'  \begin{array} {lcl}
+#'    A_{ij}^{aggregate} & = & \frac{\sum _{p\ =\ 1}^{N} A_{ij}^{FCM_{p}}}{\sum _{p\ =\ 1}^{N} 1|A_{ij}^{FCM_{p}} \neq 0}
+#' \end{array}
 #' }
 #'
 #' The median aggregate FCM of a set of conventional FCMs is:
 #' \deqn{
-#' A_{ij}^{aggregate} =\mathrm{Median} (A_{ij}^{FCM_{1}} ,A_{ij}^{FCM_{2}} ,...,A_{ij}^{FCM_{N}} )\
+#'  \begin{array} {lcl}
+#'    A_{ij}^{aggregate} & = & \mathrm{Median} (A_{ij}^{FCM_{1}} ,A_{ij}^{FCM_{2}} ,...,A_{ij}^{FCM_{N}} )\
+#'  \end{array}
 #' }
 #' If not including zero-valued edges in aggregation calculations, the median
 #' aggregate equation becomes:
 #' \deqn{
-#' A_{ij}^{aggregate} =\mathrm{Median} (A_{ij}^{FCM_{1}} ,A_{ij}^{FCM_{2}} ,...,A_{ij}^{FCM_{N}} )\ |\ A_{ij}^{FCM_{p}} \neq 0
+#'  \begin{array} {lcl}
+#'    A_{ij}^{aggregate} & = & \mathrm{Median} (A_{ij}^{FCM_{1}} ,A_{ij}^{FCM_{2}} ,...,A_{ij}^{FCM_{N}} )\ |\ A_{ij}^{FCM_{p}} \neq 0
+#'  \end{array}
 #' }
 #'
 #' \strong{IVFN-FCMs}
 #'
 #' The mean aggregate FCM of a set of IVFN-FCMs is:
 #' \deqn{
-#' A_{ij}^{aggregate} =\left[ A^{L} ,A^{U} \ \right]_{ij}^{FCM_{aggregate}} =\left[\frac{\sum _{p\ =\ 1}^{N}\left[ A^{L}\right]_{ij}^{FCM_{p}}}{N} ,\ \frac{\sum _{p\ =\ 1}^{N}\left[ A^{U}\right]_{ij}^{FCM_{p}}}{N}\right]
+#'  \begin{array} {lcl}
+#'    A_{ij}^{aggregate} & = & \left[ A^{L} ,A^{U} \ \right]_{ij}^{FCM_{aggregate}} \\ \\
+#'    & = & \left[\frac{\sum _{p\ =\ 1}^{N}\left[ A^{L}\right]_{ij}^{FCM_{p}}}{N} ,\ \frac{\sum _{p\ =\ 1}^{N}\left[ A^{U}\right]_{ij}^{FCM_{p}}}{N}\right]
+#'  \end{array}
 #' }
 #' where \eqn{\left[ A^{L} ,A^{U} \ \right]_{ij}^{FCM_{aggregate}}} is the IVFN
 #' weight (with lower bound \eqn{A^{L}} and upper bound \eqn{A^{U}}) of the
@@ -81,26 +92,37 @@
 #' If not including zeroe-valued edges in aggregation calculations, the mean
 #' aggregate equation becomes:
 #' \deqn{
-#' A_{ij}^{aggregate} =\left[ A^{L} ,A^{U} \ \right]_{ij}^{FCM_{aggregate}} =\left[\frac{\sum _{p\ =\ 1}^{N}\left[ A^{L}\right]_{ij}^{FCM_{p}}}{\sum _{p\ =\ 1}^{N} 1|\left[ A^{L}\right]_{ij}^{FCM_{p}} \neq 0} ,\ \frac{\sum _{p\ =\ 1}^{N}\left[ A^{U}\right]_{ij}^{FCM_{p}}}{\sum _{p\ =\ 1}^{N} 1|\left[ A^{U}\right]_{ij}^{FCM_{p}} \neq 0}\right]
+#'  \begin{array} {lcl}
+#'    A_{ij}^{aggregate} & = & \left[ A^{L} ,A^{U} \ \right]_{ij}^{FCM_{aggregate}} \\ \\
+#'    & = & \left[\frac{\sum _{p\ =\ 1}^{N}\left[ A^{L}\right]_{ij}^{FCM_{p}}}{\sum _{p\ =\ 1}^{N} 1|\left[ A^{L}\right]_{ij}^{FCM_{p}} \neq 0} ,\ \frac{\sum _{p\ =\ 1}^{N}\left[ A^{U}\right]_{ij}^{FCM_{p}}}{\sum _{p\ =\ 1}^{N} 1|\left[ A^{U}\right]_{ij}^{FCM_{p}} \neq 0}\right]
+#'  \end{array}
 #' }
 #'
 #' The median aggregate FCM of a set of IVFN-FCMs is:
 #' \deqn{
-#' A_{ij}^{aggregate} =\left[ \mathrm{Median}\left( A_{ij}^{FCM_{1} -L} ,A_{ij}^{FCM_{2} -L} ,...,A_{ij}^{FCM_{N} -L}\right) , \mathrm{Median}\left( A_{ij}^{FCM_{1} -U} ,A_{ij}^{FCM_{2} -U} ,...,A_{ij}^{FCM_{N} -U}\right)\right]
+#'  \begin{array} {lcl}
+#'    A_{ij}^{aggregate} & = & \left[ \ \mathrm{Median}\left( A_{ij}^{FCM_{1} -L} ,A_{ij}^{FCM_{2} -L} ,...,A_{ij}^{FCM_{N} -L}\right) \right. , \\
+#'    & & \ \ \left. \mathrm{Median}\left( A_{ij}^{FCM_{1} -U} ,A_{ij}^{FCM_{2} -U} ,...,A_{ij}^{FCM_{N} -U}\right) \ \right]
+#'  \end{array}
 #' }
+#'
 #' If not including zero-valued edges in aggregation calculations, the median
 #' aggregate equation becomes:
 #' \deqn{
-#' A_{ij}^{aggregate} =\
-#' [ \mathrm{Median}\left( A_{ij}^{FCM_{1} -L} ,A_{ij}^{FCM_{2} -L} ,...,A_{ij}^{FCM_{N} -L}\right) |A_{ij}^{FCM_{1} -L} \neq A_{ij}^{FCM_{1} -U} \neq 0,\\
-#'   \ \mathrm{Median}\left( A_{ij}^{FCM_{1} -U} ,A_{ij}^{FCM_{2} -U} ,...,A_{ij}^{FCM_{N} -U}\right) |A_{ij}^{FCM_{1} -L} \neq A_{ij}^{FCM_{1} -U} \neq 0]
+#'  \begin{array} {lcl}
+#'    A_{ij}^{aggregate} & = & \left[ \ \mathrm{Median}\left( A_{ij}^{FCM_{1} -L} ,A_{ij}^{FCM_{2} -L} ,...,A_{ij}^{FCM_{N} -L}\right) |A_{ij}^{FCM_{p} -L} \neq A_{ij}^{FCM_{p} -U} \neq 0 \right. , \\
+#'    & & \ \ \left. \mathrm{Median}\left( A_{ij}^{FCM_{1} -U} ,A_{ij}^{FCM_{2} -U} ,...,A_{ij}^{FCM_{N} -U}\right) |A_{ij}^{FCM_{p} -L} \neq A_{ij}^{FCM_{p} -U} \neq 0 \ \right]
+#'  \end{array}
 #' }
 #'
 #' \strong{TFN-FCMs}
 #'
 #' The mean aggregate FCM of a set of TFN-FCMs is:
 #' \deqn{
-#' A_{ij}^{aggregate} =\left[ A^{L} ,A^{M} ,A^{U} \ \right]_{ij}^{FCM_{aggregate}} =\left[\frac{\sum _{p\ =\ 1}^{N}\left[ A^{L}\right]_{ij}^{FCM_{p}}}{N} ,\frac{\sum _{p\ =\ 1}^{N}\left[ A^{M}\right]_{ij}^{FCM_{p}}}{N} ,\frac{\sum _{p\ =\ 1}^{N}\left[ A^{U}\right]_{ij}^{FCM_{p}}}{N}\right]
+#'  \begin{array} {lcl}
+#'    A_{ij}^{aggregate} & = & \left[ A^{L} ,A^{M} ,A^{U} \ \right]_{ij}^{FCM_{aggregate}} \\ \\
+#'    & = & \left[\frac{\sum _{p\ =\ 1}^{N}\left[ A^{L}\right]_{ij}^{FCM_{p}}}{N} ,\frac{\sum _{p\ =\ 1}^{N}\left[ A^{M}\right]_{ij}^{FCM_{p}}}{N} ,\frac{\sum _{p\ =\ 1}^{N}\left[ A^{U}\right]_{ij}^{FCM_{p}}}{N}\right]
+#'  \end{array}
 #' }
 #'
 #' where \eqn{\left[ A^{L} , A^{M}, A^{U} \ \right]_{ij}^{FCM_{aggregate}}} is the TFN
@@ -114,22 +136,31 @@
 #' If not including zero-valued edges in aggregation calculations, the mean
 #' aggregate equation becomes:
 #' \deqn{
-#' A_{ij}^{aggregate} =\left[ A^{L} ,A^{M} ,A^{U} \ \right]_{ij}^{FCM_{aggregate}} =\left[\frac{\sum _{p\ =\ 1}^{N}\left[ A^{L}\right]_{ij}^{FCM_{p}}}{\sum _{p\ =\ 1}^{N} 1|\left[ A^{L}\right]_{ij}^{FCM_{p}} \neq 0} ,\frac{\sum _{p\ =\ 1}^{N}\left[ A^{M}\right]_{ij}^{FCM_{p}}}{\sum _{p\ =\ 1}^{N} 1|\left[ A^{M}\right]_{ij}^{FCM_{p}} \neq 0} ,\ \frac{\sum _{p\ =\ 1}^{N}\left[ A^{U}\right]_{ij}^{FCM_{p}}}{\sum _{p\ =\ 1}^{N} 1|\left[ A^{U}\right]_{ij}^{FCM_{p}} \neq 0}\right]
+#'  \begin{array} {lcl}
+#'  A_{ij}^{aggregate} & = & \left[ A^{L} ,A^{M} ,A^{U} \ \right]_{ij}^{FCM_{aggregate}} \\ \\
+#'  & = & \left[\frac{\sum _{p\ =\ 1}^{N}\left[ A^{L}\right]_{ij}^{FCM_{p}}}{\sum _{p\ =\ 1}^{N} 1|\left[ A^{L}\right]_{ij}^{FCM_{p}} \neq 0} ,\frac{\sum _{p\ =\ 1}^{N}\left[ A^{M}\right]_{ij}^{FCM_{p}}}{\sum _{p\ =\ 1}^{N} 1|\left[ A^{M}\right]_{ij}^{FCM_{p}} \neq 0} ,\ \frac{\sum _{p\ =\ 1}^{N}\left[ A^{U}\right]_{ij}^{FCM_{p}}}{\sum _{p\ =\ 1}^{N} 1|\left[ A^{U}\right]_{ij}^{FCM_{p}} \neq 0}\right]
+#'  \end{array}
 #' }
 #'
 #' The median aggregate FCM of a set of TFN-FCMs is:
+#'
 #' \deqn{
-#' A_{ij}^{aggregate} =[ Median\left( A_{ij}^{FCM_{1} -L} ,A_{ij}^{FCM_{2} -L} ,...,A_{ij}^{FCM_{N} -L}\right) ,\ \ \\
-#' Median\left( A_{ij}^{FCM_{1} -M} ,A_{ij}^{FCM_{2} -M} ,...,A_{ij}^{FCM_{N} -M}\right) ,\ \\
-#' Median\left( A_{ij}^{FCM_{1} -U} ,A_{ij}^{FCM_{2} -U} ,...,A_{ij}^{FCM_{N} -U}\right)]
+#'  \begin{array} {lcl}
+#'  A_{ij}^{aggregate} & = & \left[ \ \mathrm{Median}\left( A_{ij}^{FCM_{1} -L} ,A_{ij}^{FCM_{2} -L} ,...,A_{ij}^{FCM_{N} -L} \right) \right. , \\
+#'  & & \ \ \ \mathrm{Median}\left( A_{ij}^{FCM_{1} -M} ,A_{ij}^{FCM_{2} -M} ,...,A_{ij}^{FCM_{N} -M}\right) , \\
+#'  & & \ \ \ \left. \mathrm{Median}\left( A_{ij}^{FCM_{1} -U} ,A_{ij}^{FCM_{2} -U} ,...,A_{ij}^{FCM_{N} -U}\right) \right]
+#'  \end{array}
 #' }
+#'
 #' If not including zero-valued edges in aggregation calculations, the median
 #' aggregate equation becomes:
+#'
 #' \deqn{
-#' A_{ij}^{aggregate} =\ \newline
-#' [ Median\left( A_{ij}^{FCM_{1} -L} ,A_{ij}^{FCM_{2} -L} ,...,A_{ij}^{FCM_{N} -L}\right) |A_{ij}^{FCM_{1} -L} \neq A_{ij}^{FCM_{1} -M} \neq A_{ij}^{FCM_{1} -U} \neq 0,\ \newline
-#'   [ Median\left( A_{ij}^{FCM_{1} -M} ,A_{ij}^{FCM_{2} -M} ,...,A_{ij}^{FCM_{N} -M}\right) |A_{ij}^{FCM_{1} -L} \neq A_{ij}^{FCM_{1} -M} \neq A_{ij}^{FCM_{1} -U} \neq 0,\ \newline
-#'     \ Median\left( A_{ij}^{FCM_{1} -U} ,A_{ij}^{FCM_{2} -U} ,...,A_{ij}^{FCM_{N} -U}\right) |A_{ij}^{FCM_{1} -L} \neq A_{ij}^{FCM_{1} -M} \neq A_{ij}^{FCM_{1} -U} \neq 0]
+#'  \begin{array} {lcl}
+#'    A_{ij}^{aggregate} & = & \left[ \ \mathrm{Median}\left( A_{ij}^{FCM_{1} -L} ,A_{ij}^{FCM_{2} -L} ,...,A_{ij}^{FCM_{N} -L}\right) |A_{ij}^{FCM_{1} -L} \neq A_{ij}^{FCM_{1} -M} \neq A_{ij}^{FCM_{1} -U} \neq 0 \right. , \\
+#'    & & \ \ \ \mathrm{Median}\left( A_{ij}^{FCM_{1} -M} ,A_{ij}^{FCM_{2} -M} ,...,A_{ij}^{FCM_{N} -M}\right) |A_{ij}^{FCM_{1} -L} \neq A_{ij}^{FCM_{1} -M} \neq A_{ij}^{FCM_{1} -U} \neq 0 , \\
+#'    & & \ \ \ \left. \mathrm{Median}\left( A_{ij}^{FCM_{1} -U} ,A_{ij}^{FCM_{2} -U} ,...,A_{ij}^{FCM_{N} -U}\right) |A_{ij}^{FCM_{1} -L} \neq A_{ij}^{FCM_{1} -M} \neq A_{ij}^{FCM_{1} -U} \right]
+#'  \end{array}
 #' }
 #'
 #' @param adj_matrices \[`list()`]\cr A single adjacency matrix or a list of

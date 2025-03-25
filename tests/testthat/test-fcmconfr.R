@@ -1,7 +1,8 @@
 
 requireNamespace("igraph")
 
-# Checks pass
+
+# fcmconfr ----
 test_that("fcmconfr works", {
 
   test_adj_matrix_1 <- data.frame(
@@ -261,7 +262,7 @@ test_that("fcmconfr works", {
 })
 
 
-# Checks pass
+
 test_that("pulse only fcmconfr works", {
   # salinization_conventional_fcms <- salinization_conventional_fcms
 
@@ -350,7 +351,7 @@ test_that("pulse only fcmconfr works", {
 })
 
 
-# Checks pass
+
 test_that("fcmconfr works with igraph inputs", {
   fcms_as_igraph_objects <- lapply(sample_fcms$large_fcms$conventional_fcms, function(fcm) {
     igraph::graph_from_adjacency_matrix(as.matrix(fcm), mode = "directed", weighted = TRUE)
@@ -396,9 +397,9 @@ test_that("fcmconfr works with igraph inputs", {
     ))
   )
 })
+# ----
 
 
-# Checks pass
 test_that("check_fcmconfr_inputs works", {
 
   # Confirm warnings if no agg_function defined ----
@@ -606,7 +607,6 @@ test_that("check_fcmconfr_inputs works", {
 })
 
 
-# Checks pass
 test_that("get_fcmconfr_inferences works", {
 
   invisible(capture.output(
@@ -718,6 +718,157 @@ test_that("get_fcmconfr_inferences works", {
   ))
   expect_no_error(get_fcmconfr_inferences(tfn_fcmconfr))
 
+})
+
+
+test_that("summary.fcmconfr and print.summary.fcmconfr works", {
+
+  # Individuals, Aggregate, Monte Carlo, and Bootstrap
+  test_fcmconfr <- fcmconfr(
+    adj_matrices = sample_fcms$simple_fcms$conventional_fcms,
+    # Aggregation and Monte Carlo Sampling
+    agg_function = 'mean',
+    num_mc_fcms = 100,
+    # Simulation
+    initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
+    clamping_vector = c(1, 0, 0, 0, 0, 0, 0),
+    activation = 'rescale',
+    squashing = 'sigmoid',
+    lambda = 1,
+    point_of_inference = 'final',
+    max_iter = 100,
+    min_error = 1e-05,
+    # Inference Estimation (bootstrap)
+    ci_centering_function = 'mean',
+    confidence_interval = 0.95,
+    num_ci_bootstraps = 1000,
+    # Runtime Options
+    show_progress = TRUE,
+    parallel = TRUE,
+    n_cores = 2,
+    # Additional Options
+    run_agg_calcs = TRUE,
+    run_mc_calcs = TRUE,
+    run_ci_calcs = TRUE,
+    include_zeroes_in_sampling = TRUE,
+    include_sims_in_output = TRUE
+  )
+
+  summary_object <- summary(test_fcmconfr)
+  expect_no_error(
+    print(summary_object)
+  )
+
+
+
+  # Individuals, Aggregate, Monte Carlo, and NO Bootstrap
+  test_fcmconfr <- fcmconfr(
+    adj_matrices = sample_fcms$simple_fcms$ivfn_fcms,
+    # Aggregation and Monte Carlo Sampling
+    agg_function = 'mean',
+    num_mc_fcms = 100,
+    # Simulation
+    initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
+    clamping_vector = c(1, 0, 0, 0, 0, 0, 0),
+    activation = 'rescale',
+    squashing = 'sigmoid',
+    lambda = 1,
+    point_of_inference = 'final',
+    max_iter = 100,
+    min_error = 1e-05,
+    # Inference Estimation (bootstrap)
+    ci_centering_function = 'mean',
+    confidence_interval = 0.95,
+    num_ci_bootstraps = 1000,
+    # Runtime Options
+    show_progress = TRUE,
+    parallel = TRUE,
+    n_cores = 2,
+    # Additional Options
+    run_agg_calcs = TRUE,
+    run_mc_calcs = TRUE,
+    run_ci_calcs = FALSE,
+    include_zeroes_in_sampling = TRUE,
+    include_sims_in_output = TRUE
+  )
+
+  summary_object <- summary(test_fcmconfr)
+  expect_no_error(
+    print(summary_object)
+  )
+
+
+  # Individuals, Aggregate, NO Monte Carlo, and NO Bootstrap
+  test_fcmconfr <- fcmconfr(
+    adj_matrices = sample_fcms$simple_fcms$tfn_fcms,
+    # Aggregation and Monte Carlo Sampling
+    agg_function = 'mean',
+    num_mc_fcms = 100,
+    # Simulation
+    initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
+    clamping_vector = c(1, 0, 0, 0, 0, 0, 0),
+    activation = 'rescale',
+    squashing = 'sigmoid',
+    lambda = 1,
+    point_of_inference = 'final',
+    max_iter = 100,
+    min_error = 1e-05,
+    # Inference Estimation (bootstrap)
+    ci_centering_function = 'mean',
+    confidence_interval = 0.95,
+    num_ci_bootstraps = 1000,
+    # Runtime Options
+    show_progress = TRUE,
+    parallel = TRUE,
+    n_cores = 2,
+    # Additional Options
+    run_agg_calcs = TRUE,
+    run_mc_calcs = FALSE,
+    run_ci_calcs = FALSE,
+    include_zeroes_in_sampling = TRUE,
+    include_sims_in_output = TRUE
+  )
+
+  summary_object <- summary(test_fcmconfr)
+  expect_no_error(
+    print(summary_object)
+  )
+
+  # Individuals, NO Aggregate, NO Monte Carlo, and NO Bootstrap
+  test_fcmconfr <- fcmconfr(
+    adj_matrices = sample_fcms$simple_fcms$conventional_fcms,
+    # Aggregation and Monte Carlo Sampling
+    agg_function = 'mean',
+    num_mc_fcms = 100,
+    # Simulation
+    initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
+    clamping_vector = c(1, 0, 0, 0, 0, 0, 0),
+    activation = 'rescale',
+    squashing = 'sigmoid',
+    lambda = 1,
+    point_of_inference = 'final',
+    max_iter = 100,
+    min_error = 1e-05,
+    # Inference Estimation (bootstrap)
+    ci_centering_function = 'mean',
+    confidence_interval = 0.95,
+    num_ci_bootstraps = 1000,
+    # Runtime Options
+    show_progress = TRUE,
+    parallel = TRUE,
+    n_cores = 2,
+    # Additional Options
+    run_agg_calcs = TRUE,
+    run_mc_calcs = FALSE,
+    run_ci_calcs = FALSE,
+    include_zeroes_in_sampling = TRUE,
+    include_sims_in_output = TRUE
+  )
+
+  summary_object <- summary(test_fcmconfr)
+  expect_no_error(
+    print(summary_object)
+  )
 })
 
 
