@@ -169,7 +169,7 @@ aggregate equation becomes:
  \begin{array} {lcl}
    A_{ij}^{aggregate} & = & \left[ \ \mathrm{Median}\left( A_{ij}^{FCM_{1} -L} ,A_{ij}^{FCM_{2} -L} ,...,A_{ij}^{FCM_{N} -L}\right) |A_{ij}^{FCM_{1} -L} \neq A_{ij}^{FCM_{1} -M} \neq A_{ij}^{FCM_{1} -U} \neq 0 \right. , \\
    & & \ \ \ \mathrm{Median}\left( A_{ij}^{FCM_{1} -M} ,A_{ij}^{FCM_{2} -M} ,...,A_{ij}^{FCM_{N} -M}\right) |A_{ij}^{FCM_{1} -L} \neq A_{ij}^{FCM_{1} -M} \neq A_{ij}^{FCM_{1} -U} \neq 0 , \\
-   & & \ \ \ \left. \mathrm{Median}\left( A_{ij}^{FCM_{1} -U} ,A_{ij}^{FCM_{2} -U} ,...,A_{ij}^{FCM_{N} -U}\right) |A_{ij}^{FCM_{1} -L} \neq A_{ij}^{FCM_{1} -M} \neq A_{ij}^{FCM_{1} -U} \right]
+   & & \ \ \ \left. \mathrm{Median}\left( A_{ij}^{FCM_{1} -U} ,A_{ij}^{FCM_{2} -U} ,...,A_{ij}^{FCM_{N} -U}\right) |A_{ij}^{FCM_{1} -L} \neq A_{ij}^{FCM_{1} -M} \neq A_{ij}^{FCM_{1} -U} \neq 0\right]
  \end{array}
 }
 }
