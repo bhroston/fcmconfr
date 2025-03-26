@@ -25,7 +25,7 @@ library(fcmconfr)
 
 When people create fuzzy cognitive maps (FCMs) they are asked to provide weights for all edges between causally connected concepts in the map.
 
-In conventional FCMs, edge weights are individual values (e.g., -0.5, 0.25, etc.) that express a relationship between two concepts without uncertainty. However, FCMs can also describe edge weights using (1) Interval-Value Fuzzy Numbers (IVFNs) where weights are expressed as ranges and no one value is moire likely than another (e.g., [min, max]) or (2) Triangular Fuzzy Numbers (TFNs) where weights are expressed as ranges, but with values more likely to be near a particular value within those ranges (e.g., [min, mode, max]).
+In conventional FCMs, edge weights are individual values (e.g., -0.5, 0.25, etc.) that express a relationship between two concepts without uncertainty. However, FCMs can also describe edge weights using (1) Interval-Value Fuzzy Numbers (IVFNs) where weights are expressed as ranges and no one value is more likely than another (e.g., [min, max]) or (2) Triangular Fuzzy Numbers (TFNs) where weights are expressed as ranges, but with values more likely to be near a particular value within those ranges (e.g., [min, mode, max]).
 
 The figure below illustrates the probability density functions associated with. each type of edge weight. `fcmconfr` can accomodate FCMs with all three edge weight types. This vignette illustrates the workflow for preparing and importing these FCMs into R and analysis with `fcmconfr`.
 

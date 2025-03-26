@@ -673,6 +673,8 @@ infer_ivfn_or_tfn_fcm <- function(adj_matrix = data.frame(),
   min_error <- as.numeric(min_error)
   # ----
 
+  requireNamespace("tidyr")
+
   if (!(fcm_class %in% c("ivfn", "tfn"))) {
     stop(cli::format_error(c(
       "x" = "Error: {.var adj_matrix} must be an adjacency matrix with edges represented as
@@ -1958,9 +1960,8 @@ check_simulation_inputs <- function(adj_matrix = data.frame(),
   # ----
 
   # Additional parallel and show_progress checks
-  parallel_and_show_progress_access_checks <- check_access_to_parallel_processing_and_progress_display_functionalities(parallel, show_progress)
-  parallel <- parallel_and_show_progress_access_checks$parallel
-  show_progress <- parallel_and_show_progress_access_checks$show_progress
+  parallel <- as.logical(parallel)
+  show_progress <- as.logical(show_progress)
 
   # Additional n_cores checks
   available_cores <- parallel::detectCores()
