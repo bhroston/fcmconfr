@@ -13,6 +13,7 @@ public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostat
 [![R-CMD-check](https://github.com/bhroston/fcmconfr/actions/workflows/check-standard.yaml/badge.svg?branch=main)](https://github.com/bhroston/fcmconfr/actions/workflows/R-CMD-check.yaml)
 [![License: GPL
 v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![CircleCI](https://dl.circleci.com/status-badge/img/circleci/6RNT3swTFpzTbGeainwSv6/SKx6MdvSmGtHet5jY8bLfs/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/circleci/6RNT3swTFpzTbGeainwSv6/SKx6MdvSmGtHet5jY8bLfs/tree/main)
 
 <!-- badges: end -->
 
