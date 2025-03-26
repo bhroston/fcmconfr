@@ -110,7 +110,7 @@ plot.fcmconfr <- function(x,
                           agg_ivfn_and_tfn_linewidth = 0.6,
                           ...) {
 
-  requireNamespace(c("graphics", "shiny", "shinyWidgets", "bslib"))
+  requireNamespace(c("tidyr", "graphics", "shiny", "shinyWidgets", "bslib"))
 
   additional_inputs = list(...)
   if (length(additional_inputs) > 0) {

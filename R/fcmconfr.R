@@ -353,6 +353,12 @@ fcmconfr <- function(adj_matrices = list(),
   include_sims_in_output <- checks$include_sims_in_output
   # ----
 
+  if (silent) {
+    suppressMessages(requireNamespace("tidyr"))
+  } else {
+    requireNamespace("tidyr")
+  }
+
   # Individual Adj. Matrices Simulations ----
   if (show_progress) print("Simulating Input FCMs", quote = FALSE)
   individual_adj_matrices_inferences <- infer_fcm_set(adj_matrices, initial_state_vector, clamping_vector, activation, squashing, lambda, point_of_inference, max_iter, min_error, parallel, n_cores, show_progress, include_sims_in_output = TRUE, silent = silent, skip_checks = TRUE)

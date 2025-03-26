@@ -63,7 +63,18 @@ build_monte_carlo_fcms <- function(adj_matrices = list(),
                                    silent = FALSE,
                                    skip_checks = FALSE) {
 
-  requireNamespace("Matrix")
+  if (silent) {
+    suppressMessages(requireNamespace("Matrix"))
+  } else {
+    requireNamespace("Matrix")
+  }
+
+  if (silent && show_progress) {
+    suppressMessages(requireNamespace("pbapply"))
+  } else if (!silent && show_progress) {
+    requireNamespace("pbapply")
+  }
+
 
   # Check inputs ----
   check_fcmconfr_input(skip_checks, check = "logical", var_name = "skip_checks")
@@ -265,9 +276,9 @@ get_quantiles_and_bootstrapped_CIs_of_inferences <- function(infer_fcm_set_infer
   n_cores <- as.integer(n_cores)
   show_progress <- as.logical(show_progress)
 
-  parallel_and_show_progress_checks <- check_access_to_parallel_processing_and_progress_display_functionalities(use_parallel = parallel, use_show_progress = show_progress)
-  parallel <- parallel_and_show_progress_checks$parallel
-  show_progress <- parallel_and_show_progress_checks$show_progress
+  # parallel_and_show_progress_checks <- check_access_to_parallel_processing_and_progress_display_functionalities(use_parallel = parallel, use_show_progress = show_progress)
+  parallel <- as.logical(parallel)
+  show_progress <- as.logical(show_progress)
   # ----
 
   bootstrap_draws_per_rep <- nrow(infer_fcm_set_inference_df)

@@ -314,50 +314,50 @@ test_that("assert_var_name works", {
   expect_no_error(assert_var_name(var_name = "test_var_name"))
 })
 
-
-test_that("check_access_to_parallel_processing_and_progress_display_functionalities works", {
-
-  # Confirm warning if 'parallel' 'doSNOW' or 'foreach' packages missing and use_parallel = TRUE and use_show_progress = TRUE
-  # testing_use_parallel = TRUE testing_use_show_progress = FALSE
-  expect_warning(
-    check_access_to_parallel_processing_and_progress_display_functionalities(use_parallel = TRUE, use_show_progress = TRUE, testing_use_parallel = TRUE, testing_use_show_progress = FALSE)
-  )
-
-  # Confirm warning if 'parallel' 'doSNOW' or 'foreach' packages missing and use_parallel = TRUE and use_show_progress = TRUE
-  # testing_use_parallel = TRUE testing_use_show_progress = TRUE
-  expect_warning(
-    check_access_to_parallel_processing_and_progress_display_functionalities(use_parallel = TRUE, use_show_progress = TRUE, testing_use_parallel = TRUE, testing_use_show_progress = TRUE)
-  )
-
-  # Confirm warning if 'parallel' 'doSNOW' or 'foreach' packages missing and use_parallel = TRUE and use_show_progress = FALSE
-  # testing_use_parallel = TRUE testing_use_show_progress = FALSE
-  expect_warning(
-    check_access_to_parallel_processing_and_progress_display_functionalities(use_parallel = TRUE, use_show_progress = FALSE, testing_use_parallel = TRUE, testing_use_show_progress = FALSE)
-  )
-
-  # Confirm warning if 'parallel' 'doSNOW' or 'foreach' packages missing and use_parallel = TRUE and use_show_progress = FALSE
-  # testing_use_parallel = TRUE testing_use_show_progress = TRUE
-  expect_warning(
-    check_access_to_parallel_processing_and_progress_display_functionalities(use_parallel = TRUE, use_show_progress = FALSE, testing_use_parallel = TRUE, testing_use_show_progress = TRUE)
-  )
-
-  # Confirm warning if 'pbapply' package missing and use_parallel = FALSE and use_show_progress = TRUE
-  # testing_use_parallel = FALSE testing_use_show_progress = TRUE
-  expect_warning(
-    check_access_to_parallel_processing_and_progress_display_functionalities(use_parallel = FALSE, use_show_progress = TRUE, testing_use_parallel = FALSE, testing_use_show_progress = TRUE)
-  )
-
-  expect_no_error(check_access_to_parallel_processing_and_progress_display_functionalities(use_parallel = TRUE, use_show_progress = TRUE))
-
-  expect_no_error(check_access_to_parallel_processing_and_progress_display_functionalities(use_parallel = TRUE, use_show_progress = FALSE))
-
-  expect_no_error(check_access_to_parallel_processing_and_progress_display_functionalities(use_parallel = FALSE, use_show_progress = FALSE))
-
-  expect_no_error(check_access_to_parallel_processing_and_progress_display_functionalities(use_parallel = FALSE, use_show_progress = TRUE))
-
-  # yaml_list <- autotest::examples_to_yaml(package = ".", functions = "check_access_to_parallel_processing_and_progress_display_functionalities")
-  # res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)
-})
+#
+# test_that("check_access_to_parallel_processing_and_progress_display_functionalities works", {
+#
+#   # Confirm warning if 'parallel' 'doSNOW' or 'foreach' packages missing and use_parallel = TRUE and use_show_progress = TRUE
+#   # testing_use_parallel = TRUE testing_use_show_progress = FALSE
+#   expect_warning(
+#     check_access_to_parallel_processing_and_progress_display_functionalities(use_parallel = TRUE, use_show_progress = TRUE, testing_use_parallel = TRUE, testing_use_show_progress = FALSE)
+#   )
+#
+#   # Confirm warning if 'parallel' 'doSNOW' or 'foreach' packages missing and use_parallel = TRUE and use_show_progress = TRUE
+#   # testing_use_parallel = TRUE testing_use_show_progress = TRUE
+#   expect_warning(
+#     check_access_to_parallel_processing_and_progress_display_functionalities(use_parallel = TRUE, use_show_progress = TRUE, testing_use_parallel = TRUE, testing_use_show_progress = TRUE)
+#   )
+#
+#   # Confirm warning if 'parallel' 'doSNOW' or 'foreach' packages missing and use_parallel = TRUE and use_show_progress = FALSE
+#   # testing_use_parallel = TRUE testing_use_show_progress = FALSE
+#   expect_warning(
+#     check_access_to_parallel_processing_and_progress_display_functionalities(use_parallel = TRUE, use_show_progress = FALSE, testing_use_parallel = TRUE, testing_use_show_progress = FALSE)
+#   )
+#
+#   # Confirm warning if 'parallel' 'doSNOW' or 'foreach' packages missing and use_parallel = TRUE and use_show_progress = FALSE
+#   # testing_use_parallel = TRUE testing_use_show_progress = TRUE
+#   expect_warning(
+#     check_access_to_parallel_processing_and_progress_display_functionalities(use_parallel = TRUE, use_show_progress = FALSE, testing_use_parallel = TRUE, testing_use_show_progress = TRUE)
+#   )
+#
+#   # Confirm warning if 'pbapply' package missing and use_parallel = FALSE and use_show_progress = TRUE
+#   # testing_use_parallel = FALSE testing_use_show_progress = TRUE
+#   expect_warning(
+#     check_access_to_parallel_processing_and_progress_display_functionalities(use_parallel = FALSE, use_show_progress = TRUE, testing_use_parallel = FALSE, testing_use_show_progress = TRUE)
+#   )
+#
+#   expect_no_error(check_access_to_parallel_processing_and_progress_display_functionalities(use_parallel = TRUE, use_show_progress = TRUE))
+#
+#   expect_no_error(check_access_to_parallel_processing_and_progress_display_functionalities(use_parallel = TRUE, use_show_progress = FALSE))
+#
+#   expect_no_error(check_access_to_parallel_processing_and_progress_display_functionalities(use_parallel = FALSE, use_show_progress = FALSE))
+#
+#   expect_no_error(check_access_to_parallel_processing_and_progress_display_functionalities(use_parallel = FALSE, use_show_progress = TRUE))
+#
+#   # yaml_list <- autotest::examples_to_yaml(package = ".", functions = "check_access_to_parallel_processing_and_progress_display_functionalities")
+#   # res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)
+# })
 
 
 

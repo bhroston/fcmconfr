@@ -1007,102 +1007,102 @@ assert_matrix <- function(adj_matrix = data.frame(),
 }
 
 
-
-
-#' Check if the local machine can access internal parallel processing and progress display functionalities
 #'
-#' @family utility
 #'
-#' @description
-#' Check whether the local machine has access to the necessary packages to
-#' run code in parallel and/or using a progress bar. Specifically, checks for
-#' the parallel and pbapply packages.
+#' #' Check if the local machine can access internal parallel processing and progress display functionalities
+#' #'
+#' #' @family utility
+#' #'
+#' #' @description
+#' #' Check whether the local machine has access to the necessary packages to
+#' #' run code in parallel and/or using a progress bar. Specifically, checks for
+#' #' the parallel and pbapply packages.
+#' #'
+#' #' @details
+#' #' Confirms that a local machine can access the required packages for parallel
+#' #' processing and/or displaying progress bars at runtime. Will revise inputs
+#' #' if particular packages are unavailable and warn the user of such changes, but will
+#' #' not halt a run.
+#' #'
+#' #' @param use_parallel A [logical] (TRUE/FALSE) object declaring whether the
+#' #' user intends to use parallel processing (TRUE) or not (FALSE)
+#' #' @param use_show_progress A [logical] (TRUE/FALSE) object declaring whether
+#' #' the user intends to display progress bars (TRUE) or not (FALSE)
+#' #' @param testing_use_parallel A [logical] (TRUE/FALSE) object declaring whether
+#' #' the function should be run as a test that restricts access to packages
+#' #' required for parallel processing (TRUE) to force use_parallel to FALSE or
+#' #' not (FALSE)
+#' #' @param testing_use_show_progress A [logical] (TRUE/FALSE) object declaring
+#' #' whether the function should be run as a test that restricts access to
+#' #' packages required for progress display (TRUE) to force use_show_progress
+#' #' to FALSE or not (FALSE)
+#' #'
+#' #' @returns TRUE/FALSE Whether the machine has access to the dependencies to
+#' #' access internal parallel processing functionalities
+#' #'
+#' #' @keywords internal
+#' #' @noRd
+#' #'
+#' #' @example man/examples/ex-check_access_to_parallel_processing_and_progress_display_functionalities.R
+#' check_access_to_parallel_processing_and_progress_display_functionalities <- function(use_parallel = TRUE,
+#'                                                                                      use_show_progress = TRUE,
+#'                                                                                      testing_use_parallel = FALSE,
+#'                                                                                      testing_use_show_progress = FALSE) {
 #'
-#' @details
-#' Confirms that a local machine can access the required packages for parallel
-#' processing and/or displaying progress bars at runtime. Will revise inputs
-#' if particular packages are unavailable and warn the user of such changes, but will
-#' not halt a run.
+#'   check_fcmconfr_input(use_parallel, "logical", var_name = "use_parallel")
+#'   check_fcmconfr_input(use_show_progress, "logical", var_name = "use_show_progress")
+#'   check_fcmconfr_input(testing_use_parallel, "logical", var_name = "testing_use_parallel")
+#'   check_fcmconfr_input(testing_use_show_progress, "logical", var_name = "testing_use_show_progress")
 #'
-#' @param use_parallel A [logical] (TRUE/FALSE) object declaring whether the
-#' user intends to use parallel processing (TRUE) or not (FALSE)
-#' @param use_show_progress A [logical] (TRUE/FALSE) object declaring whether
-#' the user intends to display progress bars (TRUE) or not (FALSE)
-#' @param testing_use_parallel A [logical] (TRUE/FALSE) object declaring whether
-#' the function should be run as a test that restricts access to packages
-#' required for parallel processing (TRUE) to force use_parallel to FALSE or
-#' not (FALSE)
-#' @param testing_use_show_progress A [logical] (TRUE/FALSE) object declaring
-#' whether the function should be run as a test that restricts access to
-#' packages required for progress display (TRUE) to force use_show_progress
-#' to FALSE or not (FALSE)
+#'   local_machine_has_access_to_parallel <- requireNamespace("parallel")
+#'   local_machine_has_access_to_pbapply <- requireNamespace("pbapply")
 #'
-#' @returns TRUE/FALSE Whether the machine has access to the dependencies to
-#' access internal parallel processing functionalities
+#'   can_run_in_parallel_and_can_show_progress <- (local_machine_has_access_to_parallel && local_machine_has_access_to_pbapply)
+#'   can_run_in_parallel_and_cannot_show_progress <- (local_machine_has_access_to_parallel)
+#'   can_show_progress <- local_machine_has_access_to_pbapply
 #'
-#' @keywords internal
-#' @noRd
+#'   if ((use_parallel && use_show_progress) && (!can_run_in_parallel_and_can_show_progress || testing_use_parallel) && (can_show_progress && !testing_use_show_progress)) {
+#'     warning(cli::format_warning(c(
+#'       "!" = "Parallel processing with progress pisplay requires the 'parallel' package which is not currently installed.",
+#'       "~~~~~> Running without parallel processing, but with progress display"
+#'     )))
+#'     use_parallel <- FALSE
+#'     use_show_progress <- TRUE
+#'   } else if ((use_parallel && use_show_progress) && (!can_run_in_parallel_and_can_show_progress || testing_use_parallel) && (!can_show_progress || testing_use_show_progress)) {
+#'     warning(cli::format_warning(c(
+#'       "!" = "Parallel processing with progress pisplay requires the 'parallel' packages which is not currently installed.",
+#'       "~~~~~> Running without parallel processing or progress display"
+#'     )))
+#'     use_parallel <- FALSE
+#'     use_show_progress <- FALSE
+#'   } else if ((use_parallel && !use_show_progress) && (!local_machine_has_access_to_parallel || testing_use_parallel) && (can_show_progress && !testing_use_show_progress)) {
+#'     warning(cli::format_warning(c(
+#'       "!" = "Parallel processing requires the 'parallel' package which is not currently installed.",
+#'       "~~~~~> Running without parallel processing, but with progress display"
+#'     )))
+#'     use_parallel <- FALSE
+#'     use_show_progress <- TRUE
+#'   } else if ((use_parallel && !use_show_progress) && (!local_machine_has_access_to_parallel || testing_use_parallel) && (!can_show_progress || testing_use_show_progress)) {
+#'     warning(cli::format_warning(c(
+#'       "!" = "Parallel processing with progress pisplay requires the 'parallel' packages which is not currently installed.",
+#'       "~~~~~> Running without parallel processing or progress display"
+#'     )))
+#'     use_parallel <- FALSE
+#'     use_show_progress <- FALSE
+#'   } else if ((!use_parallel && use_show_progress) && (!can_show_progress || testing_use_show_progress)) {
+#'     warning(cli::format_warning(c(
+#'       "!" = "Progress display (even without parallel processing) requires the 'pbabpply' package which is not currently installed.",
+#'       "~~~~~> Running without progress display"
+#'     )))
+#'     use_parallel <- FALSE
+#'     use_show_progress <- FALSE
+#'   }
 #'
-#' @example man/examples/ex-check_access_to_parallel_processing_and_progress_display_functionalities.R
-check_access_to_parallel_processing_and_progress_display_functionalities <- function(use_parallel = TRUE,
-                                                                                     use_show_progress = TRUE,
-                                                                                     testing_use_parallel = FALSE,
-                                                                                     testing_use_show_progress = FALSE) {
-
-  check_fcmconfr_input(use_parallel, "logical", var_name = "use_parallel")
-  check_fcmconfr_input(use_show_progress, "logical", var_name = "use_show_progress")
-  check_fcmconfr_input(testing_use_parallel, "logical", var_name = "testing_use_parallel")
-  check_fcmconfr_input(testing_use_show_progress, "logical", var_name = "testing_use_show_progress")
-
-  local_machine_has_access_to_parallel <- requireNamespace("parallel")
-  local_machine_has_access_to_pbapply <- requireNamespace("pbapply")
-
-  can_run_in_parallel_and_can_show_progress <- (local_machine_has_access_to_parallel && local_machine_has_access_to_pbapply)
-  can_run_in_parallel_and_cannot_show_progress <- (local_machine_has_access_to_parallel)
-  can_show_progress <- local_machine_has_access_to_pbapply
-
-  if ((use_parallel && use_show_progress) && (!can_run_in_parallel_and_can_show_progress || testing_use_parallel) && (can_show_progress && !testing_use_show_progress)) {
-    warning(cli::format_warning(c(
-      "!" = "Parallel processing with progress pisplay requires the 'parallel' package which is not currently installed.",
-      "~~~~~> Running without parallel processing, but with progress display"
-    )))
-    use_parallel <- FALSE
-    use_show_progress <- TRUE
-  } else if ((use_parallel && use_show_progress) && (!can_run_in_parallel_and_can_show_progress || testing_use_parallel) && (!can_show_progress || testing_use_show_progress)) {
-    warning(cli::format_warning(c(
-      "!" = "Parallel processing with progress pisplay requires the 'parallel' packages which is not currently installed.",
-      "~~~~~> Running without parallel processing or progress display"
-    )))
-    use_parallel <- FALSE
-    use_show_progress <- FALSE
-  } else if ((use_parallel && !use_show_progress) && (!local_machine_has_access_to_parallel || testing_use_parallel) && (can_show_progress && !testing_use_show_progress)) {
-    warning(cli::format_warning(c(
-      "!" = "Parallel processing requires the 'parallel' package which is not currently installed.",
-      "~~~~~> Running without parallel processing, but with progress display"
-    )))
-    use_parallel <- FALSE
-    use_show_progress <- TRUE
-  } else if ((use_parallel && !use_show_progress) && (!local_machine_has_access_to_parallel || testing_use_parallel) && (!can_show_progress || testing_use_show_progress)) {
-    warning(cli::format_warning(c(
-      "!" = "Parallel processing with progress pisplay requires the 'parallel' packages which is not currently installed.",
-      "~~~~~> Running without parallel processing or progress display"
-    )))
-    use_parallel <- FALSE
-    use_show_progress <- FALSE
-  } else if ((!use_parallel && use_show_progress) && (!can_show_progress || testing_use_show_progress)) {
-    warning(cli::format_warning(c(
-      "!" = "Progress display (even without parallel processing) requires the 'pbabpply' package which is not currently installed.",
-      "~~~~~> Running without progress display"
-    )))
-    use_parallel <- FALSE
-    use_show_progress <- FALSE
-  }
-
-  return(
-    list(
-      parallel = as.logical(use_parallel),
-      show_progress = as.logical(use_show_progress)
-    )
-  )
-}
+#'   return(
+#'     list(
+#'       parallel = as.logical(use_parallel),
+#'       show_progress = as.logical(use_show_progress)
+#'     )
+#'   )
+#' }
 
