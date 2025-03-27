@@ -1,5 +1,7 @@
-url: ~
+url: https://bhroston.github.io/fcmconfr/
 template:
-  bootstrap: 5
+  package: tidytemplate
   math-rendering: mathjax
 
+development:
+  mode: auto
