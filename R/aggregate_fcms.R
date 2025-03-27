@@ -174,7 +174,8 @@
 #' @param skip_checks \[`logical(1)`]\cr FOR DEVELOPER USE ONLY. If TRUE, skip
 #' call to \code{check_simulation_inputs} (internal function)
 #'
-#' @references \insertRef{aminpourWisdomStakeholderCrowds2020}{fcmconfr}
+#' @references
+#' \insertRef{aminpourWisdomStakeholderCrowds2020}{fcmconfr}
 #'
 #' @returns \[`aggregate`]\cr An an aggregate adj. matrix with edges
 #' represented as the same data types as the inputs (i.e. Numerics for, IVFNs,
