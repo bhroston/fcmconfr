@@ -6,13 +6,13 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>fcmconfr • fcmconfr</title>
-<!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
-<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png">
-<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png">
-<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png">
-<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png">
-<script src="../katex-auto.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" sizes="any" href="../favicon.ico">
+<link rel="manifest" href="../site.webmanifest">
+<!-- katex math --><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script><script src="../katex-auto.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
@@ -36,7 +36,7 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="active nav-item"><a class="nav-link" href="../articles/fcmconfr.html">Get started</a></li>
+<li class="nav-item"><a class="nav-link" href="../articles/fcmconfr.html">Get started</a></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
@@ -66,7 +66,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>fcmconfr</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/bhroston/fcmconfr/blob/main/vignettes/fcmconfr.Rmd" class="external-link"><code>vignettes/fcmconfr.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/bhroston/fcmconfr/blob/HEAD/vignettes/fcmconfr.Rmd" class="external-link"><code>vignettes/fcmconfr.Rmd</code></a></small>
       <div class="d-none name"><code>fcmconfr.Rmd</code></div>
     </div>
 
@@ -118,15 +118,15 @@ has been provided below.</em></p>
 </h4>
 <p>Conventional FCMs can be imported as adjacency matrices, either from
 excel or csv files using standard import functions (e.g., calls to
-<code>readxl::read_excel()</code> or <code><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv()</a></code>). Users who
+<code><a href="https://readxl.tidyverse.org/reference/read_excel.html" class="external-link">readxl::read_excel()</a></code> or <code><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv()</a></code>). Users who
 plan to use <code>fcmconfr</code> to analyze multiple FCMs together
 should group them into a single <code>list</code> object.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Import Conventional FCMs into the Global Environment</span></span>
-<span><span class="va">fcm_1</span> <span class="op">&lt;-</span> <span class="fu">readxl</span><span class="fu">::</span><span class="fu">read_excel</span><span class="op">(</span><span class="va">fcm_1_filepath</span><span class="op">)</span></span>
-<span><span class="va">fcm_2</span> <span class="op">&lt;-</span> <span class="fu">readxl</span><span class="fu">::</span><span class="fu">read_excel</span><span class="op">(</span><span class="va">fcm_2_filepath</span><span class="op">)</span></span>
+<span><span class="va">fcm_1</span> <span class="op">&lt;-</span> <span class="fu">readxl</span><span class="fu">::</span><span class="fu"><a href="https://readxl.tidyverse.org/reference/read_excel.html" class="external-link">read_excel</a></span><span class="op">(</span><span class="va">fcm_1_filepath</span><span class="op">)</span></span>
+<span><span class="va">fcm_2</span> <span class="op">&lt;-</span> <span class="fu">readxl</span><span class="fu">::</span><span class="fu"><a href="https://readxl.tidyverse.org/reference/read_excel.html" class="external-link">read_excel</a></span><span class="op">(</span><span class="va">fcm_2_filepath</span><span class="op">)</span></span>
 <span><span class="va">...</span></span>
-<span><span class="va">fcm_n</span> <span class="op">&lt;-</span> <span class="fu">readxl</span><span class="fu">::</span><span class="fu">read_excel</span><span class="op">(</span><span class="va">fcm_n_filepath</span><span class="op">)</span></span>
+<span><span class="va">fcm_n</span> <span class="op">&lt;-</span> <span class="fu">readxl</span><span class="fu">::</span><span class="fu"><a href="https://readxl.tidyverse.org/reference/read_excel.html" class="external-link">read_excel</a></span><span class="op">(</span><span class="va">fcm_n_filepath</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Group them together in a single list object</span></span>
 <span><span class="va">fcms</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">fcm_1</span>, <span class="va">fcm_2</span>, <span class="va">...</span>, <span class="va">fcm_n</span><span class="op">)</span></span></code></pre></div>
@@ -144,8 +144,8 @@ together should group them into a single list object.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Import separate adjacency matrices representing the </span></span>
 <span><span class="co"># lower and upper bounds of each edge weight</span></span>
-<span><span class="va">ivfn_fcm_1_lower_adj_matrix</span> <span class="op">&lt;-</span> <span class="fu">readxl</span><span class="fu">::</span><span class="fu">read_excel</span><span class="op">(</span><span class="va">ivfn_fcm_1_lower_adj_matrix_filepath</span><span class="op">)</span></span>
-<span><span class="va">ivfn_fcm_1_upper_adj_matrix</span> <span class="op">&lt;-</span> <span class="fu">readxl</span><span class="fu">::</span><span class="fu">read_excel</span><span class="op">(</span><span class="va">ivfn_fcm_1_upper_adj_matrix_filepath</span><span class="op">)</span></span>
+<span><span class="va">ivfn_fcm_1_lower_adj_matrix</span> <span class="op">&lt;-</span> <span class="fu">readxl</span><span class="fu">::</span><span class="fu"><a href="https://readxl.tidyverse.org/reference/read_excel.html" class="external-link">read_excel</a></span><span class="op">(</span><span class="va">ivfn_fcm_1_lower_adj_matrix_filepath</span><span class="op">)</span></span>
+<span><span class="va">ivfn_fcm_1_upper_adj_matrix</span> <span class="op">&lt;-</span> <span class="fu">readxl</span><span class="fu">::</span><span class="fu"><a href="https://readxl.tidyverse.org/reference/read_excel.html" class="external-link">read_excel</a></span><span class="op">(</span><span class="va">ivfn_fcm_1_upper_adj_matrix_filepath</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Combine the lower and upper adjacency matrices to make an IVFN FCM</span></span>
 <span><span class="va">ivfn_fcm_1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/make_adj_matrix_w_ivfns.html">make_adj_matrix_w_ivfns</a></span><span class="op">(</span></span>
@@ -169,9 +169,9 @@ multiple TFN-FCMs together should group them into a single
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Import separate adjacency matrices representing the </span></span>
 <span><span class="co"># lower and upper bounds as well as the mode  of each edge weight</span></span>
-<span><span class="va">ivfn_fcm_1_lower_adj_matrix</span> <span class="op">&lt;-</span> <span class="fu">readxl</span><span class="fu">::</span><span class="fu">read_excel</span><span class="op">(</span><span class="va">ivfn_fcm_1_lower_adj_matrix_filepath</span><span class="op">)</span></span>
-<span><span class="va">ivfn_fcm_1_mode_adj_matrix</span> <span class="op">&lt;-</span> <span class="fu">readxl</span><span class="fu">::</span><span class="fu">read_excel</span><span class="op">(</span><span class="va">ivfn_fcm_1_mode_adj_matrix_filepath</span><span class="op">)</span></span>
-<span><span class="va">ivfn_fcm_1_upper_adj_matrix</span> <span class="op">&lt;-</span> <span class="fu">readxl</span><span class="fu">::</span><span class="fu">read_excel</span><span class="op">(</span><span class="va">ivfn_fcm_1_upper_adj_matrix_filepath</span><span class="op">)</span></span>
+<span><span class="va">ivfn_fcm_1_lower_adj_matrix</span> <span class="op">&lt;-</span> <span class="fu">readxl</span><span class="fu">::</span><span class="fu"><a href="https://readxl.tidyverse.org/reference/read_excel.html" class="external-link">read_excel</a></span><span class="op">(</span><span class="va">ivfn_fcm_1_lower_adj_matrix_filepath</span><span class="op">)</span></span>
+<span><span class="va">ivfn_fcm_1_mode_adj_matrix</span> <span class="op">&lt;-</span> <span class="fu">readxl</span><span class="fu">::</span><span class="fu"><a href="https://readxl.tidyverse.org/reference/read_excel.html" class="external-link">read_excel</a></span><span class="op">(</span><span class="va">ivfn_fcm_1_mode_adj_matrix_filepath</span><span class="op">)</span></span>
+<span><span class="va">ivfn_fcm_1_upper_adj_matrix</span> <span class="op">&lt;-</span> <span class="fu">readxl</span><span class="fu">::</span><span class="fu"><a href="https://readxl.tidyverse.org/reference/read_excel.html" class="external-link">read_excel</a></span><span class="op">(</span><span class="va">ivfn_fcm_1_upper_adj_matrix_filepath</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Combine the lower and upper adjacency matrices to make a TFN-FCM</span></span>
 <span><span class="va">tfn_fcm_1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/make_adj_matrix_w_tfns.html">make_adj_matrix_w_tfns</a></span><span class="op">(</span></span>
@@ -811,7 +811,7 @@ FCMs</div>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.9000.</p>
 </div>
 
     </footer>
