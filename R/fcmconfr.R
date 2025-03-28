@@ -115,15 +115,48 @@ NULL
 #' that can be used to help select appropriate values for each argument in
 #' \code{fcmconfr()}.
 #'
-#' @references \insertRef{ozesmiParticipatoryApproachEcosystem2003}{fcmconfr}
-#' @references \insertRef{aminpourWisdomStakeholderCrowds2020}{fcmconfr}
-#' @references \insertRef{styliosIntroducingTheoryFuzzy1997}{fcmconfr}
-#' @references \insertRef{mooreIntervalAnalysisFuzzy2003}{fcmconfr}
-#' @references \insertRef{hajek_interval-valued_2016}{fcmconfr}
-#' @references \insertRef{yesil_triangular_2014}{fcmconfr}
-#' @references \insertRef{stylios_modeling_2004}{fcmconfr}
-#' @references \insertRef{papageorgiou_new_2011}{fcmconfr}
-#' @references \insertRef{dikopoulou_fuzzy_2021}{fcmconfr}
+#' @references Özesmi U, Özesmi S (2003). “A Participatory Approach to Ecosystem
+#' Conservation: Fuzzy Cognitive Maps and Stakeholder Group Analysis in Uluabat
+#' Lake, Turkey.” Environmental Management, 31(4), 518–531. ISSN 0364-152X,
+#' 1432-1009, [doi:10.1007/s00267-002-2841-1](https://doi.org/10.1007/s00267-002-2841-1).
+#'
+#' @references Aminpour P, Gray SA, Jetter AJ, Introne JE, Singer A, Arlinghaus R (2020).
+#' “Wisdom of Stakeholder Crowds in Complex Social–Ecological Systems.” Nature
+#' Sustainability, 3(3), 191–199. ISSN 2398-9629, [doi:10.1038/s41893-019-0467-z](https://doi.org/10.1038/s41893-019-0467-z).
+#'
+#' @references Stylios CD, Georgopoulos VC, Groumpos PP (1997). “Introducing the
+#' Theory of Fuzzy Cognitive Maps in Distributed Systems.” In Proceedings of
+#' 12th IEEE International Symposium on Intelligent Control, 55–60.
+#' [doi:10.1109/ISIC.1997.626413](https://doi.org/10.1109/ISIC.1997.626413).
+#'
+#' @references Moore R, Lodwick W (2003). “Interval Analysis and Fuzzy Set
+#' Theory.” Fuzzy Sets and Systems, 135(1), 5–9. ISSN 01650114,
+#' [doi:10.1016/S0165-0114(02)00246-4](https://doi.org/10.1016/S0165-0114(02)00246-4).
+#'
+#' @references Hajek P, Prochazka O (2016). “Interval-valued fuzzy cognitive
+#' maps for supporting business decisions.” In 2016 IEEE International
+#' Conference on Fuzzy Systems (FUZZ-IEEE), 531–536. ISBN 978-1-5090-0626-7,
+#' [doi:10.1109/FUZZ-IEEE.2016.7737732](https://doi.org/10.1109/FUZZ-IEEE.2016.7737732),
+#'
+#' @references Yesil E, Dodurka MF, Urbas L (2014). “Triangular fuzzy number
+#' representation of relations in Fuzzy Cognitive Maps.” In 2014 IEEE
+#' International Conference on Fuzzy Systems (FUZZ-IEEE), 1021–1028. ISBN
+#' 9781479920723, [doi:10.1109/FUZZ-IEEE.2014.6891653](https://doi.org/10.1109/FUZZ-IEEE.2014.6891653),
+#'
+#' @references Stylios CD, Groumpos PP (2004). “Modeling complex systems using
+#' fuzzy cognitive maps.” IEEE Transactions on Systems, Man, and Cybernetics -
+#' Part A: Systems and Humans, 34(1), 155–162. ISSN 1558-2426,
+#' [doi:10.1109/TSMCA.2003.818878](https://doi.org/10.1109/TSMCA.2003.818878),
+#'
+#' @references Papageorgiou EI (2011). “A new methodology for Decisions in
+#' Medical Informatics using fuzzy cognitive maps based on fuzzy rule-extraction
+#' techniques.” Applied Soft Computing, 11(1), 500–513. ISSN 1568-4946,
+#' [doi:10.1016/j.asoc.2009.12.010](https://doi.org/10.1016/j.asoc.2009.12.010),
+#'
+#' @references Dikopoulou Z (2021). “Fuzzy Cognitive Maps.” In Dikopoulou Z
+#' (ed.), Modeling and Simulating Complex Business Perceptions : Using Graphical
+#' Models and Fuzzy Cognitive Maps, 27–42. Springer International Publishing,
+#' Cham. ISBN 9783030814960, [doi:10.1007/978-3-030-81496-0_3](https://doi.org/10.1007/978-3-030-81496-0_3),
 #'
 #' @details
 #' FCM simulations are iterative applications of an activation function

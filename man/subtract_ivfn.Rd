@@ -42,11 +42,16 @@ subtract_ivfn(ivfn(-0.5, 0.3), ivfn(0.4, 0.6))
 subtract_ivfn(ivfn(-1, 1), ivfn(-0.5, 0.5))
 }
 \references{
-\insertRef{mooreIntervalAnalysisFuzzy2003}{fcmconfr}
+Moore R, Lodwick W (2003). “Interval Analysis and Fuzzy Set
+Theory.” Fuzzy Sets and Systems, 135(1), 5–9. ISSN 01650114,
+\href{https://doi.org/10.1016/S0165-0114(02)00246-4}{doi:10.1016/S0165-0114(02)00246-4}.
 
-\insertRef{dimuroIntervalFuzzyNumbers2011}{fcmconfr}
+Dimuro GP (2011). “On Interval Fuzzy Numbers.” In 2011
+Workshop-School on Theoretical Computer Science, 3–8.
+ISBN 978-0-7695-4628-5 978-1-4673-0225-8,
+\href{https://doi.org/10.1109/WEIT.2011.19}{doi:10.1109/WEIT.2011.19}.
 
-\insertRef{mooreIntervalAnalysis1966}{fcmconfr}
+Moore RE (1966). Interval Analysis, volume 4. prentice-Hall Englewood Cliffs.
 }
 \seealso{
 Other interval-valued-fuzzy-numbers: 
