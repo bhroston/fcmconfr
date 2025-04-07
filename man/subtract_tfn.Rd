@@ -57,6 +57,7 @@ subtract_tfn(tfn(-1, 0, 1), tfn(-0.5, 0, 0.5))
 }
 \seealso{
 Other triangular-fuzzy-numbers: 
+\code{\link{create_tfn_fcm_from_conventional_fcm}()},
 \code{\link{make_adj_matrix_w_tfns}()},
 \code{\link{print.tfn}()},
 \code{\link{tfn}()}

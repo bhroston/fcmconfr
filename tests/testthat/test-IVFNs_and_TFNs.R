@@ -141,6 +141,33 @@ test_that("ivfn works", {
 })
 
 
+test_that("create_ivfn_fcm_from_conventional_fcm works", {
+  test_fcm <- data.frame(
+    "A" = c(0, 0.5, 0.3),
+    "B" = c(-0.1, 0, 0.3),
+    "C" = c(0.4, -0.9, 0)
+  )
+
+  ivfn_fcm <- create_ivfn_fcm_from_conventional_fcm(test_fcm, error = 0.2)
+
+  expected_lowers <- data.frame(
+    "A" = c(0, 0.3, 0.1),
+    "B" = c(-0.3, 0, 0.1),
+    "C" = c(0.2, -1, 0)
+  )
+
+  expected_uppers <- data.frame(
+    "A" = c(0, 0.7, 0.5),
+    "B" = c(0, 0, 0.5),
+    "C" = c(0.6, -0.7, 0)
+  )
+
+  expected_ivfn_fcm <- make_adj_matrix_w_ivfns(expected_lowers, expected_uppers)
+
+  expect_equal(ivfn_fcm, expected_ivfn_fcm, ignore_attr = TRUE)
+})
+
+
 test_that("subtract_ivfn works", {
   expect_equal(subtract_ivfn(ivfn(0.5, 0.8), ivfn(0.2, 0.5)), ivfn(0, 0.6))
   expect_equal(subtract_ivfn(ivfn(-0.5, 0.3), ivfn(0.4, 0.6)), ivfn(-1.1, -0.1))
@@ -266,6 +293,38 @@ test_that("tfn works", {
   expect_error(tfn(-Inf, 0, Inf))
   expect_error(tfn("a", 0, 1))
 })
+
+
+
+test_that("create_tfn_fcm_from_conventional_fcm works", {
+  test_fcm <- data.frame(
+    "A" = c(0, 0.5, 0.3),
+    "B" = c(-0.1, 0, 0.3),
+    "C" = c(0.4, -0.9, 0)
+  )
+
+  tfn_fcm <- create_tfn_fcm_from_conventional_fcm(test_fcm, error = 0.2)
+
+  expected_lowers <- data.frame(
+    "A" = c(0, 0.3, 0.1),
+    "B" = c(-0.3, 0, 0.1),
+    "C" = c(0.2, -1, 0)
+  )
+
+  expected_modes <- test_fcm
+
+  expected_uppers <- data.frame(
+    "A" = c(0, 0.7, 0.5),
+    "B" = c(0, 0, 0.5),
+    "C" = c(0.6, -0.7, 0)
+  )
+
+  expected_tfn_fcm <- make_adj_matrix_w_tfns(expected_lowers, expected_modes, expected_uppers)
+
+  expect_equal(tfn_fcm, expected_tfn_fcm, ignore_attr = TRUE)
+})
+
+
 
 
 test_that("subtract_tfn works", {

@@ -26,6 +26,7 @@ c(ivfn(0, 1), ivfn(0.2, 0.5))
 }
 \seealso{
 Other interval-valued-fuzzy-numbers: 
+\code{\link{create_ivfn_fcm_from_conventional_fcm}()},
 \code{\link{ivfn}()},
 \code{\link{make_adj_matrix_w_ivfns}()},
 \code{\link{print.ivfn}()},

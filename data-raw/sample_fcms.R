@@ -38,77 +38,77 @@ simple_conventional_fcms <- lapply(
 
 ivfn_and_tfn_buffer <- 0.4
 
-create_sample_ivfn_fcm_from_fcm <- function(fcm, buffer) {
-  only_positive_values <- ifelse(all(fcm >= 0), TRUE, FALSE)
-  as.data.frame(apply(
-    fcm, c(1, 2),
-    function(element) {
-      if (element == 0) {
-        return(ivfn(0, 0))
-      }
+# create_ivfn_fcm_from_conventional_fcm <- function(fcm, buffer) {
+#   only_positive_values <- ifelse(all(fcm >= 0), TRUE, FALSE)
+#   as.data.frame(apply(
+#     fcm, c(1, 2),
+#     function(element) {
+#       if (element == 0) {
+#         return(ivfn(0, 0))
+#       }
+#
+#       try_lower <- element - buffer
+#       if (only_positive_values & try_lower < 0) {
+#         use_lower <- 0
+#       } else if (!only_positive_values & try_lower < -1) {
+#         use_lower <- -1
+#       } else if (try_lower < 0 & element > 0) {
+#         use_lower <- 0
+#       } else {
+#         use_lower <- try_lower
+#       }
+#
+#       try_upper <- element + buffer
+#       if (try_upper > 1) {
+#         use_upper <- 1
+#       } else if (try_upper > 0 & element < 0) {
+#         use_upper <- 0
+#       } else {
+#         use_upper <- try_upper
+#       }
+#
+#       ivfn(use_lower, use_upper)
+#     }
+#   ))
+# }
+complete_ivfn_fcms <- lapply(salinization_conventional_fcms, create_ivfn_fcm_from_conventional_fcm, error = ivfn_and_tfn_buffer)
+simple_ivfn_fcms <- lapply(simple_conventional_fcms, create_ivfn_fcm_from_conventional_fcm, error = ivfn_and_tfn_buffer)
 
-      try_lower <- element - buffer
-      if (only_positive_values & try_lower < 0) {
-        use_lower <- 0
-      } else if (!only_positive_values & try_lower < -1) {
-        use_lower <- -1
-      } else if (try_lower < 0 & element > 0) {
-        use_lower <- 0
-      } else {
-        use_lower <- try_lower
-      }
-
-      try_upper <- element + buffer
-      if (try_upper > 1) {
-        use_upper <- 1
-      } else if (try_upper > 0 & element < 0) {
-        use_upper <- 0
-      } else {
-        use_upper <- try_upper
-      }
-
-      ivfn(use_lower, use_upper)
-    }
-  ))
-}
-complete_ivfn_fcms <- lapply(salinization_conventional_fcms, create_sample_ivfn_fcm_from_fcm, buffer = ivfn_and_tfn_buffer)
-simple_ivfn_fcms <- lapply(simple_conventional_fcms, create_sample_ivfn_fcm_from_fcm, buffer = ivfn_and_tfn_buffer)
-
-create_sample_tfn_fcm_from_fcm <- function(fcm, buffer) {
-  only_positive_values <- ifelse(all(fcm >= 0), TRUE, FALSE)
-  as.data.frame(apply(
-    fcm, c(1, 2),
-    function(element) {
-      if (element == 0) {
-        return(tfn(0, 0, 0))
-      }
-
-      try_lower <- element - buffer
-      if (only_positive_values & try_lower < 0) {
-        use_lower <- 0
-      } else if (!only_positive_values & try_lower < -1) {
-        use_lower <- -1
-      } else if (try_lower < 0 & element > 0) {
-        use_lower <- 0
-      } else {
-        use_lower <- try_lower
-      }
-
-      try_upper <- element + buffer
-      if (try_upper > 1) {
-        use_upper <- 1
-      } else if (try_upper > 0 & element < 0) {
-        use_upper <- 0
-      } else {
-        use_upper <- try_upper
-      }
-
-      tfn(use_lower, element, use_upper)
-    }
-  ))
-}
-complete_tfn_fcms <- lapply(salinization_conventional_fcms, create_sample_tfn_fcm_from_fcm, buffer = ivfn_and_tfn_buffer)
-simple_tfn_fcms <- lapply(simple_conventional_fcms, create_sample_tfn_fcm_from_fcm, buffer = ivfn_and_tfn_buffer)
+# create_sample_tfn_fcm_from_fcm <- function(fcm, buffer) {
+#   only_positive_values <- ifelse(all(fcm >= 0), TRUE, FALSE)
+#   as.data.frame(apply(
+#     fcm, c(1, 2),
+#     function(element) {
+#       if (element == 0) {
+#         return(tfn(0, 0, 0))
+#       }
+#
+#       try_lower <- element - buffer
+#       if (only_positive_values & try_lower < 0) {
+#         use_lower <- 0
+#       } else if (!only_positive_values & try_lower < -1) {
+#         use_lower <- -1
+#       } else if (try_lower < 0 & element > 0) {
+#         use_lower <- 0
+#       } else {
+#         use_lower <- try_lower
+#       }
+#
+#       try_upper <- element + buffer
+#       if (try_upper > 1) {
+#         use_upper <- 1
+#       } else if (try_upper > 0 & element < 0) {
+#         use_upper <- 0
+#       } else {
+#         use_upper <- try_upper
+#       }
+#
+#       tfn(use_lower, element, use_upper)
+#     }
+#   ))
+# }
+complete_tfn_fcms <- lapply(salinization_conventional_fcms, create_sample_tfn_fcm_from_fcm, error = ivfn_and_tfn_buffer)
+simple_tfn_fcms <- lapply(simple_conventional_fcms, create_sample_tfn_fcm_from_fcm, error = ivfn_and_tfn_buffer)
 
 salinization_fcms <- list(
   conventional_fcms = salinization_conventional_fcms,
@@ -127,4 +127,4 @@ sample_fcms <- list(
   large_fcms = salinization_fcms
 )
 
-usethis::use_data(sample_fcms, overwrite = TRUE)
+# usethis::use_data(sample_fcms, overwrite = TRUE)

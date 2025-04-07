@@ -63,6 +63,7 @@ make_adj_matrix_w_tfns(lower_adj_matrix, mode_adj_matrix, upper_adj_matrix)
 }
 \seealso{
 Other triangular-fuzzy-numbers: 
+\code{\link{create_tfn_fcm_from_conventional_fcm}()},
 \code{\link{print.tfn}()},
 \code{\link{subtract_tfn}()},
 \code{\link{tfn}()}
