@@ -102,21 +102,46 @@ shiny_server <- function(input, output, session) {
       adj_matrices_input <- list(adj_matrices_input)
     }
 
-    tryCatch({
-      check_fcmconfr_input(adj_matrices_input, check = "adj_matrix_list", var_name = "adj_matrices_input")
-    }, error = function(e) {
-      error_message <- gsub(".*m ", "<p>", e$message)
-      error_message <- gsub("\033.*", "</p>", error_message)
-      error_message <- gsub("+++++>", "", error_message, fixed = TRUE)
-      error_message <- gsub("\n", "<br><br>", error_message)
+    square_adj_matrix_checks <- lapply(
+      adj_matrices_input,
+      function(adj_matrix) {
+        tryCatch({
+          check_fcmconfr_input(adj_matrix,  check = "square_adj_matrix", var_name = "adj_matrices_input")
+        }, error = function(e) {
+          error_message <- gsub(".*m ", "<p>", e$message)
+          error_message <- gsub("\033.*", "</p>", error_message)
+          error_message <- gsub("+++++>", "", error_message, fixed = TRUE)
+          error_message <- gsub("\n", "<br><br>", error_message)
 
-      shinyWidgets::show_alert(
-        title = "Unable to load data",
-        text = shiny::HTML(error_message),
-        type = "error",
-        html = TRUE
-      )
-    })
+          shinyWidgets::show_alert(
+            title = "Unable to load data",
+            text = shiny::HTML(error_message),
+            type = "error",
+            html = TRUE
+          )
+        })
+      }
+    )
+
+    if (any(is.null(unlist(square_adj_matrix_checks))) || !(all(unlist(square_adj_matrix_checks)))) {
+      adj_matrices_input <- list(data.frame(0))
+    } else {
+      tryCatch({
+        try(check_fcmconfr_input(adj_matrices_input, check = "adj_matrix_list", var_name = "adj_matrices_input"))
+      }, error = function(e) {
+        error_message <- gsub(".*m ", "<p>", e$message)
+        error_message <- gsub("\033.*", "</p>", error_message)
+        error_message <- gsub("+++++>", "", error_message, fixed = TRUE)
+        error_message <- gsub("\n", "<br><br>", error_message)
+
+        shinyWidgets::show_alert(
+          title = "Unable to load data",
+          text = shiny::HTML(error_message),
+          type = "error",
+          html = TRUE
+        )
+      })
+    }
 
     return(adj_matrices_input)
   })
@@ -126,6 +151,7 @@ shiny_server <- function(input, output, session) {
       shiny::need(input$adj_matrices != "", message = FALSE)
     )
     concepts <- unique(lapply(adj_matrices(), colnames))[[1]]
+    concepts <- vapply(concepts, function(concept) gsub(":", ".", concept), character(1))
     return(concepts)
   })
 
@@ -653,17 +679,13 @@ shiny_server <- function(input, output, session) {
       return(code_snippet_text)
     }
 
-    aggregation_inputs <- c("aggregation_fun", "include_zeroes_in_sampling")
-    if (!all(aggregation_inputs %in% names(input))) {
-      code_snippet_text <- "Select Aggregation and Monte Carlo sampling options to create fcmconfr() code snippet"
-      return(code_snippet_text)
-    }
-
-    monte_carlo_inputs <- c(
+    aggregation_and_mc_inputs <- c(
+      "aggregation_fun", "include_zeroes_in_sampling",
       "num_mc_fcms", "show_progress", "parallel",
       "include_sims_in_output", "include_zeroes_in_sampling"
     )
-    if (!all(monte_carlo_inputs %in% names(input))) {
+
+    if (length(adj_matrices) != 1 && !all(aggregation_and_mc_inputs %in% names(input))) {
       code_snippet_text <- "Select Aggregation and Monte Carlo sampling options to create fcmconfr() code snippet"
       return(code_snippet_text)
     }
@@ -671,7 +693,7 @@ shiny_server <- function(input, output, session) {
     bootstrap_inputs <- c(
       "ci_centering_function", "confidence_interval", "num_ci_bootstraps"
     )
-    if (!all(bootstrap_inputs %in% names(input))) {
+    if (length(adj_matrices) != 1 && !all(bootstrap_inputs %in% names(input))) {
       code_snippet_text <- "Select bootstrapping options to create fcmconfr() code snippet"
       return(code_snippet_text)
     }
@@ -694,7 +716,7 @@ shiny_server <- function(input, output, session) {
 
     if (performed_aggregation & !performed_mc & !performed_bootstrap) {
       code_snippet_text <- paste0(
-        "fcmconfr(", "\n",
+        "fcmconfr_call <- fcmconfr(", "\n",
         "  adj_matrices = ", input$adj_matrices, ",\n",
         "  # Aggregation", "\n",
         "  agg_function = ", paste0("'", input$aggregation_fun, "'"), ",\n",
@@ -718,7 +740,7 @@ shiny_server <- function(input, output, session) {
       )
     } else if (performed_aggregation & performed_mc & !performed_bootstrap) {
       code_snippet_text <- paste0(
-        "fcmconfr(", "\n",
+        "fcmconfr_call <- fcmconfr(", "\n",
         "  adj_matrices = ", input$adj_matrices, ",\n",
         "  # Aggregation and Monte Carlo Sampling", "\n",
         "  agg_function = ", paste0("'", input$aggregation_fun, "'"), ",\n",
@@ -746,7 +768,7 @@ shiny_server <- function(input, output, session) {
       )
     } else if (performed_aggregation & performed_mc & performed_bootstrap) {
       code_snippet_text <- paste0(
-        "fcmconfr(", "\n",
+        "fcmconfr_call <- fcmconfr(", "\n",
         "  adj_matrices = ", input$adj_matrices, ",\n",
         "  # Aggregation and Monte Carlo Sampling", "\n",
         "  agg_function = ", paste0("'", input$aggregation_fun, "'"), ",\n",
@@ -778,7 +800,7 @@ shiny_server <- function(input, output, session) {
       )
     } else if (!performed_aggregation & performed_mc & !performed_bootstrap) {
       code_snippet_text <- paste0(
-        "fcmconfr(", "\n",
+        "fcmconfr_call <- fcmconfr(", "\n",
         "  adj_matrices = ", input$adj_matrices, ",\n",
         "  # Monte Carlo Sampling", "\n",
         "  num_mc_fcms = ", input$num_mc_fcms, ",\n",
@@ -805,7 +827,7 @@ shiny_server <- function(input, output, session) {
       )
     } else if (!performed_aggregation & performed_mc & performed_bootstrap) {
       code_snippet_text <- paste0(
-        "fcmconfr(", "\n",
+        "fcmconfr_call <- fcmconfr(", "\n",
         "  adj_matrices = ", input$adj_matrices, ",\n",
         "  # Monte Carlo Sampling", "\n",
         "  num_mc_fcms = ", input$num_mc_fcms, ",\n",
@@ -836,7 +858,7 @@ shiny_server <- function(input, output, session) {
       )
     } else if (!performed_aggregation & !performed_mc & !performed_bootstrap) {
       code_snippet_text <- paste0(
-        "fcmconfr(", "\n",
+        "fcmconfr_call <- fcmconfr(", "\n",
         "  adj_matrices = ", input$adj_matrices, ",\n",
         "  # Simulation", "\n",
         "  initial_state_vector = ", paste0("c(", paste0(initial_state_vector(), collapse = ", "), ")"), ",\n",

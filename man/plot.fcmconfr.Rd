@@ -6,6 +6,7 @@
 \usage{
 \method{plot}{fcmconfr}(
   x,
+  include = "all",
   interactive = FALSE,
   filter_limit = 0.001,
   xlim = NA,
@@ -28,6 +29,10 @@
 }
 \arguments{
 \item{x}{A direct output of the \code{\link{fcmconfr}} function}
+
+\item{include}{[\code{character()}]\cr The concepts to include in the plot.
+By default, include = 'all' which does not exclude any concepts. Set to a
+vector of concept names to identify the only concepts to include in the plot.}
 
 \item{interactive}{[\code{logical(1)}]\cr If TRUE, launch plot in a Shiny app to
 toggle on/off results from different analyses.}

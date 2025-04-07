@@ -353,6 +353,8 @@ fcmconfr <- function(adj_matrices = list(),
   include_sims_in_output <- checks$include_sims_in_output
   # ----
 
+  concepts <- unlist(unique(lapply(adj_matrices, function(adj_matrix) colnames(adj_matrix))))
+
   if (silent) {
     suppressMessages(requireNamespace("tidyr"))
   } else {
@@ -380,6 +382,7 @@ fcmconfr <- function(adj_matrices = list(),
     # Infer aggregate adj_matrix
     aggregate_fcm_inference <- infer_fcm(aggregate_adj_matrix$adj_matrix, initial_state_vector, clamping_vector, activation, squashing, lambda, point_of_inference, max_iter, min_error, skip_checks = TRUE)
     aggregate_fcm_inference$inferences <- data.frame(cbind("adj_matrix_index" = "aggregate", aggregate_fcm_inference$inferences))
+    colnames(aggregate_fcm_inference$inferences) <- c("adj_matrix_index", concepts)
     attr(aggregate_fcm_inference$inferences, "index") <- "adj_matrix_index"
   }
   # ----
