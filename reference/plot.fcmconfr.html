@@ -49,6 +49,7 @@ load plot in a Shiny app and toggle on/off results from different analyses.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># S3 method for class 'fcmconfr'</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
 <span>  <span class="va">x</span>,</span>
+<span>  include <span class="op">=</span> <span class="st">"all"</span>,</span>
 <span>  interactive <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  filter_limit <span class="op">=</span> <span class="fl">0.001</span>,</span>
 <span>  xlim <span class="op">=</span> <span class="cn">NA</span>,</span>
@@ -76,6 +77,12 @@ load plot in a Shiny app and toggle on/off results from different analyses.</p>
 
 <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
 <dd><p>A direct output of the <code><a href="fcmconfr.html">fcmconfr</a></code> function</p></dd>
+
+
+<dt id="arg-include">include<a class="anchor" aria-label="anchor" href="#arg-include"></a></dt>
+<dd><p>[<code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code>]<br> The concepts to include in the plot.
+By default, include = 'all' which does not exclude any concepts. Set to a
+vector of concept names to identify the only concepts to include in the plot.</p></dd>
 
 
 <dt id="arg-interactive">interactive<a class="anchor" aria-label="anchor" href="#arg-interactive"></a></dt>
