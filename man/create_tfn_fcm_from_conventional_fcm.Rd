@@ -10,11 +10,11 @@ create_tfn_fcm_from_conventional_fcm(
 )
 }
 \arguments{
+\item{conventional_adj_matrix}{[\verb{list() or data.frame()}]\cr A single, conventional
+adjacency matrix (n x n) representing FCMs.}
+
 \item{error}{[\code{double(1)}]\cr  The +/- error defining the lower and upper
 bounds of the TFN edge weights created from the numeric edge weights.}
-
-\item{adj_matrix}{[\verb{list() or data.frame()}]\cr A single, conventional
-adjacency matrix (n x n) representing FCMs.}
 }
 \value{
 [\code{adj_matrix_w_tfns}]\cr An adjacency matrix (of class 'tfn')

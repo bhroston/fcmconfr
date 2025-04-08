@@ -246,7 +246,7 @@ ivfn <- function(lower = double(), upper = double()) {
 #' This creates an IVFN-FCM from a Conventional FCM by adding error to the
 #' Conventional FCM edge weights.
 #'
-#' @param adj_matrix \[`list() or data.frame()`]\cr A single, conventional
+#' @param conventional_adj_matrix \[`list() or data.frame()`]\cr A single, conventional
 #' adjacency matrix (n x n) representing FCMs.
 #' @param error \[`double(1)`]\cr  The +/- error defining the lower and upper
 #' bounds of the IVFN edge weights created from the numeric edge weights
@@ -615,7 +615,7 @@ tfn <- function(lower = double(), mode = double(), upper = double()) {
 #' Conventional FCM edge weights. The Conventional FCM edge weights are used
 #' as the mode values for the TFN edge weights.
 #'
-#' @param adj_matrix \[`list() or data.frame()`]\cr A single, conventional
+#' @param conventional_adj_matrix \[`list() or data.frame()`]\cr A single, conventional
 #' adjacency matrix (n x n) representing FCMs.
 #' @param error \[`double(1)`]\cr  The +/- error defining the lower and upper
 #' bounds of the TFN edge weights created from the numeric edge weights.
