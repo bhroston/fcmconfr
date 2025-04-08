@@ -24,6 +24,7 @@ tfn(-1, 0, 1)
 }
 \seealso{
 Other triangular-fuzzy-numbers: 
+\code{\link{create_tfn_fcm_from_conventional_fcm}()},
 \code{\link{make_adj_matrix_w_tfns}()},
 \code{\link{subtract_tfn}()},
 \code{\link{tfn}()}

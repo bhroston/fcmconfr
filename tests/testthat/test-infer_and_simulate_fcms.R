@@ -200,6 +200,26 @@ test_that("infer_fcm works", {
   # See infer_conventional_fcm and infer_ivfn_or_tfn_fcm tests for additional info
   expect_true(TRUE) # Just so this isn't an empty test
 
+
+  # test_fcm <- data.frame(
+  #   Salinization.of.the.Reservoir = c(0, 0, 0, 0, 0.75, 0.6),
+  #   Public.Awareness.of.Reservoir.Salinization = c(0, 0, 0.9, -0.6, 0, 0),
+  #   Public.Education.Programs = c(0, 0, 0, 0, 0, 0),
+  #   Ecosystem.Health = c(-0.7, 0, 0, 0, 0, 0),
+  #   Salts.Added.during.Water.Treatment = c(0, -0.8, 0, 0, 0, 0),
+  #   Salts.Added.by.Winter.Maintenance.Activities = c(0, -0.8, 0, 0, 0, 0)
+  # )
+  # modified_kosko <- infer_fcm(adj_matrix = test_fcm,
+  #                             initial_state_vector = c(1, 1, 1, 1, 1, 1),
+  #                             clamping_vector = c(0, 1, 0, 0, 0, 0),
+  #                             activation = "modified-kosko",
+  #                             squashing = "sigmoid",
+  #                             lambda = 1,
+  #                             point_of_inference = "final",
+  #                             max_iter = 30,
+  #                             min_error = 1e-10)
+
+
   # functions_to_check <- c("infer_fcm")
   # yaml_list <- autotest::examples_to_yaml(package = ".", functions = functions_to_check)
   # res <- autotest::autotest_yaml(yaml = yaml_list, test = TRUE)

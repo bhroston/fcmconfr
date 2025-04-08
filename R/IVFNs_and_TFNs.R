@@ -9,12 +9,14 @@
 #   Interval-Valued Fuzzy Numbers (IVFNs)
 #   - make_adj_matrix_w_ivfns
 #   - ivfn
+#   - create_ivfn_fcm_from_conventional_fcm
 #   - subtract_ivfn
 #   - print.ivfn
 #   - c.ivfn
 #   Triangular Fuzzy Numbers (TFNs)
 #   - make_adj_matrix_w_tfns
 #   - tfn
+#   - create_tfn_fcm_from_conventional_fcm
 #   - subtract_tfn
 #   - print.tfn
 #   - c.tfn
@@ -238,6 +240,69 @@ ivfn <- function(lower = double(), upper = double()) {
     .Data = data.frame(lower = lower, upper = upper),
     class = "ivfn"
   ))
+}
+
+
+
+#' Create TFN-FCM from Conventional FCM
+#'
+#' @family interval-valued-fuzzy-numbers
+#'
+#' @description
+#' This creates an IVFN-FCM from a Conventional FCM by adding error to the
+#' Conventional FCM edge weights.
+#'
+#' @param conventional_adj_matrix \[`list() or data.frame()`]\cr A single, conventional
+#' adjacency matrix (n x n) representing FCMs.
+#' @param error \[`double(1)`]\cr  The +/- error defining the lower and upper
+#' bounds of the IVFN edge weights created from the numeric edge weights
+#'
+#' @returns \[`adj_matrix_w_ivfns`]\cr An adjacency matrix (of class 'ivfn')
+#' with edges represented as IVFNs
+#'
+#' @export
+#' @examples
+#' create_ivfn_fcm_from_conventional_fcm(
+#'   sample_fcms$simple_fcms$conventional_fcms[[1]],
+#'   error = 0.2
+#' )
+create_ivfn_fcm_from_conventional_fcm <- function(conventional_adj_matrix = data.frame(),
+                                                  error =0.2) {
+  only_positive_values <- ifelse(all(conventional_adj_matrix >= 0), TRUE, FALSE)
+  adj_matrix_w_ivfns <- as.data.frame(apply(
+    conventional_adj_matrix, c(1, 2),
+    function(element) {
+      if (element == 0) {
+        return(ivfn(0, 0))
+      }
+
+      try_lower <- element - error
+      if (only_positive_values & try_lower < 0) {
+        use_lower <- 0
+      } else if (!only_positive_values & try_lower < -1) {
+        use_lower <- -1
+      } else if (try_lower < 0 & element > 0) {
+        use_lower <- 0
+      } else {
+        use_lower <- try_lower
+      }
+
+      try_upper <- element + error
+      if (try_upper > 1) {
+        use_upper <- 1
+      } else if (try_upper > 0 & element < 0) {
+        use_upper <- 0
+      } else {
+        use_upper <- try_upper
+      }
+
+      ivfn(use_lower, use_upper)
+    }
+  ))
+
+  return(
+    adj_matrix_w_ivfns
+  )
 }
 
 
@@ -560,6 +625,71 @@ tfn <- function(lower = double(), mode = double(), upper = double()) {
     class = "tfn"
   ))
 }
+
+
+
+#' Create TFN-FCM from Conventional FCM
+#'
+#' @family triangular-fuzzy-numbers
+#'
+#' @description
+#' This creates an TFN-FCM from a Conventional FCM by adding error to the
+#' Conventional FCM edge weights. The Conventional FCM edge weights are used
+#' as the mode values for the TFN edge weights.
+#'
+#' @param conventional_adj_matrix \[`list() or data.frame()`]\cr A single, conventional
+#' adjacency matrix (n x n) representing FCMs.
+#' @param error \[`double(1)`]\cr  The +/- error defining the lower and upper
+#' bounds of the TFN edge weights created from the numeric edge weights.
+#'
+#' @returns \[`adj_matrix_w_tfns`]\cr An adjacency matrix (of class 'tfn')
+#' with edges represented as TFNs
+#'
+#' @export
+#' @examples
+#' create_tfn_fcm_from_conventional_fcm(
+#'   sample_fcms$simple_fcms$conventional_fcms[[1]],
+#'   error = 0.2
+#' )
+create_tfn_fcm_from_conventional_fcm <- function(conventional_adj_matrix = data.frame(),
+                                                 error = 0.2) {
+  only_positive_values <- ifelse(all(conventional_adj_matrix >= 0), TRUE, FALSE)
+  adj_matrix_w_tfns <- as.data.frame(apply(
+    conventional_adj_matrix, c(1, 2),
+    function(element) {
+      if (element == 0) {
+        return(tfn(0, 0, 0))
+      }
+
+      try_lower <- element - error
+      if (only_positive_values & try_lower < 0) {
+        use_lower <- 0
+      } else if (!only_positive_values & try_lower < -1) {
+        use_lower <- -1
+      } else if (try_lower < 0 & element > 0) {
+        use_lower <- 0
+      } else {
+        use_lower <- try_lower
+      }
+
+      try_upper <- element + error
+      if (try_upper > 1) {
+        use_upper <- 1
+      } else if (try_upper > 0 & element < 0) {
+        use_upper <- 0
+      } else {
+        use_upper <- try_upper
+      }
+
+      tfn(use_lower, element, use_upper)
+    }
+  ))
+
+  return(
+    adj_matrix_w_tfns
+  )
+}
+
 
 
 

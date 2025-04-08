@@ -48,6 +48,7 @@ make_adj_matrix_w_ivfns(lower = lower_adj_matrix, upper = upper_adj_matrix)
 \seealso{
 Other interval-valued-fuzzy-numbers: 
 \code{\link{c.ivfn}()},
+\code{\link{create_ivfn_fcm_from_conventional_fcm}()},
 \code{\link{ivfn}()},
 \code{\link{print.ivfn}()},
 \code{\link{subtract_ivfn}()}

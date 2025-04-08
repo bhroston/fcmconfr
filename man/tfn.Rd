@@ -61,6 +61,7 @@ ISBN 978-3-319-14202-9, \href{https://doi.org/10.1007/978-3-319-14203-6_6}{doi:1
 }
 \seealso{
 Other triangular-fuzzy-numbers: 
+\code{\link{create_tfn_fcm_from_conventional_fcm}()},
 \code{\link{make_adj_matrix_w_tfns}()},
 \code{\link{print.tfn}()},
 \code{\link{subtract_tfn}()}

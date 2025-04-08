@@ -50,6 +50,7 @@ ISBN 978-0-7695-4628-5 978-1-4673-0225-8,
 \seealso{
 Other interval-valued-fuzzy-numbers: 
 \code{\link{c.ivfn}()},
+\code{\link{create_ivfn_fcm_from_conventional_fcm}()},
 \code{\link{make_adj_matrix_w_ivfns}()},
 \code{\link{print.ivfn}()},
 \code{\link{subtract_ivfn}()}

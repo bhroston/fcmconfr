@@ -23,6 +23,7 @@ print(ivfn(-1, 1))
 \seealso{
 Other interval-valued-fuzzy-numbers: 
 \code{\link{c.ivfn}()},
+\code{\link{create_ivfn_fcm_from_conventional_fcm}()},
 \code{\link{ivfn}()},
 \code{\link{make_adj_matrix_w_ivfns}()},
 \code{\link{subtract_ivfn}()}

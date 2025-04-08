@@ -56,6 +56,7 @@ Moore RE (1966). Interval Analysis, volume 4. prentice-Hall Englewood Cliffs.
 \seealso{
 Other interval-valued-fuzzy-numbers: 
 \code{\link{c.ivfn}()},
+\code{\link{create_ivfn_fcm_from_conventional_fcm}()},
 \code{\link{ivfn}()},
 \code{\link{make_adj_matrix_w_ivfns}()},
 \code{\link{print.ivfn}()}
