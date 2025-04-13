@@ -146,23 +146,23 @@ plot.fcmconfr <- function(x,
     checks$include <- include
   }
 
-  interactive = checks$interactive
-  filter_limit = checks$filter_limit
-  xlim = checks$xlim
-  coord_flip = checks$coord_flip
-  text_font_size = checks$text_font_size
-  mc_avg_and_CIs_color = checks$mc_avg_and_CIs_color
-  mc_inferences_color = checks$mc_inferences_color
-  mc_inferences_alpha = checks$mc_inferences_alpha
-  mc_inferences_shape = checks$mc_inferences_shape
-  ind_inferences_color = checks$ind_inferences_color
-  ind_inferences_alpha = checks$ind_inferences_alpha
-  ind_inferences_shape = checks$ind_inferences_shape
-  agg_inferences_color = checks$agg_inferences_color
-  agg_inferences_alpha = checks$agg_inferences_alpha
-  agg_inferences_shape = checks$agg_inferences_shape
-  ind_ivfn_and_tfn_linewidth = checks$ind_ivfn_and_tfn_linewidth
-  agg_ivfn_and_tfn_linewidth = checks$agg_ivfn_and_tfn_linewidth
+  interactive <- checks$interactive
+  filter_limit <- checks$filter_limit
+  xlim <- checks$xlim
+  coord_flip <- checks$coord_flip
+  text_font_size <- checks$text_font_size
+  mc_avg_and_CIs_color <- checks$mc_avg_and_CIs_color
+  mc_inferences_color <- checks$mc_inferences_color
+  mc_inferences_alpha <- checks$mc_inferences_alpha
+  mc_inferences_shape <- checks$mc_inferences_shape
+  ind_inferences_color <- checks$ind_inferences_color
+  ind_inferences_alpha <- checks$ind_inferences_alpha
+  ind_inferences_shape <- checks$ind_inferences_shape
+  agg_inferences_color <- checks$agg_inferences_color
+  agg_inferences_alpha <- checks$agg_inferences_alpha
+  agg_inferences_shape <- checks$agg_inferences_shape
+  ind_ivfn_and_tfn_linewidth <- checks$ind_ivfn_and_tfn_linewidth
+  agg_ivfn_and_tfn_linewidth <- checks$agg_ivfn_and_tfn_linewidth
   # ----
 
   if (!interactive) {
@@ -519,16 +519,17 @@ filter_concepts_to_plot <- function(fcmconfr_plot_data,
 
   individual_inferences_values <- fcmconfr_plot_data$individual_inferences[!(colnames(fcmconfr_plot_data$individual_inferences) %in% c("adj_matrix_index", "analysis_source"))]
   longer_individual_inferences_values <- tidyr::pivot_longer(individual_inferences_values, cols = seq_along(individual_inferences_values)[-1])
-  max_individual_inferences <- vapply(concepts, function(concept) max(longer_individual_inferences_values$value[longer_individual_inferences_values$node == concept]), FUN.VALUE = numeric(1))
+  max_individual_inferences <- vapply(concepts, function(concept) max(abs(longer_individual_inferences_values$value[longer_individual_inferences_values$node == concept])), FUN.VALUE = numeric(1))
 
   if (!all(is.na(fcmconfr_plot_data$aggregate_inferences))) {
     aggregate_inferences_values <- fcmconfr_plot_data$aggregate_inferences[colnames(fcmconfr_plot_data$aggregate_inferences) != c("analysis_source")]
-    longer_aggregate_inferences_values <- aggregate_inferences_values
-    # longer_aggregate_inferences_values <- tidyr::pivot_longer(aggregate_inferences_values, cols = seq_along(aggregate_inferences_values)[-c(1, 2)], names_to = "node")
+    # longer_aggregate_inferences_values <- aggregate_inferences_values
+    longer_aggregate_inferences_values <- tidyr::pivot_longer(aggregate_inferences_values, cols = 2:ncol(aggregate_inferences_values))
   } else {
     longer_aggregate_inferences_values <- data.frame(NA)
   }
-  max_aggregate_inferences <- vapply(concepts, function(concept) max(longer_aggregate_inferences_values$value[longer_aggregate_inferences_values$node == concept]), FUN.VALUE = numeric(1))
+  max_aggregate_inferences <- vapply(concepts, function(concept) max(abs(longer_aggregate_inferences_values$value[longer_aggregate_inferences_values$node == concept])), FUN.VALUE = numeric(1))
+
 
   if (!all(is.na(fcmconfr_plot_data$mc_inferences))) {
     mc_inferences_values <- fcmconfr_plot_data$mc_inferences[!(colnames(fcmconfr_plot_data$mc_inferences) %in% c("adj_matrix_index", "analysis_source"))]
@@ -899,7 +900,7 @@ autoplot.fcmconfr <- function(object,
           guide = 'none'
         ) +
         ggplot2::scale_linewidth_manual(
-          values = c('CIs of MC FCM Avg Inferences' = 0.1, 'MC FCMs Avg Inferences' = 0.3),
+          values = c('CIs of MC FCM Avg Inferences' = 0.1, 'MC FCMs Avg Inferences' = 0.2),
           guide = ggplot2::guide_legend(order = 2)
         )"
     )

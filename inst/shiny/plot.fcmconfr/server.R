@@ -129,11 +129,12 @@ shiny_iplot_server <- function(input, output, session) {
   })
 
   iplot_proxy <- shiny::reactive({
-    if (!is.null(iplot_fcmconfr_obj())) {
+    if (!is.null(iplot_fcmconfr_obj()) && !is.null(input$xlim)) {
       iplot <- plot(
         iplot_fcmconfr_obj(),
         include = input$concepts_to_plot,
         interactive = FALSE,
+        xlim = input$xlim,
         # Plot Formatting Parameters
         filter_limit = iplot_additional_inputs()$filter_limit,
         coord_flip = iplot_additional_inputs()$coord_flip,
@@ -153,8 +154,11 @@ shiny_iplot_server <- function(input, output, session) {
         agg_ivfn_and_tfn_linewidth = iplot_additional_inputs()$agg_ivfn_and_tfn_linewidth
       )
     } else {
-      iplot <- plot()
+      iplot <- ggplot2::ggplot() +
+        ggplot2::annotate("text", label = "Loading Plot...", x = 0, y = 0, size = 13) +
+        ggplot2::theme_void()
     }
+
     return(iplot)
   })
 
