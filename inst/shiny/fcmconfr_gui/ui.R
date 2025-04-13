@@ -93,7 +93,7 @@ shiny_ui <- function() {
           ),
           shiny::column(
             width = 7, align = "left",
-            shinyWidgets::radioGroupButtons("activation", "", choiceValues = c("kosko", "modified-kosko", "rescale"), choiceNames = c("Kosko", "Modified-Kosko", "Rescale"))
+            shinyWidgets::radioGroupButtons("activation", "", choiceValues = c("kosko", "modified-kosko", "rescale"), choiceNames = c("Kosko", "Modified-Kosko", "Rescale"), selected = "rescale")
           )
         ),
         shiny::uiOutput("activation_function_formulae"),
@@ -109,16 +109,7 @@ shiny_ui <- function() {
           )
         ),
         shiny::uiOutput("squashing_function_formulae"),
-        shiny::fluidRow(
-          shiny::column(
-            width = 5, align = "right",
-            shiny::h5(paste0("Lambda (", "\U03BB", ")"), style = "padding: 28px;")
-          ),
-          shiny::column(
-            width = 3, align = "left",
-            shiny::numericInput("lambda", "", 1, min = 1, max = 10, step = 0.05)
-          )
-        ),
+        shiny::uiOutput("lambda_selection"),
         shiny::fluidRow(
           shiny::column(
             width = 5, align = "right",
@@ -126,7 +117,7 @@ shiny_ui <- function() {
           ),
           shiny::column(
             width = 3, align = "left",
-            shinyWidgets::radioGroupButtons("point_of_inference", "", choiceNames = c("Peak", "Final"), choiceValues = c("peak", "final"), selected = "final")
+            shinyWidgets::radioGroupButtons("point_of_inference", "", choiceNames = c("Final", "Peak"), choiceValues = c("final", "peak"), selected = "final")
           )
         ),
         shiny::fluidRow(

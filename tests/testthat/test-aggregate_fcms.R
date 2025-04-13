@@ -168,7 +168,6 @@ test_that("aggregate_fcms works", {
   expect_no_error(
     tfn_agg <- aggregate_fcms(test_tfn_fcms, agg_function = "mean", include_zeroes_in_sampling = FALSE)
   )
-
   # ----
 
 
