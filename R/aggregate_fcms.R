@@ -434,14 +434,18 @@ aggregate_fcms_w_ivfns <- function(adj_matrices = list(),
 
   if (include_zeroes_in_sampling) {
     lower_aggregate_adj_matrix <- aggregate_conventional_fcms(lower_adj_matrices, agg_function, include_zeroes_in_sampling)
+    upper_aggregate_adj_matrix <- aggregate_conventional_fcms(upper_adj_matrices, agg_function, include_zeroes_in_sampling)
   } else {
     # Do NOT count IVFNs with a 0-lower bound as 0-weighted edges!!!!!!
-    false_zero_ivfn_locs_across_adj_matrices <- lapply(adj_matrices, function(adj_matrix) {
-      which(apply(adj_matrix, c(1, 2), function(element) (element[[1]]$lower == 0 & element[[1]]$upper != 0)), arr.ind = TRUE)
+    false_zero_lower_ivfn_locs_across_adj_matrices <- lapply(adj_matrices, function(adj_matrix) {
+      which(apply(adj_matrix, c(1, 2), function(element) (element[[1]]$lower == 0 && element[[1]]$upper != 0)), arr.ind = TRUE)
     })
-    lower_aggregate_adj_matrix <- aggregate_conventional_fcms(lower_adj_matrices, agg_function, include_zeroes_in_sampling, false_zero_ivfn_locs_across_adj_matrices)
+    false_zero_upper_ivfn_locs_across_adj_matrices <- lapply(adj_matrices, function(adj_matrix) {
+      which(apply(adj_matrix, c(1, 2), function(element) (element[[1]]$lower != 0 && element[[1]]$upper == 0)), arr.ind = TRUE)
+    })
+    lower_aggregate_adj_matrix <- aggregate_conventional_fcms(lower_adj_matrices, agg_function, include_zeroes_in_sampling, false_zero_lower_ivfn_locs_across_adj_matrices)
+    upper_aggregate_adj_matrix <- aggregate_conventional_fcms(upper_adj_matrices, agg_function, include_zeroes_in_sampling, false_zero_upper_ivfn_locs_across_adj_matrices)
   }
-  upper_aggregate_adj_matrix <- aggregate_conventional_fcms(upper_adj_matrices, agg_function, include_zeroes_in_sampling)
 
   aggregate_adj_matrix_w_ivfns <- make_adj_matrix_w_ivfns(lower_aggregate_adj_matrix$adj_matrix, upper_aggregate_adj_matrix$adj_matrix)
   colnames(aggregate_adj_matrix_w_ivfns) <- node_names
@@ -547,6 +551,7 @@ aggregate_fcms_w_tfns <- function(adj_matrices = list(matrix()),
   if (include_zeroes_in_sampling) {
     lower_aggregate_adj_matrix <- aggregate_conventional_fcms(lower_adj_matrices, agg_function, include_zeroes_in_sampling)
     mode_aggregate_adj_matrix <- aggregate_conventional_fcms(mode_adj_matrices, agg_function, include_zeroes_in_sampling)
+    upper_aggregate_adj_matrix <- aggregate_conventional_fcms(upper_adj_matrices, agg_function, include_zeroes_in_sampling)
   } else {
     # Do NOT count TFNs with a 0-lower and 0-mode bounds as 0-weighted edges!!!!!!
     false_zero_lower_tfn_locs_across_adj_matrices <- lapply(adj_matrices, function(adj_matrix) {
@@ -555,11 +560,13 @@ aggregate_fcms_w_tfns <- function(adj_matrices = list(matrix()),
     false_zero_mode_tfn_locs_across_adj_matrices <- lapply(adj_matrices, function(adj_matrix) {
       which(apply(adj_matrix, c(1, 2), function(element) (element[[1]]$lower == 0 & element[[1]]$mode == 0 & element[[1]]$upper != 0)), arr.ind = TRUE)
     })
+    false_zero_upper_tfn_locs_across_adj_matrices <- lapply(adj_matrices, function(adj_matrix) {
+      which(apply(adj_matrix, c(1, 2), function(element) (element[[1]]$mode != 0 & element[[1]]$upper == 0)), arr.ind = TRUE)
+    })
     lower_aggregate_adj_matrix <- aggregate_conventional_fcms(lower_adj_matrices, agg_function, include_zeroes_in_sampling, false_zero_lower_tfn_locs_across_adj_matrices)
     mode_aggregate_adj_matrix <- aggregate_conventional_fcms(mode_adj_matrices, agg_function, include_zeroes_in_sampling, false_zero_mode_tfn_locs_across_adj_matrices)
+    upper_aggregate_adj_matrix <- aggregate_conventional_fcms(upper_adj_matrices, agg_function, include_zeroes_in_sampling, false_zero_upper_tfn_locs_across_adj_matrices)
   }
-
-  upper_aggregate_adj_matrix <- aggregate_conventional_fcms(upper_adj_matrices, agg_function, include_zeroes_in_sampling)
 
   aggregate_adj_matrix_w_tfns <- make_adj_matrix_w_tfns(lower_aggregate_adj_matrix$adj_matrix, mode_aggregate_adj_matrix$adj_matrix, upper_aggregate_adj_matrix$adj_matrix)
 

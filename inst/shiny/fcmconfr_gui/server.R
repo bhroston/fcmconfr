@@ -402,7 +402,7 @@ shiny_server <- function(input, output, session) {
           ),
           shiny::column(
             width = 6, align = "left",
-            shiny::numericInput("num_mc_fcms", "", value = 1000, min = 1, step = 500)
+            shiny::numericInput("num_mc_fcms", "", value = 1000, min = 1, step = 100)
           )
         ),
         shiny::fluidRow(
