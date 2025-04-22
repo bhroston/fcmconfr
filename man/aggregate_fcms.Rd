@@ -61,7 +61,7 @@ matrix for the element in row i and column j, and \eqn{FCM_{p}} is the
 weight for the element in row i and column j in the adjacency matrix of
 the p-th FCM.
 
-If not including zeroe-valued edges in aggregation calculations, the mean
+If not including zero-valued edges in aggregation calculations, the mean
 aggregate equation becomes:
 \deqn{
  \begin{array} {lcl}
@@ -99,7 +99,7 @@ element in row i and column j of the aggregate, and
 are the lower and upper bounds of the IVFN weight of the element in row i and
 column j for the p-th FCM adjacency matrix.
 
-If not including zeroe-valued edges in aggregation calculations, the mean
+If not including zero-valued edges in aggregation calculations, the mean
 aggregate equation becomes:
 \deqn{
  \begin{array} {lcl}

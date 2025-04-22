@@ -102,8 +102,6 @@ shiny_server <- function(input, output, session) {
       adj_matrices_input <- list(adj_matrices_input)
     }
 
-    # shiny::showModal(shiny::modalDialog("Validating Selection..."))
-
     square_adj_matrix_checks <- lapply(
       adj_matrices_input,
       function(adj_matrix) {
@@ -123,12 +121,11 @@ shiny_server <- function(input, output, session) {
             type = "error",
             html = TRUE
           )
-          #shiny::removeModal()
         })
       }
     )
 
-    if (any(is.null(unlist(square_adj_matrix_checks))) || !(all(unlist(square_adj_matrix_checks)))) {
+    if (any(unlist(Map(is.null, square_adj_matrix_checks))) || !(all(unlist(square_adj_matrix_checks)))) {
       adj_matrices_input <- list(data.frame(0))
     } else {
       tryCatch({
@@ -140,14 +137,12 @@ shiny_server <- function(input, output, session) {
         error_message <- gsub("\n", "<br><br>", error_message)
 
         adj_matrices_input <- list(data.frame(0))
-
         shinyWidgets::show_alert(
           title = "Unable to load data",
           text = shiny::HTML(error_message),
           type = "error",
           html = TRUE
         )
-        #shiny::removeModal()
       })
     }
 
@@ -402,7 +397,12 @@ shiny_server <- function(input, output, session) {
       shiny::need(input$adj_matrices != "", message = FALSE)
     )
 
-    shiny::showModal(shiny::modalDialog(align = "center", "Calculating Lambda Estimate", footer = NULL))
+    shiny::showModal(shiny::modalDialog(
+      align = "center",
+      shiny::HTML("<font size='6'>Calculating Lambda Estimate</font><br><br><font size='3'>Click Outside This Box To Close</font>"),
+      footer = NULL, easyClose = TRUE)
+    )
+
     lambda_estimates <- lapply(
       adj_matrices(), function(adj_matrix) estimate_fcm_lambda(adj_matrix, squashing = input$squashing)
     )
@@ -412,9 +412,8 @@ shiny_server <- function(input, output, session) {
     shiny::updateNumericInput(
       session, "lambda", value = round(lambda_estimate_value, 4)
     )
-    shiny::removeModal()
 
-    # return(lambda_estimate_value)
+    shiny::removeModal(session)
   })
   # ----
 

@@ -446,7 +446,9 @@ fcmconfr <- function(adj_matrices = list(),
 #' @returns \[`list()` or `data.frame()`]\cr A dataframe (or list of dataframes)
 #' of inferences from the selected analysis (analyses)
 #'
-#' @export
+#' @keywords Internal
+#' @noRd
+#'
 #' @example man/examples/ex-get_fcmconfr_inferences.R
 get_fcmconfr_inferences <- function(fcmconfr_result_obj = list(),
                                     analysis = c("individual", "aggregate", "mc")) {

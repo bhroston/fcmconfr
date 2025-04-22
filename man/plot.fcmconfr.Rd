@@ -7,21 +7,25 @@
 \method{plot}{fcmconfr}(
   x,
   include = "all",
-  interactive = FALSE,
+  shiny = FALSE,
   filter_limit = 0.001,
   xlim = NA,
   coord_flip = FALSE,
   text_font_size = NA,
   mc_avg_and_CIs_color = "blue",
   mc_inferences_color = "blue",
+  mc_inferences_size = 1,
   mc_inferences_alpha = 0.3,
   mc_inferences_shape = 3,
   ind_inferences_color = "black",
+  ind_inferences_size = 1,
   ind_inferences_alpha = 1,
   ind_inferences_shape = 16,
   agg_inferences_color = "red",
+  agg_inferences_size = 1,
   agg_inferences_alpha = 1,
   agg_inferences_shape = 17,
+  mc_avg_and_CIs_linewidth = 0.1,
   ind_ivfn_and_tfn_linewidth = 0.1,
   agg_ivfn_and_tfn_linewidth = 0.6,
   ...
@@ -34,7 +38,7 @@
 By default, include = 'all' which does not exclude any concepts. Set to a
 vector of concept names to identify the only concepts to include in the plot.}
 
-\item{interactive}{[\code{logical(1)}]\cr If TRUE, launch plot in a Shiny app to
+\item{shiny}{[\code{logical(1)}]\cr If TRUE, launch plot in a Shiny app to
 toggle on/off results from different analyses.}
 
 \item{filter_limit}{[\code{double(1)}]\cr Only nodes with inferences above the
@@ -59,6 +63,9 @@ Carlo sampling and the confidence intervals about those averages.}
 \item{mc_inferences_color}{[\code{character(1)}]\cr Color of the points
 representing inferences of empirical FCMs generated via Monte Carlo sampling.}
 
+\item{mc_inferences_size}{[\code{double(1)} - Positive]\cr Size of the points
+for inferences of Monte Carlo FCMs. Must be greater than 0.}
+
 \item{mc_inferences_alpha}{[\code{double(1)} - Positive (between 0 and 1)]\cr
 Transparency of the points representing inferences of empirical FCMs
 generated via Monte Carlo sampling. Range from 0 to 1 (0: Transparent to
@@ -71,6 +78,9 @@ Carlo sampling. Accepts PCH point values and character strings.}
 \item{ind_inferences_color}{[\code{character(1)}]\cr Color of the points
 representing inferences of individual FCMs.}
 
+\item{ind_inferences_size}{[\code{double(1)} - Positive]\cr Size of the points
+for inferences of individual FCMs. Must be greater than 0.}
+
 \item{ind_inferences_alpha}{[\code{double(1)} - Positive (between 0 and 1)]\cr
 Transparency of the points representing inferences of individual FCMs. Range
 from 0 to 1 (0: Transparent to 1: Opaque).}
@@ -82,6 +92,9 @@ values and character strings. Ignored for IVFN FCMs.}
 \item{agg_inferences_color}{[\code{character(1)}]\cr Color of the points
 representing inferences of the aggregate FCM}
 
+\item{agg_inferences_size}{[\code{double(1)} - Positive]\cr Size of the points
+for inferences of aggregate FCM. Must be greater than 0.}
+
 \item{agg_inferences_alpha}{[\code{double(1)} - Positive (between 0 and 1)]\cr
 Transparency of the points representing inferences of the aggregate FCM.
 Range from 0 to 1 (0: Transparent to 1: Opaque).}
@@ -89,6 +102,10 @@ Range from 0 to 1 (0: Transparent to 1: Opaque).}
 \item{agg_inferences_shape}{[\code{integer(1)} or \code{character(1)}]\cr Point shapes
 of the points representing inferences of the aggregate FCM. Accepts PCH point
 values and character strings. Ignored for IVFN FCMs.}
+
+\item{mc_avg_and_CIs_linewidth}{[\code{double(1)} - Positive]\cr Linewidth of
+lines representing the average (and confidence bounds the average) of the
+Monte Carlo FCMs inferences}
 
 \item{ind_ivfn_and_tfn_linewidth}{[\code{double(1)} - Positive]\cr  Linewidth of
 lines representing inferences for analyses of individual IVFN- and TFN- FCMs.}
@@ -102,7 +119,7 @@ lines representing inferences for analyses of aggregate IVFN- and TFN- FCMs}
 A plot of an fcmconfr object's results
 }
 \description{
-This plots the output of fcmconfr() using ggplot. Set interactive = TRUE to
+This plots the output of fcmconfr() using ggplot. Set shiny = TRUE to
 load plot in a Shiny app and toggle on/off results from different analyses.
 }
 \details{

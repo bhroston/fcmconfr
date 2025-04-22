@@ -1,7 +1,7 @@
 #' shiny_server
 #'
 #' @description
-#' [ADD DETAILS HERE!!!]
+#' Server for plot.fcmconfr
 #'
 #' @param input the data streamed into the server from the ui
 #' @param output the data streamed from to the ui from the server

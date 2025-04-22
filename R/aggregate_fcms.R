@@ -51,7 +51,7 @@
 #' weight for the element in row i and column j in the adjacency matrix of
 #' the p-th FCM.
 #'
-#' If not including zeroe-valued edges in aggregation calculations, the mean
+#' If not including zero-valued edges in aggregation calculations, the mean
 #' aggregate equation becomes:
 #' \deqn{
 #'  \begin{array} {lcl}
@@ -89,7 +89,7 @@
 #' are the lower and upper bounds of the IVFN weight of the element in row i and
 #' column j for the p-th FCM adjacency matrix.
 #'
-#' If not including zeroe-valued edges in aggregation calculations, the mean
+#' If not including zero-valued edges in aggregation calculations, the mean
 #' aggregate equation becomes:
 #' \deqn{
 #'  \begin{array} {lcl}
@@ -261,7 +261,7 @@ aggregate_fcms <- function(adj_matrices = list(),
 #' weight for the element in row i and column j in the adjacency matrix of
 #' the p-th FCM.
 #'
-#' If not including zeroe-valued edges in aggregation calculations, the mean
+#' If not including zero-valued edges in aggregation calculations, the mean
 #' aggregate equation becomes:
 #' \deqn{
 #' A_{ij}^{aggregate} =\frac{\sum _{p\ =\ 1}^{N} A_{ij}^{FCM_{p}}}{\sum _{p\ =\ 1}^{N} 1|A_{ij}^{FCM_{p}} \neq 0}
@@ -387,7 +387,7 @@ aggregate_conventional_fcms <- function(adj_matrices = list(),
 #' are the lower and upper bounds of the IVFN weight of the element in row i and
 #' column j for the p-th FCM adjacency matrix.
 #'
-#' If not including zeroe-valued edges in aggregation calculations, the mean
+#' If not including zero-valued edges in aggregation calculations, the mean
 #' aggregate equation becomes:
 #' \deqn{
 #' A_{ij}^{aggregate} =\left[ A^{L} ,A^{U} \ \right]_{ij}^{FCM_{aggregate}} =\left[\frac{\sum _{p\ =\ 1}^{N}\left[ A^{L}\right]_{ij}^{FCM_{p}}}{\sum _{p\ =\ 1}^{N} 1|\left[ A^{L}\right]_{ij}^{FCM_{p}} \neq 0} ,\ \frac{\sum _{p\ =\ 1}^{N}\left[ A^{U}\right]_{ij}^{FCM_{p}}}{\sum _{p\ =\ 1}^{N} 1|\left[ A^{U}\right]_{ij}^{FCM_{p}} \neq 0}\right]

@@ -308,7 +308,7 @@ create_ivfn_fcm_from_conventional_fcm <- function(conventional_adj_matrix = data
 #' This subtracts one Interval-Value Fuzzy Number (IVFN) from another via
 #' interval calculus. An IVFN represented by the interval X:
 #'
-#' \deqn{X\  =( x_{1}, x_{3}) \ =\ [ x_{1} ;x_{2}] =\{x\in \mathbb{R} \ |\ x_{1} \ \leq x\ \leq x_{2}\}}{ascii}
+#' \deqn{X\  =( x_{1}, x_{2}) \ =\ [ x_{1} ;x_{2}] =\{x\in \mathbb{R} \ |\ x_{1} \ \leq x\ \leq x_{2}\}}{ascii}
 #'
 #' where \eqn{x_1}{ascii} and \eqn{x_2}{ascii} represent the lower and upper
 #' bounds, respectively.
