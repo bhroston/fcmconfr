@@ -4,7 +4,7 @@ pkgdown_sha: ~
 articles:
   fcmconfr: fcmconfr.html
   Importing_FCMs: Importing_FCMs.html
-last_built: 2025-04-28T18:36Z
+last_built: 2025-04-28T18:40Z
 urls:
   reference: https://bhroston.github.io/fcmconfr/reference
   article: https://bhroston.github.io/fcmconfr/articles
