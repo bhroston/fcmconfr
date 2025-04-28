@@ -567,11 +567,12 @@ filter_concepts_to_plot <- function(fcmconfr_plot_data,
     } else {
       longer_aggregate_inferences_values <- tidyr::pivot_longer(aggregate_inferences_values, cols = 2:ncol(aggregate_inferences_values))
     }
+    max_aggregate_inferences <- vapply(concepts, function(concept) max(abs(longer_aggregate_inferences_values$value[longer_aggregate_inferences_values$node == concept])), FUN.VALUE = numeric(1))
   } else {
-    longer_aggregate_inferences_values <- data.frame(NA)
+    longer_aggregate_inferences_values <- data.frame(value = 0)
+    max_aggregate_inferences <- rep(0, length(concepts))
+    names(max_aggregate_inferences) <- concepts
   }
-  max_aggregate_inferences <- vapply(concepts, function(concept) max(abs(longer_aggregate_inferences_values$value[longer_aggregate_inferences_values$node == concept])), FUN.VALUE = numeric(1))
-
 
   if (!all(is.na(fcmconfr_plot_data$mc_inferences))) {
     mc_inferences_values <- fcmconfr_plot_data$mc_inferences[!(colnames(fcmconfr_plot_data$mc_inferences) %in% c("adj_matrix_index", "analysis_source"))]
