@@ -203,7 +203,7 @@ plot(tfn_example_fcmconfr,
 
 # Plot Defaults w/ Shiny App
 # plot(tfn_example_fcmconfr,
-#      interactive = TRUE, # Set to TRUE to open shiny app
+#      shiny = TRUE, # Set to TRUE to open shiny app
 #      # Plot Formatting Parameters
 #      filter_limit = 1e-4,
 #      coord_flip = FALSE,
