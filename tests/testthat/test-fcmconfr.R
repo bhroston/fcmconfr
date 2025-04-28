@@ -270,7 +270,7 @@ test_that("pulse only fcmconfr works", {
   test_initial_state_vector[3] <- 1
   test_clamping_vector <- rep(0, unique(dim(sample_fcms$large_fcms$conventional_fcms[[1]])))
 
-  expect_no_error(
+  expect_warning(
     invisible(capture.output(
       test_fcmconfr_conventional_sigmoid <- fcmconfr(
         adj_matrices = sample_fcms$large_fcms$conventional_fcms[[1]],
@@ -311,7 +311,7 @@ test_that("pulse only fcmconfr works", {
   max_allowable_avg_error <- 10e-2
   expect_lt(avg_error, max_allowable_avg_error)
 
-  expect_no_error(
+  expect_warning(
     invisible(capture.output(
       test_fcmconfr_conventional_tanh <- fcmconfr(
         adj_matrices = sample_fcms$large_fcms$conventional_fcms[[1]],
@@ -362,7 +362,7 @@ test_that("fcmconfr works with igraph inputs", {
   test_clamping_vector <- rep(0, unique(dim(sample_fcms$large_fcms$conventional_fcms[[1]])))
   test_clamping_vector[3] <- 1
 
-  expect_no_error(
+  expect_warning(
     invisible(capture.output(
       test <- fcmconfr(
         adj_matrices = fcms_from_igraph_objects,
