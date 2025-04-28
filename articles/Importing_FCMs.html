@@ -6,18 +6,17 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Importing_FCMs • fcmconfr</title>
-<!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
-<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png">
-<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png">
-<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png">
-<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png">
-<script src="../katex-auto.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" sizes="any" href="../favicon.ico">
+<link rel="manifest" href="../site.webmanifest">
+<!-- katex math --><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script><script src="../katex-auto.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><link href="../deps/KaTex-0.16.10/katex.min.css" rel="stylesheet">
-<script src="../deps/KaTex-0.16.10/katex.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Importing_FCMs">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Importing_FCMs">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -98,7 +97,7 @@ illustrates the workflow for preparing and importing these FCMs into R
 and analysis with <code>fcmconfr</code>.</p>
 <div style="text-align: center;">
 <div class="float">
-<img src="images%2Fedge_weight_value_type_pdfs.png" style="width:100.0%" alt="Probability density functions for different types of edge weights (conventional, IVFN, TFN)."><div class="figcaption">Probability density functions for different
+<img src="images/edge_weight_value_type_pdfs.png" style="width:100.0%" alt="Probability density functions for different types of edge weights (conventional, IVFN, TFN)."><div class="figcaption">Probability density functions for different
 types of edge weights (conventional, IVFN, TFN).</div>
 </div>
 </div>
@@ -197,7 +196,7 @@ from .xlsx files with both the lower and upper bound adjacency matrices
 stored in the same file.</p>
 <div style="text-align: center;">
 <div class="float">
-<img src="images%2Fivfn_single_dir.png" style="width:24.0%" alt="A directory of .xlsx files with each containing sheets for both the lower and upper bound adjacency matrix. For example, ivfn_fcm_1.xlsx has a sheet for the lower bound adjacency matrix and another sheet for the upper bound adjacency matrix."><div class="figcaption">A directory of .xlsx files with each containing
+<img src="images/ivfn_single_dir.png" style="width:24.0%" alt="A directory of .xlsx files with each containing sheets for both the lower and upper bound adjacency matrix. For example, ivfn_fcm_1.xlsx has a sheet for the lower bound adjacency matrix and another sheet for the upper bound adjacency matrix."><div class="figcaption">A directory of .xlsx files with each containing
 sheets for both the lower and upper bound adjacency matrix. For example,
 <code>ivfn_fcm_1.xlsx</code> has a sheet for the lower bound adjacency
 matrix and another sheet for the upper bound adjacency matrix.</div>
@@ -244,7 +243,7 @@ upper bound adjacency matrices for a single IVFN-FCM are stored in
 separate files.</p>
 <div style="text-align: center;">
 <div class="float">
-<img src="images%2Fivfn_multiple_dirs.png" style="width:26.0%" alt="A directory of sub-directories (fcm_1, fcm_2, etc.,) with each sub-directory containing separate .xlsx files for the lower and upper adjacency matrices. For example, the an IVFN-FCM can be created from the fcm_1 sub-directory with fcm_1_lower.xlsx and fcm_1_upper.xlsx containing data for the lower and upper bound adjacency matrices respectively."><div class="figcaption">A directory of sub-directories
+<img src="images/ivfn_multiple_dirs.png" style="width:26.0%" alt="A directory of sub-directories (fcm_1, fcm_2, etc.,) with each sub-directory containing separate .xlsx files for the lower and upper adjacency matrices. For example, the an IVFN-FCM can be created from the fcm_1 sub-directory with fcm_1_lower.xlsx and fcm_1_upper.xlsx containing data for the lower and upper bound adjacency matrices respectively."><div class="figcaption">A directory of sub-directories
 (<code>fcm_1</code>, <code>fcm_2</code>, etc.,) with each sub-directory
 containing separate .xlsx files for the lower and upper adjacency
 matrices. For example, the an IVFN-FCM can be created from the
@@ -356,7 +355,7 @@ from .xlsx files with the lower, mode and upper bound adjacency matrices
 stored in the same file.</p>
 <div style="text-align: center;">
 <div class="float">
-<img src="images%2Ftfn_single_dir.png" style="width:28.0%" alt="A directory of .xlsx files with each containing sheets for the lower, upper and mode adjacency matrices. For example, tfn_fcm_1.xlsx has a sheet for the lower bound adjacency matrix, the mode adjacency matrix, and another sheet for the upper bound adjacency matrix."><div class="figcaption">A directory of .xlsx files with each containing
+<img src="images/tfn_single_dir.png" style="width:28.0%" alt="A directory of .xlsx files with each containing sheets for the lower, upper and mode adjacency matrices. For example, tfn_fcm_1.xlsx has a sheet for the lower bound adjacency matrix, the mode adjacency matrix, and another sheet for the upper bound adjacency matrix."><div class="figcaption">A directory of .xlsx files with each containing
 sheets for the lower, upper and mode adjacency matrices. For example,
 <code>tfn_fcm_1.xlsx</code> has a sheet for the lower bound adjacency
 matrix, the mode adjacency matrix, and another sheet for the upper bound
@@ -406,7 +405,7 @@ and upper bound adjacency matrices for a single TFN-FCM are stored in
 separate files.</p>
 <div style="text-align: center;">
 <div class="float">
-<img src="images%2Ftfn_multiple_dirs.png" style="width:30.0%" alt="A directory of sub-directories (fcm_1, fcm_2, etc.,) with each sub-directory containing separate .xlsx files for the lower, mode and upper adjacency matrices. For example, a TFN-FCM can be created from the fcm_1 sub-directory with fcm_1_lower.xlsx, fcm_1_mode.xlsx and fcm_1_upper.xlsx containing data for the lower, mode and upper bound adjacency matrices respectively."><div class="figcaption">A directory of sub-directories
+<img src="images/tfn_multiple_dirs.png" style="width:30.0%" alt="A directory of sub-directories (fcm_1, fcm_2, etc.,) with each sub-directory containing separate .xlsx files for the lower, mode and upper adjacency matrices. For example, a TFN-FCM can be created from the fcm_1 sub-directory with fcm_1_lower.xlsx, fcm_1_mode.xlsx and fcm_1_upper.xlsx containing data for the lower, mode and upper bound adjacency matrices respectively."><div class="figcaption">A directory of sub-directories
 (<code>fcm_1</code>, <code>fcm_2</code>, etc.,) with each sub-directory
 containing separate .xlsx files for the lower, mode and upper adjacency
 matrices. For example, a TFN-FCM can be created from the
@@ -480,7 +479,7 @@ example workflow in fewer lines of code or repetitively in a
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.</p>
 </div>
 
     </footer>
