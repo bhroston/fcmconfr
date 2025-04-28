@@ -21,7 +21,7 @@
 #' Plot fcmconfr
 #'
 #' @description
-#' This plots the output of fcmconfr() using ggplot. Set interactive = TRUE to
+#' This plots the output of fcmconfr() using ggplot. Set shiny = TRUE to
 #' load plot in a Shiny app and toggle on/off results from different analyses.
 #'
 #' @details
@@ -31,7 +31,7 @@
 #' @param include \[`character()`]\cr The concepts to include in the plot.
 #' By default, include = 'all' which does not exclude any concepts. Set to a
 #' vector of concept names to identify the only concepts to include in the plot.
-#' @param interactive \[`logical(1)`]\cr If TRUE, launch plot in a Shiny app to
+#' @param shiny \[`logical(1)`]\cr If TRUE, launch plot in a Shiny app to
 #' toggle on/off results from different analyses.
 #' @param filter_limit \[`double(1)`]\cr Only nodes with inferences above the
 #' filter_limit across any analysis will be plotted. This removes nodes with
@@ -49,6 +49,8 @@
 #' Carlo sampling and the confidence intervals about those averages.
 #' @param mc_inferences_color \[`character(1)`]\cr Color of the points
 #' representing inferences of empirical FCMs generated via Monte Carlo sampling.
+#' @param mc_inferences_size \[`double(1)` - Positive]\cr Size of the points
+#' for inferences of Monte Carlo FCMs. Must be greater than 0.
 #' @param mc_inferences_alpha \[`double(1)` - Positive (between 0 and 1)]\cr
 #' Transparency of the points representing inferences of empirical FCMs
 #' generated via Monte Carlo sampling. Range from 0 to 1 (0: Transparent to
@@ -66,12 +68,19 @@
 #' values and character strings. Ignored for IVFN FCMs.
 #' @param agg_inferences_color \[`character(1)`]\cr Color of the points
 #' representing inferences of the aggregate FCM
+#' @param ind_inferences_size \[`double(1)` - Positive]\cr Size of the points
+#' for inferences of individual FCMs. Must be greater than 0.
+#' @param agg_inferences_size \[`double(1)` - Positive]\cr Size of the points
+#' for inferences of aggregate FCM. Must be greater than 0.
 #' @param agg_inferences_alpha \[`double(1)` - Positive (between 0 and 1)]\cr
 #' Transparency of the points representing inferences of the aggregate FCM.
 #' Range from 0 to 1 (0: Transparent to 1: Opaque).
 #' @param agg_inferences_shape \[`integer(1)` or `character(1)`]\cr Point shapes
 #' of the points representing inferences of the aggregate FCM. Accepts PCH point
 #' values and character strings. Ignored for IVFN FCMs.
+#' @param mc_avg_and_CIs_linewidth \[`double(1)` - Positive]\cr Linewidth of
+#' lines representing the average (and confidence bounds the average) of the
+#' Monte Carlo FCMs inferences
 #' @param ind_ivfn_and_tfn_linewidth \[`double(1)` - Positive]\cr  Linewidth of
 #' lines representing inferences for analyses of individual IVFN- and TFN- FCMs.
 #' @param agg_ivfn_and_tfn_linewidth \[`double(1)` - Positive]\cr Linewidth of
@@ -93,7 +102,7 @@
 #' @example man/examples/ex-plot.fcmconfr.R
 plot.fcmconfr <- function(x,
                           include = "all",
-                          interactive = FALSE,
+                          shiny = FALSE,
                           # Plot Format Parameters
                           filter_limit = 1e-3,
                           xlim = NA, # c(lower_limit, upper_limit)
@@ -102,14 +111,18 @@ plot.fcmconfr <- function(x,
                           # Plot Aesthetic Parameters
                           mc_avg_and_CIs_color = "blue",
                           mc_inferences_color = "blue",
+                          mc_inferences_size = 1,
                           mc_inferences_alpha = 0.3, # 0:transparent to 1:opaque
                           mc_inferences_shape = 3, # R PCH point shape values
                           ind_inferences_color = "black",
+                          ind_inferences_size = 1,
                           ind_inferences_alpha = 1, # 0:transparent to 1:opaque
                           ind_inferences_shape = 16, # R PCH point shape values
                           agg_inferences_color = "red",
+                          agg_inferences_size = 1,
                           agg_inferences_alpha = 1, # 0:transparent to 1:opaque
                           agg_inferences_shape = 17, # R PCH point shape values
+                          mc_avg_and_CIs_linewidth = 0.1,
                           ind_ivfn_and_tfn_linewidth = 0.1,
                           agg_ivfn_and_tfn_linewidth = 0.6,
                           ...) {
@@ -126,13 +139,13 @@ plot.fcmconfr <- function(x,
 
   # Input Checks ----
   checks <- check_plot_fcmconfr_inputs(
-    interactive,
+    shiny,
     filter_limit, xlim, coord_flip, text_font_size,
     mc_avg_and_CIs_color,
-    mc_inferences_color, mc_inferences_alpha, mc_inferences_shape,
-    ind_inferences_color, ind_inferences_alpha, ind_inferences_shape,
-    agg_inferences_color, agg_inferences_alpha, agg_inferences_shape,
-    ind_ivfn_and_tfn_linewidth, agg_ivfn_and_tfn_linewidth
+    mc_inferences_color, mc_inferences_size, mc_inferences_alpha, mc_inferences_shape,
+    ind_inferences_color, ind_inferences_size, ind_inferences_alpha, ind_inferences_shape,
+    agg_inferences_color, agg_inferences_size, agg_inferences_alpha, agg_inferences_shape,
+    mc_avg_and_CIs_linewidth, ind_ivfn_and_tfn_linewidth, agg_ivfn_and_tfn_linewidth
   )
 
   include <- as.character(include)
@@ -146,36 +159,40 @@ plot.fcmconfr <- function(x,
     checks$include <- include
   }
 
-  interactive = checks$interactive
-  filter_limit = checks$filter_limit
-  xlim = checks$xlim
-  coord_flip = checks$coord_flip
-  text_font_size = checks$text_font_size
-  mc_avg_and_CIs_color = checks$mc_avg_and_CIs_color
-  mc_inferences_color = checks$mc_inferences_color
-  mc_inferences_alpha = checks$mc_inferences_alpha
-  mc_inferences_shape = checks$mc_inferences_shape
-  ind_inferences_color = checks$ind_inferences_color
-  ind_inferences_alpha = checks$ind_inferences_alpha
-  ind_inferences_shape = checks$ind_inferences_shape
-  agg_inferences_color = checks$agg_inferences_color
-  agg_inferences_alpha = checks$agg_inferences_alpha
-  agg_inferences_shape = checks$agg_inferences_shape
-  ind_ivfn_and_tfn_linewidth = checks$ind_ivfn_and_tfn_linewidth
-  agg_ivfn_and_tfn_linewidth = checks$agg_ivfn_and_tfn_linewidth
+  shiny <- checks$shiny
+  filter_limit <- checks$filter_limit
+  xlim <- checks$xlim
+  coord_flip <- checks$coord_flip
+  text_font_size <- checks$text_font_size
+  mc_avg_and_CIs_color <- checks$mc_avg_and_CIs_color
+  mc_inferences_color <- checks$mc_inferences_color
+  mc_inferences_size <- checks$mc_inferences_size
+  mc_inferences_alpha <- checks$mc_inferences_alpha
+  mc_inferences_shape <- checks$mc_inferences_shape
+  ind_inferences_color <- checks$ind_inferences_color
+  ind_inferences_size <- checks$ind_inferences_size
+  ind_inferences_alpha <- checks$ind_inferences_alpha
+  ind_inferences_shape <- checks$ind_inferences_shape
+  agg_inferences_color <- checks$agg_inferences_color
+  agg_inferences_size <- checks$agg_inferences_size
+  agg_inferences_alpha <- checks$agg_inferences_alpha
+  agg_inferences_shape <- checks$agg_inferences_shape
+  mc_avg_and_CIs_linewidth <- checks$mc_avg_and_CIs_linewidth
+  ind_ivfn_and_tfn_linewidth <- checks$ind_ivfn_and_tfn_linewidth
+  agg_ivfn_and_tfn_linewidth <- checks$agg_ivfn_and_tfn_linewidth
   # ----
 
-  if (!interactive) {
+  if (!shiny) {
     suppressWarnings(print(
       autoplot.fcmconfr(
         x,
-        include, interactive,
+        include, shiny,
         filter_limit, xlim, coord_flip, text_font_size,
         mc_avg_and_CIs_color,
-        mc_inferences_color, mc_inferences_alpha, mc_inferences_shape,
-        ind_inferences_color, ind_inferences_alpha, ind_inferences_shape,
-        agg_inferences_color, agg_inferences_alpha, agg_inferences_shape,
-        ind_ivfn_and_tfn_linewidth, agg_ivfn_and_tfn_linewidth
+        mc_inferences_color, mc_inferences_size, mc_inferences_alpha, mc_inferences_shape,
+        ind_inferences_color, ind_inferences_size, ind_inferences_alpha, ind_inferences_shape,
+        agg_inferences_color, agg_inferences_size, agg_inferences_alpha, agg_inferences_shape,
+        mc_avg_and_CIs_linewidth, ind_ivfn_and_tfn_linewidth, agg_ivfn_and_tfn_linewidth
       )
     ))
   } else {
@@ -202,7 +219,7 @@ plot.fcmconfr <- function(x,
 #' This checks the inputs to plot.fcmconfr to and throws warnings/errors if
 #' necessary
 #'
-#' @param interactive \[`logical(1)`]\cr If TRUE, launch plot in a Shiny app to
+#' @param shiny \[`logical(1)`]\cr If TRUE, launch plot in a Shiny app to
 #' toggle on/off results from different analyses.
 #' @param filter_limit \[`double(1)`]\cr Only nodes with inferences above the
 #' filter_limit across any analysis will be plotted. This removes nodes with
@@ -220,6 +237,8 @@ plot.fcmconfr <- function(x,
 #' Carlo sampling and the confidence intervals about those averages.
 #' @param mc_inferences_color \[`character(1)`]\cr Color of the points
 #' representing inferences of empirical FCMs generated via Monte Carlo sampling.
+#' @param mc_inferences_size \[`double(1)` - Positive]\cr Size of the points
+#' for inferences of Monte Carlo FCMs. Must be greater than 0.
 #' @param mc_inferences_alpha \[`double(1)` - Positive (between 0 and 1)]\cr
 #' Transparency of the points representing inferences of empirical FCMs
 #' generated via Monte Carlo sampling. Range from 0 to 1 (0: Transparent to
@@ -229,6 +248,8 @@ plot.fcmconfr <- function(x,
 #' Carlo sampling. Accepts PCH point values and character strings.
 #' @param ind_inferences_color \[`character(1)`]\cr Color of the points
 #' representing inferences of individual FCMs.
+#' @param ind_inferences_size \[`double(1)` - Positive]\cr Size of the points
+#' for inferences of individual FCMs. Must be greater than 0.
 #' @param ind_inferences_alpha \[`double(1)` - Positive (between 0 and 1)]\cr
 #' Transparency of the points representing inferences of individual FCMs. Range
 #' from 0 to 1 (0: Transparent to 1: Opaque).
@@ -237,12 +258,17 @@ plot.fcmconfr <- function(x,
 #' values and character strings. Ignored for IVFN FCMs.
 #' @param agg_inferences_color \[`character(1)`]\cr Color of the points
 #' representing inferences of the aggregate FCM
+#' @param agg_inferences_size \[`double(1)` - Positive]\cr Size of the points
+#' for inferences of aggregate FCM. Must be greater than 0.
 #' @param agg_inferences_alpha \[`double(1)` - Positive (between 0 and 1)]\cr
 #' Transparency of the points representing inferences of the aggregate FCM.
 #' Range from 0 to 1 (0: Transparent to 1: Opaque).
 #' @param agg_inferences_shape \[`integer(1)` or `character(1)`]\cr Point shapes
 #' of the points representing inferences of the aggregate FCM. Accepts PCH point
 #' values and character strings. Ignored for IVFN FCMs.
+#' @param mc_avg_and_CIs_linewidth \[`double(1)` - Positive]\cr Linewidth of
+#' lines representing the average (and confidence bounds the average) of the
+#' Monte Carlo FCMs inferences
 #' @param ind_ivfn_and_tfn_linewidth \[`double(1)` - Positive]\cr  Linewidth of
 #' lines representing inferences for analyses of individual IVFN- and TFN- FCMs.
 #' @param agg_ivfn_and_tfn_linewidth \[`double(1)` - Positive]\cr Linewidth of
@@ -252,7 +278,7 @@ plot.fcmconfr <- function(x,
 #' NULL
 #' @keywords internal
 #' @noRd
-check_plot_fcmconfr_inputs <- function(interactive = FALSE,
+check_plot_fcmconfr_inputs <- function(shiny = FALSE,
                                        # Plot Format Parameters
                                        filter_limit = 1e-3,
                                        xlim = NA, # c(lower_limit, upper_limit)
@@ -261,32 +287,40 @@ check_plot_fcmconfr_inputs <- function(interactive = FALSE,
                                        # Plot Aesthetic Parameters
                                        mc_avg_and_CIs_color = "blue",
                                        mc_inferences_color = "blue",
+                                       mc_inferences_size = 1,
                                        mc_inferences_alpha = 0.3, # 0:transparent to 1:opaque
                                        mc_inferences_shape = 3, # R PCH point shape values
                                        ind_inferences_color = "black",
+                                       ind_inferences_size = 1,
                                        ind_inferences_alpha = 1, # 0:transparent to 1:opaque
                                        ind_inferences_shape = 16, # R PCH point shape values
                                        agg_inferences_color = "red",
+                                       agg_inferences_size = 1,
                                        agg_inferences_alpha = 1, # 0:transparent to 1:opaque
                                        agg_inferences_shape = 17, # R PCH point shape values
+                                       mc_avg_and_CIs_linewidth = 0.1,
                                        ind_ivfn_and_tfn_linewidth = 0.1,
                                        agg_ivfn_and_tfn_linewidth = 0.6) {
 
-  check_fcmconfr_input(interactive, check = "logical", var_name = "interactive")
+  check_fcmconfr_input(shiny, check = "logical", var_name = "shiny")
   check_fcmconfr_input(filter_limit, check = "positive_number", var_name = "filter_limit")
   # xlim checked below
   check_fcmconfr_input(coord_flip, check = "logical", var_name = "coord_flip")
   if (!isTRUE(is.na(text_font_size)) && !isTRUE(is.null(text_font_size))) check_fcmconfr_input(text_font_size, check = "positive_number", var_name = "text_font_size")
   check_fcmconfr_input(mc_avg_and_CIs_color, check = "color", var_name = "mc_avg_and_CIs_color")
   check_fcmconfr_input(mc_inferences_color, check = "color", var_name = "mc_inferences_color")
+  check_fcmconfr_input(mc_inferences_size, check = "positive_number", var_name = "mc_inferences_size", zero_is_positive = FALSE)
   check_fcmconfr_input(mc_inferences_alpha, check = "positive_number", var_name = "mc_inferences_alpha", zero_is_positive = TRUE)
   check_fcmconfr_input(mc_inferences_shape, check = "shape", var_name = "mc_inferences_shape")
   check_fcmconfr_input(ind_inferences_color, check = "color", var_name = "ind_inferences_color")
+  check_fcmconfr_input(ind_inferences_size, check = "positive_number", var_name = "ind_inferences_size", zero_is_positive = FALSE)
   check_fcmconfr_input(ind_inferences_alpha, check = "positive_number", var_name = "ind_inferences_alpha", zero_is_positive = TRUE)
   check_fcmconfr_input(ind_inferences_shape, check = "shape", var_name = "ind_inferences_shape")
   check_fcmconfr_input(agg_inferences_color, check = "color", var_name = "agg_inferences_color")
+  check_fcmconfr_input(agg_inferences_size, check = "positive_number", var_name = "agg_inferences_size", zero_is_positive = FALSE)
   check_fcmconfr_input(agg_inferences_alpha, check = "positive_number", var_name = "agg_inferences_alpha", zero_is_positive = TRUE)
   check_fcmconfr_input(agg_inferences_shape, check = "shape", var_name = "agg_inferences_shape")
+  check_fcmconfr_input(mc_avg_and_CIs_linewidth, check = "positive_number", var_name = "mc_avg_and_CIs_linewidth")
   check_fcmconfr_input(ind_ivfn_and_tfn_linewidth, check = "positive_number", var_name = "ind_ivfn_and_tfn_linewidth")
   check_fcmconfr_input(agg_ivfn_and_tfn_linewidth, check = "positive_number", var_name = "agg_ivfn_and_tfn_linewidth")
 
@@ -342,21 +376,25 @@ check_plot_fcmconfr_inputs <- function(interactive = FALSE,
   # ----
 
   return(list(
-    interactive = as.logical(interactive),
+    shiny = as.logical(shiny),
     filter_limit = as.double(filter_limit),
     xlim = xlim,
     coord_flip = as.logical(coord_flip),
     text_font_size = as.numeric(text_font_size),
     mc_avg_and_CIs_color = tolower(as.character(mc_avg_and_CIs_color)),
     mc_inferences_color = tolower(as.character(mc_inferences_color)),
+    mc_inferences_size = as.double(mc_inferences_size),
     mc_inferences_alpha = as.double(mc_inferences_alpha),
     mc_inferences_shape = ifelse(is.character(mc_inferences_shape), tolower(as.character(mc_inferences_shape)), as.integer(mc_inferences_shape)),
     ind_inferences_color = tolower(as.character(ind_inferences_color)),
+    ind_inferences_size = as.double(ind_inferences_size),
     ind_inferences_alpha = as.double(ind_inferences_alpha),
     ind_inferences_shape = ifelse(is.character(ind_inferences_shape), tolower(as.character(ind_inferences_shape)), as.integer(ind_inferences_shape)),
     agg_inferences_color = tolower(as.character(agg_inferences_color)),
+    agg_inferences_size = as.double(agg_inferences_size),
     agg_inferences_alpha = as.double(agg_inferences_alpha),
     agg_inferences_shape = ifelse(is.character(agg_inferences_shape), tolower(as.character(agg_inferences_shape)), as.integer(agg_inferences_shape)),
+    mc_avg_and_CIs_linewidth = as.double(mc_avg_and_CIs_linewidth),
     ind_ivfn_and_tfn_linewidth = as.double(ind_ivfn_and_tfn_linewidth),
     agg_ivfn_and_tfn_linewidth = as.double(agg_ivfn_and_tfn_linewidth)
   ))
@@ -461,6 +499,7 @@ get_plot_data <- function(fcmconfr_object) {
 
   return(structure(
     .Data = list(
+      fcm_class = fcmconfr_object$fcm_class,
       fcm_class_subtitle = fcm_class_subtitle,
       individual_inferences = individual_inferences_longer,
       aggregate_inferences = aggregate_inferences_longer,
@@ -519,16 +558,21 @@ filter_concepts_to_plot <- function(fcmconfr_plot_data,
 
   individual_inferences_values <- fcmconfr_plot_data$individual_inferences[!(colnames(fcmconfr_plot_data$individual_inferences) %in% c("adj_matrix_index", "analysis_source"))]
   longer_individual_inferences_values <- tidyr::pivot_longer(individual_inferences_values, cols = seq_along(individual_inferences_values)[-1])
-  max_individual_inferences <- vapply(concepts, function(concept) max(longer_individual_inferences_values$value[longer_individual_inferences_values$node == concept]), FUN.VALUE = numeric(1))
+  max_individual_inferences <- vapply(concepts, function(concept) max(abs(longer_individual_inferences_values$value[longer_individual_inferences_values$node == concept])), FUN.VALUE = numeric(1))
 
   if (!all(is.na(fcmconfr_plot_data$aggregate_inferences))) {
     aggregate_inferences_values <- fcmconfr_plot_data$aggregate_inferences[colnames(fcmconfr_plot_data$aggregate_inferences) != c("analysis_source")]
-    longer_aggregate_inferences_values <- aggregate_inferences_values
-    # longer_aggregate_inferences_values <- tidyr::pivot_longer(aggregate_inferences_values, cols = seq_along(aggregate_inferences_values)[-c(1, 2)], names_to = "node")
+    if (fcmconfr_plot_data$fcm_class == "conventional") {
+      longer_aggregate_inferences_values <- aggregate_inferences_values
+    } else {
+      longer_aggregate_inferences_values <- tidyr::pivot_longer(aggregate_inferences_values, cols = 2:ncol(aggregate_inferences_values))
+    }
+    max_aggregate_inferences <- vapply(concepts, function(concept) max(abs(longer_aggregate_inferences_values$value[longer_aggregate_inferences_values$node == concept])), FUN.VALUE = numeric(1))
   } else {
-    longer_aggregate_inferences_values <- data.frame(NA)
+    longer_aggregate_inferences_values <- data.frame(value = 0)
+    max_aggregate_inferences <- rep(0, length(concepts))
+    names(max_aggregate_inferences) <- concepts
   }
-  max_aggregate_inferences <- vapply(concepts, function(concept) max(longer_aggregate_inferences_values$value[longer_aggregate_inferences_values$node == concept]), FUN.VALUE = numeric(1))
 
   if (!all(is.na(fcmconfr_plot_data$mc_inferences))) {
     mc_inferences_values <- fcmconfr_plot_data$mc_inferences[!(colnames(fcmconfr_plot_data$mc_inferences) %in% c("adj_matrix_index", "analysis_source"))]
@@ -574,7 +618,7 @@ filter_concepts_to_plot <- function(fcmconfr_plot_data,
 #'
 #' @param object \[`fcmconfr`]\cr A direct output of the
 #' \code{\link{fcmconfr}} function
-#' @param interactive \[`logical(1)`]\cr If TRUE, launch plot in a Shiny app to
+#' @param shiny \[`logical(1)`]\cr If TRUE, launch plot in a Shiny app to
 #' toggle on/off results from different analyses.
 #' @param filter_limit \[`double(1)`]\cr Only nodes with inferences above the
 #' filter_limit across any analysis will be plotted. This removes nodes with
@@ -592,6 +636,8 @@ filter_concepts_to_plot <- function(fcmconfr_plot_data,
 #' Carlo sampling and the confidence intervals about those averages.
 #' @param mc_inferences_color \[`character(1)`]\cr Color of the points
 #' representing inferences of empirical FCMs generated via Monte Carlo sampling.
+#' @param mc_inferences_size \[`double(1)` - Positive]\cr Size of the points
+#' for inferences of Monte Carlo FCMs. Must be greater than 0.
 #' @param mc_inferences_alpha \[`double(1)` - Positive (between 0 and 1)]\cr
 #' Transparency of the points representing inferences of empirical FCMs
 #' generated via Monte Carlo sampling. Range from 0 to 1 (0: Transparent to
@@ -601,6 +647,8 @@ filter_concepts_to_plot <- function(fcmconfr_plot_data,
 #' Carlo sampling. Accepts PCH point values and character strings.
 #' @param ind_inferences_color \[`character(1)`]\cr Color of the points
 #' representing inferences of individual FCMs.
+#' @param ind_inferences_size \[`double(1)` - Positive]\cr Size of the points
+#' for inferences of individual FCMs. Must be greater than 0.
 #' @param ind_inferences_alpha \[`double(1)` - Positive (between 0 and 1)]\cr
 #' Transparency of the points representing inferences of individual FCMs. Range
 #' from 0 to 1 (0: Transparent to 1: Opaque).
@@ -609,12 +657,17 @@ filter_concepts_to_plot <- function(fcmconfr_plot_data,
 #' values and character strings. Ignored for IVFN FCMs.
 #' @param agg_inferences_color \[`character(1)`]\cr Color of the points
 #' representing inferences of the aggregate FCM
+#' @param agg_inferences_size \[`double(1)` - Positive]\cr Size of the points
+#' for inferences of aggregate FCM. Must be greater than 0.
 #' @param agg_inferences_alpha \[`double(1)` - Positive (between 0 and 1)]\cr
 #' Transparency of the points representing inferences of the aggregate FCM.
 #' Range from 0 to 1 (0: Transparent to 1: Opaque).
 #' @param agg_inferences_shape \[`integer(1)` or `character(1)`]\cr Point shapes
 #' of the points representing inferences of the aggregate FCM. Accepts PCH point
 #' values and character strings. Ignored for IVFN FCMs.
+#' @param mc_avg_and_CIs_linewidth \[`double(1)` - Positive]\cr Linewidth of
+#' lines representing the average (and confidence bounds the average) of the
+#' Monte Carlo FCMs inferences
 #' @param ind_ivfn_and_tfn_linewidth \[`double(1)` - Positive]\cr  Linewidth of
 #' lines representing inferences for analyses of individual IVFN- and TFN- FCMs.
 #' @param agg_ivfn_and_tfn_linewidth \[`double(1)` - Positive]\cr Linewidth of
@@ -630,7 +683,7 @@ filter_concepts_to_plot <- function(fcmconfr_plot_data,
 #' @noRd
 autoplot.fcmconfr <- function(object,
                               include = "all",
-                              interactive = FALSE,
+                              shiny = FALSE,
                               # Plot Format Parameters
                               filter_limit = 1e-3,
                               xlim = NA, # c(lower_limit, upper_limit)
@@ -639,14 +692,18 @@ autoplot.fcmconfr <- function(object,
                               # Plot Aesthetic Parameters
                               mc_avg_and_CIs_color = "blue",
                               mc_inferences_color = "blue",
+                              mc_inferences_size = 1,
                               mc_inferences_alpha = 0.3, # 0:transparent to 1:opaque
                               mc_inferences_shape = 3, # R PCH point shape values
                               ind_inferences_color = "black",
+                              ind_inferences_size = 1,
                               ind_inferences_alpha = 1, # 0:transparent to 1:opaque
                               ind_inferences_shape = 16, # R PCH point shape values
                               agg_inferences_color = "red",
+                              agg_inferences_size = 1,
                               agg_inferences_alpha = 1, # 0:transparent to 1:opaque
                               agg_inferences_shape = 17, # R PCH point shape values
+                              mc_avg_and_CIs_linewidth = 0.1,
                               ind_ivfn_and_tfn_linewidth = 0.1,
                               agg_ivfn_and_tfn_linewidth = 0.6,
                               ...) {
@@ -729,15 +786,15 @@ autoplot.fcmconfr <- function(object,
       ggplot2::geom_point(
         data = ggplot2::remove_missing(plot_data$mc_inferences),
         aes(y = .data$node, x = .data$value, color = .data$analysis_source, alpha = .data$analysis_source, shape = .data$analysis_source),
-        position = ggplot2::position_dodge2(width = 0.25),
+        position = ggplot2::position_dodge2(width = 0.25), size = mc_inferences_size,
         # shape = 3,
         na.rm = FALSE
-      ) +
-      ggplot2::geom_crossbar(
-        data = ggplot2::remove_missing(plot_data$mc_mean_inferences),
-        aes(y = .data$node, xmin = .data$value, x = .data$value, xmax = .data$value),
-        width = 0.9, linewidth = 0.1, color = mc_avg_and_CIs_color, na.rm = FALSE, key_glyph = ggplot2::draw_key_vline
-      )
+      ) # +
+      # ggplot2::geom_crossbar(
+      #   data = ggplot2::remove_missing(plot_data$mc_mean_inferences),
+      #   aes(y = .data$node, xmin = .data$value, x = .data$value, xmax = .data$value),
+      #   width = 0.9, linewidth = 0.1, color = mc_avg_and_CIs_color, na.rm = FALSE, key_glyph = ggplot2::draw_key_vline
+      # )
   }
   # ----
 
@@ -748,7 +805,7 @@ autoplot.fcmconfr <- function(object,
         data = ggplot2::remove_missing(plot_data$individual_inferences),
         position = ggplot2::position_dodge2(width = 0.1),
         aes(y = .data$node, x = .data$value, color = .data$analysis_source, alpha = .data$analysis_source, shape = .data$analysis_source),
-        size = 2, na.rm = TRUE
+        size = ind_inferences_size, na.rm = TRUE
       )
   } else if (object$fcm_class == "ivfn") {
     ggplot_main <- ggplot_main +
@@ -762,8 +819,15 @@ autoplot.fcmconfr <- function(object,
       ggplot2::geom_pointrange(
         data = ggplot2::remove_missing(plot_data$individual_inferences),
         aes(y = .data$node, xmin = .data$lower, x = .data$mode, xmax = .data$upper, color = .data$analysis_source, alpha = .data$analysis_source, shape = .data$analysis_source),
-        position = ggplot2::position_dodge2(width = 0.5), fatten = 0.6, linewidth = ind_ivfn_and_tfn_linewidth
+        position = ggplot2::position_dodge2(width = 0.5), fatten = 1, linewidth = ind_ivfn_and_tfn_linewidth, size = ind_inferences_size
       )
+
+      # ggplot2::ggplot() +
+      # ggplot2::geom_pointrange(
+      #   data = ggplot2::remove_missing(plot_data$individual_inferences),
+      #   aes(y = .data$node, xmin = .data$lower, x = .data$mode, xmax = .data$upper),
+      #   position = ggplot2::position_dodge2(width = 0.5), fatten = 1, linewidth = ind_ivfn_and_tfn_linewidth, color = "blue"
+      # ) + ggplot2::theme_classic()
   }
   # ----
 
@@ -773,7 +837,7 @@ autoplot.fcmconfr <- function(object,
       ggplot2::geom_point(
         data = ggplot2::remove_missing(plot_data$aggregate_inferences),
         aes(y = .data$node, x = .data$value, color = .data$analysis_source, alpha = .data$analysis_source, shape = .data$analysis_source),
-        size = 2,
+        size = agg_inferences_size,
       )
   } else if (has_agg_calcs && object$fcm_class == "ivfn") {
     ggplot_main <- ggplot_main +
@@ -787,13 +851,14 @@ autoplot.fcmconfr <- function(object,
       ggplot2::geom_pointrange(
         data = ggplot2::remove_missing(plot_data$aggregate_inferences),
         aes(y = .data$node, xmin = .data$lower, x = .data$mode, xmax = .data$upper, color = .data$analysis_source, alpha = .data$analysis_source, shape = .data$analysis_source),
-        fatten = 2, linewidth = agg_ivfn_and_tfn_linewidth
+        fatten = 2, linewidth = agg_ivfn_and_tfn_linewidth, size = agg_inferences_size
       )
   }
   # ----
 
   # Setup Legend Scales ----
   scale_color_manual_values_str <- paste0("c('Ind FCM Inferences' = ind_inferences_color")
+  scale_size_manual_values_str <- paste0("c('Ind FCM Inferences' = agg_inferences_size/2")
   scale_alpha_manual_values_str <- paste0("c('Ind FCM Inferences' = ind_inferences_alpha")
   scale_shape_manual_values_str <- paste0("c('Ind FCM Inferences' = ind_inferences_shape")
   scale_shape_manual_override_str <- paste0("c(ind_inferences_shape")
@@ -801,6 +866,7 @@ autoplot.fcmconfr <- function(object,
   scale_breaks_values_str <- paste0("c('Ind FCM Inferences'")
   if (!inputs_only & !(inputs_no_agg_and_mc_w_bs | inputs_no_agg_and_mc_w_no_bs)) {
     scale_color_manual_values_str <- paste0(scale_color_manual_values_str, ", 'Agg FCM Inferences' = agg_inferences_color")
+    scale_size_manual_values_str <- paste0(scale_size_manual_values_str, ", 'Agg FCM Inferences' = agg_inferences_size/2")
     scale_alpha_manual_values_str <- paste0(scale_alpha_manual_values_str, ", 'Agg FCM Inferences' = agg_inferences_alpha")
     scale_shape_manual_values_str <- paste0(scale_shape_manual_values_str, ", 'Agg FCM Inferences' = agg_inferences_shape")
     scale_shape_manual_override_str <- paste0(scale_shape_manual_override_str, ", agg_inferences_shape")
@@ -809,6 +875,7 @@ autoplot.fcmconfr <- function(object,
   }
   if (inputs_agg_and_mc_no_bs | inputs_agg_and_mc_w_bs | inputs_no_agg_and_mc_w_bs | inputs_no_agg_and_mc_w_no_bs) {
     scale_color_manual_values_str <- paste0(scale_color_manual_values_str, ", 'MC FCM Inferences' = mc_inferences_color")
+    scale_size_manual_values_str <- paste0(scale_size_manual_values_str , ", 'MC FCM Inferences' = mc_inferences_size")
     scale_alpha_manual_values_str <- paste0(scale_alpha_manual_values_str, ", 'MC FCM Inferences' = mc_inferences_alpha")
     scale_shape_manual_values_str <- paste0(scale_shape_manual_values_str, ", 'MC FCM Inferences' = mc_inferences_shape")
     scale_shape_manual_override_str <- paste0(scale_shape_manual_override_str, ", mc_inferences_shape")
@@ -816,6 +883,7 @@ autoplot.fcmconfr <- function(object,
     scale_breaks_values_str <- paste0(scale_breaks_values_str, ", 'MC FCM Inferences'")
   }
   scale_color_manual_values_str <- paste0(scale_color_manual_values_str, ")")
+  scale_size_manual_values_str <- paste0(scale_size_manual_values_str, ")")
   scale_alpha_manual_values_str <- paste0(scale_alpha_manual_values_str, ")")
   scale_shape_manual_values_str <- paste0(scale_shape_manual_values_str, ")")
   scale_shape_manual_override_str <- paste0(scale_shape_manual_override_str, ")")
@@ -830,6 +898,11 @@ autoplot.fcmconfr <- function(object,
           breaks = ", scale_breaks_values_str, ",
           guide = ggplot2::guide_legend(order = 1)
         ) +
+        ggplot2::scale_size_manual(
+          values = ", scale_size_manual_values_str, ",
+          breaks = ", scale_breaks_values_str, ",
+          guide = ggplot2::guide_legend(order = 1)
+        ) +
         ggplot2::scale_alpha_manual(
           values = ", scale_alpha_manual_values_str, ",
           breaks = ", scale_breaks_values_str, ",
@@ -841,7 +914,8 @@ autoplot.fcmconfr <- function(object,
           guide = ggplot2::guide_legend(order = 1)
         ) +
         ggplot2::scale_linewidth_manual(
-          values = c('CIs of MC FCMs Avg Inferences' = 0.1, 'MC FCMs Avg Inferences' = 0.2),
+          values = c('CIs of MC FCMs Avg Inferences' = mc_avg_and_CIs_linewidth,
+                     'MC FCMs Avg Inferences' = mc_avg_and_CIs_linewidth),
           guide = ggplot2::guide_legend(order = 2)
         )"
     )
@@ -853,10 +927,16 @@ autoplot.fcmconfr <- function(object,
           breaks = ", scale_breaks_values_str, ",
           guide = ggplot2::guide_legend(
             override.aes = list(
+              size = ", scale_size_manual_values_str, ",
               alpha = ", scale_alpha_manual_values_str, ",
               shape = ", scale_shape_manual_override_str, ",
               linewidth = ", scale_linewidth_maual_values_str, "
           ), order = 1)
+        ) +
+        ggplot2::scale_size_manual(
+          values = ", scale_size_manual_values_str, ",
+          breaks = ", scale_breaks_values_str, ",
+          guide = ggplot2::guide_legend(order = 1)
         ) +
         ggplot2::scale_alpha_manual(
           values = ", scale_alpha_manual_values_str, ",
@@ -869,7 +949,8 @@ autoplot.fcmconfr <- function(object,
           guide = 'none'
         ) +
         ggplot2::scale_linewidth_manual(
-          values = c('CIs of MC FCM Avg Inferences' = 0.1, 'MC FCMs Avg Inferences' = 0.2),
+          values = c('CIs of MC FCMs Avg Inferences' = mc_avg_and_CIs_linewidth,
+                     'MC FCMs Avg Inferences' = mc_avg_and_CIs_linewidth),
           guide = ggplot2::guide_legend(order = 2)
         )"
     )
@@ -881,10 +962,16 @@ autoplot.fcmconfr <- function(object,
           breaks = ", scale_breaks_values_str, ",
           guide = ggplot2::guide_legend(
             override.aes = list(
+              size = ", scale_size_manual_values_str, ",
               alpha = ", scale_alpha_manual_values_str, ",
               shape = ", scale_shape_manual_override_str, ",
               linewidth = ", scale_linewidth_maual_values_str, "
           ), order = 1)
+        ) +
+        ggplot2::scale_size_manual(
+          values = ", scale_size_manual_values_str, ",
+          breaks = ", scale_breaks_values_str, ",
+          guide = ggplot2::guide_legend(order = 1)
         ) +
         ggplot2::scale_alpha_manual(
           values = ", scale_alpha_manual_values_str, ",
@@ -899,7 +986,8 @@ autoplot.fcmconfr <- function(object,
           guide = 'none'
         ) +
         ggplot2::scale_linewidth_manual(
-          values = c('CIs of MC FCM Avg Inferences' = 0.1, 'MC FCMs Avg Inferences' = 0.3),
+          values = c('CIs of MC FCMs Avg Inferences' = mc_avg_and_CIs_linewidth,
+                     'MC FCMs Avg Inferences' = mc_avg_and_CIs_linewidth),
           guide = ggplot2::guide_legend(order = 2)
         )"
     )
@@ -910,7 +998,7 @@ autoplot.fcmconfr <- function(object,
 
   if (!all(is.na(xlim))) {
     ggplot_main <- ggplot_main +
-      ggplot2::xlim(xlim[1], xlim[2])
+      ggplot2::coord_cartesian(xlim = c(xlim[1], xlim[2]))
   }
 
   # ----

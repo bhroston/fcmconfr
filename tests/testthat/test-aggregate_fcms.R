@@ -1,5 +1,6 @@
 
 test_that("aggregate_fcms works", {
+
   # Check w/ conventional fcms ----
   test_adj_matrix_1 <- data.frame(
     "A" = c(0, 0),
@@ -155,7 +156,23 @@ test_that("aggregate_fcms works", {
 
   test_aggregate <- aggregate_fcms(test_fcms_w_tfns, "median", include_zeroes_in_sampling = FALSE)
   expect_equal(test_aggregate$adj_matrix[1, 2][[1]], tfn(0.3, 0.4, 0.6))
-})
+
+  # ----
+  # Check w/ Large fcms  ----
+  test_ivfn_fcms <- sample_fcms$large_fcms$ivfn_fcms
+  expect_no_error(
+    ivfn_agg <- aggregate_fcms(test_ivfn_fcms, agg_function = "mean", include_zeroes_in_sampling = FALSE)
+  )
+
+  test_tfn_fcms <- sample_fcms$large_fcms$tfn_fcms
+  expect_no_error(
+    tfn_agg <- aggregate_fcms(test_tfn_fcms, agg_function = "mean", include_zeroes_in_sampling = FALSE)
+  )
+  # ----
+
+
+
+  })
 
 
 test_that("aggregate_fcms catches boundary cases", {

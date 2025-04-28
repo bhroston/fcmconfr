@@ -47,10 +47,10 @@ test_that("fcmconfr_plot additional inputs work", {
 
   # interactive ----
   expect_error(
-    plot(tfn_clamping_inputs_agg_and_mc_w_bs, interactive = "A")
+    plot(tfn_clamping_inputs_agg_and_mc_w_bs, shiny = "A")
   )
   expect_no_error(
-    plot(tfn_clamping_inputs_agg_and_mc_w_bs, interactive = FALSE)
+    plot(tfn_clamping_inputs_agg_and_mc_w_bs, shiny = FALSE)
   )
   # ----
 
@@ -225,7 +225,7 @@ test_that("fcmconfr_plot additional inputs work", {
   invisible(capture.output(
     expect_no_error(
       plot(tfn_clamping_inputs_agg_and_mc_w_bs,
-           interactive = FALSE,
+           shiny = FALSE,
            # Plot Formatting Parameters
            filter_limit = 1e-4,
            coord_flip = FALSE,

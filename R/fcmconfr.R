@@ -386,7 +386,21 @@ fcmconfr <- function(adj_matrices = list(),
   include_sims_in_output <- checks$include_sims_in_output
   # ----
 
-  concepts <- unlist(unique(lapply(adj_matrices, function(adj_matrix) colnames(adj_matrix))))
+  concepts_raw <- unlist(unique(lapply(adj_matrices, function(adj_matrix) colnames(adj_matrix))))
+  concept_names <- vapply(concept_names, function(concept) gsub(":", ".", concept), character(1))
+  names(concept_names) <- NULL
+  if (!identical(concepts_raw, concept_names)) {
+    warning(cli::format_warning(c(
+      "!" = "Convertings colons (:)'s to periods (.)'s in concept names"
+    )))
+    adj_matrices <- lapply(
+      adj_matrices,
+      function(adj_matrix) {
+        colnames(adj_matrix) <- concept_names
+        return(adj_matrix)
+      }
+    )
+  }
 
   if (silent) {
     suppressMessages(requireNamespace("tidyr"))
@@ -415,7 +429,7 @@ fcmconfr <- function(adj_matrices = list(),
     # Infer aggregate adj_matrix
     aggregate_fcm_inference <- infer_fcm(aggregate_adj_matrix$adj_matrix, initial_state_vector, clamping_vector, activation, squashing, lambda, point_of_inference, max_iter, min_error, skip_checks = TRUE)
     aggregate_fcm_inference$inferences <- data.frame(cbind("adj_matrix_index" = "aggregate", aggregate_fcm_inference$inferences))
-    colnames(aggregate_fcm_inference$inferences) <- c("adj_matrix_index", concepts)
+    colnames(aggregate_fcm_inference$inferences) <- c("adj_matrix_index", concept_names)
     attr(aggregate_fcm_inference$inferences, "index") <- "adj_matrix_index"
   }
   # ----
@@ -465,7 +479,9 @@ fcmconfr <- function(adj_matrices = list(),
 #' @returns \[`list()` or `data.frame()`]\cr A dataframe (or list of dataframes)
 #' of inferences from the selected analysis (analyses)
 #'
-#' @export
+#' @keywords Internal
+#' @noRd
+#'
 #' @example man/examples/ex-get_fcmconfr_inferences.R
 get_fcmconfr_inferences <- function(fcmconfr_result_obj = list(),
                                     analysis = c("individual", "aggregate", "mc")) {
@@ -820,6 +836,7 @@ organize_fcmconfr_output <- function(...) {
   fcmconfr_output <- structure(
     .Data = list(
       fcm_class = variables$fcm_class,
+      concepts = variables$concept_names,
       inferences = list(
         individual_fcms = list(
           inferences = variables$individual_adj_matrices_inferences_df,

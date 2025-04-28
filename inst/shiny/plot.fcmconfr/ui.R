@@ -1,7 +1,7 @@
 #' shiny_ui
 #'
 #' @description
-#' [ADD DETAILS HERE!!!]
+#' ui for plot.fcmconfr
 #'
 shiny_iplot_ui <- function() {
   bslib::page_sidebar(

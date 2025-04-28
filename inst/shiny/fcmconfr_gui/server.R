@@ -113,6 +113,8 @@ shiny_server <- function(input, output, session) {
           error_message <- gsub("+++++>", "", error_message, fixed = TRUE)
           error_message <- gsub("\n", "<br><br>", error_message)
 
+          adj_matrices_input <- list(data.frame(0))
+
           shinyWidgets::show_alert(
             title = "Unable to load data",
             text = shiny::HTML(error_message),
@@ -123,7 +125,7 @@ shiny_server <- function(input, output, session) {
       }
     )
 
-    if (any(is.null(unlist(square_adj_matrix_checks))) || !(all(unlist(square_adj_matrix_checks)))) {
+    if (any(unlist(Map(is.null, square_adj_matrix_checks))) || !(all(unlist(square_adj_matrix_checks)))) {
       adj_matrices_input <- list(data.frame(0))
     } else {
       tryCatch({
@@ -134,6 +136,7 @@ shiny_server <- function(input, output, session) {
         error_message <- gsub("+++++>", "", error_message, fixed = TRUE)
         error_message <- gsub("\n", "<br><br>", error_message)
 
+        adj_matrices_input <- list(data.frame(0))
         shinyWidgets::show_alert(
           title = "Unable to load data",
           text = shiny::HTML(error_message),
@@ -367,6 +370,53 @@ shiny_server <- function(input, output, session) {
   })
   # ----
 
+  # # Simulation Panel
+  # Estimate Lambda Button ----
+  output$lambda_selection <- shiny::renderUI({
+    shiny::fluidRow(
+      shiny::column(
+        width = 5, align = "right",
+        shiny::h5(paste0("Lambda (", "\U03BB", ")"), style = "padding: 28px;")
+      ),
+      shiny::column(
+        width = 3, align = "left",
+        shiny::numericInput("lambda", "", value = 1, min = 1e-10, max = 10, step = 0.05)
+      ),
+      shiny::column(
+        width = 3, aligh = "right",
+        shiny::fluidRow(
+          shiny::column(width = 12, div(style = "height:23px"))
+        ),
+        shiny::actionButton("estimate_lambda_button", label = "Estimate Lambda", style = "padding: 8px; font-size:80%")
+      )
+    )
+  })
+
+  shiny::observeEvent(input$estimate_lambda_button, {
+    shiny::validate(
+      shiny::need(input$adj_matrices != "", message = FALSE)
+    )
+
+    shiny::showModal(shiny::modalDialog(
+      align = "center",
+      shiny::HTML("<font size='6'>Calculating Lambda Estimate</font><br><br><font size='3'>Click Outside This Box To Close</font>"),
+      footer = NULL, easyClose = TRUE)
+    )
+
+    lambda_estimates <- lapply(
+      adj_matrices(), function(adj_matrix) estimate_fcm_lambda(adj_matrix, squashing = input$squashing)
+    )
+
+    lambda_estimate_value <- min(unlist(lambda_estimates))
+
+    shiny::updateNumericInput(
+      session, "lambda", value = round(lambda_estimate_value, 4)
+    )
+
+    shiny::removeModal(session)
+  })
+  # ----
+
   # Monte Carlo Card ----
   can_perform_monte_carlo_analysis <- shiny::reactive({
     shiny::validate(
@@ -402,7 +452,7 @@ shiny_server <- function(input, output, session) {
           ),
           shiny::column(
             width = 6, align = "left",
-            shiny::numericInput("num_mc_fcms", "", value = 1000, min = 1, step = 500)
+            shiny::numericInput("num_mc_fcms", "", value = 1000, min = 1, step = 100)
           )
         ),
         shiny::fluidRow(
@@ -660,7 +710,6 @@ shiny_server <- function(input, output, session) {
 
 
   # fcmconfr Code Snippet ----
-
   fcmconfr_code_snippet_text <- shiny::eventReactive(input$get_code, {
 
     no_adj_matrices_selected <- identical(methods::is(try(adj_matrices())), "try-error")
@@ -892,25 +941,6 @@ shiny_server <- function(input, output, session) {
   shiny::observeEvent(input$close_app, {
     shiny::stopApp()
   })
-
-  # # Form Data
-  # form_data <- shiny::reactive({
-  #   inputs <- shiny::reactiveValuesToList(input)
-  #   inputs$initial_state_vector <- initial_state_vector()
-  #   inputs$clamping_vector <- clamping_vector()
-  #   inputs$concepts <- concepts()
-  #   inputs
-  # })
-  #
-  # shiny::observeEvent(input$submit, {
-  #   env_frame_index <- which(unlist(lapply(sys.frames(), function(frame) frame$shiny_env_check)) == 1)
-  #   assign(
-  #     x = "fcmconfr_gui_input",
-  #     value = structure(.Data = form_data(), class = "fcmconfr_gui_input"),
-  #     envir = sys.frames()[[env_frame_index]]
-  #   )
-  #   shiny::stopApp()
-  # })
 }
 
 

@@ -54,8 +54,4 @@ adj_matrix <- sample_fcms$simple_fcms$tfn_fcms[[1]]
 fcm_view(adj_matrix = adj_matrix, shiny = FALSE)
 
 }
-\seealso{
-Other utility: 
-\code{\link{get_fcmconfr_inferences}()}
-}
 \concept{utility}
