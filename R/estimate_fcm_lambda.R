@@ -133,7 +133,10 @@ estimate_fcm_lambda <- function(adj_matrix = data.frame(),
     weight_matrix_of_nonsteady_nodes <- as.matrix(as_conventional_adj_matrix)
   }
 
-  frobenius_norm <- sqrt(sum(apply(weight_matrix_of_nonsteady_nodes, c(1, 2), function(element) element^2)))
+  # Manual frobenius norm calculation
+  # frobenius_norm <- sqrt(sum(apply(weight_matrix_of_nonsteady_nodes, c(1, 2), function(element) element^2)))
+  # Base R frobenius norm calculation
+  frobenius_norm <- norm(weight_matrix_of_nonsteady_nodes, type = "F")
 
   if (squashing == "sigmoid") {
     lambda_prime <- 4/frobenius_norm
@@ -150,6 +153,17 @@ estimate_fcm_lambda <- function(adj_matrix = data.frame(),
       )
     }
     s_norm <- max(row_wise_max_norms)
+
+    s_norm <- max( # As defined in Koutsellis et al. 2022 (https://doi.org/10.1007/s12351-022-00717-x)
+      apply(weight_matrix_of_nonsteady_nodes, 2, function(col) {
+      # apply(as_conventional_adj_matrix, 2, function(row) {
+        max(
+          abs(0.211*sum(col[col > 0]) + 0.789*sum(col[col < 0])),
+          abs(0.211*sum(col[col < 0]) + 0.789*sum(col[col > 0]))
+        )
+      })
+    )
+
     lambda_star <- 1.317/s_norm
   } else if (squashing == "tanh") {
     lambda_prime <- 1/frobenius_norm
