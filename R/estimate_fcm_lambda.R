@@ -19,19 +19,19 @@
 #'
 #' Note: The lambda value estimated will vary for different FCMs.
 #'
-#' This algorithm is intended for conventional fCMs. If an Interval Value
+#' This algorithm is intended for conventional FCMs. If an Interval Value
 #' Fuzzy Number (IVFN) FCM or a Triangular Fuzzy Number (TFN) FCM is provided,
 #' \code{estimate_fcm_lambda()} will create a conventional FCM by averaging
-#' the edge weights (upper and lower) for IVFN-FCMs and upper, mode, and lower
-#' for TFN-FCMs) for use in calculating lambda,.
+#' the edge weights (upper and lower for IVFN-FCMs; and upper, mode, and lower
+#' for TFN-FCMs) for use in calculating lambda,
 #'
 #' @details
-#' This algorithm was first explored by Kottas et al. 2010 (https://doi.org/10.1007/978-3-642-03220-2_5),
+#' This algorithm was first developed in Kottas et al. 2010 (https://doi.org/10.1007/978-3-642-03220-2_5),
 #' and expanded upon by Harmati et al. 2018 (https://doi.org/10.1109/FUZZ-IEEE.2018.8491447), and
 #' Koutsellis et al. 2022 (https://doi.org/10.1007/s12351-022-00717-x)
 #'
-#' The function applies an algorithm that can be used to optimize lambda which
-#' comparing the lambda calculated based on the Frobenius-norm
+#' The function applies an algorithm that can be used to optimize lambda. It
+#' compares the lambda calculated based on the Frobenius-norm
 #' (\eqn{\lambda^{'}}) and S-norm  (\eqn{\lambda^{*}}) of an
 #' adjacency matrix and selects the minimum.
 #'
@@ -86,7 +86,7 @@
 #' \| \mathbf{W} \| _{\infty } =\underset{i}{\max}\sum _{j=1}^{n}| w_{ij}|
 #' }
 #'
-#' Finally, the maximum lambda the ensures convergence of the simulation for
+#' Finally, the maximum lambda that ensures convergence of the simulation for
 #' the input adjacency matrix is the minimum of \eqn{\lambda ^{'}} and
 #' \eqn{\lambda ^{*}}.
 #'
