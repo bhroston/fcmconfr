@@ -194,8 +194,14 @@ make_adj_matrix_w_ivfns <- function(lower = data.frame(), upper = data.frame()) 
 #'
 #' @returns \[`ivfn`]\cr An interval-valued fuzzy number (IVFN)
 #'
-#' @references \insertRef{mooreIntervalAnalysisFuzzy2003}{fcmconfr}
-#' @references \insertRef{dimuroIntervalFuzzyNumbers2011}{fcmconfr}
+#' @references Moore R, Lodwick W (2003). “Interval Analysis and Fuzzy Set
+#' Theory.” Fuzzy Sets and Systems, 135(1), 5–9. ISSN 01650114,
+#' [doi:10.1016/S0165-0114(02)00246-4](https://doi.org/10.1016/S0165-0114(02)00246-4).
+#'
+#' @references Dimuro GP (2011). “On Interval Fuzzy Numbers.” In 2011
+#' Workshop-School on Theoretical Computer Science, 3–8.
+#' ISBN 978-0-7695-4628-5 978-1-4673-0225-8,
+#' [doi:10.1109/WEIT.2011.19](https://doi.org/10.1109/WEIT.2011.19).
 #'
 #' @export
 #' @examples
@@ -325,9 +331,16 @@ create_ivfn_fcm_from_conventional_fcm <- function(conventional_adj_matrix = data
 #' subtracting one distribution from the other, and estimating the minimum
 #' and maximum values of the difference distribution.
 #'
-#' @references \insertRef{mooreIntervalAnalysisFuzzy2003}{fcmconfr}
-#' @references \insertRef{dimuroIntervalFuzzyNumbers2011}{fcmconfr}
-#' @references \insertRef{mooreIntervalAnalysis1966}{fcmconfr}
+#' @references Moore R, Lodwick W (2003). “Interval Analysis and Fuzzy Set
+#' Theory.” Fuzzy Sets and Systems, 135(1), 5–9. ISSN 01650114,
+#' [doi:10.1016/S0165-0114(02)00246-4](https://doi.org/10.1016/S0165-0114(02)00246-4).
+#'
+#' @references Dimuro GP (2011). “On Interval Fuzzy Numbers.” In 2011
+#' Workshop-School on Theoretical Computer Science, 3–8.
+#' ISBN 978-0-7695-4628-5 978-1-4673-0225-8,
+#' [doi:10.1109/WEIT.2011.19](https://doi.org/10.1109/WEIT.2011.19).
+#'
+#' @references Moore RE (1966). Interval Analysis, volume 4. prentice-Hall Englewood Cliffs.
 #'
 #' @param ivfn_1 \[`ivfn`]\cr  An interval-value fuzzy number (ivfn) object
 #' @param ivfn_2 \[`ivfn`]\cr  An interval-value fuzzy number (ivfn) object
@@ -546,9 +559,18 @@ make_adj_matrix_w_tfns <- function(lower = data.frame(),
 #'
 #' @returns \[`tfn`]\cr A triangular fuzzy number (TFN)
 #'
-#' @references \insertRef{chakravertyFuzzyNumbers2019}{fcmconfr}
-#' @references \insertRef{hanssAppliedFuzzyArithmetic2005}{fcmconfr}
-#' @references \insertRef{trillasFuzzyArithmetic2015}{fcmconfr}
+#' @references Chakraverty S, Sahoo DM, Mahato NR (2019). “Fuzzy Numbers.” In
+#' Concepts of Soft Computing, 53–69. Springer Singapore, Singapore.
+#' ISBN 9789811374296, [doi:10.1007/978-981-13-7430-2_3](https://doi.org/10.1007/978-981-13-7430-2_3).
+#'
+#' @references Hanss M (ed.) (2005). Applied Fuzzy Arithmetic: An Introduction
+#' with Engineering Applications, SpringerLink B\"ucher. Springer-Verlag Berlin
+#' Heidelberg, Berlin, Heidelberg. ISBN 978-3-540-24201-7,
+#' [doi:10.1007/b138914](https://doi.org/10.1007/b138914).
+#'
+#' @references Trillas E, Eciolaza L (2015). “Fuzzy Logic.” In volume 320, chapter Fuzzy
+#' Arithmetic, 141–158. Springer International Publishing, Cham.
+#' ISBN 978-3-319-14202-9, [doi:10.1007/978-3-319-14203-6_6](https://doi.org/10.1007/978-3-319-14203-6_6)
 #'
 #' @export
 #' @examples
@@ -703,9 +725,18 @@ create_tfn_fcm_from_conventional_fcm <- function(conventional_adj_matrix = data.
 #' subtracting one distribution from the other, and estimating the minimum,
 #' mode, and maximum values of the difference distribution.
 #'
-#' @references \insertRef{chakravertyFuzzyNumbers2019}{fcmconfr}
-#' @references \insertRef{hanssAppliedFuzzyArithmetic2005}{fcmconfr}
-#' @references \insertRef{trillasFuzzyArithmetic2015}{fcmconfr}
+#' @references Chakraverty S, Sahoo DM, Mahato NR (2019). “Fuzzy Numbers.” In
+#' Concepts of Soft Computing, 53–69. Springer Singapore, Singapore.
+#' ISBN 9789811374296, [doi:10.1007/978-981-13-7430-2_3](https://doi.org/10.1007/978-981-13-7430-2_3).
+#'
+#' @references Hanss M (ed.) (2005). Applied Fuzzy Arithmetic: An Introduction
+#' with Engineering Applications, SpringerLink B\"ucher. Springer-Verlag Berlin
+#' Heidelberg, Berlin, Heidelberg. ISBN 978-3-540-24201-7,
+#' [doi:10.1007/b138914](https://doi.org/10.1007/b138914).
+#'
+#' @references Trillas E, Eciolaza L (2015). “Fuzzy Logic.” In volume 320, chapter Fuzzy
+#' Arithmetic, 141–158. Springer International Publishing, Cham.
+#' ISBN 978-3-319-14202-9, [doi:10.1007/978-3-319-14203-6_6](https://doi.org/10.1007/978-3-319-14203-6_6)
 #'
 #' @param tfn_1 \[`tfn`]\cr A triangular fuzzy number (tfn) object
 #' @param tfn_2 \[`tfn`]\cr A triangular fuzzy number (tfn) object

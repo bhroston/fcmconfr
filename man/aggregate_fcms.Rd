@@ -199,7 +199,10 @@ aggregate_fcms(sample_fcms$simple_fcms$tfn_fcms,
 aggregate_fcms(sample_fcms$simple_fcms$ivfn_fcms, "mean", include_zeroes_in_sampling = FALSE)
 }
 \references{
-\insertRef{aminpourWisdomStakeholderCrowds2020}{fcmconfr}
+Aminpour P, Gray SA, Jetter AJ, Introne JE, Singer A, Arlinghaus
+R (2020). “Wisdom of Stakeholder Crowds in Complex Social–Ecological
+Systems.” Nature Sustainability, 3(3), 191–199. ISSN 2398-9629,
+\href{https://doi.org/10.1038/s41893-019-0467-z}{doi:10.1038/s41893-019-0467-z}.
 }
 \seealso{
 Other aggregate_fcms: 

@@ -58,5 +58,5 @@ Imports:
 Depends: 
     R (>= 2.10)
 VignetteBuilder: knitr
-URL: https://github.com/bhroston/fcmconfr
+URL: https://bhroston.github.io/fcmconfr/
 BugReports: https://github.com/bhroston/fcmconfr/issues

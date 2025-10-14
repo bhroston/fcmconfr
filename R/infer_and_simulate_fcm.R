@@ -1073,7 +1073,10 @@ simulate_conventional_fcm <- function(adj_matrix = matrix(),
 #'  - squashing = either "sigmoid" or "tanh"
 #'  - lambda = 1
 #'
-#' @references \insertRef{yesil_triangular_2014}{fcmconfr}
+#' @references esil E, Dodurka MF, Urbas L (2014). “Triangular fuzzy number
+#' representation of relations in Fuzzy Cognitive Maps.” In 2014 IEEE
+#' International Conference on Fuzzy Systems (FUZZ-IEEE), 1021–1028.
+#' ISBN 9781479920723, [doi:10.1109/FUZZ-IEEE.2014.6891653](https://doi.org/10.1109/FUZZ-IEEE.2014.6891653),
 #'
 #' @param adj_matrix \[`data.frame()`]\cr A single adjacency matrix
 #' (n x n) representing FCMs. An adjacency matrix can have conventional
@@ -1321,7 +1324,10 @@ simulate_ivfn_or_tfn_fcm <- function(adj_matrix = data.frame(),
 #' function calculates the 'squashed' value of a state based upon the sigmoid
 #' and hyperbolic tangent (tanh) transfer functions.
 #'
-#' @references \insertRef{dikopoulou_fuzzy_2021}{fcmconfr}
+#' @references Dikopoulou Z (2021). “Fuzzy Cognitive Maps.” In Dikopoulou Z
+#' (ed.), Modeling and Simulating Complex Business Perceptions : Using Graphical
+#' Models and Fuzzy Cognitive Maps, 27–42. Springer International Publishing,
+#' Cham. ISBN 9783030814960, [doi:10.1007/978-3-030-81496-0_3](https://doi.org/10.1007/978-3-030-81496-0_3).
 #'
 #' @param value \[`double(1)` - Unrestricted (positive or negative)]\cr A value
 #' to 'squash' using the selected squashing function.
@@ -1416,10 +1422,20 @@ squash <- function(value = double(),
 #' @details
 #' Use vignette("fcmconfr") for more information.
 #'
-#' @references \insertRef{kosko_fuzzy_1986}{fcmconfr}
-#' @references \insertRef{styliosIntroducingTheoryFuzzy1997}{fcmconfr}
-#' @references \insertRef{papageorgiou_new_2011}{fcmconfr}
-#' @references \insertRef{dikopoulou_fuzzy_2021}{fcmconfr}
+#' @references Stylios CD, Georgopoulos VC, Groumpos PP (1997). “Introducing the
+#' Theory of Fuzzy Cognitive Maps in Distributed Systems.” In Proceedings of
+#' 12th IEEE International Symposium on Intelligent Control, 55–60.
+#' [doi:10.1109/ISIC.1997.626413](https://doi.org/10.1109/ISIC.1997.626413).
+#'
+#' @references Papageorgiou EI (2011). “A new methodology for Decisions in
+#' Medical Informatics using fuzzy cognitive maps based on fuzzy rule-extraction
+#' techniques.” Applied Soft Computing, 11(1), 500–513. ISSN 1568-4946,
+#' [doi:10.1016/j.asoc.2009.12.010](https://doi.org/10.1016/j.asoc.2009.12.010),
+#'
+#' @references Dikopoulou Z (2021). “Fuzzy Cognitive Maps.” In Dikopoulou Z
+#' (ed.), Modeling and Simulating Complex Business Perceptions : Using Graphical
+#' Models and Fuzzy Cognitive Maps, 27–42. Springer International Publishing,
+#' Cham. ISBN 9783030814960, [doi:10.1007/978-3-030-81496-0_3](https://doi.org/10.1007/978-3-030-81496-0_3),
 #'
 #' @param adj_matrix \[`data.frame()`]\cr A single adjacency matrix
 #' (n x n) representing FCMs. An adjacency matrix can have conventional

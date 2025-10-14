@@ -174,7 +174,10 @@
 #' @param skip_checks \[`logical(1)`]\cr FOR DEVELOPER USE ONLY. If TRUE, skip
 #' call to \code{check_simulation_inputs} (internal function)
 #'
-#' @references \insertRef{aminpourWisdomStakeholderCrowds2020}{fcmconfr}
+#' @references Aminpour P, Gray SA, Jetter AJ, Introne JE, Singer A, Arlinghaus
+#' R (2020). “Wisdom of Stakeholder Crowds in Complex Social–Ecological
+#' Systems.” Nature Sustainability, 3(3), 191–199. ISSN 2398-9629,
+#' [doi:10.1038/s41893-019-0467-z](https://doi.org/10.1038/s41893-019-0467-z).
 #'
 #' @returns \[`aggregate`]\cr An an aggregate adj. matrix with edges
 #' represented as the same data types as the inputs (i.e. Numerics for, IVFNs,

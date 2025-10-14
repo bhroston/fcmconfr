@@ -36,9 +36,9 @@ the edge weights (upper and lower) for IVFN-FCMs and upper, mode, and lower
 for TFN-FCMs) for use in calculating lambda,.
 }
 \details{
-This algorithm was first explored by Kottas et al. 2010 (https://doi.org/10.1007/978-3-642-03220-2_5),
-and expanded upon by Harmati et al. 2018 (https://doi.org/10.1109/FUZZ-IEEE.2018.8491447), and
-Koutsellis et al. 2022 (https://doi.org/10.1007/s12351-022-00717-x)
+This algorithm was first explored by \href{https://doi.org/10.1007/978-3-642-03220-2_5}{Kottas et al. (2010)},
+and expanded upon by \href{https://doi.org/10.1109/FUZZ-IEEE.2018.8491447}{Harmati et al. (2018)}, and
+\href{https://doi.org/10.1007/s12351-022-00717-x}{Koutsellis et al. (2022)}
 
 The function applies an algorithm that can be used to optimize lambda which
 comparing the lambda calculated based on the Frobenius-norm
@@ -113,9 +113,20 @@ estimate_fcm_lambda(sample_fcms$simple_fcms$ivfn_fcms[[1]], squashing = "tanh")
 estimate_fcm_lambda(sample_fcms$simple_fcms$tfn_fcms[[1]], squashing = "sigmoid")
 }
 \references{
-\insertRef{kacprzyk_fuzzy_2010}{fcmconfr}
+Kottas TL, Boutalis YS, Christodoulou MA (2010). “Fuzzy cognitive
+networks: Adaptive network estimation and control paradigms.” In Kacprzyk J,
+Glykas M (eds.), Fuzzy Cognitive Maps, volume 247, 89–134. Springer Berlin
+Heidelberg, Berlin, Heidelberg. ISBN 978-3-642-03219-6 978-3-642-03220-2,
+\href{https://doi.org/10.1007/978-3-642-03220-2_5}{doi:10.1007/978-3-642-03220-2_5},
+Series Title: Studies in Fuzziness and Soft Computing,
 
-\insertRef{harmati_existence_2018}{fcmconfr}
+Harmati IA, Koczy LT (2018). “On the Existence and Uniqueness of
+Fixed Points of Fuzzy Set Valued Sigmoid Fuzzy Cognitive Maps.” In 2018 IEEE
+International Conference on Fuzzy Systems (FUZZ-IEEE), 1–7.
+ISBN 9781509060207, \href{https://doi.org/10.1109/FUZZ-IEEE.2018.8491447}{doi:10.1109/FUZZ-IEEE.2018.8491447},
 
-\insertRef{koutsellis_parameter_2022}{fcmconfr}
+Koutsellis T, Xexakis G, Koasidis K, Nikas A, Doukas H (2022).
+“Parameter analysis for sigmoid and hyperbolic transfer functions of fuzzy
+cognitive maps.” Operational Research, 22(5), 5733–5763. ISSN 1109-2858,
+1866-1505, \href{https://doi.org/10.1007/s12351-022-00717-x}{doi:10.1007/s12351-022-00717-x},
 }

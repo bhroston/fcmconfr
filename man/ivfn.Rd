@@ -38,9 +38,14 @@ ivfn(lower = 0.0, upper = 1.0)
 ivfn(-1.0, 1.0)
 }
 \references{
-\insertRef{mooreIntervalAnalysisFuzzy2003}{fcmconfr}
+Moore R, Lodwick W (2003). “Interval Analysis and Fuzzy Set
+Theory.” Fuzzy Sets and Systems, 135(1), 5–9. ISSN 01650114,
+\href{https://doi.org/10.1016/S0165-0114(02)00246-4}{doi:10.1016/S0165-0114(02)00246-4}.
 
-\insertRef{dimuroIntervalFuzzyNumbers2011}{fcmconfr}
+Dimuro GP (2011). “On Interval Fuzzy Numbers.” In 2011
+Workshop-School on Theoretical Computer Science, 3–8.
+ISBN 978-0-7695-4628-5 978-1-4673-0225-8,
+\href{https://doi.org/10.1109/WEIT.2011.19}{doi:10.1109/WEIT.2011.19}.
 }
 \seealso{
 Other interval-valued-fuzzy-numbers: 

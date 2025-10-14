@@ -103,9 +103,22 @@
 #' @returns \[`double(1)`]\cr The maximum lambda that ensures simulation
 #' convergence for the input FCM.
 #'
-#' @references \insertRef{kacprzyk_fuzzy_2010}{fcmconfr}
-#' @references \insertRef{harmati_existence_2018}{fcmconfr}
-#' @references \insertRef{koutsellis_parameter_2022}{fcmconfr}
+#' @references Kottas TL, Boutalis YS, Christodoulou MA (2010). “Fuzzy cognitive
+#' networks: Adaptive network estimation and control paradigms.” In Kacprzyk J,
+#' Glykas M (eds.), Fuzzy Cognitive Maps, volume 247, 89–134. Springer Berlin
+#' Heidelberg, Berlin, Heidelberg. ISBN 978-3-642-03219-6 978-3-642-03220-2,
+#' [doi:10.1007/978-3-642-03220-2_5](https://doi.org/10.1007/978-3-642-03220-2_5),
+#' Series Title: Studies in Fuzziness and Soft Computing,
+#'
+#' @references Harmati IA, Koczy LT (2018). “On the Existence and Uniqueness of
+#' Fixed Points of Fuzzy Set Valued Sigmoid Fuzzy Cognitive Maps.” In 2018 IEEE
+#' International Conference on Fuzzy Systems (FUZZ-IEEE), 1–7.
+#' ISBN 9781509060207, [doi:10.1109/FUZZ-IEEE.2018.8491447](https://doi.org/10.1109/FUZZ-IEEE.2018.8491447),
+#'
+#' @references Koutsellis T, Xexakis G, Koasidis K, Nikas A, Doukas H (2022).
+#' “Parameter analysis for sigmoid and hyperbolic transfer functions of fuzzy
+#' cognitive maps.” Operational Research, 22(5), 5733–5763. ISSN 1109-2858,
+#' 1866-1505, [doi:10.1007/s12351-022-00717-x](https://doi.org/10.1007/s12351-022-00717-x),
 #'
 #' @export
 #' @example man/examples/ex-estimate_fcm_lambda.R
