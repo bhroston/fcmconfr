@@ -28,8 +28,8 @@
 #' Options, Simulation Options, and Runtime Options, which are described
 #' further below.
 #'
-#' Data: The Data tab is where the user selects the FCMs they want to analyze
-#' (drop-down menu) titled Adj. Matrix or List of Adj. Matrices). It is also
+#' Data: In the Data tab, the user selects the FCMs they want to analyze
+#' (drop-down menu titled 'Adj. Matrix or List of Adj. Matrices'). It is also
 #' where they manipulate values in the Initial State (Pulse) Vector or
 #' Clamping Vector to identify the dynamic simulations they wish to explore.
 #' A common form of simulation is a "clamped" simulation where every value in
@@ -41,7 +41,7 @@
 #' difference between the two is a measure of the impact of those particular
 #' nodes on the system.
 #'
-#' Agg. and Monte Carlo Option: The Agg. and Monte Carlo Options tab is where
+#' Agg. and Monte Carlo Option: In the Agg. and Monte Carlo Options tab,
 #' the user specifies their preferences regarding FCM aggregation and Monte
 #' Carlo sampling. Aggregation options are only available when datasets contain
 #' multiple FCMs. Monte Carlo sampling is available for list objects of
@@ -49,7 +49,7 @@
 #' not individual conventional FCMs. Aggregation and Monte Carlo options can be
 #' toggled off to speed up the simulation process.
 #' \itemize{
-#'   \item Aggregation options allow the user to specify whether multiplt FCMs
+#'   \item Aggregation options allow the user to specify whether multiple FCMs
 #'   should be aggregated into a single collective model so that dynamic
 #'   simulations can be performed on the aggregate in addition to individual
 #'   FCMs. The user can specify the aggregation method (mean or median) and
@@ -66,7 +66,7 @@
 #'   (e.g., 95th percentile, 90th percentile, etc.).
 #' }
 #'
-#' Simulation Options: The Siimulation Options tab is where users specify the
+#' Simulation Options: In the Simulation Options tab, the user specify the
 #' type of dynamic simulation to perform. This includes specifying (1) the
 #' activation function (Kosko, Modified-Kosko, or Rescale; default of Kosko),
 #' (2) the squashing function (sigmoid or hyperbolic tangent; default of
@@ -76,7 +76,7 @@
 #' to perform per simulation (default of 100), and (6) the minimum acceptable
 #' error between iterations (default of \eqn{1*10^{-5}})
 #'
-#' Runtime Options: The Runtime Options tab allows the user to specify whether
+#' Runtime Options: In the Runtime Options tab, the user may specify whether
 #' they want to use parallel processing and have a progress bar displayed at
 #' runtime. These options do not impact simulation outputs. They do, however,
 #' influence how long \code{\link{fcmconfr}} takes to run and what the user
