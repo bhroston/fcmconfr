@@ -20,17 +20,17 @@
 #' stores them as a list of adjacency matrices.
 #'
 #' The show_progress and parallel inputs change the functions called, but do NOT
-#' change the output! These are allowed to be toggled on/off to increase user
+#' change the output! These are allowed to be toggled on/off to improve user
 #' control at runtime.
 #'
 #' @details
-#' For Conventional FCMs, edge weights are sampled the edge weight explicitly
+#' For Conventional FCMs, edge weights are sampled from edge weights explicitly
 #' defined in the input FCMs.
 #'
 #' For IVFN and TFN FCMs, edge weights are sampled from the combined
 #' distributions representative of the IVFN/TFN edge weights. For example,
-#' if an edge is given the following weights across two maps: IVFN(0.4, 0.8) and
-#' IVFN \[0.5, 0.7]\, the samples will be drawn from the combined distribution:
+#' if an edge is given the following weights across two maps: \[0.4, 0.8)]\ and
+#' \[0.5, 0.7]\, the samples will be drawn from the combined distribution:
 #' sample(N, c(runif(N, 0.4, 0.8), runif(N, 0.5, 0.7)), replace = TRUE).
 #'
 #' @param adj_matrices  \[`list()`]\cr A single adjacency matrix or a list of
@@ -207,8 +207,8 @@ build_monte_carlo_fcms <- function(adj_matrices = list(),
 #'
 #' @description
 #' This calculates the mean/median of the distribution of simulated values
-#' across a given iter. Also returns the bootstrapped mean of means of the
-#' distribution of simulated values across a given iter if called.
+#' across a given iteration. Also returns the bootstrapped mean of means of the
+#' distribution of simulated values across a given iteration if called.
 #'
 #' @details
 #' This function is designed to streamline the process of getting the mean or
@@ -217,7 +217,7 @@ build_monte_carlo_fcms <- function(adj_matrices = list(),
 #' intervals for the mean value across simulations.
 #'
 #' The show_progress and parallel inputs change the functions called, but do NOT
-#' change the output! These are allowed to be toggled on/off to increase user
+#' change the output! These are allowed to be toggled on/off to improve user
 #' control at runtime.
 #'
 #' @param infer_fcm_set_inference_obj \[`inference_of_fcm_set`]\cr A direct
