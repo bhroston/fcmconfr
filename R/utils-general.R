@@ -2,7 +2,7 @@
 ################################################################################
 # utils-general.R
 #
-# These functions do not facilitate a specific analysis, but are rather genral
+# These functions do not facilitate a specific analysis, and are general
 # tools used throughout the package.
 #
 #   Exported
@@ -21,11 +21,11 @@
 #'
 #' @description
 #' Given a list of adj. matrices of different sizes, transforms the inputs into
-#' adj. matrices of the same size with 0 values added where edges are undefined
+#' adj. matrices of the same size with 0-values added where edges are undefined
 #' or not included in maps.
 #'
 #' Solves the problem where Map 1 has nodes A and B but Map 2 has nodes B and C
-#' and need to analyse them both together.
+#' and the user needs to analyse them both together.
 #'
 #' @param adj_matrices  \[`list()`]\cr A single adjacency matrix or a list of
 #' adjacency matrices (n x n) representing FCMs. Matrices can have conventional

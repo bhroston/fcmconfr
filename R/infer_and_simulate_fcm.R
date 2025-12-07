@@ -36,13 +36,13 @@
 #'
 #' @description
 #' This function simulates a set of FCMs (Conventional, IVFN, and/or TFN)
-#' (whose edge weights were sampled using monte carlo methods) by repetitively
+#' (whose edge weights were sampled using monte carlo methods) by iteratively
 #' calling the infer_fcm function for each adj. matrix in the set.
 #'
 #' @details
 #' The show_progress and parallel inputs change how the function is run, but do
-#'  NOT change the output! These are allowed to be toggled on/off to increase
-#'  user control at runtime.
+#' NOT change the output! These are allowed to be toggled on/off to improve
+#' user control at runtime.
 #'
 #' @param adj_matrices \[`list()`]\cr A single adjacency matrix or a list of
 #' adjacency matrices (n x n) representing FCMs. Matrices can have conventional
@@ -790,7 +790,8 @@ infer_ivfn_or_tfn_fcm <- function(adj_matrix = data.frame(),
 #' The function returns the difference in simulation results between the scenario and baseline
 #' activity to understand how system manipulations compare to structural expectations of the system.
 #'
-#' This function produces the same output as mental modeler for the following inputs:
+#' This function produces the same output as mental modeler (https://www.mentalmodeler.com/)
+#' for the following inputs:
 #'  - initial_state_vector = c(1, 1, ..., 1)
 #'  - activation = "kosko"
 #'  - squashing = either "sigmoid" or "tanh"
@@ -1073,7 +1074,7 @@ simulate_conventional_fcm <- function(adj_matrix = matrix(),
 #'  - squashing = either "sigmoid" or "tanh"
 #'  - lambda = 1
 #'
-#' @references esil E, Dodurka MF, Urbas L (2014). “Triangular fuzzy number
+#' @references Yesil E, Dodurka MF, Urbas L (2014). “Triangular fuzzy number
 #' representation of relations in Fuzzy Cognitive Maps.” In 2014 IEEE
 #' International Conference on Fuzzy Systems (FUZZ-IEEE), 1021–1028.
 #' ISBN 9781479920723, [doi:10.1109/FUZZ-IEEE.2014.6891653](https://doi.org/10.1109/FUZZ-IEEE.2014.6891653),
@@ -1609,7 +1610,7 @@ get_next_state_vector <- function(adj_matrix = data.frame(),
 #' Convert Value to IVFN or TFN if Value is Numeric
 #'
 #' @description
-#' This checks whether the input element is an number (integer/double/numeric),
+#' This checks whether the input element is a numeric type object (integer/double/numeric),
 #' an IVFN, or a TFN. If it is an IVFN or TFN, it returns the input, but if it
 #' is a numeric type object, it will convert that number into an 'ivfn' or 'tfn'
 #' object.

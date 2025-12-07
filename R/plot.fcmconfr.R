@@ -410,8 +410,8 @@ check_plot_fcmconfr_inputs <- function(shiny = FALSE,
 #' plugged directly into a ggplot2 pipeline
 #'
 #' @details
-#' This function produces slightly different outputs for \code{\link{fcmconfr}}
-#' outputs generated from conventional, ivfn, and tfn FCMs
+#' This function generates a list of outputs, but the contents vary based on whether
+#' \code{\link{fcmconfr}} analyzed conventional, ivfn, or tfn FCMs.
 #'
 #' @param fcmconfr_object \[`fcmconfr`]\cr A direct output of the
 #' \code{\link{fcmconfr}} function
@@ -517,7 +517,7 @@ get_plot_data <- function(fcmconfr_object) {
 #' Get Concepts in fcmconfr Object to Include in Plot
 #'
 #' @description
-#' This determines which concepts should be included in fcmconfr output plot by
+#' This determines which concepts should be included in an fcmconfr output plot by
 #' selecting concepts that either were NOT clamped (if applicable) or did not
 #' reach a certain activation level throughout the simulation (i.e. whose
 #' 0-value would take up space in the figure.)
