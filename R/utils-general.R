@@ -174,7 +174,7 @@ get_fcm_class_from_adj_matrix <- function(adj_matrix = data.frame()) {
 get_node_IDs_from_input <- function(adj_matrix = data.frame()) {
   empty_colnames <- identical(colnames(adj_matrix), NULL)
   if (empty_colnames) {
-    IDs <- paste0("C", 1:nrow(adj_matrix))
+    IDs <- paste0("C", seq_along(adj_matrix))
   } else if (!empty_colnames) {
     IDs <- colnames(adj_matrix)
   }
