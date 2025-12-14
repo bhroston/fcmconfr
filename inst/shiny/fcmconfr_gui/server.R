@@ -1,7 +1,7 @@
 #' shiny_server
 #'
 #' @description
-#' [ADD DETAILS HERE!!!]
+#' Backend for the fcmconfr_gui shinyapp
 #'
 #' @param input the data streamed into the server from the ui
 #' @param output the data streamed from to the ui from the server

@@ -129,7 +129,7 @@ plot.fcmconfr <- function(x,
 
   requireNamespace(c("tidyr", "graphics", "shiny", "shinyWidgets", "bslib"))
 
-  additional_inputs = list(...)
+  additional_inputs <- list(...)
   if (length(additional_inputs) > 0) {
     warning(cli::format_warning(c(
       "!" = "Warning: Additional Inputs given as ... are ignored",

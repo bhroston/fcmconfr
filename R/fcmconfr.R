@@ -817,7 +817,7 @@ check_fcmconfr_function_inputs <- function(adj_matrices = list(),
 #' the \code{\link{fcmconfr}} function.
 #'
 #' @details
-#' [INTENDED FOR DEVELOPER USE ONLY]
+#' INTENDED FOR DEVELOPER USE ONLY
 #'
 #' @param ... additional inputs; typically environmental variables
 #'
