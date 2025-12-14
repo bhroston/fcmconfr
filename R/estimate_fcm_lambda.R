@@ -156,7 +156,7 @@ estimate_fcm_lambda <- function(adj_matrix = data.frame(),
 
     # Calculate lambda_star
     row_wise_max_norms <- vector(mode = "numeric", length = nrow(adj_matrix))
-    for (i in seq_along(1:nrow(weight_matrix_of_nonsteady_nodes))) {
+    for (i in seq_len(nrow(weight_matrix_of_nonsteady_nodes))) {
       row_edge_weights <- weight_matrix_of_nonsteady_nodes[i, ]
       positive_row_edge_weights <- row_edge_weights[row_edge_weights > 0]
       negative_row_edge_weights <- row_edge_weights[row_edge_weights < 0]

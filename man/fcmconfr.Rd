@@ -35,7 +35,7 @@ fcmconfr(
 adjacency matrices (n x n) representing FCMs. Matrices can have conventional
 edge weights, IVFN edge weights or TFN edge weights.}
 
-\item{agg_function}{Aggregate the adj. matrices into a single FCM by taking
+\item{agg_function}{[\code{character(1)}]\cr Aggregate the adj. matrices into a single FCM by taking
 either the mean or median of the edge weights for edges included in multiple maps}
 
 \item{num_mc_fcms}{[\code{integer(1)} - Positive] The number of inferences to
@@ -121,10 +121,10 @@ well as function inputs.
 }
 \description{
 This is the primary function of the fcmconfr package. This function performs
-the following three analyses on input fuzzy cognitive maps (FCMs).
+the following three analyses on the input fuzzy cognitive maps (FCMs).
 
 \enumerate{
-\item Dynamic Simulation: The dynamic behvaior of one or more input FCMs
+\item Dynamic Simulation: The dynamic behavior of one or more input FCMs
 is evaluated in response to a perturbation. Two types of simulations can
 be performed, pulse and clamped.
 \itemize{
@@ -142,12 +142,12 @@ established by setting all nodes in the initial state vector to one
 (i.e., it represents the response of the network to a transient
 pulse event involving all nodes) (Ozesmi & Ozesmi, 2003).
 }
-The final response of each node of an FCM in a scenario-of-interest is
+The final response of each node of an FCM in a scenario is
 known as an inference. Inferences can be calculated using the maximum
 (peak) or the final resting state (final) of a node. In pulse simulations
 inferences are the difference between either of these two measures and
 zero. In clamped simulations inferences are the difference between either
-of these measures in the scenario-of-interest and their equivalent values
+of these measures in the scenario and their equivalent values
 in the baseline simulation. Simulations can be run using different
 activation functions (Kosko, Modified-Kosko, or Rescale) and squashing
 functions (sigmoid, tanh)
@@ -167,16 +167,16 @@ the mean/median edge weight for all edges included in a set of input FCMs
 the mean/median of the edge weight connecting B->C across all maps, and
 so on) (Aminpour et al., 2020). The user specifies whether 0-valued edge
 weights (reflecting the absence of a connection between two nodes)
-shouldbe included when calculating the mean/median.
+should be included when calculating the mean/median.
 
 \emph{Aggregate analysis can be toggled off to reduce runtime.}
 
 \item Monte Carlo Analysis: This method assesses uncertainty in dynamic
 simulations by generating a distribution of possible inferences. Edge
-weights are randomly sampled fro input FCMs to construct a set of \eqn{N}
-Monte Carlo FCMs. Each FCM undergoes dyamic simulation, producing \eqn{N}
+weights are randomly sampled from the input FCMs to construct a set of \eqn{N}
+Monte Carlo FCMs. Each FCM undergoes dynamic simulation, producing \eqn{N}
 inferences per node. These inferences represent the range of possible
-values each node may assume, providing a way to quantify uncertainty.
+values each node may assume.
 
 Min, Max, Median, and 25th/75th quantiles are estimated for each node.
 Bootstrapping (optional) can also be performed to estimat 95\% confidence
@@ -194,18 +194,19 @@ input set). The three supported types of FCMs include:
 numbers (Stylios, 1997).
 \item Interval-Valued Fuzzy Number (IVFN) FCMs, which are an extension
 of conventional FCMs. IVFN-FCMs represent edge weights as ranges
-[min, max]\, where any value within the range is as likely as any other
+[min, max]\, where any value within the range is equally as likely as any other
 (i.e., the probability distribution for each edge is uniform)
 (Moore & Lodwick, 2003; Hajek & Prochazka, 2016); and
 \item Triangular Fuzzy Number (TFN) FCMs, which are an extension of
 IVFN-FCMs. TFN-FCMs also represent edge weights as ranges, but assume
-that one value within the range (the mode) is more likely than any other
+that one value within the range (the mode) is most likely and values
+closer to the central value are more likely than those further away
 (i.e., the probability distribution for each edge is triangular)
 (Yesil et al., 2014).
 }
 
 The fcmcofnr package includes \code{fcmconfr_gui}, an interactive GUI tool
-that can be used to help select appropriate values for each argument in
+that can be used to select appropriate values for each argument in
 \code{fcmconfr()}.
 }
 \details{

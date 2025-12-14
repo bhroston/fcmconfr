@@ -121,7 +121,7 @@ make_adj_matrix_w_ivfns <- function(lower = data.frame(), upper = data.frame()) 
   if (identical(colnames(lower), colnames(upper)) & !identical(colnames(lower), NULL)) {
     IDs <- colnames(lower)
   } else {
-    IDs <- paste0("C", 1:nrow(lower))
+    IDs <- paste0("C", seq_along(lower))
     colnames(lower) <- IDs
     colnames(upper) <- IDs
   }
@@ -147,8 +147,8 @@ make_adj_matrix_w_ivfns <- function(lower = data.frame(), upper = data.frame()) 
   colnames(adj_matrix_w_ivfns) <- IDs
   rownames(adj_matrix_w_ivfns) <- IDs
 
-  for (i in 1:length(IDs)) {
-    for (j in 1:length(IDs)) {
+  for (i in seq_along(IDs)) {
+    for (j in seq_along(IDs)) {
       adj_matrix_w_ivfns[[j]][[i]] <- ivfn(
         # [[j]][[i]] instead of [[i]][[j]]
         # because this notation is
@@ -480,7 +480,7 @@ make_adj_matrix_w_tfns <- function(lower = data.frame(),
   if (all_input_matrices_have_same_colnames & !identical(colnames(lower), NULL)) {
     IDs <- colnames(lower)
   } else {
-    IDs <- paste0("C", 1:nrow(lower))
+    IDs <- paste0("C", seq_along(lower))
   }
 
   if ((!all(lower <= mode) || !all(mode <= upper))) {
@@ -505,8 +505,8 @@ make_adj_matrix_w_tfns <- function(lower = data.frame(),
   colnames(adj_matrix_w_tfns) <- IDs
   rownames(adj_matrix_w_tfns) <- IDs
 
-  for (i in 1:length(IDs)) {
-    for (j in 1:length(IDs)) {
+  for (i in seq_along(IDs)) {
+    for (j in seq_along(IDs)) {
       adj_matrix_w_tfns[[j]][[i]] <- tfn(
         # [[j]][[i]] instead of [[i]][[j]]
         # because this notation is
@@ -859,7 +859,7 @@ rtriangular_dist <- function(n = integer(), lower = double(), mode = double(), u
   }
 
   inv_cdf <- vector(mode = "numeric", length = n)
-  for (i in 1:n) {
+  for (i in seq_len(n)) {
     x <- i/n
     if (x <= midpoint_domain) {
       inv_cdf[i] <- lower + sqrt((mode - lower)*(upper - lower)*x)
@@ -892,7 +892,7 @@ rtriangular_dist <- function(n = integer(), lower = double(), mode = double(), u
 #' @examples
 #' plot(rtriangular_dist(n = 1000L, lower = -1.0, mode = 0.0, upper = 1.0))
 plot.rtriangular_dist <- function(x, ...) {
-  index <- sample(1:length(x), length(x), replace = FALSE)
+  index <- sample(seq_along(x), length(x), replace = FALSE)
   return(
     plot(x = index, y = x, xlab = "Index", ylab = attr(x, ".label"))
   )

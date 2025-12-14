@@ -716,7 +716,7 @@ infer_ivfn_or_tfn_fcm <- function(adj_matrix = data.frame(),
       SIMPLIFY = FALSE
     )
     ivfn_constants <- clamping_vector[clamping_vector != 0]
-    raw_inferences[clamping_vector != 0] <- sapply(ivfn_constants, function(x) list(ivfn(x, x)))
+    raw_inferences[clamping_vector != 0] <- lapply(ivfn_constants, function(x) ivfn(x, x))
   } else if (fcm_class == "tfn") {
     raw_inferences <- mapply(
       function(scenario_inference, baseline_inference) {
@@ -727,7 +727,7 @@ infer_ivfn_or_tfn_fcm <- function(adj_matrix = data.frame(),
       SIMPLIFY = FALSE
     )
     tfn_constants <- clamping_vector[clamping_vector != 0]
-    raw_inferences[clamping_vector != 0] <- sapply(tfn_constants, function(x) list(tfn(x, x, x)))
+    raw_inferences[clamping_vector != 0] <- lapply(tfn_constants, function(x) tfn(x, x, x))
   }
 
   inferences <- data.frame(matrix(data = list(), nrow = 1, ncol = length(concept_names)))
@@ -735,7 +735,6 @@ infer_ivfn_or_tfn_fcm <- function(adj_matrix = data.frame(),
     inferences[1, i][[1]] <- raw_inferences[i]
   }
   colnames(inferences) <- concept_names
-  # rownames(inferences) <- point_of_inference
 
   if (fcm_class == "ivfn") {
     crisp_inferences <- vapply(inferences, function(ivfn_value) mean(ivfn_value[[1]]$lower, ivfn_value[[1]]$upper), numeric(1))

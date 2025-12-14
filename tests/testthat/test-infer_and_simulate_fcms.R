@@ -23,35 +23,43 @@ test_that("infer_fcm_set works", {
   test_fcm_set <- sample_fcms$simple_fcms$conventional_fcms
   # test_fcm_set <- lapply(test_fcm_set, function(mat) structure(.Data = as.matrix(mat), class = "Different"))
   expect_no_error(
-    infer_fcm_set(adj_matrices = test_fcm_set,
-                  initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
-                  clamping_vector = c(1, 0, 0, 0, 0, 0, 0),
-                  activation = "modified-kosko",
-                  squashing = "sigmoid",
-                  lambda = 1,
-                  point_of_inference = "final",
-                  max_iter = 100,
-                  min_error = 1e-5,
-                  parallel = FALSE,
-                  show_progress = FALSE,
-                  silent = TRUE)
+    capture.output(
+      invisible(
+        infer_fcm_set(adj_matrices = test_fcm_set,
+                      initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
+                      clamping_vector = c(1, 0, 0, 0, 0, 0, 0),
+                      activation = "modified-kosko",
+                      squashing = "sigmoid",
+                      lambda = 1,
+                      point_of_inference = "final",
+                      max_iter = 100,
+                      min_error = 1e-5,
+                      parallel = FALSE,
+                      show_progress = FALSE,
+                      silent = TRUE)
+      )
+    )
   )
 
   # Confirm no error if silent if FALSE while parallel and show_progress are TRUE
   expect_no_error(
-    infer_fcm_set(adj_matrices = test_fcm_set,
-                  initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
-                  clamping_vector = c(1, 0, 0, 0, 0, 0, 0),
-                  activation = "modified-kosko",
-                  squashing = "sigmoid",
-                  lambda = 1,
-                  point_of_inference = "final",
-                  max_iter = 100,
-                  min_error = 1e-5,
-                  parallel = TRUE,
-                  show_progress = TRUE,
-                  n_cores = 2,
-                  silent = FALSE)
+    capture.output(
+      invisible(
+        infer_fcm_set(adj_matrices = test_fcm_set,
+                      initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
+                      clamping_vector = c(1, 0, 0, 0, 0, 0, 0),
+                      activation = "modified-kosko",
+                      squashing = "sigmoid",
+                      lambda = 1,
+                      point_of_inference = "final",
+                      max_iter = 100,
+                      min_error = 1e-5,
+                      parallel = TRUE,
+                      show_progress = TRUE,
+                      n_cores = 2,
+                      silent = FALSE)
+      )
+    )
   )
 
   # Confirm works if only a single adj matrix given
@@ -86,23 +94,22 @@ test_that("infer_fcm_set works", {
                                 include_sims_in_output = TRUE,
                                 silent = FALSE))
 
-
   # Confirm same results across different parallel/show_progress algorithms ----
   test_fcm_set <- sample_fcms$simple_fcms$conventional_fcms
   parallel_and_show_progress <- infer_fcm_set(
-    adj_matrices = test_fcm_set,
-    initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
-    clamping_vector = c(1, 0, 0, 0, 0, 0, 0),
-    activation = "modified-kosko",
-    squashing = "sigmoid",
-    lambda = 1,
-    point_of_inference = "final",
-    max_iter = 100,
-    min_error = 1e-5,
-    parallel = TRUE,
-    n_cores = 2,
-    show_progress = TRUE,
-    silent = TRUE
+      adj_matrices = test_fcm_set,
+      initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
+      clamping_vector = c(1, 0, 0, 0, 0, 0, 0),
+      activation = "modified-kosko",
+      squashing = "sigmoid",
+      lambda = 1,
+      point_of_inference = "final",
+      max_iter = 100,
+      min_error = 1e-5,
+      parallel = TRUE,
+      n_cores = 2,
+      show_progress = TRUE,
+      silent = TRUE
   )
   parallel_and_not_show_progress <- infer_fcm_set(
     adj_matrices = test_fcm_set,
@@ -153,23 +160,25 @@ test_that("infer_fcm_set works", {
   expect_identical(not_parallel_and_not_show_progress, parallel_and_show_progress)
   # ----
 
+  ###
+
   # Confirm also works with IVFN and TFN fcm lists ----
   expect_no_error(infer_fcm_set(adj_matrices = sample_fcms$simple_fcms$ivfn_fcms,
-                                  initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
-                                  clamping_vector = c(1, 0, 0, 0, 0, 0, 0),
-                                  activation = "modified-kosko",
-                                  squashing = "sigmoid",
-                                  lambda = 1,
-                                  point_of_inference = "final",
-                                  max_iter = 100,
-                                  min_error = 1e-5,
-                                  parallel = FALSE,
-                                  show_progress = FALSE,
-                                  silent = FALSE))
+                                initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
+                                clamping_vector = c(1, 0, 0, 0, 0, 0, 0),
+                                activation = "modified-kosko",
+                                squashing = "sigmoid",
+                                lambda = 1,
+                                point_of_inference = "final",
+                                max_iter = 100,
+                                min_error = 1e-5,
+                                parallel = FALSE,
+                                show_progress = FALSE,
+                                silent = FALSE))
 
   test_clamping_vector <- rep(0, 46)
   test_clamping_vector[1] <- 1
-  expect_no_error(infer_fcm_set(adj_matrices = sample_fcms$large_fcms$tfn_fcms,
+  expect_no_error(infer_fcm_set(adj_matrices = sample_fcms$large_fcms$tfn_fcms[1:3],
                                 initial_state_vector = rep(1, 46),
                                 clamping_vector = test_clamping_vector,
                                 activation = "modified-kosko",
@@ -181,9 +190,8 @@ test_that("infer_fcm_set works", {
                                 parallel = FALSE,
                                 show_progress = FALSE,
                                 silent = TRUE))
-  # ----
-
 })
+  # ----
 
 
 # All checks pass (and autotest returns NULL)

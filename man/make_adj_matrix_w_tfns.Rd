@@ -30,7 +30,7 @@ fuzzy numbers (TFNs) from an adjacency matrix of lower bounds, an adjacency
 matrix of modes, and an adjacency matrix of upper bounds
 }
 \details{
-The input adjacency matrices must square n x n matrices with the same dimensions.
+The input adjacency matrices must be square n x n matrices with the same dimensions.
 The input can be either matrix, data.table, tibble, or data.table type objects,
 but the output will always be a data.frame. This is for output readability.
 data.table and tibble objects work logically, but their outputs require

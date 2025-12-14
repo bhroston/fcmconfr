@@ -18,19 +18,19 @@ represents the upper limits of edges in an FCM}
 with edges represented as IVFNs
 }
 \description{
-This constructs an adjacency matrix with edges represented by interval-value
+This constructs an adjacency matrix with edges represented by interval-valued
 fuzzy numbers (IVFNs) from an adjacency matrix of lower bounds and an
 adjacency matrix of upper bounds
 }
 \details{
-The input adjacency matrices must square n x n matrices with the same dimensions.
+The input adjacency matrices must be square n x n matrices with the same dimensions.
 The input can be either matrix, data.table, tibble, or data.table type objects,
 but the output will always be a data.frame. This is for output readability.
 data.table and tibble objects work logically, but their outputs require
 additional steps to parse from the user's perspective.
 
 If the input matrices have named columns, those names will be carried over
-in the grey adjacency matrix. Otherwise, generic node IDs will be used
+in the IVFN-FCM adjacency matrix. Otherwise, generic node IDs will be used
 (C1, C2, ... Cn).
 }
 \examples{

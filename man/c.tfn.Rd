@@ -17,7 +17,7 @@ This forces the output of c() to the equivalent of list() only for inputs of
 type tfn
 }
 \details{
-For tfn objects, c() combines all of the lower and upper data into
+For tfn objects, c() combines all of the lower, mode, and upper data into
 a single tfn object, but list() returns the expected output of a
 list of distinct tfn objects.
 }

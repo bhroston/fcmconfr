@@ -21,7 +21,7 @@ bounds of the TFN edge weights created from the numeric edge weights.}
 with edges represented as TFNs
 }
 \description{
-This creates an TFN-FCM from a Conventional FCM by adding error to the
+This creates a TFN-FCM from a Conventional FCM by adding error to the
 Conventional FCM edge weights. The Conventional FCM edge weights are used
 as the mode values for the TFN edge weights.
 }

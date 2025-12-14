@@ -86,12 +86,12 @@ call to \code{check_simulation_inputs} (internal function)}
 }
 \description{
 This function simulates a set of FCMs (Conventional, IVFN, and/or TFN)
-(whose edge weights were sampled using monte carlo methods) by repetitively
+(whose edge weights were sampled using monte carlo methods) by iteratively
 calling the infer_fcm function for each adj. matrix in the set.
 }
 \details{
 The show_progress and parallel inputs change how the function is run, but do
-NOT change the output! These are allowed to be toggled on/off to increase
+NOT change the output! These are allowed to be toggled on/off to improve
 user control at runtime.
 }
 \examples{

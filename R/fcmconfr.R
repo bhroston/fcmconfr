@@ -477,6 +477,8 @@ fcmconfr <- function(adj_matrices = list(),
 #' @param analysis \[`character()`]\cr The analysis for which inferences to
 #' return (HELP?)
 #'
+#' @export
+#'
 #' @returns \[`list()` or `data.frame()`]\cr A dataframe (or list of dataframes)
 #' of inferences from the selected analysis (analyses)
 #'
@@ -582,7 +584,7 @@ get_fcmconfr_inferences <- function(fcmconfr_result_obj = list(),
 
   if (fcmconfr_result_obj$params$additional_opts$run_ci_calcs) {
     mc_CIs_and_quantiles <- fcmconfr_result_obj$inferences$monte_carlo_fcms$confidence_intervals$CIs_and_quantiles_by_node
-    inferences_list$mc_CIs_and_quantiles = mc_CIs_and_quantiles
+    inferences_list$mc_CIs_and_quantiles <- mc_CIs_and_quantiles
   }
 
   output_list_categories <- sub("_.*", "", names(inferences_list))
@@ -760,7 +762,7 @@ check_fcmconfr_function_inputs <- function(adj_matrices = list(),
       "!" = "Warning: Cannot generate aggregate fcm from a single adj. matrix",
       "~~~~~ Skipping aggregate analysis; i.e. setting {.var run_agg_calcs} to FALSE"
     )))
-    run_agg_calcs = FALSE
+    run_agg_calcs <- FALSE
   }
 
   if (!run_mc_calcs && run_ci_calcs) {
@@ -872,17 +874,17 @@ organize_fcmconfr_output <- function(...) {
   }
 
   if (variables$run_mc_calcs) {
-    fcmconfr_output$mc_adj_matrices = variables$mc_adj_matrices
-    fcmconfr_output$inferences$monte_carlo_fcms = list(
+    fcmconfr_output$mc_adj_matrices <- variables$mc_adj_matrices
+    fcmconfr_output$inferences$monte_carlo_fcms <- list(
       inferences = variables$mc_inferences$inferences,
       simulations = variables$mc_inferences$simulations
     )
-    fcmconfr_output$params$agg_function = variables$agg_function
-    fcmconfr_output$params$num_mc_fcms = variables$num_mc_fcms
-    fcmconfr_output$params$runtime_opts = list(parallel = variables$parallel,
+    fcmconfr_output$params$agg_function <- variables$agg_function
+    fcmconfr_output$params$num_mc_fcms <- variables$num_mc_fcms
+    fcmconfr_output$params$runtime_opts <- list(parallel = variables$parallel,
                                                n_cores = variables$n_cores,
                                                show_progress = variables$show_progress)
-    fcmconfr_output$params$additional_opts = list(
+    fcmconfr_output$params$additional_opts <- list(
       include_zeroes_in_sampling = variables$include_zeroes_in_sampling,
       include_sims_in_output = variables$include_sims_in_output,
       run_ci_calcs = variables$run_ci_calcs,
@@ -892,12 +894,12 @@ organize_fcmconfr_output <- function(...) {
   }
 
   if (variables$run_mc_calcs & variables$run_ci_calcs) {
-    fcmconfr_output$inferences$monte_carlo_fcms$confidence_intervals = list(
+    fcmconfr_output$inferences$monte_carlo_fcms$confidence_intervals <- list(
       # CI_estimation_function = variables$ci_centering_function, # removing since included in params
       CIs_and_quantiles_by_node = variables$CIs_of_expected_values_of_mc_simulation_inferences$CIs_and_quantiles_by_node,
       bootstrapped_expected_values = variables$CIs_of_expected_values_of_mc_simulation_inferences$bootstrap_expected_values
     )
-    fcmconfr_output$params$confidence_intervals_bootstrap_opts = list(
+    fcmconfr_output$params$confidence_intervals_bootstrap_opts <- list(
       ci_centering_function = variables$ci_centering_function,
       confidence_interval = variables$confidence_interval,
       num_ci_bootstraps = variables$num_ci_bootstraps

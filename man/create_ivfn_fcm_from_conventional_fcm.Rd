@@ -2,7 +2,7 @@
 % Please edit documentation in R/IVFNs_and_TFNs.R
 \name{create_ivfn_fcm_from_conventional_fcm}
 \alias{create_ivfn_fcm_from_conventional_fcm}
-\title{Create TFN-FCM from Conventional FCM}
+\title{Create IVFN-FCM from Conventional FCM}
 \usage{
 create_ivfn_fcm_from_conventional_fcm(
   conventional_adj_matrix = data.frame(),
