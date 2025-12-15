@@ -1,10 +1,10 @@
 pandoc: 3.1.11
-pkgdown: 2.1.2
+pkgdown: 2.2.0
 pkgdown_sha: ~
 articles:
   fcmconfr: fcmconfr.html
   Importing_FCMs: Importing_FCMs.html
-last_built: 2025-04-28T18:40Z
+last_built: 2025-12-15T00:35Z
 urls:
   reference: https://bhroston.github.io/fcmconfr/reference
   article: https://bhroston.github.io/fcmconfr/articles

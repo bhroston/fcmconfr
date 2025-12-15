@@ -1,0 +1,511 @@
+# fcmconfr
+
+This is the primary function of the fcmconfr package. This function
+performs the following three analyses on the input fuzzy cognitive maps
+(FCMs).
+
+1.  Dynamic Simulation: The dynamic behavior of one or more input FCMs
+    is evaluated in response to a perturbation. Two types of simulations
+    can be performed, pulse and clamped.
+
+    - Pulse: In pulse simulations one or more nodes are transiently
+      perturbed (the scenario) and allowed to relax back to equilibrium
+      over multiple iterations to understand the effect those nodes have
+      on the network. Scenarios are established using the initial state
+      vector (non-zero values perturb a node). All values in the
+      clamping vector must be set to zero (Stylios, 1997).
+
+    - Clamped: In clamped simulations, one or more nodes of interest are
+      continuously activated (the scenario) and the result is compared
+      to baseline conditions. Scenarios are established using the
+      clamping vector (non-zero values clamp a node) and the baseline is
+      established by setting all nodes in the initial state vector to
+      one (i.e., it represents the response of the network to a
+      transient pulse event involving all nodes) (Ozesmi & Ozesmi,
+      2003).
+
+    The final response of each node of an FCM in a scenario is known as
+    an inference. Inferences can be calculated using the maximum (peak)
+    or the final resting state (final) of a node. In pulse simulations
+    inferences are the difference between either of these two measures
+    and zero. In clamped simulations inferences are the difference
+    between either of these measures in the scenario and their
+    equivalent values in the baseline simulation. Simulations can be run
+    using different activation functions (Kosko, Modified-Kosko, or
+    Rescale) and squashing functions (sigmoid, tanh)
+
+    Conventional FCM simulations use the traditional FCM simulation
+    algorithm as established in Kosko (1986); Stylios (1997); Ozesmi &
+    Ozesmi (2003), etc. (See Details for equations)
+
+    IVFN- and TFN-FCM simulations use the algorithm from Yesil et
+    al. (2014) where average values of IVFN and TFN elements in state
+    vectors are passed to the IVFN- or TFN-FCM adjacency matrix. (See
+    Details for equations)
+
+2.  Model Aggregation: Generates a single "collective" adjacency matrix
+    from a list of adjacency matrices. Aggregation is performed by
+    calculating the mean/median edge weight for all edges included in a
+    set of input FCMs (i.e. the mean/median of the edge weight
+    connecting A-\>B across all maps, the mean/median of the edge weight
+    connecting B-\>C across all maps, and so on) (Aminpour et al.,
+    2020). The user specifies whether 0-valued edge weights (reflecting
+    the absence of a connection between two nodes) should be included
+    when calculating the mean/median.
+
+    *Aggregate analysis can be toggled off to reduce runtime.*
+
+3.  Monte Carlo Analysis: This method assesses uncertainty in dynamic
+    simulations by generating a distribution of possible inferences.
+    Edge weights are randomly sampled from the input FCMs to construct a
+    set of \\N\\ Monte Carlo FCMs. Each FCM undergoes dynamic
+    simulation, producing \\N\\ inferences per node. These inferences
+    represent the range of possible values each node may assume.
+
+    Min, Max, Median, and 25th/75th quantiles are estimated for each
+    node. Bootstrapping (optional) can also be performed to estimat 95%
+    confidence bounds about the mean or median inference for each node.
+
+    *Monte Carlo analysis can be toggled off to reduce runtime.*
+
+`fcmconfr` can accommodate three types of FCMs. Note that each FCM type
+must be analyzed separately (i.e. they cannot be co-evaluated in a
+single input set). The three supported types of FCMs include:
+
+1.  Conventional FCMs, where edge weights are single-valued fuzzy
+    numbers (Stylios, 1997).
+
+2.  Interval-Valued Fuzzy Number (IVFN) FCMs, which are an extension of
+    conventional FCMs. IVFN-FCMs represent edge weights as ranges \[min,
+    max\]\\ where any value within the range is equally as likely as any
+    other (i.e., the probability distribution for each edge is uniform)
+    (Moore & Lodwick, 2003; Hajek & Prochazka, 2016); and
+
+3.  Triangular Fuzzy Number (TFN) FCMs, which are an extension of
+    IVFN-FCMs. TFN-FCMs also represent edge weights as ranges, but
+    assume that one value within the range (the mode) is most likely and
+    values closer to the central value are more likely than those
+    further away (i.e., the probability distribution for each edge is
+    triangular) (Yesil et al., 2014).
+
+The fcmcofnr package includes `fcmconfr_gui`, an interactive GUI tool
+that can be used to select appropriate values for each argument in
+`fcmconfr()`.
+
+## Usage
+
+``` r
+fcmconfr(
+  adj_matrices = list(),
+  agg_function = c("mean", "median"),
+  num_mc_fcms = 1000L,
+  initial_state_vector = c(),
+  clamping_vector = c(),
+  activation = c("kosko", "modified-kosko", "rescale"),
+  squashing = c("sigmoid", "tanh"),
+  lambda = 1,
+  point_of_inference = c("peak", "final"),
+  max_iter = 100L,
+  min_error = 1e-05,
+  ci_centering_function = c("mean", "median"),
+  confidence_interval = 0.95,
+  num_ci_bootstraps = 1000L,
+  show_progress = TRUE,
+  parallel = FALSE,
+  n_cores = 1L,
+  run_agg_calcs = TRUE,
+  run_mc_calcs = TRUE,
+  run_ci_calcs = TRUE,
+  include_zeroes_in_sampling = FALSE,
+  include_sims_in_output = TRUE,
+  silent = FALSE
+)
+```
+
+## Arguments
+
+- adj_matrices:
+
+  \[[`list()`](https://rdrr.io/r/base/list.html)\]  
+  A single adjacency matrix or a list of adjacency matrices (n x n)
+  representing FCMs. Matrices can have conventional edge weights, IVFN
+  edge weights or TFN edge weights.
+
+- agg_function:
+
+  \[`character(1)`\]  
+  Aggregate the adj. matrices into a single FCM by taking either the
+  mean or median of the edge weights for edges included in multiple maps
+
+- num_mc_fcms:
+
+  \[`integer(1)` - Positive\] The number of inferences to generate via
+  Monte Carlo sampling. Omit this argument when analyzing a single,
+  conventional FCM.
+
+- initial_state_vector:
+
+  \[`vector("double")`\]  
+  A list of state values (one per node) at the start of an FCM
+  simulation. In pulse simulations the `initial_state_vector` controls
+  the scenario (i.e., a non-zero value is a transient perturbation). In
+  clamped simulations all values in the `initial_state_vector` are set
+  to 1.
+
+- clamping_vector:
+
+  \[`vector("double")`\]  
+  A list of values (one per node) that indicates whether clamped
+  simulations will be performed. In clamped simulations the
+  `clamping_vector` controls the scenario (nodes assigned non-zero
+  values will remain at those values for the entire simulation). In
+  pulse simulations all values in the `clamping_vector` are set to 0.
+
+- activation:
+
+  \[`character(1)`\]  
+  The activation function used. Must be one of the following: 'kosko',
+  'modified-kosko', or 'rescale'.
+
+- squashing:
+
+  \[`character(1)`\]  
+  The squashing function used. Must be one of the following: 'tanh' or
+  'sigmoid'.
+
+- lambda:
+
+  \[`double(1)`\] Positive  
+  A numeric value that defines the steepness of the squashing function's
+  slope.
+
+- point_of_inference:
+
+  \[`character(1)`\]  
+  Definition of an inference. The metric used to calculate the response
+  of each node to a scenario of interest from a simulation timeseries.
+  Must be one of the following: 'peak' (the maximum value) or 'final'
+  (the state at equilibrium).
+
+- max_iter:
+
+  \[`integer(1)` - Positive\]  
+  The maximum number of iterations to run (increase if the minimum error
+  value is not achieved).
+
+- min_error:
+
+  \[`double(1)` - Positive\]  
+  The error past which a simulation has converged and no further
+  iterations are necessary. *Error equals the sum of the absolute value
+  of the current state vector minus the previous state vector*.
+
+- ci_centering_function:
+
+  \[`character(1)`\]  
+  Estimate confidence intervals about the "mean" or "median" of
+  inferences from Monte Carlo simulations
+
+- confidence_interval:
+
+  \[`double(1)` - Positive (between 0 and 1)\]  
+  Bootstrapped confidence level
+
+- num_ci_bootstraps:
+
+  \[`integer(1)` - Positive\] Number of bootstrap draws
+
+- show_progress:
+
+  \[`logical(1)`\]  
+  If TRUE, show progress bars and print runtime updates in the console
+  when performing FCM simulations.
+
+- parallel:
+
+  \[`logical(1)`\]  
+  If TRUE, utilize parallel processing.
+
+- n_cores:
+
+  \[`integer(1)` - Positive\]  
+  The number of cores to use in parallel processing. If no input given,
+  all available cores will be used.
+
+- run_agg_calcs:
+
+  \[`logical(1)`\]  
+  If TRUE, run the code to generate and simulate an aggregate FCM
+  generated from the input adj_matrices.
+
+- run_mc_calcs:
+
+  \[`logical(1)`\]  
+  If TRUE, run the code to generate and simulate monte carlo-generated
+  FCM sampled from the input adj_matrices
+
+- run_ci_calcs:
+
+  TRUE/FALSE Run the code to estimate the 95 percent CI bounds about the
+  means of the inferences of the monte carlo adj matrices
+
+- include_zeroes_in_sampling:
+
+  \[`logical(1)`\]  
+  If TRUE, incorporate zeroes as intentionally-defined edge weights or
+  ignore them when aggregating adjacency matrices and sampling for Monte
+  Carlo FCMs.
+
+- include_sims_in_output:
+
+  \[`logical(1)`\]  
+  If TRUE, include simulations and inferences in output. Set to FALSE to
+  reduce output size.
+
+- silent:
+
+  \[`logical(1)`\]  
+  If TRUE, suppress warning and error messages.
+
+## Value
+
+A list of outputs generated from the individual_fcms simulations,
+aggregate_fcm analysis, and monte_carlo_fcms analysis. Bootstrap
+estimates of inferences from monte carlo analysis are included, as well
+as function inputs.
+
+## Details
+
+FCM simulations are iterative applications of an activation function
+(\\f\_{A}\\) that describes how node values at a particular state
+(\\C^{(t)}\\) are influenced by the edge weights defined in the
+adjacency matrix (\\w\\) to calculate the node values at the following
+state (\\C^{(t+1)}\\), and a squashing function (\\f\_{S}\\) that
+restricts node values within a particular range.
+
+In conventional FCM simulations the current state vector (\\C^{(t)}\\)
+is used to calculate the next state vector (\\C^{(t+1)}\\). \$\$
+C\_{i}^{( t+1)} =f\_{S}\left( f\_{A}\left( w,\\ C\_{i}^{(
+t)}\right)\right) \$\$
+
+In IVFN- and TFN-FCM simulations, the current state vector has to be
+translated into crisp values prior to calculating the next state vector.
+
+Formulas for crisp values: \$\$ \left(\overline{C}\_{i}^{(
+t)}\right)\_{IVFN} =\frac{\left( C\_{i}^{( t)}\right)\_{lower} +\left(
+C\_{i}^{( t)}\right)\_{upper}}{2} \$\$ \$\$ \left(\overline{C}\_{i}^{(
+t)}\right)\_{TFN} =\frac{\left( C\_{i}^{( t)}\right)\_{lower} +\left(
+C\_{1}^{( t)}\right)\_{mode} +\left( C\_{i}^{( t)}\right)\_{upper}}{3}
+\$\$
+
+Formulas for next state vector: \$\$ \left( C\_{i}^{(
+t+1)}\right)\_{IVFN} =\left\[\left( C\_{i}^{( t+1)}\right)\_{lower} ,\\
+\left( C\_{i}^{( t+1)}\right)\_{upper}\right\] \\ where\\
+\left\\\begin{array}{ c } \left( C\_{i}^{( t+1)}\right)\_{lower}
+=f\_{S}\left( f\_{A}\left( w\_{lower} ,\\ \overline{C}\_{i}^{(
+t)}\right)\right)\\ \left( C\_{i}^{( t+1)}\right)\_{upper} =f\_{S}\left(
+f\_{A}\left( w\_{upper} ,\\ \overline{C}\_{i}^{( t)}\right)\right)
+\end{array}\right. \$\$
+
+\$\$ \left( C\_{i}^{( t+1)}\right)\_{TFN} =\left\[\left( C\_{i}^{(
+t+1)}\right)\_{lower} ,\\ \left( C\_{i}^{( t+1)}\right)\_{upper}\right\]
+\\ where\\ \left\\\begin{array}{ c } \left( C\_{i}^{(
+t+1)}\right)\_{lower} =f\_{S}\left( f\_{A}\left( w\_{lower} ,\\
+\overline{C}\_{i}^{( t)}\right)\right)\\ \left( C\_{i}^{(
+t+1)}\right)\_{mode} =f\_{S}\left( f\_{A}\left( w\_{mode} ,\\
+\overline{C}\_{i}^{( t)}\right)\right)\\ \left( C\_{i}^{(
+t+1)}\right)\_{upper} =f\_{S}\left( f\_{A}\left( w\_{upper} ,\\
+\overline{C}\_{i}^{( t)}\right)\right) \end{array}\right. \$\$
+
+`fcmconfr` supports the Kosko, Modified-Kosko, and Rescale activation
+functions as defined here:
+
+- Kosko (Kosko, 1986) \$\$ C\_{i}^{( t+1)} =f\left(\sum \_{
+  \begin{array}{l} j\\ =\\ i\\ i\\ \neq \\ j \end{array}}^{M} w\_{ji}
+  C\_{j}^{( t)}\right) \$\$
+
+- Modfied-Kosko (Stylio & Groumpos, 2004) \$\$ C\_{i}^{( t+1)}
+  =f\left(\sum \_{ \begin{array}{l} j\\ =\\ i\\ i\\ \neq \\ j
+  \end{array}}^{M} w\_{ji} C\_{j}^{( t)} +C\_{i}^{( t)}\right) \$\$
+
+- Rescale (Papageorgiou, 2011; Dikopoulou, 2021) \$\$ C\_{i}^{( t+1)}
+  =f\left(\sum \_{ \begin{array}{l} j\\ =\\ i\\ i\\ \neq \\ j
+  \end{array}}^{M} w\_{ji}\left( 2C\_{j}^{( t)} -1\right) +\left(
+  2C\_{i}^{( t)} -1\right)\right) \$\$
+
+`fcmconfr` supports the sigmoid and hyperbolic tangent (tanh) squashing
+functions. \$\$ f\_{sigmoid}( x) =\frac{1}{1+e^{\lambda x}} \$\$ \$\$
+f\_{tanh}( x) =\frac{e^{x} -e^{-x}}{e^{x} +e^{-x}} \$\$
+
+## References
+
+Özesmi U, Özesmi S (2003). “A Participatory Approach to Ecosystem
+Conservation: Fuzzy Cognitive Maps and Stakeholder Group Analysis in
+Uluabat Lake, Turkey.” Environmental Management, 31(4), 518–531. ISSN
+0364-152X, 1432-1009,
+[doi:10.1007/s00267-002-2841-1](https://doi.org/10.1007/s00267-002-2841-1).
+
+Aminpour P, Gray SA, Jetter AJ, Introne JE, Singer A, Arlinghaus R
+(2020). “Wisdom of Stakeholder Crowds in Complex Social–Ecological
+Systems.” Nature Sustainability, 3(3), 191–199. ISSN 2398-9629,
+[doi:10.1038/s41893-019-0467-z](https://doi.org/10.1038/s41893-019-0467-z).
+
+Stylios CD, Georgopoulos VC, Groumpos PP (1997). “Introducing the Theory
+of Fuzzy Cognitive Maps in Distributed Systems.” In Proceedings of 12th
+IEEE International Symposium on Intelligent Control, 55–60.
+[doi:10.1109/ISIC.1997.626413](https://doi.org/10.1109/ISIC.1997.626413).
+
+Moore R, Lodwick W (2003). “Interval Analysis and Fuzzy Set Theory.”
+Fuzzy Sets and Systems, 135(1), 5–9. ISSN 01650114,
+[doi:10.1016/S0165-0114(02)00246-4](https://doi.org/10.1016/S0165-0114(02)00246-4).
+
+Hajek P, Prochazka O (2016). “Interval-valued fuzzy cognitive maps for
+supporting business decisions.” In 2016 IEEE International Conference on
+Fuzzy Systems (FUZZ-IEEE), 531–536. ISBN 978-1-5090-0626-7,
+[doi:10.1109/FUZZ-IEEE.2016.7737732](https://doi.org/10.1109/FUZZ-IEEE.2016.7737732),
+
+Yesil E, Dodurka MF, Urbas L (2014). “Triangular fuzzy number
+representation of relations in Fuzzy Cognitive Maps.” In 2014 IEEE
+International Conference on Fuzzy Systems (FUZZ-IEEE), 1021–1028. ISBN
+9781479920723,
+[doi:10.1109/FUZZ-IEEE.2014.6891653](https://doi.org/10.1109/FUZZ-IEEE.2014.6891653),
+
+Stylios CD, Groumpos PP (2004). “Modeling complex systems using fuzzy
+cognitive maps.” IEEE Transactions on Systems, Man, and Cybernetics -
+Part A: Systems and Humans, 34(1), 155–162. ISSN 1558-2426,
+[doi:10.1109/TSMCA.2003.818878](https://doi.org/10.1109/TSMCA.2003.818878),
+
+Papageorgiou EI (2011). “A new methodology for Decisions in Medical
+Informatics using fuzzy cognitive maps based on fuzzy rule-extraction
+techniques.” Applied Soft Computing, 11(1), 500–513. ISSN 1568-4946,
+[doi:10.1016/j.asoc.2009.12.010](https://doi.org/10.1016/j.asoc.2009.12.010),
+
+Dikopoulou Z (2021). “Fuzzy Cognitive Maps.” In Dikopoulou Z (ed.),
+Modeling and Simulating Complex Business Perceptions : Using Graphical
+Models and Fuzzy Cognitive Maps, 27–42. Springer International
+Publishing, Cham. ISBN 9783030814960,
+[doi:10.1007/978-3-030-81496-0_3](https://doi.org/10.1007/978-3-030-81496-0_3),
+
+## Examples
+
+``` r
+# Conventional FCMs
+ex_conventional_fcmconfr <- fcmconfr(
+  adj_matrices = sample_fcms$simple_fcms$conventional_fcms[1:10],
+  # Aggregation and Monte Carlo Sampling
+  agg_function = 'mean',
+  num_mc_fcms = 100L,
+  # Simulation
+  initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
+  clamping_vector = c(1, 0, 0, 0, 0, 0, 0),
+  activation = 'modified-kosko',
+  squashing = 'sigmoid',
+  lambda = 1.0,
+  point_of_inference = "final",
+  max_iter = 100L,
+  min_error = 1e-05,
+  # Inference Estimation (bootstrap)
+  ci_centering_function = "mean",
+  confidence_interval = 0.95,
+  # Runtime Options
+  show_progress = TRUE,
+  parallel = FALSE,
+  n_cores = 1L,
+  # Additional Options
+  run_agg_calcs = TRUE,
+  run_mc_calcs = TRUE,
+  run_ci_calcs = TRUE,
+  include_zeroes_in_sampling = FALSE,
+  include_sims_in_output = TRUE
+)
+#> Loading required namespace: tidyr
+#> [1] Simulating Input FCMs
+#> Loading required namespace: pbapply
+#> 
+#> [1] Running Simulations
+#> [1] Sampling from column vectors
+#> Sampling from column vectors[1] Constructing monte carlo fcms from samples
+#> Constructing monte carlo fcms from samples
+#> [1] Running Simulations
+#> [1] Performing bootstrap simulations
+#> [1] Done
+
+
+# IVFN FCM fcmconfr
+ex_ivfn_fcmconfr <- fcmconfr(
+  adj_matrices = sample_fcms$simple_fcms$ivfn_fcms[1:10],
+  # Aggregation and Monte Carlo Sampling
+  agg_function = 'mean',
+  num_mc_fcms = 100L,
+  # Simulation
+  initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
+  clamping_vector = c(1, 0, 0, 0, 0, 0, 0),
+  activation = 'modified-kosko',
+  squashing = 'sigmoid',
+  lambda = 1.0,
+  point_of_inference = "final",
+  max_iter = 100L,
+  min_error = 1e-05,
+  # Inference Estimation (bootstrap)
+  ci_centering_function = "mean",
+  confidence_interval = 0.95,
+  # Runtime Options
+  show_progress = TRUE,
+  parallel = FALSE,
+  n_cores = 1L,
+  # Additional Options
+  run_agg_calcs = TRUE,
+  run_mc_calcs = TRUE,
+  run_ci_calcs = TRUE,
+  include_zeroes_in_sampling = FALSE,
+  include_sims_in_output = TRUE
+)
+#> [1] Simulating Input FCMs
+#> 
+#> [1] Running Simulations
+#> [1] Sampling from column vectors
+#> Sampling from column vectors[1] Constructing monte carlo fcms from samples
+#> Constructing monte carlo fcms from samples
+#> [1] Running Simulations
+#> [1] Performing bootstrap simulations
+#> [1] Done
+
+# TFN FCM fcmconfr
+ex_tfn_fcmconfr <- fcmconfr(
+  adj_matrices = sample_fcms$simple_fcms$tfn_fcms[1:10],
+  # Aggregation and Monte Carlo Sampling
+  agg_function = 'mean',
+  num_mc_fcms = 100L,
+  # Simulation
+  initial_state_vector = c(1, 1, 1, 1, 1, 1, 1),
+  clamping_vector = c(1, 0, 0, 0, 0, 0, 0),
+  activation = 'modified-kosko',
+  squashing = 'sigmoid',
+  lambda = 1.0,
+  point_of_inference = "final",
+  max_iter = 100L,
+  min_error = 1e-05,
+  # Inference Estimation (bootstrap)
+  ci_centering_function = "mean",
+  confidence_interval = 0.95,
+  # Runtime Options
+  show_progress = TRUE,
+  parallel = FALSE,
+  n_cores = 1L,
+  # Additional Options
+  run_agg_calcs = TRUE,
+  run_mc_calcs = TRUE,
+  run_ci_calcs = TRUE,
+  include_zeroes_in_sampling = FALSE,
+  include_sims_in_output = TRUE
+)
+#> [1] Simulating Input FCMs
+#> 
+#> [1] Running Simulations
+#> [1] Sampling from column vectors
+#> Sampling from column vectors[1] Constructing monte carlo fcms from samples
+#> Constructing monte carlo fcms from samples
+#> [1] Running Simulations
+#> [1] Performing bootstrap simulations
+#> [1] Done
+```

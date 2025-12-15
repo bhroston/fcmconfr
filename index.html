@@ -102,19 +102,19 @@
 <h3 id="id_2-set-simulation-parameters-using-fcmconfr_gui">2. Set Simulation Parameters using <code>fcmconfr_gui()</code>
 <a class="anchor" aria-label="anchor" href="#id_2-set-simulation-parameters-using-fcmconfr_gui"></a>
 </h3>
-<p><code><a href="reference/fcmconfr.html">fcmconfr()</a></code> is the central function of the package and requires specifying many parameters. To guide users through that process, the package procides an easy to use GUI that can be accessed by <code><a href="reference/fcmconfr_gui.html">fcmconfr_gui()</a></code>.</p>
+<p><code><a href="reference/fcmconfr.html">fcmconfr()</a></code> is the central function of the package and requires specifying many parameters. The package provides a GUI that can be used to guide users through this process - <code><a href="reference/fcmconfr_gui.html">fcmconfr_gui()</a></code>.</p>
 <div style="text-align: center;">
 <figure><img src="reference/figures/cluster_1_fcmconfr_gui.png" style="width:70.0%" alt="fcmconfr_gui() Screenshot"><figcaption aria-hidden="true"><code><a href="reference/fcmconfr_gui.html">fcmconfr_gui()</a></code> Screenshot
 </figcaption></figure>
 </div>
-<p>Calling <code><a href="reference/fcmconfr_gui.html">fcmconfr_gui()</a></code> launches a Shiny app that lets users interactively select parameters and outputs a corresponding call to <code><a href="reference/fcmconfr.html">fcmconfr()</a></code> that users can copy-and-paste to run in their own scripts.</p>
+<p><code><a href="reference/fcmconfr_gui.html">fcmconfr_gui()</a></code> launches a Shiny app that lets users interactively select parameters and outputs a corresponding call to <code><a href="reference/fcmconfr.html">fcmconfr()</a></code> that users can copy-and-paste to run in their own scripts.</p>
 <p>A brief summary of each parameter within the <code><a href="reference/fcmconfr_gui.html">fcmconfr_gui()</a></code> is provided in a glossary stored in a side tab within the GUI. The side tab can be opened by clicking the arrow symbol in the top-right-hand-corner of the GUI.</p>
 </div>
 <div class="section level3">
 <h3 id="id_3-run-simulations-using-fcmconfr">3. Run Simulations using <code>fcmconfr()</code>
 <a class="anchor" aria-label="anchor" href="#id_3-run-simulations-using-fcmconfr"></a>
 </h3>
-<p>To run <code><a href="reference/fcmconfr.html">fcmconfr()</a></code>, execute the output script created by `fcmconfr_gui(). The following call uses an example FCM from the <code>sample_fcms</code> data included in the package.</p>
+<p>To run <code><a href="reference/fcmconfr.html">fcmconfr()</a></code>, execute the output script created by <code><a href="reference/fcmconfr_gui.html">fcmconfr_gui()</a></code>. The following sample code uses an example FCM from the <code>sample_fcms</code> data included in the package.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># This call to fcmconfr() was generated from fcmconfr_gui()!</span></span>
 <span><span class="co"># Store the output in a variable to explore it later</span></span>
@@ -151,9 +151,10 @@
 <div class="section level3">
 <h3 id="id_4-explore-fcmconfr-results">4. Explore <code>fcmconfr()</code> Results<a class="anchor" aria-label="anchor" href="#id_4-explore-fcmconfr-results"></a>
 </h3>
-<p><code><a href="reference/fcmconfr.html">fcmconfr()</a></code> generates a large object with many concepts, the most important of which are simulation inferences (individual, aggregate, Monte Carlo). Inferences indicate how much each node in an FCM is influenced by a particular change or action. The <code>get_inferences()</code> function gives users access to that data without having to interact with the <code><a href="reference/fcmconfr.html">fcmconfr()</a></code> object directly.</p>
+<p><code><a href="reference/fcmconfr.html">fcmconfr()</a></code> generates a large object with many concepts, the most important of which are simulation inferences (individual, aggregate, Monte Carlo).</p>
+<p>Inferences indicate how much each node in an FCM is influenced by a particular change or action. The <code>get_inferences()</code> function gives users access to that data without having to interact with the <code><a href="reference/fcmconfr.html">fcmconfr()</a></code> object directly.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">fcmconfr_inferences</span> <span class="op">&lt;-</span> <span class="fu">get_inferences</span><span class="op">(</span><span class="va">fcmconfr_obj</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">fcmconfr_inferences</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/get_fcmconfr_inferences.html">get_fcmconfr_inferences</a></span><span class="op">(</span><span class="va">fcmconfr_obj</span><span class="op">)</span></span></code></pre></div>
 <p>A plot of all inferences can be generated using <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>. Documentation for <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> can be accessed via <code><a href="reference/plot.fcmconfr.html">?plot.fcmconfr</a></code> (<code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">?plot</a></code> <em>returns the documentation for the Base R version of the function</em>).</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fcmconfr_obj</span><span class="op">)</span></span></code></pre></div>
@@ -250,7 +251,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

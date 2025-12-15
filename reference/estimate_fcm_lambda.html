@@ -4,20 +4,20 @@ tanh squashing functions that guarantees convergence of an FCM simulation.
 Lambda is estimated such that 'squashed' simulation values are contained
 within the near-linear region of the sigmoid or tanh functions.
 Note: The lambda value estimated will vary for different FCMs.
-This algorithm is intended for conventional fCMs. If an Interval Value
+This algorithm is intended for conventional FCMs. If an Interval Value
 Fuzzy Number (IVFN) FCM or a Triangular Fuzzy Number (TFN) FCM is provided,
 estimate_fcm_lambda() will create a conventional FCM by averaging
-the edge weights (upper and lower) for IVFN-FCMs and upper, mode, and lower
-for TFN-FCMs) for use in calculating lambda,."><meta property="og:description" content="This function calculates the largest possible lambda for sigmoid and
+the edge weights (upper and lower for IVFN-FCMs; and upper, mode, and lower
+for TFN-FCMs) for use in calculating lambda,"><meta property="og:description" content="This function calculates the largest possible lambda for sigmoid and
 tanh squashing functions that guarantees convergence of an FCM simulation.
 Lambda is estimated such that 'squashed' simulation values are contained
 within the near-linear region of the sigmoid or tanh functions.
 Note: The lambda value estimated will vary for different FCMs.
-This algorithm is intended for conventional fCMs. If an Interval Value
+This algorithm is intended for conventional FCMs. If an Interval Value
 Fuzzy Number (IVFN) FCM or a Triangular Fuzzy Number (TFN) FCM is provided,
 estimate_fcm_lambda() will create a conventional FCM by averaging
-the edge weights (upper and lower) for IVFN-FCMs and upper, mode, and lower
-for TFN-FCMs) for use in calculating lambda,."><meta property="og:image" content="https://bhroston.github.io/fcmconfr/logo.png"></head><body>
+the edge weights (upper and lower for IVFN-FCMs; and upper, mode, and lower
+for TFN-FCMs) for use in calculating lambda,"><meta property="og:image" content="https://bhroston.github.io/fcmconfr/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -51,7 +51,7 @@ for TFN-FCMs) for use in calculating lambda,."><meta property="og:image" content
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Estimate lambda</h1>
-      <small class="dont-index">Source: <a href="https://github.com/bhroston/fcmconfr/blob/v0.3.0/R/estimate_fcm_lambda.R" class="external-link"><code>R/estimate_fcm_lambda.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/bhroston/fcmconfr/blob/main/R/estimate_fcm_lambda.R" class="external-link"><code>R/estimate_fcm_lambda.R</code></a></small>
       <div class="d-none name"><code>estimate_fcm_lambda.Rd</code></div>
     </div>
 
@@ -61,11 +61,11 @@ tanh squashing functions that guarantees convergence of an FCM simulation.
 Lambda is estimated such that 'squashed' simulation values are contained
 within the near-linear region of the sigmoid or tanh functions.</p>
 <p>Note: The lambda value estimated will vary for different FCMs.</p>
-<p>This algorithm is intended for conventional fCMs. If an Interval Value
+<p>This algorithm is intended for conventional FCMs. If an Interval Value
 Fuzzy Number (IVFN) FCM or a Triangular Fuzzy Number (TFN) FCM is provided,
 <code>estimate_fcm_lambda()</code> will create a conventional FCM by averaging
-the edge weights (upper and lower) for IVFN-FCMs and upper, mode, and lower
-for TFN-FCMs) for use in calculating lambda,.</p>
+the edge weights (upper and lower for IVFN-FCMs; and upper, mode, and lower
+for TFN-FCMs) for use in calculating lambda,</p>
     </div>
 
     <div class="section level2">
@@ -98,11 +98,11 @@ convergence for the input FCM.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>This algorithm was first explored by <a href="https://doi.org/10.1007/978-3-642-03220-2_5" class="external-link">Kottas et al. (2010)</a>,
-and expanded upon by <a href="https://doi.org/10.1109/FUZZ-IEEE.2018.8491447" class="external-link">Harmati et al. (2018)</a>, and
-<a href="https://doi.org/10.1007/s12351-022-00717-x" class="external-link">Koutsellis et al. (2022)</a></p>
-<p>The function applies an algorithm that can be used to optimize lambda which
-comparing the lambda calculated based on the Frobenius-norm
+    <p>This algorithm was first developed in Kottas et al. 2010 (https://doi.org/10.1007/978-3-642-03220-2_5),
+and expanded upon by Harmati et al. 2018 (https://doi.org/10.1109/FUZZ-IEEE.2018.8491447), and
+Koutsellis et al. 2022 (https://doi.org/10.1007/s12351-022-00717-x)</p>
+<p>The function applies an algorithm that can be used to optimize lambda. It
+compares the lambda calculated based on the Frobenius-norm
 (\(\lambda^{'}\)) and S-norm  (\(\lambda^{*}\)) of an
 adjacency matrix and selects the minimum.</p>
 <p>$$
@@ -147,7 +147,7 @@ $$
 $$
 \| \mathbf{W} \| _{\infty } =\underset{i}{\max}\sum _{j=1}^{n}| w_{ij}|
 $$</p>
-<p>Finally, the maximum lambda the ensures convergence of the simulation for
+<p>Finally, the maximum lambda that ensures convergence of the simulation for
 the input adjacency matrix is the minimum of \(\lambda ^{'}\) and
 \(\lambda ^{*}\).</p>
 <p>Note: This is only algorithm included at present, but the code for
@@ -194,7 +194,7 @@ cognitive maps.” Operational Research, 22(5), 5733–5763. ISSN 1109-2858,
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

@@ -3,12 +3,12 @@
 sampled from edge values (that may be numeric, IVFNs, or TFNs) and
 stores them as a list of adjacency matrices.
 The show_progress and parallel inputs change the functions called, but do NOT
-change the output! These are allowed to be toggled on/off to increase user
+change the output! These are allowed to be toggled on/off to improve user
 control at runtime."><meta property="og:description" content="This function generates N fcm adjacency matrices whose edge weights are
 sampled from edge values (that may be numeric, IVFNs, or TFNs) and
 stores them as a list of adjacency matrices.
 The show_progress and parallel inputs change the functions called, but do NOT
-change the output! These are allowed to be toggled on/off to increase user
+change the output! These are allowed to be toggled on/off to improve user
 control at runtime."><meta property="og:image" content="https://bhroston.github.io/fcmconfr/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
@@ -43,7 +43,7 @@ control at runtime."><meta property="og:image" content="https://bhroston.github.
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Build Monte Carlo FCMs</h1>
-      <small class="dont-index">Source: <a href="https://github.com/bhroston/fcmconfr/blob/v0.3.0/R/monte_carlo_model_generation_and_confidence_intervals.R" class="external-link"><code>R/monte_carlo_model_generation_and_confidence_intervals.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/bhroston/fcmconfr/blob/main/R/monte_carlo_model_generation_and_confidence_intervals.R" class="external-link"><code>R/monte_carlo_model_generation_and_confidence_intervals.R</code></a></small>
       <div class="d-none name"><code>build_monte_carlo_fcms.Rd</code></div>
     </div>
 
@@ -52,7 +52,7 @@ control at runtime."><meta property="og:image" content="https://bhroston.github.
 sampled from edge values (that may be numeric, IVFNs, or TFNs) and
 stores them as a list of adjacency matrices.</p>
 <p>The show_progress and parallel inputs change the functions called, but do NOT
-change the output! These are allowed to be toggled on/off to increase user
+change the output! These are allowed to be toggled on/off to improve user
 control at runtime.</p>
     </div>
 
@@ -111,12 +111,12 @@ generated via monte carlo methods</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>For Conventional FCMs, edge weights are sampled the edge weight explicitly
+    <p>For Conventional FCMs, edge weights are sampled from edge weights explicitly
 defined in the input FCMs.</p>
 <p>For IVFN and TFN FCMs, edge weights are sampled from the combined
 distributions representative of the IVFN/TFN edge weights. For example,
-if an edge is given the following weights across two maps: IVFN(0.4, 0.8) and
-IVFN [0.5, 0.7]\, the samples will be drawn from the combined distribution:
+if an edge is given the following weights across two maps: [0.4, 0.8)]\ and
+[0.5, 0.7]\, the samples will be drawn from the combined distribution:
 sample(N, c(runif(N, 0.4, 0.8), runif(N, 0.5, 0.7)), replace = TRUE).</p>
     </div>
 
@@ -165,7 +165,7 @@ sample(N, c(runif(N, 0.4, 0.8), runif(N, 0.5, 0.7)), replace = TRUE).</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

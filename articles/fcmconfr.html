@@ -65,7 +65,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>fcmconfr</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/bhroston/fcmconfr/blob/v0.3.0/vignettes/fcmconfr.Rmd" class="external-link"><code>vignettes/fcmconfr.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/bhroston/fcmconfr/blob/main/vignettes/fcmconfr.Rmd" class="external-link"><code>vignettes/fcmconfr.Rmd</code></a></small>
       <div class="d-none name"><code>fcmconfr.Rmd</code></div>
     </div>
 
@@ -76,26 +76,26 @@
 <div class="section level2">
 <h2 id="the-fcmconfr-workflow">The <code>fcmconfr</code> Workflow<a class="anchor" aria-label="anchor" href="#the-fcmconfr-workflow"></a>
 </h2>
-<p><code>fcmconfr</code> streamlines the process of conducting dynamic
-simulations using fuzzy cognitive maps (FCMs). The package can (1)
+<p><code>fcmconfr</code> streamlines the process of performing a variety
+of analyses using fuzzy cognitive maps (FCMs). This package can (1)
 analyze different types of FCMs (conventional, interval-value fuzzy
 number, and triangular fuzzy number), (2) perform dynamic simulations on
 one or more individual FCMs, (3) aggregate individual FCMs so that
 dynamic simulations can be performed on the aggregate, and (4) estimate
-uncertainty using Monte Carlo approaches. A typical fcmconfr workflow
-includes the following four steps:</p>
+uncertainty using Monte Carlo approaches.</p>
+<p>A typical fcmconfr workflow includes the following four steps:</p>
 <ol style="list-style-type: decimal">
 <li><p>Import FCMs</p></li>
 <li><p>Set simulation parameters using
 <code><a href="../reference/fcmconfr_gui.html">fcmconfr_gui()</a></code></p></li>
 <li><p>Run simulations using <code><a href="../reference/fcmconfr.html">fcmconfr()</a></code></p></li>
-<li><p>Explore outputs using <code>get_fcmconfr_inferences()</code> ,
+<li><p>Explore outputs using <code><a href="../reference/get_fcmconfr_inferences.html">get_fcmconfr_inferences()</a></code> ,
 <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>, and <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code></p></li>
 </ol>
 <p>This guide walks through each of these steps, from data import to
 visualization. It frequently references data from the
-<code>sample_fcms</code> object that users can access after loading
-<code>fcmconfr</code>.</p>
+<code>sample_fcms</code> object that users can access by loading the
+<code>fcmconfr</code> package.</p>
 <div class="section level3">
 <h3 id="import-fcms">1. Import FCMs<a class="anchor" aria-label="anchor" href="#import-fcms"></a>
 </h3>
@@ -133,9 +133,9 @@ should group them into a single <code>list</code> object.</p>
 <div class="section level4">
 <h4 id="importing-ivfn-fcms">1.2 Importing IVFN FCMs<a class="anchor" aria-label="anchor" href="#importing-ivfn-fcms"></a>
 </h4>
-<p>Because IVFN-FCMs have interval edge weights with lower and upper
-bounds, separate adjacency matrices must be created and uploaded for
-each bound (lower and upper). We can then use the function
+<p>IVFN-FCMs have interval edge weights with lower and upper bounds, so
+separate adjacency matrices must be created and uploaded for each bound
+(lower and upper). Use the function
 <code><a href="../reference/make_adj_matrix_w_ivfns.html">make_adj_matrix_w_ivfns()</a></code> to combine the two, creating a
 single adjacency matrix with interval edge weights. As noted previously
 for conventional FCMs, users who plan to analyze multiple IVFN FCMs
@@ -183,9 +183,9 @@ multiple TFN-FCMs together should group them into a single
 <div class="section level4">
 <h4 id="interacting-with-ivfn-and-tfn-adjacency-matrix-elements">1.4 Interacting with IVFN and TFN Adjacency Matrix Elements<a class="anchor" aria-label="anchor" href="#interacting-with-ivfn-and-tfn-adjacency-matrix-elements"></a>
 </h4>
-<p>Since users can make IVFN or TFN adjacency matrices by importing
-matrices from files, they will rarely need to create an IVFN or TFN
-matrix from scratch. However, the example below illustrates how
+<p>Users can make IVFN or TFN adjacency matrices by importing matrices
+from files, so they will rarely need to create an IVFN or TFN matrix
+from scratch. However, the example below illustrates how
 <code>fcmconfr</code> creates such objects. The example we provide below
 is for an IVFN matrix. The approach for a TFN matrix is similar, but
 uses three- rather than two-element lists.</p>
@@ -212,8 +212,8 @@ values. If loaded as a matrix it will print out object types (e.g.,
 </div>
 </div>
 <p><br></p>
-<p>To report the IVFN of a particular edge within an IVFN matrix, we can
-call <code>ivfn_fcm[row, col]</code>, which returns a <code>list</code>
+<p>To report the IVFN of a particular edge within an IVFN matrix, call
+<code>ivfn_fcm[row, col]</code>, which returns a <code>list</code>
 object or <code>ivfn_fcm[row, col][[1]]</code> to return the first
 record in the <code>list</code> object, the IVFN itself.</p>
 <div style="text-align: center;">
@@ -305,7 +305,7 @@ copy-and-paste to run in their own scripts.</p>
 <p>No inputs are provided to <code><a href="../reference/fcmconfr_gui.html">fcmconfr_gui()</a></code>, but the local
 environment must have an individual FCM or a <code>list</code> object
 containing multiple FCMs in order for <code><a href="../reference/fcmconfr_gui.html">fcmconfr_gui()</a></code> to be
-used. Once <code><a href="../reference/fcmconfr_gui.html">fcmconfr_gui()</a></code> is running the user selects the
+used. Once <code><a href="../reference/fcmconfr_gui.html">fcmconfr_gui()</a></code> is running, select the
 appropriate FCMs to analyze from a dropdown menu titled Adj. Matrix or
 List of Adj. Matrices.</p>
 <p>Matrices conforming to any of the above-noted FCM types
@@ -649,17 +649,17 @@ accessed as follows:</p>
 <span><span class="va">CIs_of_avg_mc_fcm_inferences</span> <span class="op">&lt;-</span> <span class="va">all_inferences</span><span class="op">$</span><span class="va">monte_carlo_fcms</span><span class="op">$</span><span class="va">bootstrap</span><span class="op">$</span><span class="va">CIs_and_quantiles_by_node</span></span></code></pre></div>
 <p>In addition to accessing inference data manually (as shown above),
 <code>fcmconfr</code> provides the
-<code>get_fcmconfr_inferences()</code> function to retrieve and store
+<code><a href="../reference/get_fcmconfr_inferences.html">get_fcmconfr_inferences()</a></code> function to retrieve and store
 inference results.</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">fcmconfr_inferences</span> <span class="op">&lt;-</span> <span class="fu">get_fcmconfr_inferences</span><span class="op">(</span><span class="va">fcmconfr_obj</span>, analysis <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"individual"</span>, <span class="st">"aggregate"</span>, <span class="st">"mc"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>The output of <code>get_fcmconfr_inferences()</code> is a
+<code class="sourceCode R"><span><span class="va">fcmconfr_inferences</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_fcmconfr_inferences.html">get_fcmconfr_inferences</a></span><span class="op">(</span><span class="va">fcmconfr_obj</span>, analysis <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"individual"</span>, <span class="st">"aggregate"</span>, <span class="st">"mc"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>The output of <code><a href="../reference/get_fcmconfr_inferences.html">get_fcmconfr_inferences()</a></code> is a
 <code>list</code> of dataframes containing the inferences for each
 analysis. By default,
 <code>analysis = c("individual", "aggregate", "mc")</code>, but users
 can also specify a subset of these categories.</p>
 <p>When <code>"mc"</code> is included and the box for bootstrapped
-confidence intervals is checked, <code>get_fcmconfr_inferences()</code>
+confidence intervals is checked, <code><a href="../reference/get_fcmconfr_inferences.html">get_fcmconfr_inferences()</a></code>
 returns two types of MC outputs: (1) inferences from each empirical FCM
 generated by Monte Carlo sampling and (2) a dataframe containing user
 specified bootstrapped confidence bounds about the average of those
@@ -711,7 +711,7 @@ Salinization.of.the.Reservoir                -0.119 -0.187 -0.124 -0.045
 <p>FCM inferences are calculated from FCM simulations, which can include
 hundreds of iterations for each node in each FCM (individual, aggregate,
 and Monte Carlo).</p>
-<p>The <code>get_fcmconfr_inferences()</code> function returns standard
+<p>The <code><a href="../reference/get_fcmconfr_inferences.html">get_fcmconfr_inferences()</a></code> function returns standard
 inference estimates only (e.g., the final point of convergence for each
 node or the peak simulated value for each node, as specified in the
 original call to <code><a href="../reference/fcmconfr.html">fcmconfr()</a></code>)</p>
@@ -810,7 +810,7 @@ FCMs</div>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>
