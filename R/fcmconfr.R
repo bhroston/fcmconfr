@@ -28,10 +28,10 @@ NULL
 #'
 #' @description
 #' This is the primary function of the fcmconfr package. This function performs
-#' the following three analyses on input fuzzy cognitive maps (FCMs).
+#' the following three analyses on the input fuzzy cognitive maps (FCMs).
 #'
 #' \enumerate{
-#'    \item Dynamic Simulation: The dynamic behvaior of one or more input FCMs
+#'    \item Dynamic Simulation: The dynamic behavior of one or more input FCMs
 #'    is evaluated in response to a perturbation. Two types of simulations can
 #'    be performed, pulse and clamped.
 #'    \itemize{
@@ -49,12 +49,12 @@ NULL
 #'        (i.e., it represents the response of the network to a transient
 #'        pulse event involving all nodes) (Ozesmi & Ozesmi, 2003).
 #'    }
-#'    The final response of each node of an FCM in a scenario-of-interest is
+#'    The final response of each node of an FCM in a scenario is
 #'    known as an inference. Inferences can be calculated using the maximum
 #'    (peak) or the final resting state (final) of a node. In pulse simulations
 #'    inferences are the difference between either of these two measures and
 #'    zero. In clamped simulations inferences are the difference between either
-#'    of these measures in the scenario-of-interest and their equivalent values
+#'    of these measures in the scenario and their equivalent values
 #'    in the baseline simulation. Simulations can be run using different
 #'    activation functions (Kosko, Modified-Kosko, or Rescale) and squashing
 #'    functions (sigmoid, tanh)
@@ -74,16 +74,16 @@ NULL
 #'    the mean/median of the edge weight connecting B->C across all maps, and
 #'    so on) (Aminpour et al., 2020). The user specifies whether 0-valued edge
 #'    weights (reflecting the absence of a connection between two nodes)
-#'    shouldbe included when calculating the mean/median.
+#'    should be included when calculating the mean/median.
 #'
 #'    \emph{Aggregate analysis can be toggled off to reduce runtime.}
 #'
 #'    \item Monte Carlo Analysis: This method assesses uncertainty in dynamic
 #'    simulations by generating a distribution of possible inferences. Edge
-#'    weights are randomly sampled fro input FCMs to construct a set of \eqn{N}
-#'    Monte Carlo FCMs. Each FCM undergoes dyamic simulation, producing \eqn{N}
+#'    weights are randomly sampled from the input FCMs to construct a set of \eqn{N}
+#'    Monte Carlo FCMs. Each FCM undergoes dynamic simulation, producing \eqn{N}
 #'    inferences per node. These inferences represent the range of possible
-#'    values each node may assume, providing a way to quantify uncertainty.
+#'    values each node may assume.
 #'
 #'    Min, Max, Median, and 25th/75th quantiles are estimated for each node.
 #'    Bootstrapping (optional) can also be performed to estimat 95% confidence
@@ -101,18 +101,19 @@ NULL
 #'    numbers (Stylios, 1997).
 #'    \item Interval-Valued Fuzzy Number (IVFN) FCMs, which are an extension
 #'    of conventional FCMs. IVFN-FCMs represent edge weights as ranges
-#'    \[min, max]\, where any value within the range is as likely as any other
+#'    \[min, max]\, where any value within the range is equally as likely as any other
 #'    (i.e., the probability distribution for each edge is uniform)
 #'    (Moore & Lodwick, 2003; Hajek & Prochazka, 2016); and
 #'    \item Triangular Fuzzy Number (TFN) FCMs, which are an extension of
 #'    IVFN-FCMs. TFN-FCMs also represent edge weights as ranges, but assume
-#'    that one value within the range (the mode) is more likely than any other
+#'    that one value within the range (the mode) is most likely and values
+#'    closer to the central value are more likely than those further away
 #'    (i.e., the probability distribution for each edge is triangular)
 #'    (Yesil et al., 2014).
 #' }
 #'
 #' The fcmcofnr package includes \code{fcmconfr_gui}, an interactive GUI tool
-#' that can be used to help select appropriate values for each argument in
+#' that can be used to select appropriate values for each argument in
 #' \code{fcmconfr()}.
 #'
 #' @references Özesmi U, Özesmi S (2003). “A Participatory Approach to Ecosystem
@@ -238,7 +239,7 @@ NULL
 #' @param adj_matrices \[`list()`]\cr A single adjacency matrix or a list of
 #' adjacency matrices (n x n) representing FCMs. Matrices can have conventional
 #' edge weights, IVFN edge weights or TFN edge weights.
-#' @param agg_function Aggregate the adj. matrices into a single FCM by taking
+#' @param agg_function \[`character(1)`]\cr Aggregate the adj. matrices into a single FCM by taking
 #' either the mean or median of the edge weights for edges included in multiple maps
 #' @param num_mc_fcms \[`integer(1)` - Positive] The number of inferences to
 #' generate via Monte Carlo sampling. Omit this argument when analyzing a
@@ -476,11 +477,10 @@ fcmconfr <- function(adj_matrices = list(),
 #' @param analysis \[`character()`]\cr The analysis for which inferences to
 #' return (HELP?)
 #'
+#' @export
+#'
 #' @returns \[`list()` or `data.frame()`]\cr A dataframe (or list of dataframes)
 #' of inferences from the selected analysis (analyses)
-#'
-#' @keywords Internal
-#' @noRd
 #'
 #' @example man/examples/ex-get_fcmconfr_inferences.R
 get_fcmconfr_inferences <- function(fcmconfr_result_obj = list(),
@@ -584,7 +584,7 @@ get_fcmconfr_inferences <- function(fcmconfr_result_obj = list(),
 
   if (fcmconfr_result_obj$params$additional_opts$run_ci_calcs) {
     mc_CIs_and_quantiles <- fcmconfr_result_obj$inferences$monte_carlo_fcms$confidence_intervals$CIs_and_quantiles_by_node
-    inferences_list$mc_CIs_and_quantiles = mc_CIs_and_quantiles
+    inferences_list$mc_CIs_and_quantiles <- mc_CIs_and_quantiles
   }
 
   output_list_categories <- sub("_.*", "", names(inferences_list))
@@ -613,7 +613,7 @@ get_fcmconfr_inferences <- function(fcmconfr_result_obj = list(),
 #' @param adj_matrices \[`list()`]\cr A single adjacency matrix or a list of
 #' adjacency matrices (n x n) representing FCMs. Matrices can have conventional
 #' edge weights, IVFN edge weights or TFN edge weights.
-#' @param agg_function Aggregate the adj. matrices into a single FCM by taking
+#' @param \[`character(1)`]\cr agg_function Aggregate the adj. matrices into a single FCM by taking
 #' either the mean or median of the edge weights for edges included in multiple maps
 #' @param num_mc_fcms \[`integer(1)` - Positive] The number of inferences to
 #' generate via Monte Carlo sampling. Omit this argument when analyzing a
@@ -762,7 +762,7 @@ check_fcmconfr_function_inputs <- function(adj_matrices = list(),
       "!" = "Warning: Cannot generate aggregate fcm from a single adj. matrix",
       "~~~~~ Skipping aggregate analysis; i.e. setting {.var run_agg_calcs} to FALSE"
     )))
-    run_agg_calcs = FALSE
+    run_agg_calcs <- FALSE
   }
 
   if (!run_mc_calcs && run_ci_calcs) {
@@ -817,7 +817,7 @@ check_fcmconfr_function_inputs <- function(adj_matrices = list(),
 #' the \code{\link{fcmconfr}} function.
 #'
 #' @details
-#' [INTENDED FOR DEVELOPER USE ONLY]
+#' INTENDED FOR DEVELOPER USE ONLY
 #'
 #' @param ... additional inputs; typically environmental variables
 #'
@@ -874,17 +874,17 @@ organize_fcmconfr_output <- function(...) {
   }
 
   if (variables$run_mc_calcs) {
-    fcmconfr_output$mc_adj_matrices = variables$mc_adj_matrices
-    fcmconfr_output$inferences$monte_carlo_fcms = list(
+    fcmconfr_output$mc_adj_matrices <- variables$mc_adj_matrices
+    fcmconfr_output$inferences$monte_carlo_fcms <- list(
       inferences = variables$mc_inferences$inferences,
       simulations = variables$mc_inferences$simulations
     )
-    fcmconfr_output$params$agg_function = variables$agg_function
-    fcmconfr_output$params$num_mc_fcms = variables$num_mc_fcms
-    fcmconfr_output$params$runtime_opts = list(parallel = variables$parallel,
+    fcmconfr_output$params$agg_function <- variables$agg_function
+    fcmconfr_output$params$num_mc_fcms <- variables$num_mc_fcms
+    fcmconfr_output$params$runtime_opts <- list(parallel = variables$parallel,
                                                n_cores = variables$n_cores,
                                                show_progress = variables$show_progress)
-    fcmconfr_output$params$additional_opts = list(
+    fcmconfr_output$params$additional_opts <- list(
       include_zeroes_in_sampling = variables$include_zeroes_in_sampling,
       include_sims_in_output = variables$include_sims_in_output,
       run_ci_calcs = variables$run_ci_calcs,
@@ -894,12 +894,12 @@ organize_fcmconfr_output <- function(...) {
   }
 
   if (variables$run_mc_calcs & variables$run_ci_calcs) {
-    fcmconfr_output$inferences$monte_carlo_fcms$confidence_intervals = list(
+    fcmconfr_output$inferences$monte_carlo_fcms$confidence_intervals <- list(
       # CI_estimation_function = variables$ci_centering_function, # removing since included in params
       CIs_and_quantiles_by_node = variables$CIs_of_expected_values_of_mc_simulation_inferences$CIs_and_quantiles_by_node,
       bootstrapped_expected_values = variables$CIs_of_expected_values_of_mc_simulation_inferences$bootstrap_expected_values
     )
-    fcmconfr_output$params$confidence_intervals_bootstrap_opts = list(
+    fcmconfr_output$params$confidence_intervals_bootstrap_opts <- list(
       ci_centering_function = variables$ci_centering_function,
       confidence_interval = variables$confidence_interval,
       num_ci_bootstraps = variables$num_ci_bootstraps

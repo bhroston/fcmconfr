@@ -1,7 +1,7 @@
 #' shiny_ui
 #'
 #' @description
-#' [ADD DETAILS HERE!!!]
+#' ui.R for fcmconfr_gui shiny app
 #'
 shiny_ui <- function() {
   bslib::page_sidebar(

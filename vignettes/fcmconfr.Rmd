@@ -21,7 +21,14 @@ library(fcmconfr)
 
 # The `fcmconfr` Workflow
 
-`fcmconfr` streamlines the process of conducting dynamic simulations using fuzzy cognitive maps (FCMs). The package can (1) analyze different types of FCMs (conventional, interval-value fuzzy number, and triangular fuzzy number), (2) perform dynamic simulations on one or more individual FCMs, (3) aggregate individual FCMs so that dynamic simulations can be performed on the aggregate, and (4) estimate uncertainty using Monte Carlo approaches. A typical fcmconfr workflow includes the following four steps:
+`fcmconfr` streamlines the process of performing a variety of analyses using 
+fuzzy cognitive maps (FCMs). This package can (1) analyze different types of 
+FCMs (conventional, interval-value fuzzy number, and triangular fuzzy number), 
+(2) perform dynamic simulations on one or more individual FCMs, (3) aggregate 
+individual FCMs so that dynamic simulations can be performed on the aggregate, 
+and (4) estimate uncertainty using Monte Carlo approaches. 
+
+A typical fcmconfr workflow includes the following four steps:
 
 1.  Import FCMs
 
@@ -31,7 +38,9 @@ library(fcmconfr)
 
 4.  Explore outputs using `get_fcmconfr_inferences()` , `summary()`, and `plot()`
 
-This guide walks through each of these steps, from data import to visualization. It frequently references data from the `sample_fcms` object that users can access after loading `fcmconfr`.
+This guide walks through each of these steps, from data import to visualization.
+It frequently references data from the `sample_fcms` object that users can 
+access by loading the `fcmconfr` package.
 
 ## 1. Import FCMs
 
@@ -56,7 +65,7 @@ fcms <- list(fcm_1, fcm_2, ..., fcm_n)
 
 ### 1.2 Importing IVFN FCMs
 
-Because IVFN-FCMs have interval edge weights with lower and upper bounds, separate adjacency matrices must be created and uploaded for each bound (lower and upper). We can then use the function `make_adj_matrix_w_ivfns()` to combine the two, creating a single adjacency matrix with interval edge weights. As noted previously for conventional FCMs, users who plan to analyze multiple IVFN FCMs together should group them into a single list object.
+IVFN-FCMs have interval edge weights with lower and upper bounds, so separate adjacency matrices must be created and uploaded for each bound (lower and upper). Use the function `make_adj_matrix_w_ivfns()` to combine the two, creating a single adjacency matrix with interval edge weights. As noted previously for conventional FCMs, users who plan to analyze multiple IVFN FCMs together should group them into a single list object.
 
 ```{r eval=FALSE}
 # Import separate adjacency matrices representing the 
@@ -95,7 +104,7 @@ tfn_fcms <- list(tfn_fcm_1, tfn_fcm_2, ..., tfn_fcm_n)
 
 ### 1.4 Interacting with IVFN and TFN Adjacency Matrix Elements
 
-Since users can make IVFN or TFN adjacency matrices by importing matrices from files, they will rarely need to create an IVFN or TFN matrix from scratch. However, the example below illustrates how `fcmconfr` creates such objects. The example we provide below is for an IVFN matrix. The approach for a TFN matrix is similar, but uses three- rather than two-element lists.
+Users can make IVFN or TFN adjacency matrices by importing matrices from files, so they will rarely need to create an IVFN or TFN matrix from scratch. However, the example below illustrates how `fcmconfr` creates such objects. The example we provide below is for an IVFN matrix. The approach for a TFN matrix is similar, but uses three- rather than two-element lists.
 
 ```{r eval=FALSE}
 # First, create a dataframe from a n x n matrix of lists
@@ -117,7 +126,7 @@ ivfn_fcm[2, 2][[1]] <- list(ivfn(0, 0))
 
 <br>
 
-To report the IVFN of a particular edge within an IVFN matrix, we can call `ivfn_fcm[row, col]`, which returns a `list` object or `ivfn_fcm[row, col][[1]]` to return the first record in the `list` object, the IVFN itself.
+To report the IVFN of a particular edge within an IVFN matrix, call `ivfn_fcm[row, col]`, which returns a `list` object or `ivfn_fcm[row, col][[1]]` to return the first record in the `list` object, the IVFN itself.
 
 ::: {style="text-align: center;"}
 ![`ivfn` object organization](images/ivfn_example.png){width="50%"}
@@ -186,7 +195,7 @@ The primary `fcmconfr()` function is the central function of the package and req
 
 `fcmconfr_gui()` performs two tasks: (1) it launches a Shiny app that lets users interactively select parameters and (2) it outputs a corresponding call to `fcmconfr()` that users can copy-and-paste to run in their own scripts.
 
-No inputs are provided to `fcmconfr_gui()`, but the local environment must have an individual FCM or a `list` object containing multiple FCMs in order for `fcmconfr_gui()` to be used. Once `fcmconfr_gui()` is running the user selects the appropriate FCMs to analyze from a dropdown menu titled Adj. Matrix or List of Adj. Matrices.
+No inputs are provided to `fcmconfr_gui()`, but the local environment must have an individual FCM or a `list` object containing multiple FCMs in order for `fcmconfr_gui()` to be used. Once `fcmconfr_gui()` is running, select the appropriate FCMs to analyze from a dropdown menu titled Adj. Matrix or List of Adj. Matrices.
 
 Matrices conforming to any of the above-noted FCM types (conventional, IVFN, or TFN) can be selected for analysis.
 

@@ -2,7 +2,7 @@
 ################################################################################
 # utils-general.R
 #
-# These functions do not facilitate a specific analysis, but are rather genral
+# These functions do not facilitate a specific analysis, and are general
 # tools used throughout the package.
 #
 #   Exported
@@ -21,11 +21,11 @@
 #'
 #' @description
 #' Given a list of adj. matrices of different sizes, transforms the inputs into
-#' adj. matrices of the same size with 0 values added where edges are undefined
+#' adj. matrices of the same size with 0-values added where edges are undefined
 #' or not included in maps.
 #'
 #' Solves the problem where Map 1 has nodes A and B but Map 2 has nodes B and C
-#' and need to analyse them both together.
+#' and the user needs to analyse them both together.
 #'
 #' @param adj_matrices  \[`list()`]\cr A single adjacency matrix or a list of
 #' adjacency matrices (n x n) representing FCMs. Matrices can have conventional
@@ -174,7 +174,7 @@ get_fcm_class_from_adj_matrix <- function(adj_matrix = data.frame()) {
 get_node_IDs_from_input <- function(adj_matrix = data.frame()) {
   empty_colnames <- identical(colnames(adj_matrix), NULL)
   if (empty_colnames) {
-    IDs <- paste0("C", 1:nrow(adj_matrix))
+    IDs <- paste0("C", seq_along(adj_matrix))
   } else if (!empty_colnames) {
     IDs <- colnames(adj_matrix)
   }

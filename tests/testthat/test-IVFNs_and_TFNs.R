@@ -48,7 +48,9 @@ test_that("make_adj_matrix_w_ivfns works", {
 
   colnames(test_lower_adj_matrix) <- NULL
   colnames(test_upper_adj_matrix) <- NULL
-  make_adj_matrix_w_ivfns(test_lower_adj_matrix, test_upper_adj_matrix)
+  expect_no_error(
+    make_adj_matrix_w_ivfns(test_lower_adj_matrix, test_upper_adj_matrix)
+  )
 
 
   # Catches unequal sized lower and upper matrices
@@ -110,7 +112,13 @@ test_that("make_adj_matrix_w_ivfns works", {
     "C7" = c(0, 0, 0, 0.34, 0, 0, 0, 0),
     "C8" = c(0, 0, 0, 0, 0, 0.63, 0, 0)
   )
-  expect_error(make_adj_matrix_w_ivfns(test_lower_adj_matrix, test_upper_adj_matrix))
+  expect_error(
+    invisible(
+      capture.output(
+        make_adj_matrix_w_ivfns(test_lower_adj_matrix, test_upper_adj_matrix)
+      )
+    )
+  )
 
 
   # Works with objects imported from xlsx
@@ -276,7 +284,13 @@ test_that("make_adj_matrix_w_tfns works", {
     C1 = c(0, 0),
     C2 = c(-0.1, 0)
   )
-  expect_error(make_adj_matrix_w_tfns(lower_adj_matrix, mode_adj_matrix, upper_adj_matrix))
+  expect_error(
+    invisible(
+      capture.output(
+        make_adj_matrix_w_tfns(lower_adj_matrix, mode_adj_matrix, upper_adj_matrix)
+      )
+    )
+  )
 
 
 
@@ -396,5 +410,5 @@ test_that("rtriangular_dist works", {
 
 
 test_that("plot.rtriangular_dist works", {
-  expect_no_error(plot(rtriangular_dist(1000, -0.5, 0.1, 0.5)))
+  expect_no_error(invisible(capture.output(plot(rtriangular_dist(1000, -0.5, 0.1, 0.5)))))
 })

@@ -22,7 +22,7 @@ equal to the lower value)}
 [\code{tfn}]\cr A triangular fuzzy number (TFN)
 }
 \description{
-This constructs an triangular fuzzy number (ivfn) that represents a
+This constructs an triangular fuzzy number (tfn) that represents a
 continuous, triangular distribution of values within a given range
 }
 \details{

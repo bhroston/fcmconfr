@@ -47,7 +47,7 @@ NULL
 #' a numeric vector, a choice from a particular set of choices, a positive
 #' number, a positive integer, or a logical value).
 #'
-#' @param x A character string, a [numeric]/[numercic vector], a [matrix]
+#' @param x A character string, a [numeric], a [matrix]
 #' or [data.frame]-like object, or a [logical] (TRUE/FALSE) value
 #' @param check A character of the check to perform. Must be one of the
 #' following:
@@ -73,7 +73,7 @@ NULL
 #'  }
 #' @param var_name A [character] string of the variable name of (x)
 #' @param choice_selection_opts ONLY used if check = 'choice_selection'. A
-#' [vector of character strings]; choices to make sure the 'choice_selection'
+#' vector of [character] strings; choices to make sure the 'choice_selection'
 #' check ensures a match.
 #' @param zero_is_positive ONLY used if check = 'positive_number' or
 #' 'positive_integer'. A [logical] (TRUE/FALSE) object that dictates
@@ -253,7 +253,7 @@ check_adj_matrix_list <- function(x = list()) {
 #'
 #' @examples
 #' check_square_adj_matrix(matrix(1:9, nrow = 3))
-check_square_adj_matrix = function(x = matrix()) {
+check_square_adj_matrix <- function(x = matrix()) {
   requireNamespace("Matrix")
 
   if (methods::is(x)[1] == "list" & length(x) > 1) {
@@ -334,7 +334,7 @@ check_square_adj_matrix = function(x = matrix()) {
 #' check_numeric_vector(c(1, 1, 1))
 #' check_numeric_vector(c(1, "1", 1))
 #' check_numeric_vector(c("one", "two"))
-check_numeric_vector = function(x, var_name = "") {
+check_numeric_vector <- function(x, var_name = "") {
   # Skip test if no input given; an empty input will create an assumed
   # initial_state_vector/clamping_vector in the check function that called this
   if (identical(x, c())) {
@@ -396,7 +396,7 @@ check_numeric_vector = function(x, var_name = "") {
 #'
 #' @examples
 #' check_ivfn_vector(c(ivfn(1, 1), ivfn(1, 1)), var_name = "state_vector")
-check_ivfn_vector = function(x, var_name = "") {
+check_ivfn_vector <- function(x, var_name = "") {
 
   var_name <- assert_var_name(var_name)
 
@@ -442,7 +442,7 @@ check_ivfn_vector = function(x, var_name = "") {
 #'
 #' @examples
 #' check_tfn_vector(c(tfn(1, 1, 1), tfn(1, 1 1)), var_name = "state_vector")
-check_tfn_vector = function(x, var_name = "") {
+check_tfn_vector <- function(x, var_name = "") {
 
   var_name <- assert_var_name(var_name)
 
@@ -535,7 +535,7 @@ check_choice_selection <- function(x, choices = c(), var_name = "") {
 #' @details
 #' INTENDED FOR DEVELOPER USE ONLY
 #'
-#' @param x a positive [numeric] [> 0]
+#' @param x a positive [numeric] > 0
 #' @param var_name a [character] object for the name of the input variable to
 #' be displayed in the error message
 #' @param zero_is_positive a [logical] (TRUE/FALSE) object that dictates
@@ -600,7 +600,7 @@ check_positive_number <- function(x = numeric(), var_name = "", zero_is_positive
 #' @details
 #' INTENDED FOR DEVELOPER USE ONLY
 #'
-#' @param x a single, positive [integer] [> 0]
+#' @param x a single, positive [integer] > 0
 #' @param var_name a [character] object for the name of the input variable to
 #' be displayed in the error message
 #' @param zero_is_positive a [logical] (TRUE/FALSE) object that dictates

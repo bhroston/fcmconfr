@@ -1,7 +1,7 @@
 #' shiny_server
 #'
 #' @description
-#' [ADD DETAILS HERE!!!]
+#' Backend for the fcmconfr_gui shinyapp
 #'
 #' @param input the data streamed into the server from the ui
 #' @param output the data streamed from to the ui from the server
@@ -719,14 +719,28 @@ shiny_server <- function(input, output, session) {
       return(code_snippet_text)
     }
 
+    adj_matrices <- input$adj_matrices
+    activation <- input$activation
+    squashing <- input$squashing
+    lambda <- input$lambda
+    point_of_inference <- input$point_of_inference
+    max_iter <- input$max_iter
+    min_error <- input$min_error
+    aggregation_fun <- input$aggregation_fun
+    include_zeroes_in_sampling <- input$include_zeroes_in_sampling
+    num_mc_fcms <- input$num_mc_fcms
+    show_progress <- input$show_progress
+    parallel <- input$parallel
+    include_sims_in_output <- input$include_sims_in_output
+    include_zeroes_in_sampling <- input$include_zeroes_in_sampling
+    ci_centering_function <- input$ci_centering_function
+    confidence_interval <- input$confidence_interval
+    num_ci_bootstraps <- input$num_ci_bootstraps
+
     simulation_inputs <- c(
       "activation", "squashing",
       "lambda", "point_of_inference", "max_iter", "min_error"
     )
-    if (!all(simulation_inputs %in% names(input)) && !is.null(initial_state_vector()) && !is.null(clamping_vector())) {
-      code_snippet_text <- "Select Simulation options to create fcmconfr() code snippet"
-      return(code_snippet_text)
-    }
 
     aggregation_and_mc_inputs <- c(
       "aggregation_fun", "include_zeroes_in_sampling",
@@ -734,21 +748,71 @@ shiny_server <- function(input, output, session) {
       "include_sims_in_output", "include_zeroes_in_sampling"
     )
 
-    if (length(adj_matrices) != 1 && !all(aggregation_and_mc_inputs %in% names(input))) {
-      code_snippet_text <- "Select Aggregation and Monte Carlo sampling options to create fcmconfr() code snippet"
-      return(code_snippet_text)
-    }
-
     bootstrap_inputs <- c(
       "ci_centering_function", "confidence_interval", "num_ci_bootstraps"
     )
-    if (length(adj_matrices) != 1 && !all(bootstrap_inputs %in% names(input))) {
-      code_snippet_text <- "Select bootstrapping options to create fcmconfr() code snippet"
+
+    simulation_inputs_selected <- FALSE
+    agg_and_mc_inputs_selected <- FALSE
+    bootstrap_inputs_selected <- FALSE
+    code_snippet_preamble <- ""
+
+    if (all(simulation_inputs %in% names(input))) {
+      simulation_inputs_selected <- TRUE
+    } else {
+      code_snippet_preamble <- paste(
+        code_snippet_preamble,
+        "No simulation inputs selected. Using default values.",
+        sep = "\n"
+      )
+      activation <- "modified-kosko"
+      squashing <- "sigmoid"
+      lambda <- "1"
+      point_of_inference <- "final"
+      max_iter <- "100"
+      min_error <- "1e-5"
+    }
+
+    if (all(aggregation_and_mc_inputs %in% names(input))) {
+      agg_and_mc_inputs_selected <- TRUE
+    } else {
+      code_snippet_preamble <- paste(
+        code_snippet_preamble,
+        "No aggregation/monte carlo inputs selected. Using default values.",
+        sep = "\n"
+      )
+      aggregation_fun <- "mean"
+      include_zeroes_in_sampling <- "TRUE"
+      num_mc_fcms <- "1000"
+      show_progress <- "TRUE"
+      include_sims_in_output <- "TRUE"
+      include_zeroes_in_sampling <- "TRUE"
+    }
+
+    if (all(bootstrap_inputs %in% names(input))) {
+      bootstrap_inputs_selected <- TRUE
+    } else {
+      code_snippet_preamble <- paste(
+        code_snippet_preamble,
+        "No bootstrap inputs selected. Using default values.",
+        sep = "\n"
+      )
+      ci_centering_function <- "mean"
+      confidence_interval <- "0.95"
+      num_ci_bootstraps <- "1000"
+    }
+
+    if (code_snippet_preamble != "") {
+      code_snippet_preamble <- paste(code_snippet_preamble, "\n\n")
+    }
+
+    if (input$perform_aggregation && length(adj_matrices()) == 1) {
+      code_snippet_text <- "FCM aggregation requires multiple input FCMs"
       return(code_snippet_text)
     }
 
     if (input$parallel == "FALSE" || is.null(input$n_cores)) {
-      n_cores <- 1
+      n_cores <- "1"
     } else {
       n_cores <- input$n_cores
     }
@@ -759,174 +823,176 @@ shiny_server <- function(input, output, session) {
       })
     }
 
-    performed_aggregation <- input$perform_aggregation
-    performed_mc <- input$perform_monte_carlo
-    performed_bootstrap <- input$perform_inference_bootstrap
+    perform_aggregation <- input$perform_aggregation
+    perform_monte_carlo <- input$perform_monte_carlo
+    perform_inference_bootstrap <- input$perform_inference_bootstrap
 
-    if (performed_aggregation & !performed_mc & !performed_bootstrap) {
+    if (perform_aggregation & !perform_monte_carlo & !perform_inference_bootstrap) {
       code_snippet_text <- paste0(
         "fcmconfr_call <- fcmconfr(", "\n",
-        "  adj_matrices = ", input$adj_matrices, ",\n",
+        "  adj_matrices = ", adj_matrices, ",\n",
         "  # Aggregation", "\n",
-        "  agg_function = ", paste0("'", input$aggregation_fun, "'"), ",\n",
+        "  agg_function = ", paste0("'", aggregation_fun, "'"), ",\n",
         "  # Simulation", "\n",
         "  initial_state_vector = ", paste0("c(", paste0(initial_state_vector(), collapse = ", "), ")"), ",\n",
         "  clamping_vector = ", paste0("c(", paste0(clamping_vector(), collapse = ", "), ")"), ",\n",
-        "  activation = ", paste0("'", input$activation, "'"), ",\n",
-        "  squashing = ",  paste0("'", input$squashing, "'"), ",\n",
-        "  lambda = ", input$lambda, ",\n",
-        "  point_of_inference = ", paste0("'", input$point_of_inference, "'"), ",\n",
-        "  max_iter = ", input$max_iter, ",\n",
-        "  min_error = ", input$min_error, ",\n",
+        "  activation = ", paste0("'", activation, "'"), ",\n",
+        "  squashing = ",  paste0("'", squashing, "'"), ",\n",
+        "  lambda = ", lambda, ",\n",
+        "  point_of_inference = ", paste0("'", point_of_inference, "'"), ",\n",
+        "  max_iter = ", max_iter, ",\n",
+        "  min_error = ", min_error, ",\n",
         "  # Runtime Options", "\n",
-        "  show_progress = ", input$show_progress, ",\n",
+        "  show_progress = ", show_progress, ",\n",
         "  # Additional Options", "\n",
-        "  run_agg_calcs = ", input$perform_aggregation, ",\n",
-        "  run_mc_calcs = ", input$perform_monte_carlo, ",\n",
-        "  run_ci_calcs = ", input$perform_inference_bootstrap, ",\n",
-        "  include_zeroes_in_sampling = ", input$include_zeroes_in_sampling, "\n",
+        "  run_agg_calcs = ", perform_aggregation, ",\n",
+        "  run_mc_calcs = ", perform_monte_carlo, ",\n",
+        "  run_ci_calcs = ", perform_inference_bootstrap, ",\n",
+        "  include_zeroes_in_sampling = ", include_zeroes_in_sampling, "\n",
         ")", sep = ""
       )
-    } else if (performed_aggregation & performed_mc & !performed_bootstrap) {
+    } else if (perform_aggregation & perform_monte_carlo & !perform_inference_bootstrap) {
       code_snippet_text <- paste0(
         "fcmconfr_call <- fcmconfr(", "\n",
-        "  adj_matrices = ", input$adj_matrices, ",\n",
+        "  adj_matrices = ", adj_matrices, ",\n",
         "  # Aggregation and Monte Carlo Sampling", "\n",
-        "  agg_function = ", paste0("'", input$aggregation_fun, "'"), ",\n",
-        "  num_mc_fcms = ", input$num_mc_fcms, ",\n",
+        "  agg_function = ", paste0("'", aggregation_fun, "'"), ",\n",
+        "  num_mc_fcms = ", num_mc_fcms, ",\n",
         "  # Simulation", "\n",
         "  initial_state_vector = ", paste0("c(", paste0(initial_state_vector(), collapse = ", "), ")"), ",\n",
         "  clamping_vector = ", paste0("c(", paste0(clamping_vector(), collapse = ", "), ")"), ",\n",
-        "  activation = ", paste0("'", input$activation, "'"), ",\n",
-        "  squashing = ",  paste0("'", input$squashing, "'"), ",\n",
-        "  lambda = ", input$lambda, ",\n",
-        "  point_of_inference = ", paste0("'", input$point_of_inference, "'"), ",\n",
-        "  max_iter = ", input$max_iter, ",\n",
-        "  min_error = ", input$min_error, ",\n",
+        "  activation = ", paste0("'", activation, "'"), ",\n",
+        "  squashing = ",  paste0("'", squashing, "'"), ",\n",
+        "  lambda = ", lambda, ",\n",
+        "  point_of_inference = ", paste0("'", point_of_inference, "'"), ",\n",
+        "  max_iter = ", max_iter, ",\n",
+        "  min_error = ", min_error, ",\n",
         "  # Runtime Options", "\n",
-        "  show_progress = ", input$show_progress, ",\n",
-        "  parallel = ", input$parallel, ",\n",
+        "  show_progress = ", show_progress, ",\n",
+        "  parallel = ", parallel, ",\n",
         "  n_cores = ", n_cores, ",\n",
         "  # Additional Options", "\n",
-        "  run_agg_calcs = ", input$perform_aggregation, ",\n",
-        "  run_mc_calcs = ", input$perform_monte_carlo, ",\n",
-        "  run_ci_calcs = ", input$perform_inference_bootstrap, ",\n",
-        "  include_zeroes_in_sampling = ", input$include_zeroes_in_sampling, ",\n",
-        "  include_sims_in_output = ",  input$include_sims_in_output, "\n",
+        "  run_agg_calcs = ", perform_aggregation, ",\n",
+        "  run_mc_calcs = ", perform_monte_carlo, ",\n",
+        "  run_ci_calcs = ", perform_inference_bootstrap, ",\n",
+        "  include_zeroes_in_sampling = ", include_zeroes_in_sampling, ",\n",
+        "  include_sims_in_output = ",  include_sims_in_output, "\n",
         ")", sep = ""
       )
-    } else if (performed_aggregation & performed_mc & performed_bootstrap) {
+    } else if (perform_aggregation & perform_monte_carlo & perform_inference_bootstrap) {
       code_snippet_text <- paste0(
         "fcmconfr_call <- fcmconfr(", "\n",
-        "  adj_matrices = ", input$adj_matrices, ",\n",
+        "  adj_matrices = ", adj_matrices, ",\n",
         "  # Aggregation and Monte Carlo Sampling", "\n",
-        "  agg_function = ", paste0("'", input$aggregation_fun, "'"), ",\n",
-        "  num_mc_fcms = ", input$num_mc_fcms, ",\n",
+        "  agg_function = ", paste0("'", aggregation_fun, "'"), ",\n",
+        "  num_mc_fcms = ", num_mc_fcms, ",\n",
         "  # Simulation", "\n",
         "  initial_state_vector = ", paste0("c(", paste0(initial_state_vector(), collapse = ", "), ")"), ",\n",
         "  clamping_vector = ", paste0("c(", paste0(clamping_vector(), collapse = ", "), ")"), ",\n",
-        "  activation = ", paste0("'", input$activation, "'"), ",\n",
-        "  squashing = ",  paste0("'", input$squashing, "'"), ",\n",
-        "  lambda = ", input$lambda, ",\n",
-        "  point_of_inference = ", paste0("'", input$point_of_inference, "'"), ",\n",
-        "  max_iter = ", input$max_iter, ",\n",
-        "  min_error = ", input$min_error, ",\n",
+        "  activation = ", paste0("'", activation, "'"), ",\n",
+        "  squashing = ",  paste0("'", squashing, "'"), ",\n",
+        "  lambda = ", lambda, ",\n",
+        "  point_of_inference = ", paste0("'", point_of_inference, "'"), ",\n",
+        "  max_iter = ", max_iter, ",\n",
+        "  min_error = ", min_error, ",\n",
         "  # Inference Estimation (bootstrap)", "\n",
-        "  ci_centering_function = ", paste0("'", input$ci_centering_function, "'"), ",\n",
-        "  confidence_interval = ", input$confidence_interval, ",\n",
-        "  num_ci_bootstraps = ", input$num_ci_bootstraps, ",\n",
+        "  ci_centering_function = ", paste0("'", ci_centering_function, "'"), ",\n",
+        "  confidence_interval = ", confidence_interval, ",\n",
+        "  num_ci_bootstraps = ", num_ci_bootstraps, ",\n",
         "  # Runtime Options", "\n",
-        "  show_progress = ", input$show_progress, ",\n",
-        "  parallel = ", input$parallel, ",\n",
+        "  show_progress = ", show_progress, ",\n",
+        "  parallel = ", parallel, ",\n",
         "  n_cores = ", n_cores, ",\n",
         "  # Additional Options", "\n",
-        "  run_agg_calcs = ", input$perform_aggregation, ",\n",
-        "  run_mc_calcs = ", input$perform_monte_carlo, ",\n",
-        "  run_ci_calcs = ", input$perform_inference_bootstrap, ",\n",
-        "  include_zeroes_in_sampling = ", input$include_zeroes_in_sampling, ",\n",
-        "  include_sims_in_output = ",  input$include_sims_in_output, "\n",
+        "  run_agg_calcs = ", perform_aggregation, ",\n",
+        "  run_mc_calcs = ", perform_monte_carlo, ",\n",
+        "  run_ci_calcs = ", perform_inference_bootstrap, ",\n",
+        "  include_zeroes_in_sampling = ", include_zeroes_in_sampling, ",\n",
+        "  include_sims_in_output = ",  include_sims_in_output, "\n",
         ")", sep = ""
       )
-    } else if (!performed_aggregation & performed_mc & !performed_bootstrap) {
+    } else if (!perform_aggregation & perform_monte_carlo & !perform_inference_bootstrap) {
       code_snippet_text <- paste0(
         "fcmconfr_call <- fcmconfr(", "\n",
-        "  adj_matrices = ", input$adj_matrices, ",\n",
+        "  adj_matrices = ", adj_matrices, ",\n",
         "  # Monte Carlo Sampling", "\n",
-        "  num_mc_fcms = ", input$num_mc_fcms, ",\n",
+        "  num_mc_fcms = ", num_mc_fcms, ",\n",
         "  # Simulation", "\n",
         "  initial_state_vector = ", paste0("c(", paste0(initial_state_vector(), collapse = ", "), ")"), ",\n",
         "  clamping_vector = ", paste0("c(", paste0(clamping_vector(), collapse = ", "), ")"), ",\n",
-        "  activation = ", paste0("'", input$activation, "'"), ",\n",
-        "  squashing = ",  paste0("'", input$squashing, "'"), ",\n",
-        "  lambda = ", input$lambda, ",\n",
-        "  point_of_inference = ", paste0("'", input$point_of_inference, "'"), ",\n",
-        "  max_iter = ", input$max_iter, ",\n",
-        "  min_error = ", input$min_error, ",\n",
+        "  activation = ", paste0("'", activation, "'"), ",\n",
+        "  squashing = ",  paste0("'", squashing, "'"), ",\n",
+        "  lambda = ", lambda, ",\n",
+        "  point_of_inference = ", paste0("'", point_of_inference, "'"), ",\n",
+        "  max_iter = ", max_iter, ",\n",
+        "  min_error = ", min_error, ",\n",
         "  # Runtime Options", "\n",
-        "  show_progress = ", input$show_progress, ",\n",
-        "  parallel = ", input$parallel, ",\n",
+        "  show_progress = ", show_progress, ",\n",
+        "  parallel = ", parallel, ",\n",
         "  n_cores = ", n_cores, ",\n",
         "  # Additional Options", "\n",
-        "  run_agg_calcs = ", input$perform_aggregation, ",\n",
-        "  run_mc_calcs = ", input$perform_monte_carlo, ",\n",
-        "  run_ci_calcs = ", input$perform_inference_bootstrap, ",\n",
-        "  include_zeroes_in_sampling = ", input$include_zeroes_in_sampling, ",\n",
-        "  include_sims_in_output = ",  input$include_sims_in_output, "\n",
+        "  run_agg_calcs = ", perform_aggregation, ",\n",
+        "  run_mc_calcs = ", perform_monte_carlo, ",\n",
+        "  run_ci_calcs = ", perform_inference_bootstrap, ",\n",
+        "  include_zeroes_in_sampling = ", include_zeroes_in_sampling, ",\n",
+        "  include_sims_in_output = ",  include_sims_in_output, "\n",
         ")", sep = ""
       )
-    } else if (!performed_aggregation & performed_mc & performed_bootstrap) {
+    } else if (!perform_aggregation & perform_monte_carlo & perform_inference_bootstrap) {
       code_snippet_text <- paste0(
         "fcmconfr_call <- fcmconfr(", "\n",
-        "  adj_matrices = ", input$adj_matrices, ",\n",
+        "  adj_matrices = ", adj_matrices, ",\n",
         "  # Monte Carlo Sampling", "\n",
-        "  num_mc_fcms = ", input$num_mc_fcms, ",\n",
+        "  num_mc_fcms = ", num_mc_fcms, ",\n",
         "  # Simulation", "\n",
         "  initial_state_vector = ", paste0("c(", paste0(initial_state_vector(), collapse = ", "), ")"), ",\n",
         "  clamping_vector = ", paste0("c(", paste0(clamping_vector(), collapse = ", "), ")"), ",\n",
-        "  activation = ", paste0("'", input$activation, "'"), ",\n",
-        "  squashing = ",  paste0("'", input$squashing, "'"), ",\n",
-        "  lambda = ", input$lambda, ",\n",
-        "  point_of_inference = ", paste0("'", input$point_of_inference, "'"), ",\n",
-        "  max_iter = ", input$max_iter, ",\n",
-        "  min_error = ", input$min_error, ",\n",
+        "  activation = ", paste0("'", activation, "'"), ",\n",
+        "  squashing = ",  paste0("'", squashing, "'"), ",\n",
+        "  lambda = ", lambda, ",\n",
+        "  point_of_inference = ", paste0("'", point_of_inference, "'"), ",\n",
+        "  max_iter = ", max_iter, ",\n",
+        "  min_error = ", min_error, ",\n",
         "  # Inference Estimation (bootstrap)", "\n",
-        "  ci_centering_function = ", paste0("'", input$ci_centering_function, "'"), ",\n",
-        "  confidence_interval = ", input$confidence_interval, ",\n",
+        "  ci_centering_function = ", paste0("'", ci_centering_function, "'"), ",\n",
+        "  confidence_interval = ", confidence_interval, ",\n",
         "  num_ci_bootstraps = ", x$num_ci_bootstraps, ",\n",
         "  # Runtime Options", "\n",
-        "  show_progress = ", input$show_progress, ",\n",
-        "  parallel = ", input$parallel, ",\n",
+        "  show_progress = ", show_progress, ",\n",
+        "  parallel = ", parallel, ",\n",
         "  n_cores = ", n_cores, ",\n",
         "  # Additional Options", "\n",
-        "  run_agg_calcs = ", input$perform_aggregation, ",\n",
-        "  run_mc_calcs = ", input$perform_monte_carlo, ",\n",
-        "  run_ci_calcs = ", input$perform_inference_bootstrap, ",\n",
-        "  include_zeroes_in_sampling = ", input$include_zeroes_in_sampling, ",\n",
-        "  include_sims_in_output = ",  input$include_sims_in_output, "\n",
+        "  run_agg_calcs = ", perform_aggregation, ",\n",
+        "  run_mc_calcs = ", perform_monte_carlo, ",\n",
+        "  run_ci_calcs = ", perform_inference_bootstrap, ",\n",
+        "  include_zeroes_in_sampling = ", include_zeroes_in_sampling, ",\n",
+        "  include_sims_in_output = ",  include_sims_in_output, "\n",
         ")", sep = ""
       )
-    } else if (!performed_aggregation & !performed_mc & !performed_bootstrap) {
+    } else if (!perform_aggregation & !perform_monte_carlo & !perform_inference_bootstrap) {
       code_snippet_text <- paste0(
         "fcmconfr_call <- fcmconfr(", "\n",
-        "  adj_matrices = ", input$adj_matrices, ",\n",
+        "  adj_matrices = ", adj_matrices, ",\n",
         "  # Simulation", "\n",
         "  initial_state_vector = ", paste0("c(", paste0(initial_state_vector(), collapse = ", "), ")"), ",\n",
         "  clamping_vector = ", paste0("c(", paste0(clamping_vector(), collapse = ", "), ")"), ",\n",
-        "  activation = ", paste0("'", input$activation, "'"), ",\n",
-        "  squashing = ",  paste0("'", input$squashing, "'"), ",\n",
-        "  lambda = ", input$lambda, ",\n",
-        "  point_of_inference = ", paste0("'", input$point_of_inference, "'"), ",\n",
-        "  max_iter = ", input$max_iter, ",\n",
-        "  min_error = ", input$min_error, ",\n",
+        "  activation = ", paste0("'", activation, "'"), ",\n",
+        "  squashing = ",  paste0("'", squashing, "'"), ",\n",
+        "  lambda = ", lambda, ",\n",
+        "  point_of_inference = ", paste0("'", point_of_inference, "'"), ",\n",
+        "  max_iter = ", max_iter, ",\n",
+        "  min_error = ", min_error, ",\n",
         "  # Runtime Options", "\n",
-        "  show_progress = ", input$show_progress, ",\n",
+        "  show_progress = ", show_progress, ",\n",
         "  # Additional Options", "\n",
-        "  run_agg_calcs = ", input$perform_aggregation, ",\n",
-        "  run_mc_calcs = ", input$perform_monte_carlo, ",\n",
-        "  run_ci_calcs = ", input$perform_inference_bootstrap, "\n",
+        "  run_agg_calcs = ", perform_aggregation, ",\n",
+        "  run_mc_calcs = ", perform_monte_carlo, ",\n",
+        "  run_ci_calcs = ", perform_inference_bootstrap, "\n",
         ")", sep = ""
       )
     }
+
+    code_snippet_text <- paste(code_snippet_preamble, code_snippet_text, sep = "\n")
 
     return(code_snippet_text)
 

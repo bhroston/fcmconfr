@@ -81,19 +81,19 @@ defuzz_ivfn_or_tfn <- function(fuzzy_number) {
 #' @family interval-valued-fuzzy-numbers
 #'
 #' @description
-#' This constructs an adjacency matrix with edges represented by interval-value
+#' This constructs an adjacency matrix with edges represented by interval-valued
 #' fuzzy numbers (IVFNs) from an adjacency matrix of lower bounds and an
 #' adjacency matrix of upper bounds
 #'
 #' @details
-#' The input adjacency matrices must square n x n matrices with the same dimensions.
+#' The input adjacency matrices must be square n x n matrices with the same dimensions.
 #' The input can be either matrix, data.table, tibble, or data.table type objects,
 #' but the output will always be a data.frame. This is for output readability.
 #' data.table and tibble objects work logically, but their outputs require
 #' additional steps to parse from the user's perspective.
 #'
 #' If the input matrices have named columns, those names will be carried over
-#' in the grey adjacency matrix. Otherwise, generic node IDs will be used
+#' in the IVFN-FCM adjacency matrix. Otherwise, generic node IDs will be used
 #' (C1, C2, ... Cn).
 #'
 #' @param lower \[`list()` or `data.frame()`]\cr An n x n adjacency matrix that
@@ -121,7 +121,7 @@ make_adj_matrix_w_ivfns <- function(lower = data.frame(), upper = data.frame()) 
   if (identical(colnames(lower), colnames(upper)) & !identical(colnames(lower), NULL)) {
     IDs <- colnames(lower)
   } else {
-    IDs <- paste0("C", 1:nrow(lower))
+    IDs <- paste0("C", seq_along(lower))
     colnames(lower) <- IDs
     colnames(upper) <- IDs
   }
@@ -147,8 +147,8 @@ make_adj_matrix_w_ivfns <- function(lower = data.frame(), upper = data.frame()) 
   colnames(adj_matrix_w_ivfns) <- IDs
   rownames(adj_matrix_w_ivfns) <- IDs
 
-  for (i in 1:length(IDs)) {
-    for (j in 1:length(IDs)) {
+  for (i in seq_along(IDs)) {
+    for (j in seq_along(IDs)) {
       adj_matrix_w_ivfns[[j]][[i]] <- ivfn(
         # [[j]][[i]] instead of [[i]][[j]]
         # because this notation is
@@ -244,7 +244,7 @@ ivfn <- function(lower = double(), upper = double()) {
 
 
 
-#' Create TFN-FCM from Conventional FCM
+#' Create IVFN-FCM from Conventional FCM
 #'
 #' @family interval-valued-fuzzy-numbers
 #'
@@ -438,7 +438,7 @@ c.ivfn <- function(...) {
 #' matrix of modes, and an adjacency matrix of upper bounds
 #'
 #' @details
-#' The input adjacency matrices must square n x n matrices with the same dimensions.
+#' The input adjacency matrices must be square n x n matrices with the same dimensions.
 #' The input can be either matrix, data.table, tibble, or data.table type objects,
 #' but the output will always be a data.frame. This is for output readability.
 #' data.table and tibble objects work logically, but their outputs require
@@ -480,7 +480,7 @@ make_adj_matrix_w_tfns <- function(lower = data.frame(),
   if (all_input_matrices_have_same_colnames & !identical(colnames(lower), NULL)) {
     IDs <- colnames(lower)
   } else {
-    IDs <- paste0("C", 1:nrow(lower))
+    IDs <- paste0("C", seq_along(lower))
   }
 
   if ((!all(lower <= mode) || !all(mode <= upper))) {
@@ -505,8 +505,8 @@ make_adj_matrix_w_tfns <- function(lower = data.frame(),
   colnames(adj_matrix_w_tfns) <- IDs
   rownames(adj_matrix_w_tfns) <- IDs
 
-  for (i in 1:length(IDs)) {
-    for (j in 1:length(IDs)) {
+  for (i in seq_along(IDs)) {
+    for (j in seq_along(IDs)) {
       adj_matrix_w_tfns[[j]][[i]] <- tfn(
         # [[j]][[i]] instead of [[i]][[j]]
         # because this notation is
@@ -530,7 +530,7 @@ make_adj_matrix_w_tfns <- function(lower = data.frame(),
 #' @family triangular-fuzzy-numbers
 #'
 #' @description
-#' This constructs an triangular fuzzy number (ivfn) that represents a
+#' This constructs an triangular fuzzy number (tfn) that represents a
 #' continuous, triangular distribution of values within a given range
 #'
 #' @details
@@ -633,7 +633,7 @@ tfn <- function(lower = double(), mode = double(), upper = double()) {
 #' @family triangular-fuzzy-numbers
 #'
 #' @description
-#' This creates an TFN-FCM from a Conventional FCM by adding error to the
+#' This creates a TFN-FCM from a Conventional FCM by adding error to the
 #' Conventional FCM edge weights. The Conventional FCM edge weights are used
 #' as the mode values for the TFN edge weights.
 #'
@@ -797,7 +797,7 @@ print.tfn <- function(x, ...) {
 #' type tfn
 #'
 #' @details
-#' For tfn objects, c() combines all of the lower and upper data into
+#' For tfn objects, c() combines all of the lower, mode, and upper data into
 #' a single tfn object, but list() returns the expected output of a
 #' list of distinct tfn objects.
 #'
@@ -859,7 +859,7 @@ rtriangular_dist <- function(n = integer(), lower = double(), mode = double(), u
   }
 
   inv_cdf <- vector(mode = "numeric", length = n)
-  for (i in 1:n) {
+  for (i in seq_len(n)) {
     x <- i/n
     if (x <= midpoint_domain) {
       inv_cdf[i] <- lower + sqrt((mode - lower)*(upper - lower)*x)
@@ -886,13 +886,13 @@ rtriangular_dist <- function(n = integer(), lower = double(), mode = double(), u
 #' @param ... additional inputs (leave empty)
 #'
 #' @returns A plot of the triangular distribution generated by rtriangular_dist
-#' (in the vain of plot(runif))
+#' (in the vain of plot(runif(...)))
 #'
 #' @export
 #' @examples
 #' plot(rtriangular_dist(n = 1000L, lower = -1.0, mode = 0.0, upper = 1.0))
 plot.rtriangular_dist <- function(x, ...) {
-  index <- sample(1:length(x), length(x), replace = FALSE)
+  index <- sample(seq_along(x), length(x), replace = FALSE)
   return(
     plot(x = index, y = x, xlab = "Index", ylab = attr(x, ".label"))
   )

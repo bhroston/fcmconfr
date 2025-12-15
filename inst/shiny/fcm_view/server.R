@@ -251,7 +251,7 @@ server <- function(input, output) {
       if (input$show_node_labels) {
         updated_nodes_df$label <- ifelse(updated_nodes_df$color == "transparent", "", input_nodes()$id)
       } else {
-        updated_nodes_df$label = ""
+        updated_nodes_df$label <- ""
       }
       # ----
 
@@ -263,7 +263,7 @@ server <- function(input, output) {
       if (input$show_edge_labels) {
         updated_edges_df$label <- ifelse(updated_edges_df$color == "transparent", " ", as.character(input_edges()$weight))
       } else {
-        updated_edges_df$label = " "
+        updated_edges_df$label <- " "
       }
       # ----
 

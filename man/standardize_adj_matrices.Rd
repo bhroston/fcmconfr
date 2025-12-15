@@ -18,11 +18,11 @@ Rows/Columns of added concepts are all 0's.
 }
 \description{
 Given a list of adj. matrices of different sizes, transforms the inputs into
-adj. matrices of the same size with 0 values added where edges are undefined
+adj. matrices of the same size with 0-values added where edges are undefined
 or not included in maps.
 
 Solves the problem where Map 1 has nodes A and B but Map 2 has nodes B and C
-and need to analyse them both together.
+and the user needs to analyse them both together.
 }
 \examples{
 # Standardize Conventional FCMs
