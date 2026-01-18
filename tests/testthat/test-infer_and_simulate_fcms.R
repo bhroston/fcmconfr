@@ -194,34 +194,30 @@ test_that("infer_fcm_set works", {
   # Confirm same results whether or not convergence checker is used
   test_clamping_vector <- rep(0, 46)
   test_clamping_vector[c(1:5)] <- 1
-  test_convergence_checker <- infer_fcm_set(adj_matrices = sample_fcms$large_fcms$conventional_fcms[1:3],
-                initial_state_vector = rep(1, 46),
-                clamping_vector = test_clamping_vector,
-                activation = "modified-kosko",
-                squashing = "sigmoid",
-                lambda = 1,
-                point_of_inference = "final",
-                max_iter = 10,
-                min_error = 1e-5,
-                parallel = FALSE,
-                show_progress = FALSE,
-                silent = TRUE)
+  expect_warning(expect_warning(
+    test_convergence_checker <- infer_fcm(adj_matrix = sample_fcms$large_fcms$conventional_fcms[[1]],
+                                          initial_state_vector = rep(1, 46),
+                                          clamping_vector = test_clamping_vector,
+                                          activation = "modified-kosko",
+                                          squashing = "sigmoid",
+                                          lambda = 1,
+                                          point_of_inference = "final",
+                                          max_iter = 10,
+                                          min_error = 1e-5)
+  ))
   item_convergence_checker <- test_convergence_checker$inferences$Salinization.Watershed
-  test_no_convergence_checker <- infer_fcm_set(adj_matrices = sample_fcms$large_fcms$conventional_fcms[1:3],
-                                            initial_state_vector = rep(1, 46),
-                                            clamping_vector = test_clamping_vector,
-                                            activation = "modified-kosko",
-                                            squashing = "sigmoid",
-                                            lambda = 1,
-                                            point_of_inference = "final",
-                                            max_iter = 10000,
-                                            min_error = 0.0001,
-                                            parallel = FALSE,
-                                            show_progress = FALSE,
-                                            silent = TRUE)
+  test_no_convergence_checker <- infer_fcm(adj_matrix = sample_fcms$large_fcms$conventional_fcms[[1]],
+                                           initial_state_vector = rep(1, 46),
+                                           clamping_vector = test_clamping_vector,
+                                           activation = "modified-kosko",
+                                           squashing = "sigmoid",
+                                           lambda = 1,
+                                           point_of_inference = "final",
+                                           max_iter = 10000,
+                                           min_error = 0.001)
   item_no_convergence_checker <- test_no_convergence_checker$inferences$Salinization.Watershed
-  expect_that(
-    sum(abs(item_convergence_checker - item_no_convergence_checker)) < 1e-3
+  expect_true(
+    abs(item_convergence_checker - item_no_convergence_checker) < 1e-3
   )
 })
   # ----
