@@ -84,6 +84,8 @@ NULL
 #' @keywords internal
 #' @noRd
 #'
+#' @srrstats {BS2.2, BS2.3, BS2.4, BS2.5} Pre-processing checks and validation implemented
+#'
 #' @example /man/examples/ex-check_fcmconfr_input.R
 check_fcmconfr_input <- function(x,
                                  check = c("adj_matrix_list", "square_adj_matrix", "numeric_vector", "ivfn_vector", "tfn_vector", "choice_selection", "positive_number", "positive_integer", "logical", "color", "shape"),

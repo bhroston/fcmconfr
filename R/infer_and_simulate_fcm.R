@@ -92,6 +92,13 @@
 #'
 #' @export
 #'
+#' @srrstats {BS1.4} Docs describe and provide examples of use w/ and w/o convergence checkers
+#' @srrstats {BS4.3, BS4.4} Implementation of convergence checker and stop on convergence
+#' @srrstats {BS4.5} Warnings added if convergence fails
+#' @srrstats {BS4.6, BS4.7} Tests confirm same results whether or not convergence checker used
+#' @srrstats {BS5.3} Users can select to return convergence statistics with the include_sims_in_output parameter
+#' @srrstats {BS5.5} User warned in case of absence of convergence
+#'
 #' @example man/examples/ex-infer_fcm_set.R
 infer_fcm_set <- function(adj_matrices = list(matrix()),
                           initial_state_vector = c(),
