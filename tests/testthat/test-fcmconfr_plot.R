@@ -258,10 +258,10 @@ test_that("fcmconfr_plot works with Conventional FCMs", {
   # test_pulse_clamping_vector <- rep(0, unique(dim(sample_fcms$simple_fcms$conventional_fcms[[1]])))
   # test_clamping_vector[5] <- 1 # Activate Guidance Docs
 
-  test_initial_state_vector = c(1, 1, 1, 1, 1, 1, 1)
-  test_pulse_initial_state_vector = c(1, 0, 0, 0, 0, 0, 0)
-  test_clamping_vector = c(1, 0, 0, 0, 0, 0, 0)
-  test_pulse_clamping_vector = c(0, 0, 0, 0, 0, 0, 0)
+  test_initial_state_vector <- c(1, 1, 1, 1, 1, 1, 1)
+  test_pulse_initial_state_vector <- c(1, 0, 0, 0, 0, 0, 0)
+  test_clamping_vector <- c(1, 0, 0, 0, 0, 0, 0)
+  test_pulse_clamping_vector <- c(0, 0, 0, 0, 0, 0, 0)
 
   # Clamping: Inputs Only
   invisible(capture.output(
@@ -551,10 +551,10 @@ test_that("fcmconfr_plot works with IVFN FCMs", {
   # test_clamping_vector[5] <- 1 # Activate Guidance Docs
 
   # Small IVFN FCMs inputs
-  test_initial_state_vector = c(1, 1, 1, 1, 1, 1, 1)
-  test_pulse_initial_state_vector = c(1, 0, 0, 0, 0, 0, 0)
-  test_clamping_vector = c(1, 0, 0, 0, 0, 0, 0)
-  test_pulse_clamping_vector = c(0, 0, 0, 0, 0, 0, 0)
+  test_initial_state_vector <- c(1, 1, 1, 1, 1, 1, 1)
+  test_pulse_initial_state_vector <- c(1, 0, 0, 0, 0, 0, 0)
+  test_clamping_vector <- c(1, 0, 0, 0, 0, 0, 0)
+  test_pulse_clamping_vector <- c(0, 0, 0, 0, 0, 0, 0)
 
   # Clamping: Inputs Only
   invisible(capture.output(
