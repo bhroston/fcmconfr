@@ -4,3 +4,98 @@ destination: docs
 template:
   bootstrap: 5
   math-rendering: katex
+
+reference:
+- title: fcmconfr Core Functions
+  desc: >
+    Core functions of the fcmconfr package. Users will be able to navigate
+    the key features of the package with these functions
+  contents:
+  - fcmconfr
+  - fcmconfr_gui
+  - get_fcmconfr_inferences
+
+
+- title: fcmconfr Visualization and Summarization
+  desc: >
+    Functions to display the information from fcmconfr outputs
+  contents:
+  - plot.fcmconfr
+  - print.fcmconfr
+  - summary.fcmconfr
+  - print.summary.fcmconfr
+
+
+
+- title: FCM Inference
+  desc: >
+    Functions called by fcmconfr() (and that may be used outside the fcmconfr()
+    function) that simulate inferences of individual FCM or a set of FCMs.
+  contents:
+  - infer_fcm
+  - infer_fcm_set
+  - estimate_fcm_lambda
+
+- title: FCM Aggregation
+  desc: >
+    Functions called by fcmconfr() (and that may be used outside the fcmconfr()
+    function) that manage FCM aggregation.
+  contents:
+  - aggregate_fcms
+  - print.aggregate
+
+- title: Monte Carlo FCMs
+  desc: >
+    Functions called by fcmconfr() (and that may be used outside the fcmconfr()
+    function) that manage the construction of Monte Carlo FCMs.
+  contents:
+  - build_monte_carlo_fcms
+
+- title: IVFN FCM Functions
+  desc: >
+    Functions called by fcmconfr() (and that may be used outside the fcmconfr()
+    function) that manage Interval Value Fuzzy Numbers (IVFNs) and FCMs which
+    represent edge weights using IVFNs (IVFN FCMs)
+  contents:
+  - ivfn
+  - c.ivfn
+  - print.ivfn
+  - create_ivfn_fcm_from_conventional_fcm
+  - make_adj_matrix_w_ivfns
+  - subtract_ivfn
+
+- title: TFN FCM Functions
+  desc: >
+    Functions called by fcmconfr() (and that may be used outside the fcmconfr()
+    function) that manage Triangular Fuzzy Numbers (TFNs) and FCMs which
+    represent edge weights using TFNs (TFN FCMs)
+  contents:
+  - tfn
+  - c.tfn
+  - print.tfn
+  - create_tfn_fcm_from_conventional_fcm
+  - make_adj_matrix_w_tfns
+  - subtract_tfn
+  - rtriangular_dist
+  - plot.rtriangular_dist
+
+- title: Utility Functions
+  desc: >
+    Additional helper functions
+  contents:
+  - fcm_view
+  - defuzz_ivfn_or_tfn
+  - standardize_adj_matrices
+
+- title: Sample Data Included in the Package
+  desc: >
+    A list of two sets of FCMs: >
+      1) Small FCMs (7 nodes) - Conventional, IVFN, and TFN FCMs
+      2) Large FCMs (46 nodes) - Conventional, IVFN, and TFN FCMs
+  contents:
+  - sample_fcms
+
+
+
+
+
