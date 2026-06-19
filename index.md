@@ -68,8 +68,8 @@ conventional FCMs, FCMs with edge weights represented as IVFNs
 
 [`fcmconfr()`](https://bhroston.github.io/fcmconfr/reference/fcmconfr.md)
 is the central function of the package and requires specifying many
-parameters. The package provides a GUI that can be used to guide users
-through this process -
+parameters. To guide users through that process, the package procides an
+easy to use GUI that can be accessed by
 [`fcmconfr_gui()`](https://bhroston.github.io/fcmconfr/reference/fcmconfr_gui.md).
 
 ![fcmconfr_gui()
@@ -78,6 +78,7 @@ Screenshot](reference/figures/cluster_1_fcmconfr_gui.png)
 [`fcmconfr_gui()`](https://bhroston.github.io/fcmconfr/reference/fcmconfr_gui.md)
 Screenshot
 
+Calling
 [`fcmconfr_gui()`](https://bhroston.github.io/fcmconfr/reference/fcmconfr_gui.md)
 launches a Shiny app that lets users interactively select parameters and
 outputs a corresponding call to
@@ -94,10 +95,9 @@ top-right-hand-corner of the GUI.
 
 To run
 [`fcmconfr()`](https://bhroston.github.io/fcmconfr/reference/fcmconfr.md),
-execute the output script created by
-[`fcmconfr_gui()`](https://bhroston.github.io/fcmconfr/reference/fcmconfr_gui.md).
-The following sample code uses an example FCM from the `sample_fcms`
-data included in the package.
+execute the output script created by \`fcmconfr_gui(). The following
+call uses an example FCM from the `sample_fcms` data included in the
+package.
 
 ``` r
 
@@ -139,7 +139,6 @@ fcmconfr_obj <- fcmconfr(
 [`fcmconfr()`](https://bhroston.github.io/fcmconfr/reference/fcmconfr.md)
 generates a large object with many concepts, the most important of which
 are simulation inferences (individual, aggregate, Monte Carlo).
-
 Inferences indicate how much each node in an FCM is influenced by a
 particular change or action. The `get_inferences()` function gives users
 access to that data without having to interact with the
@@ -148,7 +147,7 @@ object directly.
 
 ``` r
 
-fcmconfr_inferences <- get_fcmconfr_inferences(fcmconfr_obj)
+fcmconfr_inferences <- get_inferences(fcmconfr_obj)
 ```
 
 A plot of all inferences can be generated using
