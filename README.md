@@ -5,15 +5,16 @@
 
 <!-- badges: start -->
 
-[![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
-[![Status at rOpenSci Software Peer Review](https://badges.ropensci.org/740_status.svg)](https://github.com/ropensci/software-review/issues/740)
+[![Project Status: WIP – Initial development is in progress, but there
+has not yet been a stable, usable release suitable for the
+public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
 [![codecov](https://codecov.io/gh/bhroston/fcmconfr/graph/badge.svg?token=D83LF4TC8D)](https://codecov.io/gh/bhroston/fcmconfr)
 [![pkgcheck](https://github.com/bhroston/fcmconfr/actions/workflows/pkgcheck.yaml/badge.svg?branch=main)](https://github.com/bhroston/fcmconfr.git/actions?query=workflow%3Apkgcheck)
 [![R-CMD-check](https://github.com/bhroston/fcmconfr/actions/workflows/check-standard.yaml/badge.svg?branch=main)](https://github.com/bhroston/fcmconfr/actions/workflows/R-CMD-check.yaml)
 [![License: GPL
 v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![CircleCI](https://dl.circleci.com/status-badge/img/circleci/6RNT3swTFpzTbGeainwSv6/SKx6MdvSmGtHet5jY8bLfs/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/circleci/6RNT3swTFpzTbGeainwSv6/SKx6MdvSmGtHet5jY8bLfs/tree/main)
-
+[![R-CMD-check](https://github.com/bhroston/fcmconfr/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/bhroston/fcmconfr/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 `fcmconfr` (pronounced “FCM Confer”) streamlines the process of
@@ -75,8 +76,9 @@ edge weights represented as TFNs (TFN-FCMs).
 ### 2. Set Simulation Parameters using `fcmconfr_gui()`
 
 `fcmconfr()` is the central function of the package and requires
-specifying many parameters. The package provides a GUI that can be used to
-guide users through this process - `fcmconfr_gui()`.
+specifying many parameters. To guide users through that process, the
+package procides an easy to use GUI that can be accessed by
+`fcmconfr_gui()`.
 
 <div style="text-align: center;">
 
@@ -89,9 +91,9 @@ Screenshot</figcaption>
 
 </div>
 
-`fcmconfr_gui()` launches a Shiny app that lets users interactively select 
-parameters and outputs a corresponding call to `fcmconfr()` that users can 
-copy-and-paste to run in their own scripts.
+Calling `fcmconfr_gui()` launches a Shiny app that lets users
+interactively select parameters and outputs a corresponding call to
+`fcmconfr()` that users can copy-and-paste to run in their own scripts.
 
 A brief summary of each parameter within the `fcmconfr_gui()` is
 provided in a glossary stored in a side tab within the GUI. The side tab
@@ -101,7 +103,7 @@ of the GUI.
 ### 3. Run Simulations using `fcmconfr()`
 
 To run `fcmconfr()`, execute the output script created by
-`fcmconfr_gui()`. The following sample code uses an example FCM from the
+\`fcmconfr_gui(). The following call uses an example FCM from the
 `sample_fcms` data included in the package.
 
 ``` r
@@ -142,15 +144,13 @@ fcmconfr_obj <- fcmconfr(
 
 `fcmconfr()` generates a large object with many concepts, the most
 important of which are simulation inferences (individual, aggregate,
-Monte Carlo). 
-
-Inferences indicate how much each node in an FCM is
+Monte Carlo). Inferences indicate how much each node in an FCM is
 influenced by a particular change or action. The `get_inferences()`
 function gives users access to that data without having to interact with
 the `fcmconfr()` object directly.
 
 ``` r
-fcmconfr_inferences <- get_fcmconfr_inferences(fcmconfr_obj)
+fcmconfr_inferences <- get_inferences(fcmconfr_obj)
 ```
 
 A plot of all inferences can be generated using `plot()`. Documentation
