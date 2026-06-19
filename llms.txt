@@ -1,5 +1,7 @@
 # fcmconfr
 
+------------------------------------------------------------------------
+
 `fcmconfr` (pronounced “FCM Confer”) streamlines the process of
 conducting dynamic simulations using Fuzzy Cognitive Maps (FCMs). The
 package supports multiple FCM types (conventional, Interval-Value Fuzzy
