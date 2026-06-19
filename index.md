@@ -21,6 +21,7 @@ Users can install the development version of `fcmconfr` from
 [GitHub](https://github.com/) with:
 
 ``` r
+
 # install.packages("pak")
 pak::pak("bhroston/fcmconfr")
 # Or
@@ -99,6 +100,7 @@ The following sample code uses an example FCM from the `sample_fcms`
 data included in the package.
 
 ``` r
+
 # This call to fcmconfr() was generated from fcmconfr_gui()!
 # Store the output in a variable to explore it later
 fcmconfr_obj <- fcmconfr(
@@ -145,6 +147,7 @@ access to that data without having to interact with the
 object directly.
 
 ``` r
+
 fcmconfr_inferences <- get_fcmconfr_inferences(fcmconfr_obj)
 ```
 
@@ -157,6 +160,7 @@ accessed via
 documentation for the Base R version of the function*).
 
 ``` r
+
 plot(fcmconfr_obj)
 ```
 

@@ -128,6 +128,7 @@ fuzzy cognitive maps.” Operational Research, 22(5), 5733–5763. ISSN
 ## Examples
 
 ``` r
+
 estimate_fcm_lambda(sample_fcms$simple_fcms$conventional_fcms[[1]], squashing = "sigmoid")
 #> [1] 2.225602
 

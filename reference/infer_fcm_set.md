@@ -142,6 +142,7 @@ improve user control at runtime.
 ## Examples
 
 ``` r
+
 # Set of Conventional FCMs
 conventional_fcm_set_inferences <- infer_fcm_set(
   adj_matrices = sample_fcms$simple_fcms$conventional_fcms[1:5],

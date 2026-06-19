@@ -79,6 +79,7 @@ replace = TRUE).
 ## Examples
 
 ``` r
+
 # Conventional FCMs
 conventional_mc_fcms <- build_monte_carlo_fcms(
   adj_matrices = sample_fcms$simple_fcms$conventional_fcms[1:10],

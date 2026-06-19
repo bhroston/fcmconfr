@@ -198,6 +198,7 @@ results.
 ## Examples
 
 ``` r
+
 # Example using TFN FCMs fcmconfr
 tfn_example_fcmconfr <- fcmconfr(
   adj_matrices = sample_fcms$simple_fcms$tfn_fcms,

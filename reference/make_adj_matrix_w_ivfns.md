@@ -56,6 +56,7 @@ Other interval-valued-fuzzy-numbers:
 ## Examples
 
 ``` r
+
 lower_adj_matrix <- data.frame(
   "A" = c(0, 0),
   "B" = c(0.4, 0)

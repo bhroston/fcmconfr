@@ -1,6 +1,7 @@
 # Importing_FCMs
 
 ``` r
+
 library(fcmconfr)
 ```
 
@@ -50,6 +51,7 @@ the output of [`file.choose()`](https://rdrr.io/r/base/file.choose.html)
 as needed.*
 
 ``` r
+
 # For an individual FCM adjacency matrix
 adj_matrix <- readxl::read_excel(filepath)
 ```
@@ -57,6 +59,7 @@ adj_matrix <- readxl::read_excel(filepath)
 ##### 1.1 - Conventional FCMs from Different Sheets in a Single .xlsx File
 
 ``` r
+
 # For multiple FCM adjacency matrices stored in different sheets in the same .xlsx file
 sheets <- readxl::excel_sheets(filepath)
 adj_matrices <- lapply(
@@ -66,6 +69,7 @@ adj_matrices <- lapply(
 ```
 
 ``` r
+
 # For multiple FCM adjacency matrices stored in separate .xlsx files in the
 # same directory
 filepaths <- list.files(directory_path, full.names = TRUE)
@@ -95,6 +99,7 @@ sheets, one for the lower bound adjacency matrix and one for the upper
 bound adjacency matrix. See example below:
 
 ``` r
+
 sheets <- readxl::excel_sheets(filepath)
 
 # If lower and upper adjacency matrices are in the same .xlsx file across two different sheets
@@ -114,6 +119,7 @@ This method must be used if loading data from separate .xlsx, .csv,
 etc., files.
 
 ``` r
+
 # If lower and upper adjacency matrices are in separate .xlsx files
 lower_adj_matrix_filepath <- file.path(directory_path, "fcm_1_lower.xlsx") # Your filename here
 upper_adj_matrix_filepath <- file.path(directory_path, "fcm_1_upper.xlsx") # Your filename here
@@ -147,6 +153,7 @@ example workflow in fewer lines of code or repetitively in a `for` loop
 or using [`lapply()`](https://rdrr.io/r/base/lapply.html).
 
 ``` r
+
 # Load into Global Environment to streamline IVFN FCM imports from individual .xlsx files
 import_ivfn_fcm_from_single_xlsx <- function(filepath) {
   sheets <- readxl::excel_sheets(filepath)
@@ -168,6 +175,7 @@ Then, call the newly-defined `import_ivfn_fcm_from_single_xlsx` function
 within `lapply` or a loop.
 
 ``` r
+
 # For multiple IVFN FCM adjacency matrices stored in separate .xlsx files stored in the
 # same directory
 filepaths <- list.files(directory_path, full.names = TRUE)
@@ -204,6 +212,7 @@ example workflow in fewer lines of code or repetitively in a `for` loop
 or using [`lapply()`](https://rdrr.io/r/base/lapply.html).
 
 ``` r
+
 # Load into Global Environment to streamline IVFN FCM imports from two .xlsx files
 import_ivfn_fcm_from_two_xlsx_files <- function(lower_adj_matrix_filepath,
                                                 upper_adj_matrix_filepath) {
@@ -222,6 +231,7 @@ Then, call the newly-defined `import_ivfn_fcm_from_two_xlsx_files`
 function within `lapply` or a loop.
 
 ``` r
+
 # For IVFN FCM adjacency matrices stored in separate .xlsx files across different directories
 directory_paths <- file.path(directory_path, list.files(directory_path)) # Note list.files shows dirs here
 
@@ -263,6 +273,7 @@ sheets, one for the lower bound adjacency matrix, one for the upper
 bound adjacency matrix, and another for the mode adjacency matrix.
 
 ``` r
+
 sheets <- readxl::excel_sheets(filepath)
 
 # If lower, upper and mode adjacency matrices are in the 
@@ -283,6 +294,7 @@ tfn_adj_matrix <- make_adj_matrix_w_tfns(lower_adj_matrix, mode_adj_matrix, uppe
 Use this method if loading data from separate .xlsx, .csv, etc., files.
 
 ``` r
+
 # If lower, mode, and upper adjacency matrices are in separate .xlsx files
 lower_adj_matrix_filepath <- file.path(directory_path, "fcm_1_lower.xlsx") # Your filename here
 mode_adj_matrix_filepath <- file.path(directory_path, "fcm_1_mode.xlsx") # Your filename here
@@ -319,6 +331,7 @@ example workflow in fewer lines of code or repetitively in a `for` loop
 or using [`lapply()`](https://rdrr.io/r/base/lapply.html).
 
 ``` r
+
 # Load into Global Environment to streamline TFN FCM imports from individual .xlsx files
 import_tfn_fcm_from_single_xlsx <- function(filepath) {
   sheets <- readxl::excel_sheets(filepath)
@@ -342,6 +355,7 @@ Then, call the newly-defined `import_tfn_fcm_from_single_xlsx` function
 within `lapply` or a loop.
 
 ``` r
+
 # For multiple TFN FCM adjacency matrices stored in 
 # separate .xlsx files stored in the same directory
 filepaths <- list.files(directory_path, full.names = TRUE)
@@ -378,6 +392,7 @@ example workflow in fewer lines of code or repetitively in a `for` loop
 or using [`lapply()`](https://rdrr.io/r/base/lapply.html).
 
 ``` r
+
 # Load into Global Environment to streamline tFN FCM imports from two .xlsx files
 import_tfn_fcm_from_two_xlsx_files <- function(lower_adj_matrix_filepath,
                                                mode_adj_matrix_filepath,
@@ -400,6 +415,7 @@ Then, call the newly-defined `import_tfn_fcm_from_two_xlsx_files`
 function within `lapply` or a loop.
 
 ``` r
+
 # For TFN FCM adjacency matrices stored in separate .xlsx files across different directories
 directory_paths <- file.path(directory_path, list.files(directory_path)) # Note list.files shows dirs here
 
