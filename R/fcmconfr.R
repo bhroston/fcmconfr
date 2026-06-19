@@ -304,6 +304,8 @@ NULL
 #'
 #' @export
 #'
+#' @srrstats {BS1.3} Description of all parameters that control the computational process
+#' @srrstats {BS2.7, BS2.11} Stating values defined by user via initial_state_vector
 #' @srrstats {BS2.12, BS2.13, BS2.14, BS2.15} Users may control verbosity of output, progress indicators, and messages
 #'
 #' @example man/examples/ex-fcmconfr.R
