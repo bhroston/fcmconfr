@@ -48,7 +48,7 @@ Imports:
     magrittr (>= 2.0.3),
     methods (>= 4.2.1),
     parallel (>= 4.2.1),
-    pbapply (>= 1.7.4)
+    pbapply (>= 1.7.2),
     Rdpack (>= 2.6.1),
     rlang (>= 1.1.4),
     shiny (>= 1.7.5),
