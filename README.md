@@ -1,16 +1,25 @@
+---
+editor_options: 
+  markdown: 
+    wrap: 72
+---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 # fcmconfr <img src="man/figures/logo.png" align="right" height="138"/></a>
 
 <!-- badges: start -->
-[![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
-[![Status at rOpenSci Software Peer Review](https://badges.ropensci.org/740_status.svg)](https://github.com/ropensci/software-review/issues/740)
+
+[![Project Status: Active – The project has reached a stable, usable
+state and is being actively
+developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
+[![Status at rOpenSci Software Peer
+Review](https://badges.ropensci.org/740_status.svg)](https://github.com/ropensci/software-review/issues/740)
 [![pkgcheck](https://github.com/bhroston/fcmconfr/actions/workflows/pkgcheck.yaml/badge.svg?branch=main)](https://github.com/bhroston/fcmconfr.git/actions?query=workflow%3Apkgcheck)
-v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![R-CMD-check](https://github.com/bhroston/fcmconfr/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/bhroston/fcmconfr/actions/workflows/R-CMD-check.yaml)
 [![codecov](https://codecov.io/gh/bhroston/fcmconfr/graph/badge.svg?token=D83LF4TC8D)](https://codecov.io/gh/bhroston/fcmconfr)
 [![CircleCI](https://dl.circleci.com/status-badge/img/circleci/6RNT3swTFpzTbGeainwSv6/SKx6MdvSmGtHet5jY8bLfs/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/circleci/6RNT3swTFpzTbGeainwSv6/SKx6MdvSmGtHet5jY8bLfs/tree/main)
+
 <!-- badges: end -->
 
 `fcmconfr` (pronounced “FCM Confer”) streamlines the process of
@@ -76,16 +85,19 @@ specifying many parameters. To guide users through that process, the
 package procides an easy to use GUI that can be accessed by
 `fcmconfr_gui()`.
 
-<div style="text-align: center;">
-
+::: {style="text-align: center;"}
 <figure>
-<img src="reference/figures/cluster_1_fcmconfr_gui.png"
-style="width:70.0%" alt="fcmconfr_gui() Screenshot" />
-<figcaption aria-hidden="true"><code>fcmconfr_gui()</code>
-Screenshot</figcaption>
-</figure>
 
-</div>
+<img src="reference/figures/cluster_1_fcmconfr_gui.png" alt="fcmconfr_gui() Screenshot" style="width:70.0%"/>
+
+<figcaption aria-hidden="true">
+
+<code>fcmconfr_gui()</code> Screenshot
+
+</figcaption>
+
+</figure>
+:::
 
 Calling `fcmconfr_gui()` launches a Shiny app that lets users
 interactively select parameters and outputs a corresponding call to
@@ -157,34 +169,37 @@ documentation for the Base R version of the function*).
 plot(fcmconfr_obj)
 ```
 
-<div style="text-align: center;">
-
+::: {style="text-align: center;"}
 <figure>
-<img src="reference/figures/fcmconfr_obj_plot.png" style="width:90.0%"
-alt="plot.fcmconfr() Output" />
-<figcaption aria-hidden="true"><code>plot.fcmconfr()</code>
-Output</figcaption>
-</figure>
 
-</div>
+<img src="reference/figures/fcmconfr_obj_plot.png" alt="plot.fcmconfr() Output" style="width:90.0%"/>
+
+<figcaption aria-hidden="true">
+
+<code>plot.fcmconfr()</code> Output
+
+</figcaption>
+
+</figure>
+:::
 
 ## Related Packages
 
-- [MentalModeler](https://www.mentalmodeler.com/) is a web-based
-  platform to build FCMs with features for “what-if” analysis.
-- [`fcm`](https://cran.r-project.org/web/packages/fcm/index.html) is an
-  R package that includes functions for simulating individual
-  conventional FCMs.
-- [`InCognitive`](https://github.com/ThemisKoutsellis/InCognitive) is a
-  Python package that for simulating conventional FCMs with lambda
-  optimization and Monte Carlo analysis.
-- [`FCMpy`](https://github.com/SamvelMK/FCMpy) is a Python package that
-  supports translation of linguistic terms to quantitative edge weights,
-  FCM simulation and genetic learning algorithms.
-- [`PyFCM`](https://github.com/payamaminpour/PyFCM) is a Python package
-  that includes functions for FCM simulation and aggregation.
-- [`jFCM`](https://github.com/megadix/jfcm?tab=readme-ov-file) is a
-  java-based suite of functions to simulate FCMs.
+-   [MentalModeler](https://www.mentalmodeler.com/) is a web-based
+    platform to build FCMs with features for “what-if” analysis.
+-   [`fcm`](https://cran.r-project.org/web/packages/fcm/index.html) is
+    an R package that includes functions for simulating individual
+    conventional FCMs.
+-   [`InCognitive`](https://github.com/ThemisKoutsellis/InCognitive) is
+    a Python package that for simulating conventional FCMs with lambda
+    optimization and Monte Carlo analysis.
+-   [`FCMpy`](https://github.com/SamvelMK/FCMpy) is a Python package
+    that supports translation of linguistic terms to quantitative edge
+    weights, FCM simulation and genetic learning algorithms.
+-   [`PyFCM`](https://github.com/payamaminpour/PyFCM) is a Python
+    package that includes functions for FCM simulation and aggregation.
+-   [`jFCM`](https://github.com/megadix/jfcm?tab=readme-ov-file) is a
+    java-based suite of functions to simulate FCMs.
 
 ## Contributing
 
@@ -192,10 +207,10 @@ Please note that this package is released with a [Contributor Code of
 Conduct](https://ropensci.org/code-of-conduct/). By contributing to this
 project, you agree to abide by its terms.
 
-- If you think you have encountered a bug, please [submit an
-  issue](https://github.com/bhroston/fcmconfr/issues).
+-   If you think you have encountered a bug, please [submit an
+    issue](https://github.com/bhroston/fcmconfr/issues).
 
-- Please include a
-  [reprex](https://reprex.tidyverse.org/articles/articles/learn-reprex.html)
-  (a minimal, reproducible example) to clearly communicate about your
-  code.
+-   Please include a
+    [reprex](https://reprex.tidyverse.org/articles/articles/learn-reprex.html)
+    (a minimal, reproducible example) to clearly communicate about your
+    code.
