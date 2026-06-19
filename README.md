@@ -4,17 +4,13 @@
 # fcmconfr <img src="man/figures/logo.png" align="right" height="138"/></a>
 
 <!-- badges: start -->
-
-[![Project Status: WIP – Initial development is in progress, but there
-has not yet been a stable, usable release suitable for the
-public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
-[![codecov](https://codecov.io/gh/bhroston/fcmconfr/graph/badge.svg?token=D83LF4TC8D)](https://codecov.io/gh/bhroston/fcmconfr)
+[![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
+[![Status at rOpenSci Software Peer Review](https://badges.ropensci.org/740_status.svg)](https://github.com/ropensci/software-review/issues/740)
 [![pkgcheck](https://github.com/bhroston/fcmconfr/actions/workflows/pkgcheck.yaml/badge.svg?branch=main)](https://github.com/bhroston/fcmconfr.git/actions?query=workflow%3Apkgcheck)
-[![R-CMD-check](https://github.com/bhroston/fcmconfr/actions/workflows/check-standard.yaml/badge.svg?branch=main)](https://github.com/bhroston/fcmconfr/actions/workflows/R-CMD-check.yaml)
-[![License: GPL
 v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![CircleCI](https://dl.circleci.com/status-badge/img/circleci/6RNT3swTFpzTbGeainwSv6/SKx6MdvSmGtHet5jY8bLfs/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/circleci/6RNT3swTFpzTbGeainwSv6/SKx6MdvSmGtHet5jY8bLfs/tree/main)
 [![R-CMD-check](https://github.com/bhroston/fcmconfr/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/bhroston/fcmconfr/actions/workflows/R-CMD-check.yaml)
+[![codecov](https://codecov.io/gh/bhroston/fcmconfr/graph/badge.svg?token=D83LF4TC8D)](https://codecov.io/gh/bhroston/fcmconfr)
+[![CircleCI](https://dl.circleci.com/status-badge/img/circleci/6RNT3swTFpzTbGeainwSv6/SKx6MdvSmGtHet5jY8bLfs/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/circleci/6RNT3swTFpzTbGeainwSv6/SKx6MdvSmGtHet5jY8bLfs/tree/main)
 <!-- badges: end -->
 
 `fcmconfr` (pronounced “FCM Confer”) streamlines the process of
