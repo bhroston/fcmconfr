@@ -3,7 +3,10 @@
 #' @description
 #' ui.R for fcmconfr_gui shiny app
 #'
-shiny_ui <- function() {
+shiny_ui <- function(search_env) {
+
+  parent_env_vars <- ls(search_env)
+
   bslib::page_sidebar(
     title = "fcmconfr GUI",
     sidebar = bslib::sidebar(
@@ -15,13 +18,14 @@ shiny_ui <- function() {
       bslib::nav_panel(
         title = "Data", icon = shiny::icon("laptop-file"), # ----
         shiny::fluidRow(
-          shiny::column(width = 12, div(style = "height:20px"))
+          shiny::column(width = 12, shiny::div(style = "height:20px"))
         ),
         shiny::fluidRow(
-          shiny::selectInput("adj_matrices", "Adj. Matrix or List of Adj. Matrices", choices = c(names(as.list(.GlobalEnv)), ""), selected = "")
+          shiny::selectInput("adj_matrices", "Adj. Matrix or List of Adj. Matrices", choices = c(parent_env_vars, ""), selected = "")
         ),
         shiny::uiOutput("rejected_adj_matrices_note"),
         bslib::navset_underline(
+          id = 'state_vector_tabs',
           bslib::nav_panel(
             title = "Initial State (Pulse) Vector", icon = shiny::icon("wave-square"),
             shiny::uiOutput("initial_state_vector_input_ui")
@@ -35,7 +39,7 @@ shiny_ui <- function() {
       bslib::nav_panel(
         title = "Agg. and Monte Carlo Options", icon = shiny::icon("layer-group"), # ----
         shiny::fluidRow(
-          shiny::column(width = 12, div(style = "height:20px"))
+          shiny::column(width = 12, shiny::div(style = "height:20px"))
         ),
         shiny::uiOutput("include_zero_edges_ui"),
         bslib::card(
@@ -84,7 +88,7 @@ shiny_ui <- function() {
       bslib::nav_panel(
         title = "Simulation Options", icon = shiny::icon("calculator"), # ----
         shiny::fluidRow(
-          shiny::column(width = 12, div(style = "height:20px"))
+          shiny::column(width = 12, shiny::div(style = "height:20px"))
         ),
         shiny::fluidRow(
           shiny::column(
@@ -144,7 +148,7 @@ shiny_ui <- function() {
       bslib::nav_panel(
         title = "Runtime Options", icon = shiny::icon("clock"), # ----
         shiny::fluidRow(
-          shiny::column(width = 12, div(style = "height:20px"))
+          shiny::column(width = 12, shiny::div(style = "height:20px"))
         ),shiny::fluidRow(
           shiny::column(
             width = 5, align = "right",
@@ -169,7 +173,7 @@ shiny_ui <- function() {
       ), # ----
       footer = shiny::fluidPage(
         shiny::fluidRow(
-          shiny::column(width = 12, div(style = "height:20px"))
+          shiny::column(width = 12, shiny::div(style = "height:20px"))
         ),
         bslib::card(
           shiny::fluidRow(
@@ -180,7 +184,7 @@ shiny_ui <- function() {
           )
         ),
         shiny::fluidRow(
-          shiny::column(width = 12, div(style = "height:px"))
+          shiny::column(width = 12, shiny::div(style = "height:px"))
         ),
         shiny::fluidRow(
           shiny::column(width = 8),

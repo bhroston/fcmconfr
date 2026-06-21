@@ -95,7 +95,7 @@
 #' @export
 #' @examples
 #' NULL
-fcmconfr_gui <- function() {
+fcmconfr_gui <- function(search_env = .GlobalEnv) {
 
   requireNamespace("shiny", "shinyWidgets", "bslib")
 
@@ -112,9 +112,8 @@ fcmconfr_gui <- function() {
   environment(server) <- shiny_env
 
   # Call shinyApp
-  app <- shiny::shinyApp(
-    ui = ui,
+  shiny::shinyApp(
+    ui = ui(search_env),
     server = server
   )
-  shiny::runApp(app)
 }

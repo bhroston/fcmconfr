@@ -1,4 +1,186 @@
+
+# File: tests/testthat/test-sample_app.R
+library(shinytest2)
+
+test_that("fcmconfr_gui works", {
+  # Don't run these tests on the CRAN build servers
+  skip_on_cran()
+
+  x <- sample_fcms$simple_fcms$conventional_fcms
+  test_env <- new.env()
+  test_env$x <- x
+  app_obj <- fcmconfr_gui(test_env)
+  suppressWarnings({
+    app <- shinytest2::AppDriver$new(app_obj, variant = shinytest2::platform_variant())
+  })
+
+  app$set_window_size(width = 1201, height = 765)
+  app$set_inputs(adj_matrices = "x")
+  # Update output value
+  app$set_inputs(state_vector_tabs = "Clamping Vector")
+  # Update output value
+  app$set_window_size(width = 1201, height = 765)
+  app$set_inputs(`clamping_Salts.Added.during.Water.Treatment` = 1)
+  # Update output value
+  app$set_inputs(nav_panel = "Agg. and Monte Carlo Options")
+  # Update output value
+  app$set_window_size(width = 1201, height = 765)
+  app$set_inputs(perform_monte_carlo = FALSE)
+  # Update output value
+  app$set_window_size(width = 1201, height = 765)
+  app$set_inputs(perform_monte_carlo = TRUE)
+  # Update output value
+  app$set_window_size(width = 1201, height = 765)
+  app$set_inputs(num_mc_fcms = 2000)
+  app$set_inputs(nav_panel = "Simulation Options")
+  # Update output value
+  app$set_window_size(width = 1201, height = 765)
+  app$set_inputs(activation = "modified-kosko")
+  # Update output value
+  app$set_inputs(squashing = "tanh")
+  # Update output value
+  app$set_inputs(lambda = 0.5)
+  app$set_inputs(point_of_inference = "peak")
+  app$click("get_code")
+  # Update output value
+  app$set_window_size(width = 1201, height = 765)
+  app$run_js("document.querySelector('#fcmconfr_code_snippet')?.scrollIntoView({block: 'center'});")
+  app$expect_screenshot()
+})
+
+
+#   app$set_inputs(adj_matrices = x, wait_ = FALSE)
+#   app$get_html(id = "adj_matrix")
 #
+#   shinytest2::record_test(app)
+#
+#   expect_true(app$exists(id = "adj_matrices"))
+#
+#
+#
+#   x <- sample_fcms$simple_fcms$conventional_fcms
+#
+#   app <- local({
+#     foo3 <- 19  # Nested local variable
+#     fcmconfr_gui
+#   })
+#
+#
+#
+#
+#
+#
+#
+#   dummy_function <- function() {
+#     x <- sample_fcms$simple_fcms$conventional_fcms
+#     environment(x) <- .pkg_ns
+#   }
+#   dummy_function_injection_script_1 <- as.list(body(dummy_function))[[2]]
+#   dummy_function_injection_script_2 <- as.list(body(dummy_function))[[3]]
+#
+#
+#   app <- shinytest2::AppDriver$new(test_fcmconfr_gui, name = "hello")
+#
+#   app$set_inputs(c("adj_matrices", sample_fcms$simple_fcms$conventional_fcms))
+#
+#   app_dir_body <- body(app[[".__enclos_env__"]][["private"]][["dir"]])
+#   new_app_dir_body <- vector(mode = "list", length = length(app_dir_body)+2)
+#   new_app_dir_body[1:3] <- as.list(app_dir_body)[1:3]
+#   new_app_dir_body[[4]] <- dummy_function_injection_script_1
+#   new_app_dir_body[[5]] <- dummy_function_injection_script_2
+#   new_app_dir_body[6:8] <- as.list(app_dir_body)[4:6]
+#   body(app[[".__enclos_env__"]][["private"]][["dir"]]) <- new_app_dir_body
+#
+#
+#
+#   shinytest2::record_test(app)
+#
+#
+#
+#
+#
+#   .GlobalEnv$myvar <- 123
+#   app <- shinytest2::AppDriver$new(fcmconfr_gui, name = "hello")
+#   app$set_inputs(adj_matrices = sample_fcms$simple_fcms$conventional_fcms)
+#   shinytest2::record_test(app)
+#
+#   shiny_env <- new.env()
+#   fcmconfr_gui()
+#
+#   # server <- source(system.file(file.path('shiny', 'fcmconfr_gui', 'server.R'), package = 'fcmconfr'), local = TRUE)$value
+#   # ui <- source(system.file(file.path('shiny', 'fcmconfr_gui', 'ui.R'), package = 'fcmconfr'), local = TRUE)$value
+#   # environment(ui) <- shiny_env
+#   # environment(server) <- shiny_env
+#
+#
+#
+#
+#
+#   testapp_fcmconfr_gui <- function() {
+#     library(fcmconfr)
+#     shiny::shinyApp(
+#       ui = source(system.file(file.path('shiny', 'fcmconfr_gui', 'ui.R'), package = 'fcmconfr'), local = TRUE)$value,
+#       server = source(system.file(file.path('shiny', 'fcmconfr_gui', 'server.R'), package = 'fcmconfr'), local = TRUE)$value
+#     )
+#   }
+#
+#   shiny_app <- testapp_fcmconfr_gui()
+#
+#   # Load app1's support files (modules.R, etc.)
+#   x <- sample_fcms$simple_fcms$conventional_fcms
+#   environment(x) <-
+#   app <- shinytest2::AppDriver$new(shiny_app, name = "hello")
+#   shinytest2::record_test(app)
+#
+#
+#   app$expect_values()
+#
+#
+#   x <- sample_fcms$simple_fcms$conventional_fcms
+#
+#   fcmconfr_gui_test <- function(data, ...) {
+#     .GlobalEnv$myvar <- x
+#
+#     library(fcmconfr)
+#     app_path <- file.path(getwd(), "tests", "testthat", "apps", "testapp-fcmconfr_gui")
+#     shiny::runApp(app_path)
+#   }
+#
+#   function_gui_data_test <- function(data, ...) {
+#     shiny::runApp(fcmconfr_gui_test(data, ...))
+#   }
+#
+#   app <- shinytest2::AppDriver$new(fcmconfr_gui_test, name = "hello")
+#
+#   shinytest2::record_test()
+#
+#
+#   test_shiny_env <- new.env()
+#   app <- shinytest2::AppDriver$new(fcmconfr_gui, name = "hello")
+#   environment(app) <- test_shiny_env
+#   x <- sample_fcms$simple_fcms$conventional_fcms
+#   environment(x) <- test_shiny_env
+#   shinytest2::record_test(app)
+#
+#   app_dir <- testthat::test_path("apps/testapp-fcmconfr_gui")
+#   app <- shinytest2::AppDriver$new(shiny_app, name = "hello")
+#   environment(app) <- test_shiny_env
+#
+#   app_fun <- function() {
+#     shiny_env <- new.env()
+#     fcmconfr_gui()
+#   }
+#
+#   test_shiny_env <- new.env()
+#   drv <- shinytest2::AppDriver$new(app = fcmconfr_gui())
+#   environment(drv) <- test_shiny_env
+#   drv$record_test()
+#
+#
+#
+# })
+
+
 # test_that("fcmconfr_gui works (manually)", {
 #
 #   test_conventional_fcms <- sample_fcms$simple_fcms$conventional_fcms
