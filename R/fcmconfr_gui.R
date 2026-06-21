@@ -87,6 +87,9 @@
 #' can be opened by clicking the arrow symbol in the top-right-hand-corner of
 #' the GUI.}
 #'
+#' @param search_env \[`env()`]\cr Defaults to the Global Environment. Used for
+#' testing purposes and should not be changed for most all use-cases.
+#'
 #' @returns On exit, this function outputs a copy-and-paste sample script
 #' to call \code{\link{fcmconfr}} with the selected inputs.
 #'

@@ -4,7 +4,11 @@
 \alias{fcmconfr_gui}
 \title{fcmconfr_gui}
 \usage{
-fcmconfr_gui()
+fcmconfr_gui(search_env = .GlobalEnv)
+}
+\arguments{
+\item{search_env}{[\code{env()}]\cr Defaults to the Global Environment. Used for
+testing purposes and should not be changed for most all use-cases.}
 }
 \value{
 On exit, this function outputs a copy-and-paste sample script
