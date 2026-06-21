@@ -36,7 +36,7 @@ NULL
 #' @srrstatsNA {BS2.9, BS2.10} No Markov Chains used.
 #' @srrstatsNA {BS3.1, BS3.2} Collinearity not relevant to package calculations.
 #' @srrstatsNA {BS5.4} Only one convergence checker used
-#' @srrstatsNA {BS4.1, BS6.2, BS6.3, BS6.5, BS7.0, BS7.1, BS7.2} Prior and
+#' @srrstatsNA {BS4.1, BS4.2, BS6.2, BS6.3, BS6.5, BS7.0, BS7.1, BS7.2} Prior and
 #' Posterior sampling not used.
 #' @srrstatsNA {BS7.4, BS7.4a} No predicted/fitted values.
 #' @srrstatsNA {EA5.1} Graphing functions do not override default typeface values
